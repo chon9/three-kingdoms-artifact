@@ -14,6 +14,8 @@ var deck: int = 0
 var hand: int = 0
 var acting: bool = false
 var show_menu: bool = false
+## Online opponent link (SteamBridge.connection_info()); empty offline.
+var connection: Dictionary = {}
 var _menu_hover: bool = false
 
 func _init() -> void:
@@ -26,6 +28,15 @@ func set_values(name_text: String, gold_value: int, deck_value: int, hand_value:
 	deck = deck_value
 	hand = hand_value
 	acting = is_acting
+	queue_redraw()
+
+func set_connection(info: Dictionary) -> void:
+	if info == connection:
+		return
+	connection = info
+	var ping = int(info.get("ping", -1))
+	tooltip_text = "" if info.is_empty() else UiKit.t("NET_TOOLTIP", {"state": UiKit.t("NET_" + str(info.get("level", "unknown")).to_upper()),
+		"ping": UiKit.t("NET_PING", {"ms": ping}) if ping >= 0 else "-"})
 	queue_redraw()
 
 func menu_rect() -> Rect2:
@@ -62,6 +73,8 @@ func _draw() -> void:
 	UiKit.draw_text_left(self, UiKit.bold_font(), str(hand), Vector2(x + 24, center_y), 17, UiKit.PAPER, -1.0, 2)
 	var name_right = size.x - (52.0 if show_menu else 14.0)
 	var name_left = x + 56.0
+	if not connection.is_empty():
+		name_left = _draw_connection(Vector2(name_left, center_y)) + 8.0
 	var font = UiKit.title_font()
 	var font_size = UiKit.fit_size(font, player_name, name_right - name_left, 21, 12)
 	var width = font.get_string_size(player_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
@@ -72,3 +85,22 @@ func _draw() -> void:
 		for line in range(3):
 			var y = menu.position.y + 11 + line * 7
 			draw_line(Vector2(menu.position.x + 9, y), Vector2(menu.end.x - 9, y), UiKit.PAPER, 2.0)
+
+## Signal bars (1-3 lit by quality, crossed out when lost) and the ping.
+## Returns the right edge of what was drawn.
+func _draw_connection(left_center: Vector2) -> float:
+	var level = str(connection.get("level", "unknown"))
+	var lit = {"good": 3, "fair": 2, "poor": 1}.get(level, 0)
+	var color = {"good": UiKit.HEAL, "fair": UiKit.GOLD, "poor": UiKit.DAMAGE, "lost": UiKit.DAMAGE}.get(level, UiKit.MUTED)
+	for bar in range(3):
+		var height = 6.0 + bar * 5.0
+		draw_rect(Rect2(left_center.x + bar * 6.0, left_center.y + 8.0 - height, 4.0, height), color if bar < lit else Color(UiKit.MUTED, 0.45))
+	var right = left_center.x + 18.0
+	if level == "lost":
+		draw_line(Vector2(left_center.x - 1, left_center.y - 8), Vector2(right, left_center.y + 8), UiKit.DAMAGE, 2.0)
+	var ping = int(connection.get("ping", -1))
+	if ping >= 0 and level != "lost":
+		var text = UiKit.t("NET_PING", {"ms": ping})
+		UiKit.draw_text_left(self, UiKit.body_font(), text, Vector2(right + 5.0, left_center.y), 12, UiKit.PAPER_DIM, -1.0, 2)
+		right += 5.0 + UiKit.body_font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+	return right

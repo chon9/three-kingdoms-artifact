@@ -1,40 +1,217 @@
-# Steam development integration
+# Online play over Steam
 
-Offline play works without Steam. This optional adapter targets the maintained [GodotSteam](https://codeberg.org/godotsteam/godotsteam) API and [Steam Networking Messages](https://partner.steamgames.com/doc/api/ISteamNetworkingMessages).
+Two friends can play a match over Steam. Offline play (AI, local two-player,
+replays) never needs Steam.
 
-**Status:** implemented and tested against a fake Steam boundary. No live two-account session has been verified, and no native GodotSteam binaries are installed in this workspace.
+**Status:** the whole online flow is implemented and tested in-process against a
+fake Steam that has the same methods, signals and constants as GodotSteam
+4.23.1 (`tests/steam_test.gd`). On one account, the real Steam client has
+confirmed initialization, lobby creation, lobby data and the lobby search. **A
+match between two Steam accounts has not been played yet.** Use the
+[test checklist](#test-checklist) below and report the results.
 
-## Install
+## What is installed
 
-1. Get a GodotSteam GDExtension release compatible with your Godot version from the project's maintained download instructions. Install its `.gdextension` file and native dependencies as supplied by that release, normally under `addons/godotsteam/`. A GodotSteam engine build exposing the same `Steam` singleton is also supported.
-2. Keep the extension's license and dependency notices with any build you distribute. This repository does not bundle the Steamworks SDK or third-party binaries.
-3. Start the Steam desktop client and sign in. Launch this project with the compatible editor/engine.
-4. Choose **Online (Steam)** on the main menu (or **Steam** in the in-match menu). A successful initialization reports that Steam is connected. If the extension is missing or initialization fails, the game remains available offline.
+Nothing needs installing. The repository includes
+[GodotSteam](https://codeberg.org/godotsteam/godotsteam) **4.23.1** (GDExtension,
+Steamworks SDK 1.65, MIT) in `addons/godotsteam/`, with Valve's Steamworks API
+libraries for Windows x64, Linux x64 and macOS. Licences are listed in
+[CREDITS.md](../CREDITS.md).
 
-The adapter calls `steamInitEx(480, false)` and calls `run_callbacks()` explicitly. The App ID is the first argument in the current API. Received Networking Messages use the current `payload` and `identity` dictionary fields; an old extension with different fields needs adaptation. See [current initialization documentation](https://codeberg.org/godotsteam/godotsteam-docs/src/branch/master/docs/tutorials/initializing.md) and [Networking Messages documentation](https://codeberg.org/godotsteam/godotsteam-docs/src/branch/master/docs/tutorials/networking_messages.md).
+You need:
 
-Valve documents `480` as the [Spacewar example application's App ID](https://partner.steamgames.com/doc/sdk/api/example). This project uses it for development. Plan a dedicated App ID for public distribution.
+- the Steam desktop client, running and signed in **before** the game starts;
+- Godot 4.5.2 (the portable copy in `.tools/godot/` is what `run.ps1` uses).
 
-## Test with a friend
+The game uses Valve's development App ID **480** (Spacewar), so Steam shows you
+as "Playing Spacewar". `steam_appid.txt` is not needed: the game passes 480 to
+`steamInitEx` itself. Leave GodotSteam's "auto-initialize" project setting off.
 
-1. Both players use the same project code and content on distinct Steam accounts.
-2. Host selects **Steam → Host friends-only lobby**.
-3. Copy the lobby ID from the same dialog and share it with the other player. The host is player 1; the match starts on the host as soon as the opponent connects.
-4. Guest selects **Steam**, pastes the lobby ID and selects **Join lobby**. The guest is player 2.
-5. Host can also open **Invite Steam friends**. Joining through the overlay invitation is not wired into the game yet; use the lobby ID to complete the join.
-6. Host can choose both deck presets from **Decks**. Play a full match including shop and deployment, then save the replay on the host. This version uses the expanded Classic pack and protocol 5 (lobby tag `classic_revival_classic_v5`); both players need this updated build. Players may use different display languages.
+Steam is not started:
 
-App ID 480 has many unrelated development lobbies. The adapter checks its own game tag and protocol before accepting a guest lobby.
+- in headless runs (tests and CI);
+- when you launch with `.\run.ps1 -NoSteam` (or pass `--no-steam` to Godot).
 
-## Authority and privacy
+If Steam is missing or fails to start, the Steam dialog explains why and
+offline play still works.
 
-- Lobby capacity is two. The host simulates the complete match.
-- Reliable JSON envelopes travel on channel 71. No object deserialization is used.
-- Only messages from the bound opponent who is still a lobby member are accepted.
-- The guest sends a command and the observation's revision. The host rejects stale revisions and the rules engine rejects all illegal command shapes/targets/resources.
-- Guest snapshots contain the guest's hand/shop and public board, counts, deck preset names, structures and log. They exclude the host's hand/shop, both main/item deck orders, unrevealed host deployment plans and RNG state. Purchase logs show gold spent without naming the unrevealed item.
-- The host is trusted and can see both hands; this is a friend-play architecture. A future competitive service should move authority to a trusted dedicated server.
-- The original opponent is bound to the current lobby match. A different account cannot take over its seat.
-- A reconnect to the same still-existing lobby requests the latest host snapshot. There is no automatic rejoin UI, timeout/pause policy or host migration yet.
+## How online play works
 
-Commands, state envelopes and privacy boundaries are checked in `tests/run_tests.gd`; actual networking is a separate integration check. Report exact Godot/GodotSteam versions and connection results before describing online play as verified.
+- **Host and guest.** The host runs the rules engine and is player 1. The guest
+  is player 2. The guest only ever receives its own view: the host's hand, shop,
+  deck order, deployment plans and random state stay on the host. The host checks
+  every guest command against the legal actions, so a guest cannot make an
+  illegal move. Online matches use a fresh random seed from the operating
+  system's secure random source, so the guest cannot reconstruct the host's
+  hand or deck order from the board it sees. The host itself is trusted, which
+  is fine between friends.
+- **Lobbies.** A lobby holds two players. It can be **friends-only** (your Steam
+  friends can see and join it) or **public** (shown in the lobby browser to
+  anyone running this game). Lobby data lists the game tag
+  `sanguo_classic_revival`, the protocol number, a content hash, the host's
+  name and the lobby status (`waiting`, `playing` or `reconnecting`).
+  Rich presence sets `connect` to `+connect_lobby <id>`.
+- **Ways to join:**
+  - paste the lobby ID (or a `+connect_lobby <id>` or `steam://joinlobby/480/<id>/…` link);
+  - accept an overlay invite, or use "Join game" in the friends list, while the game is running;
+  - start the game with `+connect_lobby <id>` (`.\run.ps1 +connect_lobby <id>`; Steam passes this itself when the game is launched from a join);
+  - pick a public lobby in the browser (Join is only offered for lobbies of the
+    same build that are waiting for an opponent).
+
+  While you are in a lobby, Host and Join are disabled and invites are refused
+  with "Leave the current lobby first", so a running match is never dropped
+  by accident. Starting Versus AI, Local play or a replay leaves the lobby.
+- **Handshake.** After joining, the guest sends `hello` with the protocol number
+  (6), its content hash and its GodotSteam version, and repeats it every 2
+  seconds until the host replies. The content hash is a hash of
+  `data/classic_cards.json`, `data/locale/cards.json` and the protocol number,
+  with line endings normalized. If anything differs, the host sends `reject`
+  and both sides show a "version mismatch" message that lists both versions.
+  The guest also checks the lobby data before saying hello. Once accepted, both
+  sides show **Connected to <Steam name>**.
+- **Messages.** Messages are JSON on channel 71. They are sent with the
+  reliable and auto-restart-broken-session flags (8|32), and each is capped at
+  256 KB. The host accepts session requests from anyone who is in the lobby,
+  even before Steam has reported them as a lobby member, so the first hello is
+  never lost. Received views and commands have their whole numbers turned back
+  into integers. Packets that are malformed, wrongly typed or nested deeper
+  than 32 levels are dropped without logging. Display names come from Steam,
+  not from what the other side reports, and are cut to 32 characters.
+- **Commands.** In the action phase a guest command must match the current
+  revision. In the shop and deployment phases both players plan at once, so a
+  guest command that is still legal is applied even if the host acted first.
+  A command the host cannot apply is answered with a small "not applied"
+  notice (shown to the guest) and at most one fresh snapshot per second.
+- **Heartbeat.** Each side pings every 5 seconds. The opponent's name plate
+  shows signal bars and the ping; hover over it for details. After 20 seconds
+  without a reply, the opponent counts as lost.
+- **Disconnects.**
+  - **Guest leaves, crashes or stops answering.** The host's match pauses and
+    shows "waiting for opponent to reconnect" with a timer. The host can choose
+    **Keep waiting**, which shrinks the message to a small bar, **Claim victory**
+    (available after 30 seconds; it is recorded as the guest conceding) or
+    **Leave match**.
+  - **The guest's seat belongs to their Steam account.** The same account can
+    rejoin the same lobby by ID, browser, invite or command line and gets the
+    latest snapshot. Any other account is turned away with "seat taken", and
+    the host stops listening to it. While the seat is reserved the lobby allows
+    a third member, so a stranger in the free slot cannot lock the guest out,
+    and the lobby browser shows it as "Waiting for a player to rejoin" without
+    a Join button.
+  - **Host leaves.** The guest sees "The host left" and goes back to the menu.
+    The host only being unreachable shows the guest a waiting screen with Keep
+    waiting and Leave instead.
+  - **Steam shuts down, or your connection to Steam drops.** Online play ends
+    with a message and you return to the menu. A guest can rejoin the host's
+    lobby with the same account once Steam is back.
+  - **A new match on the host** (Play again) restarts the guest's screen. Only
+    the host can start a new match or save the replay.
+- **Concede.** **Menu → Concede** works for either player in any phase, online
+  and offline. It is an engine command, so it appears in the log and replays.
+
+## Testing with two accounts
+
+You need two Steam accounts on two computers (a PC and a laptop is fine), each
+running the **same build**: the same git commit, with no local changes to
+`data/`. For a friends-only lobby the two accounts must be Steam friends. A
+public lobby or the ID works without that.
+
+1. On both machines, start Steam and sign in. Then start the game with
+   `.\run.ps1` from the project folder. You can also open the project in Godot
+   and press F5, but the Steam overlay often doesn't attach to an editor-launched
+   game, so use `run.ps1` to test invites.
+2. Both: open **Online (Steam)** from the main menu. The dialog should say
+   *Steam connected* and show `GodotSteam 4.23.1 · protocol 6 · content xxxxxxxx`.
+   The content value must be the same on both machines.
+3. Host: choose **Host friends-only lobby** or **Host public lobby**.
+4. Guest: join in one of these ways:
+   - **By ID:** the host presses **Copy lobby ID** and sends it (by chat, for
+     example). The guest pastes it and presses **Join lobby**.
+   - **By invite:** the host presses **Invite Steam friends** and picks the
+     guest. The guest, **with this game already running**, accepts the invite
+     from the Steam overlay (Shift+Tab) or the friends list.
+   - **From the friends list:** the guest right-clicks the host in the Steam
+     friends list and chooses **Join game** (game already running).
+   - **By browser** (public lobbies only): the guest presses **Refresh** under
+     *Public lobbies* and joins the host's row.
+5. The match starts on both screens as soon as the handshake completes. It
+   uses the decks last chosen on the host under **Decks**.
+
+### App 480 caveats
+
+- **An invite accepted while the game is closed starts Valve's Spacewar, not
+  this game.** Steam launches App 480's own program. The friend must have this
+  game running already, or join by ID or the browser instead. The same applies
+  to "Join game" in the friends list. A dedicated App ID fixes this for a
+  release.
+- Many developers share App 480. The lobby browser only shows lobbies whose
+  game tag matches, so other developers' lobbies don't appear.
+- Steam's lobby search may take a few seconds and only returns lobbies that
+  have a free seat. It searches worldwide.
+- The friends-list status text comes from Spacewar's rich presence strings
+  (`#Status_WaitingForMatch`). It is cosmetic.
+- Both accounts must be different. One account can't play against itself.
+
+### Troubleshooting
+
+| Symptom | Check |
+|---|---|
+| "Steam is turned off for this run" | You started with `-NoSteam`/`--no-steam` or headless. Start with `.\run.ps1`. |
+| "Steam is not running or you are not signed in" | Start Steam and sign in first, then restart the game. |
+| "Steam could not initialize: …" | Another Steam problem; the detail after the colon comes from Steam. Restart Steam, then the game. |
+| "Your Steam client is older …" | Update the Steam client (Steam → Check for Steam Client Updates), then restart the game. |
+| "Leave the current lobby first" | You are still in a lobby. Press **Leave lobby** in the Steam dialog, then host or join. |
+| "The connection to Steam was lost" | Your internet or Steam connection dropped. Wait until Steam shows you online again, then rejoin the lobby by ID. |
+| "The host did not apply that move" | Your move arrived after the board changed. Look at the board again and repeat it. |
+| "GodotSteam could not be loaded" | `addons/godotsteam/` is missing, or your platform's folder isn't in the repository (only Windows x64, Linux x64 and macOS are). |
+| "Version mismatch …" | The two builds differ. Compare the `content` value in both Steam dialogs, update both to the same commit and discard local changes to `data/`. |
+| Invite does nothing | The guest must already be running the game (see the caveats above), and the overlay must be working: launch with `run.ps1`, not the editor, and press Shift+Tab to check. |
+| Guest stays on "Contacting the host…" | Both sides need internet access to Steam's relay network. Wait 10 seconds. The hello repeats until the host answers. Check the host is still in the lobby. |
+| "Seat taken" | That match belongs to another account. The host must leave and create a new lobby. |
+| Ping bars red, or "No reply …" | The connection is poor or lost. Messages restart the session automatically. After 20 seconds the match pauses until the opponent comes back. |
+
+Include both players' dialog version lines, the status messages and the host's
+saved replay when reporting a problem.
+
+## Test checklist
+
+Fill in one row per check, on two accounts and two machines. Record the
+date, the commit (`git rev-parse --short HEAD`) and the operating system of
+each machine.
+
+| # | Check | Steps | Expected | Host result | Guest result | Notes |
+|---|---|---|---|---|---|---|
+| 1 | Init | Start Steam, `.\run.ps1`, open Online (Steam) | "Steam connected", GodotSteam 4.23.1, same content hash on both | | | |
+| 2 | Host | Host friends-only lobby; then repeat with Host public lobby | "Lobby … created", lobby ID shown, Invite/Copy/Leave visible | | | |
+| 3 | Join by ID | Copy lobby ID, guest pastes and joins | Both show "Connected to <name>", match starts, guest is player 2 | | | |
+| 4 | Join by invite | Host invites, guest (game running) accepts in overlay | Guest's Steam dialog opens by itself and the match starts | | | |
+| 5 | Lobby browser | Host a public lobby, guest presses Refresh | Host's row shows host name and "Waiting for an opponent"; Join works | | | |
+| 6 | Full match | Play to the end: several lanes, shop (buy, hold), deployment, abilities | Both boards agree; guest never sees host's hand or shop; match ends with victory/defeat | | | |
+| 7 | Guest disconnect / rejoin | Mid-match, guest quits the game (or unplugs the network), then restarts and joins the same lobby | Host sees the waiting overlay with a timer; guest returns to the same position and play continues | | | |
+| 8 | Other account blocked | While the guest is away, a third account joins the lobby | Third account gets "seat taken"; host keeps waiting | | | |
+| 9 | Claim victory | Guest quits; host waits 30 s and claims victory | Host wins; log shows the guest conceded | | | |
+| 10 | Host leaves | Mid-match, host leaves (Menu → Steam → Leave lobby, or quits the game) | Guest gets "The host left" and returns to the menu | | | |
+| 11 | Concede | Guest concedes in a new match, then the host concedes in another | The other side wins at once; log shows who conceded | | | |
+| 12 | Version mismatch | Guest edits one value in `data/classic_cards.json` (then reverts) and joins | Guest sees "Version mismatch" with both hashes and leaves the lobby | | | |
+| 13 | Connection display | During a match, hover over the opponent's name plate | Bars and ping in ms; tooltip shows connection quality | | | |
+| 14 | Languages | One player in 中文, the other in English | Both play normally; each sees their own language | | | |
+| 15 | Friends-list join | Host in a lobby; guest (game running) right-clicks the host in the Steam friends list → Join game | Guest joins and the match starts | | | |
+| 16 | Simultaneous shop | In a shop phase both players buy or hold within the same second | Both purchases happen; nobody's click is lost | | | |
+| 17 | Rematch | Finish a match; host presses Play again | Guest's result screen closes and the new match shows; guest's Play again / Save replay are disabled | | | |
+| 18 | Busy in a lobby | During a match, open Online (Steam) on either side; guest also accepts an invite to another lobby | Host and Join are disabled; the invite is refused with "Leave the current lobby first"; the match continues | | | |
+| 19 | Leave for offline | Guest in a lobby picks Versus AI from the main menu | Guest leaves the lobby (host sees the guest left); the AI match is not replaced | | | |
+| 20 | Network drop | Guest disables the network adapter for 30 s mid-match, then enables it | Guest gets "connection to Steam was lost" (or waits, if only the peer link dropped); host waits; guest rejoins by ID and continues | | | |
+
+## Files
+
+- `scripts/network/steam_bridge.gd`: lobbies, the browser, join paths,
+  handshake, messages, heartbeat and disconnects. All Steam calls go through
+  this file.
+- `scripts/game/match_controller.gd`: the online match: starting, resuming,
+  pausing, claim victory and concede.
+- `scripts/ui/steam_dialog.gd`, `scripts/ui/reconnect_overlay.gd` and
+  `scripts/ui/player_panel.gd`: the lobby dialog, the pause overlay and the
+  connection display.
+- `tests/steam_test.gd`: the FakeSteam/FakeHub boundary tests, including a
+  check of method names, argument counts and constants against the loaded
+  GodotSteam.

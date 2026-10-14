@@ -87,7 +87,13 @@ func _ui_keys() -> void:
 		_check(rows.has(template), "Event %s has template %s" % [key, template])
 	for code in ["illegal_action", "bad_index", "deck_selection", "replay_version", "replay_illegal", "deck_hero_count"]:
 		_check(rows.has("ERR_" + code.to_upper()), "Error code %s has a translation" % code)
-	for code in ["not_installed", "connected", "lobby_created", "opponent_connected", "send_failed"]:
+	# Every status the Steam bridge can set needs a translation.
+	var bridge_source = FileAccess.get_file_as_string("res://scripts/network/steam_bridge.gd")
+	var codes: Array = ["opponent_left", "opponent_disconnected", "opponent_timeout", "not_installed"]
+	for found in RegEx.create_from_string("(?:_set_status|_end_session)[(]\"(\\w+)\"").search_all(bridge_source):
+		codes.append(found.get_string(1))
+	_check(codes.size() > 25, "Found the Steam status codes (%d)" % codes.size())
+	for code in codes:
 		_check(rows.has("STEAM_" + code.to_upper()), "Steam status %s has a translation" % code)
 	for term_key in Library.glossary():
 		var entry = Library.glossary()[term_key]

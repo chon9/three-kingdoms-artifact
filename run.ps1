@@ -1,4 +1,9 @@
-param([string]$GodotPath = '', [switch]$Editor)
+# Starts the game. Extra arguments go to the game, for example
+#   .\run.ps1 +connect_lobby <lobby id>   joins that Steam lobby on start
+#   .\run.ps1 -NoSteam                    offline only, never starts Steam
+[CmdletBinding(PositionalBinding = $false)]
+param([string]$GodotPath = '', [switch]$Editor, [switch]$NoSteam,
+    [Parameter(ValueFromRemainingArguments = $true)][string[]]$GameArgs)
 $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
 if (-not $GodotPath) {
@@ -13,5 +18,7 @@ if (-not $GodotPath) {
 if (-not $GodotPath) { throw 'Godot 4.5.2+ was not found. Pass -GodotPath with your Godot executable.' }
 $engineArgs = @('--path', $projectRoot)
 if ($Editor) { $engineArgs += '--editor' }
+if ($NoSteam) { $engineArgs += '--no-steam' }
+if ($GameArgs) { $engineArgs += $GameArgs }
 & $GodotPath @engineArgs
 exit $LASTEXITCODE

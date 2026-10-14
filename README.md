@@ -8,7 +8,7 @@ The game currently supports **49 card definitions**: ten heroes (Guan Yu, Zhang 
 
 ## Run
 
-Open `project.godot` with **Godot 4.5.2 or later**, then press **F5**. Standard Godot works for offline play; no Steam extension or account is needed.
+Open `project.godot` with **Godot 4.5.2 or later**, then press **F5**. Offline play needs no Steam account. Online play uses the bundled GodotSteam 4.23.1 extension (`addons/godotsteam/`) and a running Steam client; see [docs/STEAM.md](docs/STEAM.md).
 
 On this Windows workspace, a checksum-verified portable Godot 4.5.2 is in the ignored `.tools/godot` folder:
 
@@ -85,7 +85,7 @@ Fonts, textures, icons, particles, sounds and the artwork's provenance are credi
 - A one-ply heuristic opponent that uses public board information and its own hand, without reading enemy cards or future random rolls.
 - A Classic-style match screen: sliding lane camera and overview, combat arrows and damage preview, drag-to-play with target arrows, the initiative coin, the shop chest, drag-to-lane deployment, inspection, event animations (casts, combat lunges and damage numbers, deaths, tower falls, lane changes), a match log and a game-over screen.
 - Local play and reproducible command-journal replay restoration.
-- Optional GodotSteam Spacewar 480 lobbies and reliable packets with host-side action validation and redacted guest snapshots. **The adapter has mock boundary tests; live two-account Steam play is not yet verified.**
+- Steam play between friends (development App ID 480): friends-only or public lobbies, join by ID, overlay invite, `+connect_lobby` launch argument or the public lobby browser, a version handshake, heartbeat with connection quality, pause and rejoin when the opponent drops (the seat stays bound to their Steam account), and concede. The host validates every action and sends redacted guest snapshots. **The online flow is tested against a fake Steam boundary and single-account live lobby calls; a two-account match is still to be verified with the checklist in [docs/STEAM.md](docs/STEAM.md).**
 
 See [rule coverage](docs/RULES.md), [Steam setup](docs/STEAM.md) and the [roadmap](docs/ROADMAP.md). The supported cards have effect tests; this does not establish complete Classic fidelity across every card, trigger or board arrangement.
 
@@ -103,10 +103,11 @@ godot --headless --path . --script res://tests/run_tests.gd
 godot --headless --path . --script res://tests/classic_cards_test.gd
 godot --headless --path . --script res://tests/expanded_classic_test.gd
 godot --headless --path . --script res://tests/i18n_test.gd
+godot --headless --path . --script res://tests/steam_test.gd
 godot --headless --path . --script res://tests/ui_smoke.gd
 ```
 
-The suites check rules, card effects, deck validation, privacy, shop resources, translations and UI interactions. They include 24 complete training bot matches, 12 Classic starter matches and 18 seeded matchups covering all nine combinations of the three presets; every complete match round-trips through replay serialization. The UI smoke test drives the real scene with mouse events: drag-play (untargeted, targeted, creep positions), Battlefield Control's two stages, edge lane switching, a 14-card hand, ability badges, the initiative coin, shop hold and buy, deployment drags (including a state update mid-drag), inspection, dialogs, deck selection, live language and card-theme switching, an AI turn and replay restoration.
+The suites check rules, card effects, deck validation, privacy, shop resources, translations and UI interactions. They include 24 complete training bot matches, 12 Classic starter matches and 18 seeded matchups covering all nine combinations of the three presets; every complete match round-trips through replay serialization. The Steam test runs two real match controllers against a fake GodotSteam (lobbies, invites, handshake, disconnect and rejoin, concede) and, when the extension is loaded, checks the fake's methods, signals and constants against it. The UI smoke test drives the real scene with mouse events: drag-play (untargeted, targeted, creep positions), Battlefield Control's two stages, edge lane switching, a 14-card hand, ability badges, the initiative coin, shop hold and buy, deployment drags (including a state update mid-drag), inspection, dialogs, deck selection, live language and card-theme switching, an AI turn and replay restoration.
 
 Screenshots of the main UI states need a real renderer (not `--headless`); they are written to `.tools/shots/`:
 
@@ -147,6 +148,6 @@ docs/                             Rule coverage, Steam instructions, roadmap, ar
 
 ## Community and license
 
-Source code, the Three Kingdoms text and artwork, and the original training content in this repository use the [MIT license](LICENSE). Third-party fonts and assets keep their own licenses, listed in [CREDITS.md](CREDITS.md). Artifact's card identities and rules are documented for compatibility; the original card names, text and images remain Valve's and the artists'. The MIT license does not cover Valve or artist content, and no Valve images or Steamworks SDK binaries are included.
+Source code, the Three Kingdoms text and artwork, and the original training content in this repository use the [MIT license](LICENSE). Third-party fonts and assets keep their own licenses, listed in [CREDITS.md](CREDITS.md). Artifact's card identities and rules are documented for compatibility; the original card names, text and images remain Valve's and the artists'. The MIT license does not cover Valve or artist content, and no Valve images are included. The bundled GodotSteam extension (MIT) and Valve's Steamworks API redistributables in `addons/godotsteam/` keep their own terms; see [CREDITS.md](CREDITS.md).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add rule fixtures and report fidelity gaps. The repository is prepared for sharing, but has not been published or announced anywhere.

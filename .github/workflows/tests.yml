@@ -26,6 +26,8 @@ jobs:
         run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/run_tests.gd
       - name: Localization, fonts and locale-independent state
         run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/i18n_test.gd
+      - name: Steam boundary (fake GodotSteam, extension API cross-check)
+        run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/steam_test.gd
       - name: UI smoke
         run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/ui_smoke.gd
       - name: Classic cards and bot matches

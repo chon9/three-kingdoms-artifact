@@ -4,7 +4,11 @@ builds/
 *.log
 *.tmp
 replays/
-addons/godotsteam/
+# GodotSteam (addons/godotsteam/) is committed for Windows x64, Linux x64 and
+# macOS (universal). Other platform builds from the same release stay local.
+addons/godotsteam/win32/
+addons/godotsteam/linux32/
+addons/godotsteam/linuxarm64/
 steam_appid.txt
 assets/classic_cards/*.png
 assets/classic_cards/*.png.import

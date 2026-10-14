@@ -764,12 +764,21 @@
       "file": "assets/art/heroes_reserve/liubei.png",
       "size": "1024x1536",
       "transparent": false,
-      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-2ca35cb1-7987-4335-9f85-2a5c7b0d3369.png",
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-83f2e904-5382-48bf-a0da-6fea0ea99f36.png",
       "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nLiu Bei, the benevolent lord of Shu: a gentle, dignified man in his forties with long earlobes, a neat short beard and kind but resolute eyes. He wears crimson silk robes over gilded lamellar armour and a jade-pinned topknot crown. He holds a pair of matched double swords crossed low before his chest, one palm open as if welcoming his people. Peach petals drift past a plain red silk banner behind him, and warm sunset light rims his shoulders. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: crimson and vermilion with jade-green accents, a warm sunset glow, peach blossoms and red silk banners, a mood of righteous brotherhood. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Edit this exact Liu Bei portrait to correct ONLY his arms, hands, and twin swords. Preserve his face, expression, long earlobes, jade crown, beard, crimson silk robes, gilded lamellar armour, peach blossom sunset background, painting style and portrait dimensions. Give him TWO physically separate matched straight double-edged Han jian swords, ONE gripped firmly in EACH hand. Replace the open palm with a closed, anatomically clear five-finger sword grip. Each sword must have its own visible pommel, handle, single guard, and one continuous straight blade emerging directly from that guard. The viewer-left hand holds a hilt at the left side of his waist, its blade pointing diagonally upward and outward toward the left; the viewer-right hand holds the second hilt at the right side of his waist, its blade pointing diagonally upward and outward toward the right. Keep the two guards and grips well separated with no crossing swords, no floating handle, no doubled blades, no blade running through a hand or sleeve, and no sword crossing his face. Both sword tips and arms stay comfortably inside the frame. Natural relaxed elbows and credible wrist angles. Keep the bottom third softly painted and quiet. No writing, symbols, logos, border or watermark. 1024x1536.",
+          "references": [
+            "assets/art/heroes_reserve/liubei.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-83f2e904-5382-48bf-a0da-6fea0ea99f36.png"
+        }
+      ]
     },
     {
       "number": 51,
@@ -1041,14 +1050,23 @@
       "file": "assets/art/heroes_reserve/sunce.png",
       "size": "1024x1536",
       "transparent": false,
-      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-0a009ba2-64c2-458a-a9ce-6cbe7eb2320c.png",
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-6a4f4248-e1f9-4440-9491-09f3da2eb93d.png",
       "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nSun Ce, the Little Conqueror of Jiangdong: a dashing young warrior in his early twenties with a bright, reckless grin and fiery eyes, hair tied high with a jade-green ribbon. He wears gleaming jade-green and gold lamellar armour with a short tiger-fur shoulder mantle and holds a long spear raised overhead in a triumphant battle cry. Behind him, misty Yangtze reeds and the sails of war junks catch a bright dawn rim light. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: jade green and teal, wet lacquered wood, river mist and reflections on the Yangtze, war-junk sails and reeds, a mood of naval pride. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Sons of Jiangdong: continuity reference for the named character or object\n3. Sun Jian: continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-90d885f2-6ec7-4b10-a52c-fba44d6c54b2.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-6eea7e28-6e8d-473a-b8ef-f34970577098.png"
       ],
-      "review": "pending"
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Keep the attached Sun Ce portrait, young joyful face, tiger-fur shoulder, armour, pose and painting style. Correct only the long spear's LEFT butt end, which currently leaves the frame. Shorten its shaft so the whole rounded butt cap is visible and ends at least 90 pixels inside the left edge. Keep his raised hand and the silver spear head inside the frame; do not add any new weapon or change his costume. No text or watermark. 1024x1536 portrait.",
+          "references": [
+            "assets/art/heroes_reserve/sunce.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-6a4f4248-e1f9-4440-9491-09f3da2eb93d.png"
+        }
+      ]
     },
     {
       "number": 70,
@@ -1082,12 +1100,21 @@
       "file": "assets/art/heroes_reserve/huanggai.png",
       "size": "1024x1536",
       "transparent": false,
-      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-78a2302d-653c-44ed-a0db-a204181be6bb.png",
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-2845cd99-075b-4daa-9ef9-63abca06bc28.png",
       "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nHuang Gai, the old Wu veteran who led the fire ships at Red Cliffs: a grizzled, tough old general with a grey beard, a scarred, defiant face and a steely glare, his armour half open to reveal old healed scars across his shoulders. He wears battered jade-green and bronze armour and grips an iron rod-whip in one fist, standing on the prow of a burning war junk. Flames and drifting embers rise behind him against dark river mist, the fire glow lighting one side of his face. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: jade green and teal, wet lacquered wood, river mist and reflections on the Yangtze, war-junk sails and reeds, a mood of naval pride. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Preserve the attached Huang Gai portrait: his old grey-bearded scarred face, jade-green armour, healed scars, burning ship and rendering style. Correct only his weapon. Replace the flexible chain and hanging metal flail weight with a RIGID iron rod-whip: a single straight solid iron bar roughly forearm length, with raised segmented ridges along it, held firmly in one fist. There are NO chains, rope, flexible links or flail ball. Keep the rod fully inside the image with generous padding. His other hand may rest naturally on the railing. Do not change his face or body. No text or marks. 1024x1536 portrait.",
+          "references": [
+            "assets/art/heroes_reserve/huanggai.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-2845cd99-075b-4daa-9ef9-63abca06bc28.png"
+        }
+      ]
     },
     {
       "number": 73,
@@ -1121,12 +1148,12 @@
       "file": "assets/art/heroes_reserve/sunshangxiang.png",
       "size": "1024x1536",
       "transparent": false,
-      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-09352e54-45a0-4899-ae22-7775776cb815.png",
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-91554789-c8bc-42c6-8d59-2f8f7bdf7783.png",
       "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nLady Sun Shangxiang, the martial princess of Wu: a spirited young woman with a bold, confident smile and bright eyes, her hair tied high with jade-green ribbons. She wears fitted jade-green and white light armour over a short battle robe, with a bow slung across her back and a pair of straight short swords held ready in both hands. A wedding-red silk sash at her waist hints at her marriage to Liu Bei. Breezy river mist and swaying reeds surround her in soft morning light. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: jade green and teal, wet lacquered wood, river mist and reflections on the Yangtze, war-junk sails and reeds, a mood of naval pride. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "pending corrected-image review",
+      "review": "accepted",
       "revisions": [
         {
           "prompt": "Preserve the attached Sun Shangxiang portrait exactly: smiling adult warrior, jade-green armour and robes, bow on her back, face, hair, body pose and painting style. Correct only the straight sword held by her right-side hand as seen by the viewer: its blade currently exits the RIGHT edge. Shorten and rotate that sword slightly downward and inward so the complete straight double-edged blade and pointed tip are clearly visible, ending at least 100 pixels inside the right edge and above the bottom 12%. Both swords must remain straight Han jian, not curved sabres. Keep the other sword and all other details unchanged. No text or signatures. 1024x1536 portrait.",
@@ -1134,6 +1161,13 @@
             "assets/art/heroes_reserve/sunshangxiang.png"
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-09352e54-45a0-4899-ae22-7775776cb815.png"
+        },
+        {
+          "prompt": "Correct the sword on the RIGHT side of the attached Sun Shangxiang portrait. Its pointed tip is still outside the canvas. This time CHANGE that sword's orientation: rotate her right-side wrist so the straight double-edged blade points diagonally down and LEFT, toward the bottom centre of the picture. The sword tip should end around x=650, y=1200, fully visible, with no blade crossing the right image edge. A short, foreshortened straight Han jian is fine. Preserve her face, hair, bow, green armour, smile, left-side sword and overall pose. No blade or hand may touch the image edge. Preserve style, no text or marks, 1024x1536.",
+          "references": [
+            "assets/art/heroes_reserve/sunshangxiang.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-91554789-c8bc-42c6-8d59-2f8f7bdf7783.png"
         }
       ]
     },
@@ -1162,7 +1196,7 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-a3337d4b-c718-4686-ac4c-28826361bb58.png"
       ],
-      "review": "pending"
+      "review": "accepted"
     },
     {
       "number": 78,
@@ -1176,7 +1210,7 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-e2dfdb44-c570-4cf9-b9fc-bc542835a6b2.png"
       ],
-      "review": "pending"
+      "review": "accepted"
     },
     {
       "number": 79,
@@ -1190,7 +1224,7 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-e2dfdb44-c570-4cf9-b9fc-bc542835a6b2.png"
       ],
-      "review": "pending"
+      "review": "accepted"
     },
     {
       "number": 80,
@@ -1198,12 +1232,21 @@
       "file": "assets/art/heroes_reserve/zhangjiao.png",
       "size": "1024x1536",
       "transparent": false,
-      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-474967a9-6b7b-45d4-9866-ae1a0941319f.png",
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-cfe68f76-ef07-40a7-9a9e-8858a37e415a.png",
       "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nZhang Jiao, the Great Teacher of the Way of Peace and leader of the Yellow Turban rebellion: a gaunt, intense Daoist sorcerer with burning eyes, a long thin grey beard and a bright plain yellow cloth tied around his head. He wears tattered black and purple Daoist robes and raises a gnarled wooden staff high as crackling lightning gathers at its tip, his other hand flinging blank yellow paper talismans that swirl into the storm. Dark thunderclouds, smoke and green-tinged lightning surround him. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: ink black and bruised purple, curling smoke and embers, torn banners, poison-green highlights, a mood of ambition, treachery and chaos. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "pending"
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Preserve the attached Zhang Jiao portrait, his long grey beard, yellow headcloth, purple-black robes, raised staff, green lightning, hands and all composition. Remove ALL writing-like marks, characters, runes, ink strokes and scribbles from EVERY yellow floating paper talisman in the image, including the large sheets at upper right, middle right and lower foreground. Each paper sheet must be completely blank yellow aged paper with only natural folds and paper grain; no drawn pattern whatsoever. The headcloth must also remain unmarked. Do not add signatures or glyphs anywhere. 1024x1536 portrait.",
+          "references": [
+            "assets/art/heroes_reserve/zhangjiao.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-cfe68f76-ef07-40a7-9a9e-8858a37e415a.png"
+        }
+      ]
     },
     {
       "number": 81,
@@ -1216,7 +1259,7 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "pending"
+      "review": "accepted"
     },
     {
       "number": 82,
@@ -1230,7 +1273,7 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-fce75d97-4ebb-4956-b357-15324a2cae6a.png"
       ],
-      "review": "pending"
+      "review": "accepted"
     },
     {
       "number": 83,
@@ -1243,7 +1286,482 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
+      "review": "accepted"
+    },
+    {
+      "number": 84,
+      "name": "Meng Huo",
+      "file": "assets/art/heroes_reserve/menghuo.png",
+      "size": "1024x1536",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-261b909e-28ce-4bff-8112-b428cff16107.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nMeng Huo, the proud king of the southern Nanman tribes, captured and freed seven times: a powerful, broad-chested chieftain with a strong, defiant face, a short braided beard and fierce dark eyes, wearing bronze armlets, a necklace of beast teeth and a mantle of dark leopard fur over layered rattan armour. He holds a heavy bronze broadsword across his shoulders. Dense jungle foliage, hanging vines and humid purple-tinged mist rise behind him, with faint war-elephant silhouettes in the haze. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: ink black and bruised purple, curling smoke and embers, torn banners, poison-green highlights, a mood of ambition, treachery and chaos. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 85,
+      "name": "Lady Zhurong",
+      "file": "assets/art/heroes_reserve/zhurong.png",
+      "size": "1024x1536",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-845c678f-97f4-4843-a35a-e97c3b0a5f57.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nLady Zhurong, Meng Huo's fearless warrior wife, said to descend from the god of fire: a fierce, striking woman with sharp eyes and a bold smirk, her thick black hair bound with bronze rings and red feathers. She wears practical layered leather and rattan armour with a dark fur mantle and bronze bracers, and fans out a handful of flying throwing daggers in one raised hand, ready to hurl them. Embers, curling smoke and a faint flame-shaped glow rise around her from the misty southern jungle. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: ink black and bruised purple, curling smoke and embers, torn banners, poison-green highlights, a mood of ambition, treachery and chaos. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Preserve the attached adult Lady Zhurong portrait, fierce face, red cheek war paint, hair and feathers, flying daggers, hands, pose, dark fur mantle, ornaments and painterly style. Refine only her torso clothing to meet the practical warrior brief: put a solid protective dark leather tunic underneath the bronze-and-leather breastplate, covering her chest and abdomen completely from collarbone to waist, with no cleavage opening and no bare midriff. The armour should look functional and battle-ready, matching her existing leather, bone, bronze and purple-red palette. Her arms may remain bare. Keep the same dramatic historical fantasy illustration, no text or marks, 1024x1536.",
+          "references": [
+            "assets/art/heroes_reserve/zhurong.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-845c678f-97f4-4843-a35a-e97c3b0a5f57.png"
+        }
+      ]
+    },
+    {
+      "number": 86,
+      "name": "Gao Shun",
+      "file": "assets/art/heroes_reserve/gaoshun.png",
+      "size": "1024x1536",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-c411f3a1-8f78-4fa3-b359-945d3c362a94.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nGao Shun, Lü Bu's incorruptible commander of the elite Formation Breakers: a stern, upright man with a square, clean-shaven jaw, a grim mouth and steady, unblinking eyes. He wears heavy black lacquered iron armour with dark purple cords and a helmet with its visor pushed up, and holds a tall rectangular infantry shield in one arm and a short heavy blade in the other, braced to smash through a line. Behind him, a tight wall of identical shields and spears looms through smoke and embers. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: ink black and bruised purple, curling smoke and embers, torn banners, poison-green highlights, a mood of ambition, treachery and chaos. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 87,
+      "name": "Chen Gong",
+      "file": "assets/art/heroes_reserve/chengong.png",
+      "size": "1024x1536",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-0c80b4c1-2d7c-4afd-9014-5ff374ecd442.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nChen Gong, the proud strategist who abandoned Cao Cao and served Lü Bu to the end: a lean, sharp-featured man in his forties with a thin beard, a furrowed brow and an unbending, defiant gaze. He wears dark black-and-plum scholar's robes with a simple official's cap and holds a half-unrolled blank bamboo scroll in one hand, the other hand clenched at his chest. Behind him a besieged city wall stands amid floodwater, smoke and embers under a bruised purple sky. Vertical portrait composition. A single main figure, shown from the waist or three-quarters up. The face and chest sit in the upper-middle third of the frame, centred horizontally. Leave the top 12% as quiet background (sky or mist) and keep the bottom 35% simple with low detail (ground, mist, robes). Weapons and limbs must not touch or cross the frame edges. The background is soft and less detailed than the figure. Faction palette: ink black and bruised purple, curling smoke and embers, torn banners, poison-green highlights, a mood of ambition, treachery and chaos. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nProduction crop priority: leave generous quiet sky or mist across the top 12%, put the face or main action around 25-50% of image height, and simplify the bottom 35% into mist or softly painted robes. Keep every head and weapon tip entirely inside the frame, with clear padding. No important object at any edge. Polished illustration with clean linework and softly shaded figures, never a photograph.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 88,
+      "name": "Lane board - your side",
+      "file": "assets/art/ui/board_lane_player.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-a48d446d-9631-49bb-b386-70d542d75629.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nBattlefield ground for the near side of one lane, seen from a high three-quarter top-down angle. Packed earth and trampled grass on a Han-dynasty plain, faint chariot ruts running from left to right, scattered arrows half-buried at the far edges and low wooden palisade stakes along the bottom edge. The centre 70% of the image is an even, quiet, low-contrast ground texture with no objects, people or strong shapes. Soft overcast light with no hard shadows and a gentle vignette only at the corners. A top-down three-quarter view of a battlefield on aged ink-wash paper with a low-contrast, even texture and no focal objects in the centre lanes, so cards stay readable on top of it. Faction palette: muted earth tones (hemp, leather, dust), modest and unadorned. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 89,
+      "name": "Lane board - enemy side",
+      "file": "assets/art/ui/board_lane_enemy.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-428ec1bc-9f0b-40d1-bede-75753971caee.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nBattlefield ground for the far, enemy side of one lane, seen from a high three-quarter top-down angle. Darker scorched earth and dry reeds, faint hoofprints, broken spear shafts and a torn, colourless war banner lying flat at the far top edge, with distant smoke at the corners. The centre 70% stays an even, low-contrast ground texture with no objects, people or strong shapes. The light is slightly cooler and dimmer than on the near side, like dusk, with a soft vignette at the corners only. A top-down three-quarter view of a battlefield on aged ink-wash paper with a low-contrast, even texture and no focal objects in the centre lanes, so cards stay readable on top of it. Faction palette: muted earth tones (hemp, leather, dust), modest and unadorned. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Lane board - your side: continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nUI background composition takes priority over the portrait style reference. Do not include Guan Yu, a central portrait, or his sword. Preserve the specified calm overlay areas and wide landscape dimensions.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-a48d446d-9631-49bb-b386-70d542d75629.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 90,
+      "name": "Three-lane overview table",
+      "file": "assets/art/ui/board_overview.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-c0eb0559-2136-414a-ae4e-416e11f7d83e.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA strategist's war-table view of a whole battlefield seen from above: three parallel dirt roads (lanes) run from the bottom of the image to the top, evenly spaced and separated by low ridges, pine groves and a thin stream. A small fortified gatehouse sits at both ends of each road, and a walled capital is hinted at the far top and near bottom edges. The roads themselves are smooth and empty so tokens can sit on them. It reads like a hand-painted campaign map on aged silk, lit evenly with soft corner shadow. A top-down three-quarter view of a battlefield on aged ink-wash paper with a low-contrast, even texture and no focal objects in the centre lanes, so cards stay readable on top of it. Faction palette: muted earth tones (hemp, leather, dust), modest and unadorned. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 91,
+      "name": "River divider strip",
+      "file": "assets/art/ui/board_river.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-1c4533e3-1f96-4860-9503-3533d8f7c93f.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA narrow river crossing the image horizontally through the vertical middle, separating two battle lines. Dark ink-wash water with pale ripple strokes, reeds and smooth stones along both banks, and drifting mist over the surface. The river band fills the middle third and the banks fade to flat, even paper tone above and below. The left and right edges match so the strip can tile horizontally. Calm, flat lighting with no focal objects, no boats and no people. A top-down three-quarter view of a battlefield on aged ink-wash paper with a low-contrast, even texture and no focal objects in the centre lanes, so cards stay readable on top of it. Faction palette: muted earth tones (hemp, leather, dust), modest and unadorned. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Edit this river-strip image for a quiet game-board overlay. Remove ALL people, armies, weapons, standards, banners, tents, fences, palisades, buildings, mountains and narrative scenery. Keep ONLY a narrow ink-wash river running horizontally through the middle third, with a few small smooth stones and reeds along its banks. Upper and lower thirds fade into flat warm rice-paper tone. No focal object or silhouette. Flat low-contrast lighting. Make the left and right boundaries match in water height, paper colour and reed density so repeats flow horizontally. Preserve the existing brushwork, muted earthy palette and landscape orientation. No text or symbols. 1536x1024.",
+          "references": [
+            "assets/art/ui/board_river.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-1c4533e3-1f96-4860-9503-3533d8f7c93f.png"
+        }
+      ],
+      "notes": "Horizontal opposite-edge mean RGB difference 15.21 on 8-bit scale; reeds and water may show a repeat boundary. Use the original as a single stretched divider or review repeat edges in engine."
+    },
+    {
+      "number": 92,
+      "name": "Rice-paper tiling texture",
+      "file": "assets/art/ui/paper_tile.png",
+      "size": "1024x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-b609bb9d-cc02-49f5-a6ac-06cc5317db6b.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA plain sheet of warm aged rice paper with faint fibres, very light grey ink-wash mottling and subtle fold softness, used as a background fill for game menus. Nothing is drawn on it: despite the style notes below, no mountains, figures or objects, only paper texture. Seamless tileable texture with the same edges on all four sides, flat lighting and no vignette. Faction palette: muted earth tones (hemp, leather, dust), modest and unadorned. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1024 square.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted with tiling note",
+      "notes": "Native 1254x1254 square. Opposite-edge RGB differences measured 8.55 horizontal / 8.08 vertical (8-bit scale); visually quiet paper texture, not a mathematically exact seamless tile."
+    },
+    {
+      "number": 93,
+      "name": "Tower - intact",
+      "file": "assets/art/ui/tower_intact.png",
+      "size": "1024x1536",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-9cbfee6e-56db-45df-94fd-b32a02d3dcc4.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA Han-dynasty fortified gate tower (chenglou): a rammed-earth and grey-brick base with an arched gateway, topped by a two-tier timber watchtower with sweeping dark tiled eaves, red lacquered pillars, crenellated walls and a small undyed pennant on a pole. Seen from a slight three-quarter low angle, standing proud and undamaged, with warm torchlight in the windows. The tower is centred, stands alone and fills about 70% of the frame height, with even padding around it. A Han-dynasty watchtower or fortified gate with a transparent background, layered over the board. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted with sprite glow note",
+      "revisions": [
+        {
+          "prompt": "Edit the attached intact gate tower into a clean isolated PNG game sprite. Preserve its architecture, two-tier grey-tiled timber roofs, red columns, brick-and-rammed-earth base, single arched doorway, undyed pennant, warm light and current three-quarter low viewing angle. Reframe the entire building SMALLER and centrally: the tower including pennant occupies about 70 percent of canvas height and at most 78 percent of canvas width. Complete both bottom corners of the stone base so nothing is cut off. Leave generous evenly clear padding outside its silhouette. Remove the entire brown ambient glow, cloudy backdrop, floor, ground shadow and any scenery. All space outside the building must be genuinely transparent with alpha zero, never a flat black/white fill, no decorative smoke or cast shadow. Only light physically on the building remains. Same painterly rendering; no writing or symbols. PNG transparent background, 1024x1536.",
+          "references": [
+            "assets/art/ui/tower_intact.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-53f13fd7-3304-40ec-bece-d1e5b4f41664.png"
+        },
+        {
+          "prompt": "Use case: background-extraction. This is a sprite, not an environmental illustration. Edit the reference to completely REMOVE its brown smoke-like atmospheric illumination outside the building. Keep ONLY the hard-edged tower silhouette: roofs, brick base, flag, flame tongues sitting on torches, and gate. Preserve the architecture and viewing angle. OUTSIDE THE EXACT BUILDING OUTLINE THE ALPHA MUST BE ZERO: no fog, no halo, no gradient, no illumination backdrop, no floor, no shadow, no paper. An isolated clean cutout like a sticker with a precise silhouette. Uniformly reduce the entire building INCLUDING THE BASE AND PENNANT to fit inside a central rectangle only 74 percent of canvas width and 70 percent of canvas height. Empty transparent margins on all four sides. The remaining canvas is blank transparent. Neutral even light on the object, small window lights confined to the building, no light emitted into its transparent surroundings. No text. Transparent PNG, portrait 1024x1536.",
+          "references": [
+            "assets/art/ui/tower_intact.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-4f4e6cd3-23c0-48ee-a4d7-f9ea04be662c.png"
+        },
+        {
+          "prompt": "Repaint this tower as a CLEAN CUTOUT STICKER on a completely blank background. Delete the brown gradient atmosphere entirely. No coloured backdrop is allowed. Draw the complete SAME tower as a SMALLER isolated object in the middle, surrounded by abundant empty space, like an inventory icon. Only the solid roof, brickwork, columns, torches and flag are visible. Retain the same two timber tiers, red pillars, grey tiles, doorway and three-quarter viewing angle. The outside perimeter must have a sharp cutout silhouette, no blurred hazy glow at all. Flat neutral illumination. Do NOT preserve the old background or the old large framing. The building takes up ONLY TWO THIRDS of the height and TWO THIRDS of the width; one sixth of the canvas above, below, left and right is empty. No light or fog outside the silhouette. Plain blank transparent alpha background, no text or border. 1024x1536.",
+          "references": [
+            "assets/art/ui/tower_intact.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-9cbfee6e-56db-45df-94fd-b32a02d3dcc4.png"
+        }
+      ],
+      "notes": "PNG has real alpha and a complete building silhouette, but image generation retained a soft translucent warm halo after extraction edits. See handoff notes; validate over the final board palette."
+    },
+    {
+      "number": 94,
+      "name": "Tower - damaged",
+      "file": "assets/art/ui/tower_damaged.png",
+      "size": "1024x1536",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-902a8461-705e-4c29-b06f-d702f6ce9366.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nThe same Han-dynasty fortified gate tower, now badly damaged by siege: a corner of the timber watchtower roof has collapsed, tiles are missing, arrows stick out of the lacquered pillars, there are scorch marks and cracks in the brick base, one wall is splintered, small flames lick at an eave and grey smoke curls upward. Same slight three-quarter low angle and same size and position as the intact tower, centred and alone. A Han-dynasty watchtower or fortified gate with a transparent background, layered over the board. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Tower - intact: continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nSPRITE OVERRIDE: no environmental backdrop, no cloudy background, no rectangular glow, no cast ground shadow. The ink-wash and paper finish apply to the object surfaces only. Keep complete silhouette within central 76% of canvas width with transparent padding on all sides. Every pixel outside the subject's silhouette must be transparent; never include a background scene. Match the exact final intact-tower reference architecture, view, scale and base position. Damage changes the object only.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-9cbfee6e-56db-45df-94fd-b32a02d3dcc4.png"
+      ],
+      "review": "accepted",
+      "notes": "Real alpha with a soft translucent warm halo retained by the image generator. Align the building base when transitioning between states."
+    },
+    {
+      "number": 95,
+      "name": "Tower - destroyed",
+      "file": "assets/art/ui/tower_destroyed.png",
+      "size": "1024x1536",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-ebadd70a-e48e-45b4-bd70-37a2a4ef191a.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nThe ruins of the same Han-dynasty gate tower after it has fallen: only the cracked brick base and a broken arched gateway remain, with charred timber beams collapsed in a heap, scattered roof tiles, a snapped flagpole, glowing embers and a thin column of dark smoke rising. Same three-quarter low angle and same footprint as the intact tower, centred and alone, but lower and wider in silhouette. A Han-dynasty watchtower or fortified gate with a transparent background, layered over the board. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Tower - intact: continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nSPRITE OVERRIDE: no environmental backdrop, no cloudy background, no rectangular glow, no cast ground shadow. The ink-wash and paper finish apply to the object surfaces only. Keep complete silhouette within central 76% of canvas width with transparent padding on all sides. Every pixel outside the subject's silhouette must be transparent; never include a background scene. Match the exact final intact-tower reference base footprint, view and ground baseline. Ruins should be lower than the intact building, not enlarged to fill the canvas.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-9cbfee6e-56db-45df-94fd-b32a02d3dcc4.png"
+      ],
+      "review": "accepted",
+      "notes": "Real alpha with a soft translucent warm halo retained by the image generator. Align the building base when transitioning between states."
+    },
+    {
+      "number": 96,
+      "name": "Capital (Ancient)",
+      "file": "assets/art/ui/ancient_capital.png",
+      "size": "1024x1536",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-dae6e137-075a-407d-a64c-8d1cf74e3eb2.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA walled Han-dynasty imperial capital palace complex: a massive rammed-earth city wall with a grand triple-arched gate, behind it a tall multi-storey palace hall on a stepped stone terrace with layered sweeping golden-ridged roofs, bronze ornaments on the ridge ends, red lacquered columns and glowing lantern light. Seen from a slight three-quarter low angle, majestic and imposing, centred and alone, filling about 75% of the frame height. A Han-dynasty watchtower or fortified gate with a transparent background, layered over the board. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Tower - intact: continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nSPRITE OVERRIDE: no environmental backdrop, no cloudy background, no rectangular glow, no cast ground shadow. The ink-wash and paper finish apply to the object surfaces only. Keep complete silhouette within central 76% of canvas width with transparent padding on all sides. Every pixel outside the subject's silhouette must be transparent; never include a background scene. Imperial complex, distinct from the lane tower: triple arched gate and grander palace. Gentle neutral light, isolated architectural model, no fog behind it.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-9cbfee6e-56db-45df-94fd-b32a02d3dcc4.png"
+      ],
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Zoom WAY OUT on this exact imperial capital building. The complete palace complex must become HALF its current size, sitting small in the centre of the SAME portrait canvas. Leave a wide empty transparent margin at the left, right, top and bottom. The rightmost stone wall currently touches the edge: show its complete final corner with substantial empty space beyond it. Preserve the architecture, three arched gates, roofs, details and camera angle; ONLY change the camera distance and remove the ambient background. The entire building should fit inside the central 50 percent of the canvas width and 50 percent of the canvas height, surrounded by blank transparent alpha-zero space. No new objects or scenery, no background gradient, no shadow, no text. Output PNG 1024x1536.",
+          "references": [
+            "assets/art/ui/ancient_capital.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-dae6e137-075a-407d-a64c-8d1cf74e3eb2.png"
+        }
+      ],
+      "notes": "Complete capital complex reframed with generous padding. Real alpha includes a soft translucent warm halo; align its base and normalize visible building scale in the UI."
+    },
+    {
+      "number": 97,
+      "name": "Capital - falling",
+      "file": "assets/art/ui/ancient_capital_burning.png",
+      "size": "1024x1536",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-c7a280b9-2e40-498a-8e52-cea1de62b20c.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nThe same walled Han-dynasty capital palace, now under final assault: the palace roofs are engulfed in roaring orange flames, golden roof ridges are cracking, the great gate is splintered and sagging, sparks and ash spiral upward and thick black smoke rises above the halls, while the walls still stand. Same three-quarter low angle and same size and position as the intact capital, centred and alone. A Han-dynasty watchtower or fortified gate with a transparent background, layered over the board. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Capital (Ancient): continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nSPRITE OVERRIDE: no environmental backdrop, no cloudy background, no rectangular glow, no cast ground shadow. The ink-wash and paper finish apply to the object surfaces only. Keep complete silhouette within central 76% of canvas width with transparent padding on all sides. Every pixel outside the subject's silhouette must be transparent; never include a background scene. The final capital reference has generous padding. Preserve its exact small building scale, camera angle, architecture and base position rather than enlarging it. Fire and smoke must remain fully inside the canvas. No warm rectangular background or environment.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-dae6e137-075a-407d-a64c-8d1cf74e3eb2.png"
+      ],
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Zoom WAY OUT on this exact burning imperial capital. Make the actual BUILDING half its current apparent size and centre it on the same canvas, with its stone base around 69 percent down the canvas. The entire palace complex including its intact walls and triple gateway should fit inside the central 60 percent of canvas width, around 40 percent of canvas height. Flames and smoke extend upward from this smaller building but stay within the central 80 percent of the canvas. Wide blank transparent margins left, right and below. Preserve exactly the fire damage, architecture, view, brushwork and materials. Only change the camera distance and framing; no new scenery or objects. Complete every brick base corner. Transparent alpha-zero backdrop, no floor or background gradient. PNG portrait 1024x1536.",
+          "references": [
+            "assets/art/ui/ancient_capital_burning.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-c7a280b9-2e40-498a-8e52-cea1de62b20c.png"
+        }
+      ],
+      "notes": "Burning state reframed with clear margins; real alpha includes a translucent fire halo. Align base and normalize visible building scale against ancient_capital rather than relying solely on canvas size."
+    },
+    {
+      "number": 98,
+      "name": "Card back",
+      "file": "assets/art/ui/card_back.png",
+      "size": "1024x1536",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-5acb0f11-38e7-4bfe-9dbd-bd5cf4e9f2fa.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nThe back of a playing card: a perfectly symmetrical ornamental design on deep black lacquer with a fine cinnabar inner band. At the centre, a circular bronze medallion holds two coiled dragons chasing a flaming pearl, surrounded by concentric rings of auspicious cloud scrolls (xiangyun) and a geometric Han-dynasty thunder-pattern band. Four smaller cloud motifs sit in the corners. Fine gold-leaf linework and subtle lacquer sheen, mirrored left to right and top to bottom. A centred symmetrical emblem made of pure ornament (cloud scrolls, dragon motif) with no text. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Edit this card-back ornament to make its design evenly mirror-symmetrical. Keep the deep black lacquer, fine cinnabar inner band, aged bronze and gold linework, central circular medallion, cloud-scroll rings, thunder-pattern bands, and four corner ornaments. Rebuild the central motif as a symmetrical paired-dragon relief: two identical coiling dragon silhouettes facing inward from matching left and right positions, at the same height, surrounding a central flaming pearl. Mirror corresponding gold scrolls and scales across the vertical axis. The outer bands and four corners must also mirror both left-to-right and top-to-bottom. Give the round central medallion a balanced overall silhouette on all sides, with no directional landscape. No numbers, letters, Chinese characters, signature or watermark. 1024x1536 portrait.",
+          "references": [
+            "assets/art/ui/card_back.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-5acb0f11-38e7-4bfe-9dbd-bd5cf4e9f2fa.png"
+        }
+      ]
+    },
+    {
+      "number": 99,
+      "name": "Shu faction emblem (red)",
+      "file": "assets/art/ui/emblem_shu.png",
+      "size": "1024x1024",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA circular heraldic emblem for the Shu kingdom: a crimson jade disc (bi) carved with a coiling red dragon wrapped around a five-petal peach blossom, edged with a gold rim of small cloud scrolls, and jade-green leaves at the base. Bold, simple silhouette that reads clearly at small icon size, crisp edges and a front-on view. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: crimson and vermilion with jade-green accents, a warm sunset glow, peach blossoms and red silk banners, a mood of righteous brotherhood. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1024 square.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Edit this Shu emblem only to improve sprite framing. Preserve the crimson jade circular disc, coiling dragon, five-petal peach blossom, jade leaves and fine gold rim exactly in character and painterly style. Scale the COMPLETE emblem down uniformly so all its whiskers, rim and leaf tips fit inside the central 78 percent of a square canvas. Centre it with generous fully transparent padding on every side. Remove any ambient haze or glow outside the silhouette. Crisp isolated silhouette; transparent PNG alpha zero outside, no backdrop or shadow, no text. Output 1024x1024 square.",
+          "references": [
+            "assets/art/ui/emblem_shu.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png"
+        }
+      ]
+    },
+    {
+      "number": 100,
+      "name": "Wei faction emblem (blue)",
+      "file": "assets/art/ui/emblem_wei.png",
+      "size": "1024x1024",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-7445b686-da42-4aba-994f-4234dc6dd5f0.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA circular heraldic emblem for the Wei kingdom: a dark iron disc with indigo enamel, showing a spread-winged hawk in front of a steel crescent moon, framed by a rim of interlocking lamellar armour plates edged in thin gold. Bold, simple silhouette that reads clearly at small icon size, crisp edges and a front-on view. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1024 square.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Shu faction emblem (red): continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nSPRITE OVERRIDE: no environmental backdrop, no cloudy background, no rectangular glow, no cast ground shadow. The ink-wash and paper finish apply to the object surfaces only. Keep complete silhouette within central 76% of canvas width with transparent padding on all sides. Every pixel outside the subject's silhouette must be transparent; never include a background scene.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 101,
+      "name": "Wu faction emblem (green)",
+      "file": "assets/art/ui/emblem_wu.png",
+      "size": "1024x1024",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-cafe8e0f-baec-480e-820a-e53b6368cd96.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA circular heraldic emblem for the Wu kingdom: a jade-green lacquered disc showing a crouching tiger head above stylised curling river waves, with a small furled junk sail behind it, framed by a gold rim of wave crests. Bold, simple silhouette that reads clearly at small icon size, crisp edges and a front-on view. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: jade green and teal, wet lacquered wood, river mist and reflections on the Yangtze, war-junk sails and reeds, a mood of naval pride. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1024 square.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Shu faction emblem (red): continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nSPRITE OVERRIDE: no environmental backdrop, no cloudy background, no rectangular glow, no cast ground shadow. The ink-wash and paper finish apply to the object surfaces only. Keep complete silhouette within central 76% of canvas width with transparent padding on all sides. Every pixel outside the subject's silhouette must be transparent; never include a background scene.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 102,
+      "name": "Qun faction emblem (black)",
+      "file": "assets/art/ui/emblem_qun.png",
+      "size": "1024x1024",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-7d8d163a-e9a2-4bb9-89e6-d81a34778d63.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA circular heraldic emblem for the warlords of chaos: a cracked black iron disc showing a snarling wolf head over two crossed broken halberds, wisps of purple smoke curling from the cracks, a rim of jagged torn-banner shapes edged in tarnished gold and one small poison-green glint in the wolf's eye. Bold, simple silhouette that reads clearly at small icon size, crisp edges and a front-on view. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: ink black and bruised purple, curling smoke and embers, torn banners, poison-green highlights, a mood of ambition, treachery and chaos. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1024 square.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Shu faction emblem (red): continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nSPRITE OVERRIDE: no environmental backdrop, no cloudy background, no rectangular glow, no cast ground shadow. The ink-wash and paper finish apply to the object surfaces only. Keep complete silhouette within central 76% of canvas width with transparent padding on all sides. Every pixel outside the subject's silhouette must be transparent; never include a background scene.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 103,
+      "name": "Initiative token (tiger tally)",
+      "file": "assets/art/ui/initiative_token.png",
+      "size": "1024x1024",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-fae3870e-822e-4765-90f2-bcde5ce0d2ee.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nAn ancient Chinese bronze tiger tally (hufu), the token that gave a general the right to move troops: a small crouching tiger sculpted in green-patinated bronze, split down the spine into two matching halves that are slightly separated, with gold-inlaid cloud swirls on its flank in place of an inscription. Three-quarter view, floating, with a soft gold glow rim-lighting the edges. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1024 square.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Edit this bronze tiger tally sprite only to correct its framing. Keep its crouching tiger form, two visibly separated matching halves, green patina and gold cloud-scroll relief. Scale the complete object down so its nose, tail, paws and ALL visible glow fit inside the central 76 percent of the square canvas, with at least 12 percent transparent padding around it. Keep the split seam clear. Remove broad surrounding glow and any shadows, preserve highlights on bronze. Clean fully transparent alpha-zero background, no text or scenery. Output 1024x1024 square.",
+          "references": [
+            "assets/art/ui/initiative_token.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-fae3870e-822e-4765-90f2-bcde5ce0d2ee.png"
+        }
+      ]
+    },
+    {
+      "number": 104,
+      "name": "Command (mana) icon",
+      "file": "assets/art/ui/mana_command.png",
+      "size": "1024x1024",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-f83038d8-f2e9-4496-bb31-8a99326a740a.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA glowing command gem used as the mana icon: a polished deep-blue lapis cabochon set in a bronze mount shaped like a general's command tablet, with soft inner light radiating from its centre and faint wisps of mist curling around it. The front of the stone is large, smooth and plain so a number can be overlaid. Straight front-on view with a bold readable silhouette. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1024 square.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted",
+      "revisions": [
+        {
+          "prompt": "Edit this blue command-gem sprite only to improve framing and number readability. Preserve the smooth deep-blue lapis stone, bronze command-tablet mount and painterly gold decoration. Scale the whole icon including all tips and mist down into the central 76 percent of the square canvas, with generous transparent padding on every side. Simplify the centre of the blue cabochon to a smooth low-detail luminous blue surface so a white number can be overlaid later; keep mineral flecks subtle near its edge. No number actually painted. Remove ambient backdrop and broad outer glow. Genuine transparent alpha-zero background, no text or symbols. Output 1024x1024 square.",
+          "references": [
+            "assets/art/ui/mana_command.png"
+          ],
+          "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-f83038d8-f2e9-4496-bb31-8a99326a740a.png"
+        }
+      ]
+    },
+    {
+      "number": 105,
+      "name": "Gold coin icon",
+      "file": "assets/art/ui/gold_coin.png",
+      "size": "1024x1024",
+      "transparent": true,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-eceaa81a-3a28-4b5f-8a44-137383d95dae.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA single round ancient Chinese gold coin with a square hole in the centre, in the shape of a Han-dynasty wuzhu coin but with a raised rim and simple cloud-scroll relief in place of any inscription. Polished gold with warm specular highlights and slight wear, tilted at a gentle three-quarter angle, with a few tiny gold sparks around it. Bold readable silhouette at small icon size. A single isolated object, centred with even padding on a transparent background, exported as a PNG with alpha. No drop-shadow ground plane. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. Transparent background: the ink-wash and paper texture describe only how the object itself is painted, with no backdrop behind it. 1024x1024 square.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 106,
+      "name": "Shop / armory background",
+      "file": "assets/art/ui/shop_armory.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-ec2ba866-5cdd-4d02-bfe4-5d04bd833708.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nInterior of a Han-dynasty army market tent at night: weapon racks with halberds, swords and bows line the left and right walls, lacquered armour stands in the corners, and a large open bronze-banded wooden merchant chest at the lower centre spills gold coins and wrapped bundles. Warm candle and brazier light with hanging oil lamps. The upper-middle area is plain dim canvas and deep shadow, where item cards will be shown. Wide landscape composition with a calm, low-detail centre band so cards stay readable on top of it, and the detail kept to the sides and lower edge. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nUI background composition takes priority over the portrait style reference. Do not include Guan Yu, a central portrait, or his sword. Preserve the specified calm overlay areas and wide landscape dimensions.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 107,
+      "name": "Black-market stall (Secret Shop)",
+      "file": "assets/art/ui/black_market.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-e528212d-f469-41d5-82b8-e72f216fcb05.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA secret black-market stall hidden in a narrow alley at night: a crooked wooden booth under a torn dark cloth awning, with a hooded merchant whose face is hidden in shadow sitting behind it, half-visible on the right. On the counter are glinting daggers, a jade bottle of poison, sealed lacquer boxes and a strange bronze mirror. A single plain paper lantern gives purple-tinted light, and smoke drifts through the alley. The left half and centre stay dark and quiet for cards. Wide shot from eye level. Wide landscape composition with a calm, low-detail centre band so cards stay readable on top of it, and the detail kept to the sides and lower edge. Faction palette: ink black and bruised purple, curling smoke and embers, torn banners, poison-green highlights, a mood of ambition, treachery and chaos. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nUI background composition takes priority over the portrait style reference. Do not include Guan Yu, a central portrait, or his sword. Preserve the specified calm overlay areas and wide landscape dimensions.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 108,
+      "name": "Deployment camp (Fountain)",
+      "file": "assets/art/ui/camp_fountain.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-00548e0a-4dbf-401e-a616-0e7aee5b3963.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA Han-dynasty army base camp at dawn, seen from a high three-quarter angle: rows of canvas command tents with undyed banners around a central healing well, where a stone well basin glows with soft golden light and mist rises from it. Field medics' herbs hang drying, weapon racks stand waiting and supply carts line the perimeter. A peaceful, restorative mood. The middle ground around the well is open and uncluttered, with no people in the foreground. Wide landscape composition with a calm, low-detail centre band so cards stay readable on top of it, and the detail kept to the sides and lower edge. Faction palette: muted earth tones (hemp, leather, dust), modest and unadorned. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nUI background composition takes priority over the portrait style reference. Do not include Guan Yu, a central portrait, or his sword. Preserve the specified calm overlay areas and wide landscape dimensions.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 109,
+      "name": "Main menu key art - Red Cliffs",
+      "file": "assets/art/ui/menu_key_art.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-8a718ac7-1240-4b89-b189-61725e6e2c9d.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nEpic wide battle scene of the Battle of Red Cliffs at night: a vast fleet of chained warships burns on the Yangtze River beneath towering red cliffs, flames and sparks swept along by a fierce east wind. Small fire-ships with green sails charge in from the right, crimson-bannered troops cheer from the cliff tops and dark-blue armoured soldiers leap from the burning decks. The fire reflects on the black water. The focal blaze sits in the right-centre, the left third is calmer dark river and mist for the menu buttons, and the bottom quarter is dark water. Cinematic wide shot. Faction palette: jade green and teal, wet lacquered wood, river mist and reflections on the Yangtze, war-junk sails and reeds, a mood of naval pride. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\n2. Zhou Yu: continuity reference for the named character or object\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nFINAL MAIN MENU KEY ART: this must be a panoramic historical naval battlefield, not a portrait or icon. The attached Guan Yu and Zhou Yu images guide painting style and period naval details only; do not insert either hero as a large foreground figure. Keep the entire left third and bottom quarter dark, low-detail river and mist for buttons. No writing anywhere on sails or banners.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-418d165c-d40a-4800-bbba-ec1a22065fbe.png"
+      ],
       "review": "pending"
+    },
+    {
+      "number": 110,
+      "name": "Victory splash background",
+      "file": "assets/art/ui/splash_victory.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-6b9dc76d-5ed8-45b1-8c9a-f4799588b4f6.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA triumphant victory scene: sunrise breaks over a captured fortress on a hilltop, with golden light rays streaming through parting clouds. Silhouetted soldiers raise spears and plain silk banners along the ridge in the lower distance, and peach petals and gold sparks drift through the air. The centre of the image is a bright, soft, empty glow of sky, with the strong detail kept to the lower and side edges. A wide, uplifting composition. Faction palette: burnished gold and bronze, warm candlelight, a museum-quality treasured artifact, otherwise a neutral muted ink-wash palette. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nUI background composition takes priority over the portrait style reference. Do not include Guan Yu, a central portrait, or his sword. Preserve the specified calm overlay areas and wide landscape dimensions.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
+    },
+    {
+      "number": 111,
+      "name": "Defeat splash background",
+      "file": "assets/art/ui/splash_defeat.png",
+      "size": "1536x1024",
+      "transparent": false,
+      "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-b6a41068-400d-4c3a-b748-d889b8a0b3d3.png",
+      "prompt": "Create a NEW independent illustration of the subject described below. Attached images are reference guides only; reconstruct the requested scene from scratch. Do not retain their composition, setting, character, props or costume unless explicitly requested as a continuity reference.\nA sombre defeat scene at dusk: a fallen plain war banner lies torn in the mud of an abandoned battlefield, with broken spears and an empty helmet nearby. A burned-out gate tower smoulders in the far distance under a heavy grey-purple sky, crows circle and cold rain begins to fall. The centre of the image is open, dim, misty sky for an overlay, with the detail kept to the lower third and the edges. Muted and melancholy, with no bodies and no gore. Faction palette: ink black and bruised purple, curling smoke and embers, torn banners, poison-green highlights, a mood of ambition, treachery and chaos. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1536x1024 landscape.\nReference roles:\n1. Guan Yu: rendering and brushwork reference\nMatch the rendering style, palette and brushwork of the attached image. Apply the faction palette specified in the main prompt; preserve its own subject, pose and setting. References establish consistent rendering, not an instruction to repeat Guan Yu or his costume.\nUI background composition takes priority over the portrait style reference. Do not include Guan Yu, a central portrait, or his sword. Preserve the specified calm overlay areas and wide landscape dimensions.",
+      "references": [
+        "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
+      ],
+      "review": "accepted"
     }
   ]
 }

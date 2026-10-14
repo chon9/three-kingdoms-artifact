@@ -252,25 +252,82 @@ STEAM_INVITE,Invite Steam friends,邀请 Steam 好友
 STEAM_COPY_ID,Copy lobby ID,复制房间号
 STEAM_LEAVE,Leave lobby,离开房间
 STEAM_LOBBY,Lobby: {lobby},房间：{lobby}
-STEAM_LOBBY_PLACEHOLDER,Paste your friend's lobby ID,粘贴好友的房间号
-STEAM_DOCS_HINT,See docs/STEAM.md for optional GodotSteam setup. Offline play works with standard Godot.,GodotSteam 为可选组件，设置方法见 docs/STEAM.md。离线游玩无需任何额外组件。
-STEAM_NOT_INSTALLED,GodotSteam is not installed. Offline AI and local play are available.,未安装 GodotSteam。可进行人机与本地双人对战。
+STEAM_LOBBY_PLACEHOLDER,Paste a lobby ID or +connect_lobby link,粘贴房间号或 +connect_lobby 链接
+STEAM_DOCS_HINT,"GodotSteam is bundled in addons/godotsteam. Start the Steam client and sign in, then restart the game. See docs/STEAM.md.",GodotSteam 已随项目附带（addons/godotsteam）。请先启动并登录 Steam 客户端，再重新启动游戏。详见 docs/STEAM.md。
+STEAM_NOT_INSTALLED,GodotSteam could not be loaded. Offline AI and local play are available.,无法加载 GodotSteam。可进行人机与本地双人对战。
 STEAM_MISSING_METHOD,This GodotSteam build is missing {method}. See docs/STEAM.md.,当前 GodotSteam 版本缺少 {method}。详见 docs/STEAM.md。
 STEAM_INIT_FAILED,Steam could not initialize: {reason},Steam 初始化失败：{reason}
 STEAM_CONNECTED,Steam connected. Development App ID {app_id}. Create or join a two-player lobby.,已连接 Steam（开发用 App ID {app_id}）。请创建或加入双人房间。
-STEAM_CREATING_LOBBY,Creating a friends-only lobby…,正在创建好友房间……
+STEAM_CREATING_LOBBY,Creating a lobby…,正在创建房间……
 STEAM_INVALID_LOBBY_ID,Enter a valid numeric Steam lobby ID.,请输入有效的数字房间号。
 STEAM_JOINING_LOBBY,Joining lobby…,正在加入房间……
 STEAM_SNAPSHOT_TOO_LARGE,Match snapshot is too large for the development transport.,对局数据过大，开发用传输通道无法发送。
 STEAM_SEND_FAILED,Steam send failed ({result}). Check that your opponent is connected.,Steam 发送失败（{result}）。请确认对手仍在线。
 STEAM_CREATE_FAILED,Steam lobby creation failed ({result}).,创建 Steam 房间失败（{result}）。
-STEAM_LOBBY_CREATED,Lobby {lobby} created. Share its ID with a friend.,房间 {lobby} 已创建。请将房间号发给好友。
+STEAM_LOBBY_CREATED,"Lobby {lobby} created. Invite a friend, share the ID, or wait in the lobby list.",房间 {lobby} 已创建。可邀请好友、发送房间号，或等待他人从房间列表加入。
 STEAM_JOIN_FAILED,Steam lobby join failed ({result}).,加入 Steam 房间失败（{result}）。
-STEAM_INCOMPATIBLE_LOBBY,This lobby belongs to another game or incompatible version.,该房间属于其他游戏或不兼容的版本。
-STEAM_RESERVED_OPPONENT,This match is reserved for the original opponent. Create a new lobby for another player.,本局仅限原对手加入。如需与他人对战，请新建房间。
+STEAM_INCOMPATIBLE_LOBBY,This lobby belongs to another game.,该房间属于其他游戏。
+STEAM_RESERVED_OPPONENT,Another player tried to take your opponent's seat and was turned away. Only the original opponent can rejoin this match.,有其他玩家试图占用对手的席位，已被拒绝。本局只有原对手可以重新加入。
 STEAM_WAITING_OPPONENT,Lobby {lobby}: waiting for your opponent.,房间 {lobby}：等待对手加入。
-STEAM_HOST_UNAVAILABLE,The original host is unavailable. Host migration is not supported yet.,原房主已离开。暂不支持更换房主。
-STEAM_OPPONENT_CONNECTED,Lobby {lobby}: opponent connected.,房间 {lobby}：对手已连接。
+STEAM_HOST_UNAVAILABLE,The host is unavailable.,房主无法连接。
+STEAM_OPPONENT_CONNECTED,Connected to {name}. The match begins.,已连接{name}，对局开始。
+STEAM_HOST_PUBLIC,Host public lobby,创建公开房间
+STEAM_DISABLED,Steam is turned off for this run (headless or --no-steam). Offline play is available.,本次运行未启用 Steam（无界面模式或 --no-steam）。可进行离线对战。
+STEAM_JOINED_LOBBY,Joined lobby {lobby}. Contacting the host…,已加入房间 {lobby}，正在联系房主……
+STEAM_CONNECTED_TO_HOST,Connected to {name}. You are Player 2.,已连接{name}。你是玩家2。
+STEAM_VERSION_MISMATCH,"Version mismatch: the host runs protocol {host_protocol}, content {host_content}; you run protocol {protocol}, content {content}. Both players need the same build.",版本不一致：房主为协议 {host_protocol}、内容 {host_content}；你为协议 {protocol}、内容 {content}。双方需要使用相同版本。
+STEAM_GUEST_VERSION_MISMATCH,{name} has a different game version and was turned away.,{name}的游戏版本不同，已拒绝其加入。
+STEAM_SEAT_TAKEN,This match is reserved for its original opponent. Ask the host to create a new lobby.,本局席位已留给原对手。请房主新建房间。
+STEAM_OPPONENT_LEFT,{name} left the match. Waiting for them to rejoin…,{name}离开了对局，正在等待其重新加入……
+STEAM_OPPONENT_DISCONNECTED,{name} lost connection. Waiting for them to rejoin…,{name}连接中断，正在等待其重新加入……
+STEAM_OPPONENT_TIMEOUT,No reply from {name} for {seconds} seconds. Waiting…,{name}已有 {seconds} 秒没有回应，正在等待……
+STEAM_OPPONENT_RETURNED,{name} is back. The match continues.,{name}已返回，对局继续。
+STEAM_HOST_TIMEOUT,No reply from the host for {seconds} seconds. Waiting…,房主已有 {seconds} 秒没有回应，正在等待……
+STEAM_HOST_LEFT,The host left. The online match has ended.,房主已离开，联机对局结束。
+STEAM_KICKED,You were removed from the lobby.,你已被移出房间。
+STEAM_STEAM_SHUTDOWN,Steam is shutting down. Online play has ended.,Steam 正在关闭，联机对局结束。
+STEAM_SESSION_FAILED,Connection to {name} failed (code {reason}). Retrying automatically…,与{name}的连接失败（代码 {reason}），正在自动重试……
+STEAM_SEARCHING_LOBBIES,Searching for public lobbies…,正在搜索公开房间……
+STEAM_LOBBIES_FOUND,Public lobbies found: {n}.,找到公开房间：{n} 个。
+STEAM_LEFT_LOBBY,You left the lobby.,你已离开房间。
+STEAM_BROWSER_TITLE,Public lobbies,公开房间
+STEAM_BROWSER_HINT,"Lobbies hosted as public by players of this game, worldwide.",本游戏玩家创建的公开房间（全球范围）。
+STEAM_BROWSER_EMPTY,"No public lobbies found. Ask a friend to host a public lobby, or join by ID.",没有找到公开房间。可请好友创建公开房间，或通过房间号加入。
+STEAM_REFRESH,Refresh,刷新
+STEAM_BROWSER_ROW,{host} · {status},{host} · {status}
+STEAM_UNKNOWN_HOST,Unknown host,未知房主
+STEAM_LOBBY_STATUS_WAITING,Waiting for an opponent,等待对手
+STEAM_LOBBY_STATUS_PLAYING,In a match,对局中
+STEAM_LOBBY_STATUS_RECONNECTING,Waiting for a player to rejoin,等待玩家重新加入
+STEAM_LOBBY_INCOMPATIBLE,Different version,版本不同
+STEAM_VERSION_INFO,GodotSteam {version} · protocol {protocol} · content {content},GodotSteam {version} · 协议 {protocol} · 内容 {content}
+STEAM_LOBBY_CREATED_FRIENDS,Lobby {lobby} created. Invite a friend or share the lobby ID.,房间 {lobby} 已创建。可邀请好友或发送房间号。
+STEAM_INIT_NO_CLIENT,"Steam is not running or you are not signed in. Start Steam, sign in, then restart the game.",Steam 未运行或未登录。请启动并登录 Steam，然后重新启动游戏。
+STEAM_INIT_VERSION,"Your Steam client is older than this game's Steam library. Update Steam, then restart the game.",你的 Steam 客户端版本低于本游戏使用的 Steam 库。请更新 Steam 后重新启动游戏。
+STEAM_STEAM_DISCONNECTED,The connection to Steam was lost. The online match has ended.,与 Steam 的连接已断开，联机对局结束。
+STEAM_LEAVE_FIRST,Leave the current lobby before hosting or joining another.,请先离开当前房间，再创建或加入其他房间。
+HINT_COMMAND_REJECTED,The host did not apply that move (the board had changed). Try again.,房主未执行该操作（局面已变化），请重试。
+HINT_HOST_ONLY_RESULT,Only the lobby host can do this.,只有房主可以执行此操作。
+REPLAY_HOST_ONLY,Only the host can save the replay of an online match.,只有房主可以保存联机对局的回放。
+RECONNECT_TITLE_OPPONENT,Opponent disconnected,对手已断线
+RECONNECT_TITLE_HOST,Host not responding,房主没有回应
+RECONNECT_WAITING,Waiting for {name} to reconnect… {time},正在等待{name}重新连接……{time}
+RECONNECT_HINT_HOST,Your opponent can rejoin this lobby with the same Steam account and continue where they left off.,对手可用同一 Steam 账号重新加入本房间，从中断处继续。
+RECONNECT_HINT_GUEST,"The host keeps the match. When the connection returns, play continues where it stopped.",对局保存在房主一方。连接恢复后，将从中断处继续。
+RECONNECT_KEEP_WAITING,Keep waiting,继续等待
+RECONNECT_CLAIM_WIN,Claim victory,判我方胜
+RECONNECT_CLAIM_IN,Claim victory ({n}s),判我方胜（{n}秒）
+RECONNECT_LEAVE,Leave match,离开对局
+RECONNECT_OPTIONS,Options,选项
+HINT_WAITING_RECONNECT,The match is paused until your opponent reconnects.,对局已暂停，等待对手重新连接。
+CONCEDE_CONFIRM_BODY,Your opponent wins the match. This cannot be undone.,对方将赢得本局，且无法撤销。
+NET_TOOLTIP,Connection: {state} · {ping},连接：{state} · {ping}
+NET_PING,{ms} ms,{ms} 毫秒
+NET_GOOD,good,良好
+NET_FAIR,fair,一般
+NET_POOR,poor,较差
+NET_LOST,lost,已断开
+NET_UNKNOWN,measuring,测量中
 ERR_DECK_SELECTION,Choose one deck for each player.,请为双方各选择一套牌组。
 ERR_BAD_INDEX,Command indexes must be whole numbers.,指令序号必须为整数。
 ERR_ILLEGAL_ACTION,That action is not legal in the current state.,当前局面下不能执行该操作。
@@ -305,6 +362,7 @@ EV_COMBAT,{lane} combat: {player1} deals {damage1} structure damage; {player2} d
 EV_DEATH,{card} falls. {player} earns {gold} gold.,{card}阵亡，{player}获得{gold}金。
 EV_TOWER_FALL,{player}'s tower falls. An {health}-health ancient is exposed.,{player}的城楼被攻破，{health}点体力的都城暴露在外。
 EV_ANCIENT_FALL,{player}'s ancient falls.,{player}的都城陷落。
+EV_CONCEDE,{player} concedes.,{player}认输。
 EV_WIN,{player} wins.,{player}获胜。
 EV_DRAW,Draw.,平局。
 EV_DEPLOYMENT,Round {round}. Lane creeps: {creeps}. Choose lanes for available heroes; choices reveal together.,第{round}回合。各路兵卒：{creeps}。为可出阵的武将选择路线，双方同时揭晓。

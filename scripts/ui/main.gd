@@ -18,6 +18,7 @@ const CatalogDialog = preload("res://scripts/ui/catalog_dialog.gd")
 const ReplaysDialog = preload("res://scripts/ui/replays_dialog.gd")
 const SteamDialog = preload("res://scripts/ui/steam_dialog.gd")
 const MatchMenu = preload("res://scripts/ui/match_menu.gd")
+const ConfirmDialog = preload("res://scripts/ui/confirm_dialog.gd")
 
 var controller: Node
 var screen: Control
@@ -81,6 +82,8 @@ func _ready() -> void:
 	screen.game_over_action.connect(_on_game_over_action)
 	menu.action_requested.connect(_on_menu_action)
 	controller.match_started.connect(_on_match_started)
+	controller.online_ended.connect(_on_online_ended)
+	controller.online_join_started.connect(_on_online_join_started)
 	menu.set_can_resume(false)
 	show_main_menu()
 
@@ -114,6 +117,19 @@ func _on_match_started() -> void:
 	close_dialogs()
 	screen.reset()
 	show_match()
+
+## The online session ended (host left, Steam closed, we left): back to the
+## menu with the Steam dialog explaining what happened.
+func _on_online_ended(_text: String) -> void:
+	show_main_menu()
+	open_steam()
+
+## An overlay invite or "+connect_lobby" launch argument started a join.
+func _on_online_join_started() -> void:
+	if not dialogs().any(func(dialog): return dialog is SteamDialog):
+		if not controller.started or controller.is_finished():
+			show_main_menu()
+		open_steam()
 
 func _on_menu_action(action: String) -> void:
 	sfx.play("tap-b")
@@ -195,6 +211,8 @@ func open_menu() -> Control:
 	var dialog = MatchMenu.new()
 	if controller.is_guest():
 		dialog.disabled_actions = ["new", "decks", "save", "replays"]
+	if not controller.can_concede():
+		dialog.disabled_actions.append("concede")
 	dialog.selected.connect(_on_match_menu)
 	return _open(dialog)
 
@@ -214,10 +232,21 @@ func _on_match_menu(action: String) -> void:
 			open_steam.call_deferred()
 		"new":
 			start_match(controller.mode)
+		"concede":
+			open_concede.call_deferred()
 		"menu":
 			show_main_menu()
 		"quit":
 			get_tree().quit()
+
+## Asks before conceding; confirming ends the match in the opponent's favour.
+func open_concede() -> Control:
+	var dialog = ConfirmDialog.new()
+	dialog.title_key = "MENU_CONCEDE_CONFIRM"
+	dialog.message_key = "CONCEDE_CONFIRM_BODY"
+	dialog.confirm_key = "MENU_CONCEDE"
+	dialog.confirmed.connect(func(): controller.concede())
+	return _open(dialog)
 
 func _on_setting_changed(kind: String) -> void:
 	match kind:
@@ -273,6 +302,9 @@ func deploy_hero(uid: int, lane: int) -> void:
 
 func finish_deployment() -> void:
 	screen.press_coin()
+
+func concede() -> Dictionary:
+	return controller.concede()
 
 func set_locale(locale: String) -> void:
 	Settings.set_locale(locale, false)

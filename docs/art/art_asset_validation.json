@@ -1,0 +1,1547 @@
+[
+  {
+    "number": 1,
+    "file": "assets/art/cards/keefe.png",
+    "runtime_file": "assets/art/cards/keefe.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 2,
+    "file": "assets/art/cards/axe.png",
+    "runtime_file": "assets/art/cards/axe.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 3,
+    "file": "assets/art/cards/jmuy.png",
+    "runtime_file": "assets/art/cards/jmuy.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 4,
+    "file": "assets/art/cards/zeus.png",
+    "runtime_file": "assets/art/cards/zeus.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 5,
+    "file": "assets/art/cards/farvhan.png",
+    "runtime_file": "assets/art/cards/farvhan.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 6,
+    "file": "assets/art/cards/lycan.png",
+    "runtime_file": "assets/art/cards/lycan.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 7,
+    "file": "assets/art/cards/drow.png",
+    "runtime_file": "assets/art/cards/drow.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 8,
+    "file": "assets/art/cards/rix.png",
+    "runtime_file": "assets/art/cards/rix.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 9,
+    "file": "assets/art/cards/phantom_assassin.png",
+    "runtime_file": "assets/art/cards/phantom_assassin.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 10,
+    "file": "assets/art/cards/debbi.png",
+    "runtime_file": "assets/art/cards/debbi.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 11,
+    "file": "assets/art/cards/melee_creep.png",
+    "runtime_file": "assets/art/cards/melee_creep.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 12,
+    "file": "assets/art/cards/prowler_vanguard.png",
+    "runtime_file": "assets/art/cards/prowler_vanguard.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 13,
+    "file": "assets/art/cards/centaur_hunter.png",
+    "runtime_file": "assets/art/cards/centaur_hunter.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 14,
+    "file": "assets/art/cards/thunderhide_pack.png",
+    "runtime_file": "assets/art/cards/thunderhide_pack.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 15,
+    "file": "assets/art/cards/bronze_legionnaire.png",
+    "runtime_file": "assets/art/cards/bronze_legionnaire.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 16,
+    "file": "assets/art/cards/savage_wolf.png",
+    "runtime_file": "assets/art/cards/savage_wolf.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 17,
+    "file": "assets/art/cards/ogre_conscript.png",
+    "runtime_file": "assets/art/cards/ogre_conscript.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 18,
+    "file": "assets/art/cards/untested_grunt.png",
+    "runtime_file": "assets/art/cards/untested_grunt.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 19,
+    "file": "assets/art/cards/claymore.png",
+    "runtime_file": "assets/art/cards/claymore.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 20,
+    "file": "assets/art/cards/broadsword.png",
+    "runtime_file": "assets/art/cards/broadsword.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 21,
+    "file": "assets/art/cards/short_sword.png",
+    "runtime_file": "assets/art/cards/short_sword.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 22,
+    "file": "assets/art/cards/leather_armor.png",
+    "runtime_file": "assets/art/cards/leather_armor.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 23,
+    "file": "assets/art/cards/travelers_cloak.png",
+    "runtime_file": "assets/art/cards/travelers_cloak.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 24,
+    "file": "assets/art/cards/healing_salve.png",
+    "runtime_file": "assets/art/cards/healing_salve.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 25,
+    "file": "assets/art/cards/potion_of_knowledge.png",
+    "runtime_file": "assets/art/cards/potion_of_knowledge.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 26,
+    "file": "assets/art/cards/town_portal_scroll.png",
+    "runtime_file": "assets/art/cards/town_portal_scroll.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 27,
+    "file": "assets/art/cards/fighting_instinct.png",
+    "runtime_file": "assets/art/cards/fighting_instinct.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 28,
+    "file": "assets/art/cards/berserkers_call.png",
+    "runtime_file": "assets/art/cards/berserkers_call.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 29,
+    "file": "assets/art/cards/defensive_stance.png",
+    "runtime_file": "assets/art/cards/defensive_stance.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 30,
+    "file": "assets/art/cards/combat_training.png",
+    "runtime_file": "assets/art/cards/combat_training.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 31,
+    "file": "assets/art/cards/battlefield_control.png",
+    "runtime_file": "assets/art/cards/battlefield_control.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 32,
+    "file": "assets/art/cards/thundergods_wrath.png",
+    "runtime_file": "assets/art/cards/thundergods_wrath.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 33,
+    "file": "assets/art/cards/foresight.png",
+    "runtime_file": "assets/art/cards/foresight.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 34,
+    "file": "assets/art/cards/annihilation.png",
+    "runtime_file": "assets/art/cards/annihilation.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 35,
+    "file": "assets/art/cards/lightning_strike.png",
+    "runtime_file": "assets/art/cards/lightning_strike.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 36,
+    "file": "assets/art/cards/dimensional_portal.png",
+    "runtime_file": "assets/art/cards/dimensional_portal.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 37,
+    "file": "assets/art/cards/tower_barrage.png",
+    "runtime_file": "assets/art/cards/tower_barrage.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 38,
+    "file": "assets/art/cards/thunderstorm.png",
+    "runtime_file": "assets/art/cards/thunderstorm.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 39,
+    "file": "assets/art/cards/arm_the_rebellion.png",
+    "runtime_file": "assets/art/cards/arm_the_rebellion.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 40,
+    "file": "assets/art/cards/stars_align.png",
+    "runtime_file": "assets/art/cards/stars_align.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 41,
+    "file": "assets/art/cards/gust.png",
+    "runtime_file": "assets/art/cards/gust.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 42,
+    "file": "assets/art/cards/avernus_blessing.png",
+    "runtime_file": "assets/art/cards/avernus_blessing.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 43,
+    "file": "assets/art/cards/act_of_defiance.png",
+    "runtime_file": "assets/art/cards/act_of_defiance.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 44,
+    "file": "assets/art/cards/no_accident.png",
+    "runtime_file": "assets/art/cards/no_accident.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 45,
+    "file": "assets/art/cards/hip_fire.png",
+    "runtime_file": "assets/art/cards/hip_fire.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 46,
+    "file": "assets/art/cards/coup_de_grace.png",
+    "runtime_file": "assets/art/cards/coup_de_grace.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 47,
+    "file": "assets/art/cards/pick_off.png",
+    "runtime_file": "assets/art/cards/pick_off.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 48,
+    "file": "assets/art/cards/slay.png",
+    "runtime_file": "assets/art/cards/slay.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 49,
+    "file": "assets/art/cards/forward_charge.png",
+    "runtime_file": "assets/art/cards/forward_charge.jpg",
+    "width": 512,
+    "height": 768,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 50,
+    "file": "assets/art/heroes_reserve/liubei.png",
+    "runtime_file": "assets/art/heroes_reserve/liubei.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 51,
+    "file": "assets/art/heroes_reserve/zhaoyun.png",
+    "runtime_file": "assets/art/heroes_reserve/zhaoyun.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 52,
+    "file": "assets/art/heroes_reserve/zhugeliang.png",
+    "runtime_file": "assets/art/heroes_reserve/zhugeliang.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 53,
+    "file": "assets/art/heroes_reserve/machao.png",
+    "runtime_file": "assets/art/heroes_reserve/machao.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 54,
+    "file": "assets/art/heroes_reserve/huangzhong.png",
+    "runtime_file": "assets/art/heroes_reserve/huangzhong.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 55,
+    "file": "assets/art/heroes_reserve/weiyan.png",
+    "runtime_file": "assets/art/heroes_reserve/weiyan.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 56,
+    "file": "assets/art/heroes_reserve/jiangwei.png",
+    "runtime_file": "assets/art/heroes_reserve/jiangwei.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 57,
+    "file": "assets/art/heroes_reserve/pangtong.png",
+    "runtime_file": "assets/art/heroes_reserve/pangtong.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 58,
+    "file": "assets/art/heroes_reserve/huangyueying.png",
+    "runtime_file": "assets/art/heroes_reserve/huangyueying.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 59,
+    "file": "assets/art/heroes_reserve/guojia.png",
+    "runtime_file": "assets/art/heroes_reserve/guojia.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 60,
+    "file": "assets/art/heroes_reserve/xunyu.png",
+    "runtime_file": "assets/art/heroes_reserve/xunyu.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 61,
+    "file": "assets/art/heroes_reserve/zhangliao.png",
+    "runtime_file": "assets/art/heroes_reserve/zhangliao.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 62,
+    "file": "assets/art/heroes_reserve/xuchu.png",
+    "runtime_file": "assets/art/heroes_reserve/xuchu.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 63,
+    "file": "assets/art/heroes_reserve/dianwei.png",
+    "runtime_file": "assets/art/heroes_reserve/dianwei.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 64,
+    "file": "assets/art/heroes_reserve/xiahoudun.png",
+    "runtime_file": "assets/art/heroes_reserve/xiahoudun.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 65,
+    "file": "assets/art/heroes_reserve/xiahouyuan.png",
+    "runtime_file": "assets/art/heroes_reserve/xiahouyuan.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 66,
+    "file": "assets/art/heroes_reserve/zhenji.png",
+    "runtime_file": "assets/art/heroes_reserve/zhenji.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 67,
+    "file": "assets/art/heroes_reserve/dengai.png",
+    "runtime_file": "assets/art/heroes_reserve/dengai.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 68,
+    "file": "assets/art/heroes_reserve/sunjian.png",
+    "runtime_file": "assets/art/heroes_reserve/sunjian.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 69,
+    "file": "assets/art/heroes_reserve/sunce.png",
+    "runtime_file": "assets/art/heroes_reserve/sunce.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 70,
+    "file": "assets/art/heroes_reserve/luxun.png",
+    "runtime_file": "assets/art/heroes_reserve/luxun.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 71,
+    "file": "assets/art/heroes_reserve/lusu.png",
+    "runtime_file": "assets/art/heroes_reserve/lusu.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 72,
+    "file": "assets/art/heroes_reserve/huanggai.png",
+    "runtime_file": "assets/art/heroes_reserve/huanggai.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 73,
+    "file": "assets/art/heroes_reserve/taishici.png",
+    "runtime_file": "assets/art/heroes_reserve/taishici.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 74,
+    "file": "assets/art/heroes_reserve/zhoutai.png",
+    "runtime_file": "assets/art/heroes_reserve/zhoutai.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 75,
+    "file": "assets/art/heroes_reserve/sunshangxiang.png",
+    "runtime_file": "assets/art/heroes_reserve/sunshangxiang.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 76,
+    "file": "assets/art/heroes_reserve/daqiao.png",
+    "runtime_file": "assets/art/heroes_reserve/daqiao.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 77,
+    "file": "assets/art/heroes_reserve/xiaoqiao.png",
+    "runtime_file": "assets/art/heroes_reserve/xiaoqiao.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 78,
+    "file": "assets/art/heroes_reserve/diaochan.png",
+    "runtime_file": "assets/art/heroes_reserve/diaochan.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 79,
+    "file": "assets/art/heroes_reserve/dongzhuo.png",
+    "runtime_file": "assets/art/heroes_reserve/dongzhuo.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 80,
+    "file": "assets/art/heroes_reserve/zhangjiao.png",
+    "runtime_file": "assets/art/heroes_reserve/zhangjiao.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 81,
+    "file": "assets/art/heroes_reserve/yuanshao.png",
+    "runtime_file": "assets/art/heroes_reserve/yuanshao.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 82,
+    "file": "assets/art/heroes_reserve/huatuo.png",
+    "runtime_file": "assets/art/heroes_reserve/huatuo.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 83,
+    "file": "assets/art/heroes_reserve/zuoci.png",
+    "runtime_file": "assets/art/heroes_reserve/zuoci.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 84,
+    "file": "assets/art/heroes_reserve/menghuo.png",
+    "runtime_file": "assets/art/heroes_reserve/menghuo.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 85,
+    "file": "assets/art/heroes_reserve/zhurong.png",
+    "runtime_file": "assets/art/heroes_reserve/zhurong.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 86,
+    "file": "assets/art/heroes_reserve/gaoshun.png",
+    "runtime_file": "assets/art/heroes_reserve/gaoshun.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 87,
+    "file": "assets/art/heroes_reserve/chengong.png",
+    "runtime_file": "assets/art/heroes_reserve/chengong.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 88,
+    "file": "assets/art/ui/board_lane_player.png",
+    "runtime_file": "assets/art/ui/board_lane_player.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 89,
+    "file": "assets/art/ui/board_lane_enemy.png",
+    "runtime_file": "assets/art/ui/board_lane_enemy.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 90,
+    "file": "assets/art/ui/board_overview.png",
+    "runtime_file": "assets/art/ui/board_overview.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 91,
+    "file": "assets/art/ui/board_river.png",
+    "runtime_file": "assets/art/ui/board_river.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 92,
+    "file": "assets/art/ui/paper_tile.png",
+    "runtime_file": "assets/art/ui/paper_tile.png",
+    "width": 1254,
+    "height": 1254,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 93,
+    "file": "assets/art/ui/tower_intact.png",
+    "runtime_file": "assets/art/ui/tower_intact.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 673,
+    "partialSamples": 863,
+    "edgeAlpha": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "number": 98,
+    "file": "assets/art/ui/card_back.png",
+    "runtime_file": "assets/art/ui/card_back.png",
+    "width": 1024,
+    "height": 1536,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 99,
+    "file": "assets/art/ui/emblem_shu.png",
+    "runtime_file": "assets/art/ui/emblem_shu.png",
+    "width": 1254,
+    "height": 1254,
+    "transparentSamples": 848,
+    "partialSamples": 750,
+    "edgeAlpha": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "number": 103,
+    "file": "assets/art/ui/initiative_token.png",
+    "runtime_file": "assets/art/ui/initiative_token.png",
+    "width": 1254,
+    "height": 1254,
+    "transparentSamples": 1080,
+    "partialSamples": 520,
+    "edgeAlpha": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "number": 104,
+    "file": "assets/art/ui/mana_command.png",
+    "runtime_file": "assets/art/ui/mana_command.png",
+    "width": 1254,
+    "height": 1254,
+    "transparentSamples": 982,
+    "partialSamples": 618,
+    "edgeAlpha": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "number": 105,
+    "file": "assets/art/ui/gold_coin.png",
+    "runtime_file": "assets/art/ui/gold_coin.png",
+    "width": 1254,
+    "height": 1254,
+    "transparentSamples": 699,
+    "partialSamples": 901,
+    "edgeAlpha": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "number": 106,
+    "file": "assets/art/ui/shop_armory.png",
+    "runtime_file": "assets/art/ui/shop_armory.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 107,
+    "file": "assets/art/ui/black_market.png",
+    "runtime_file": "assets/art/ui/black_market.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 108,
+    "file": "assets/art/ui/camp_fountain.png",
+    "runtime_file": "assets/art/ui/camp_fountain.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 110,
+    "file": "assets/art/ui/splash_victory.png",
+    "runtime_file": "assets/art/ui/splash_victory.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  {
+    "number": 111,
+    "file": "assets/art/ui/splash_defeat.png",
+    "runtime_file": "assets/art/ui/splash_defeat.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentSamples": 0,
+    "partialSamples": 0,
+    "edgeAlpha": [
+      255,
+      255,
+      255,
+      255
+    ]
+  }
+]

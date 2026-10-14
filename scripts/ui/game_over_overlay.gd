@@ -16,6 +16,9 @@ var result_key: String = "RESULT_VICTORY"
 var subtitle: String = ""
 var detail: String = ""
 var buttons: Dictionary = {}
+## Actions shown but not available (an online guest can neither restart the
+## host's match nor save it).
+var disabled_actions: Array = []
 var victory: bool = true
 ## Rebuilds [towers text, matchup text] in the current language (set by the
 ## match screen), so a language switch re-renders the result.
@@ -73,6 +76,8 @@ func show_result(winner: int, viewer: int, hot_seat: bool, towers_text: String, 
 func refresh_text() -> void:
 	for action in ACTIONS:
 		buttons[action].text = UiKit.t(KEYS[action])
+		buttons[action].disabled = action in disabled_actions
+		buttons[action].tooltip_text = UiKit.t("HINT_HOST_ONLY_RESULT") if action in disabled_actions else ""
 	if visible and text_source.is_valid():
 		var texts: Array = text_source.call()
 		detail = str(texts[0])

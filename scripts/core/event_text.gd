@@ -18,6 +18,7 @@ extends RefCounted
 ##   death              p, uid, card, gold   (p = owner; the opponent earns gold)
 ##   tower_fall         p              (p = defender)
 ##   ancient_fall       p
+##   concede            p              (p = player who conceded)
 ##   win                p
 ##   draw                               -
 ##   deployment         round, creeps  (creeps = [[lane, ...], [lane, ...]])
@@ -25,7 +26,7 @@ extends RefCounted
 
 const Library = preload("res://scripts/core/card_library.gd")
 const KEYS = ["match_start", "pass", "lane_open", "shop_open", "play", "ability",
-	"buy", "hold", "combat", "death", "tower_fall", "ancient_fall", "win", "draw",
+	"buy", "hold", "combat", "death", "tower_fall", "ancient_fall", "concede", "win", "draw",
 	"deployment", "deployment_revealed"]
 const LANE_KEYS = ["LANE_LEFT", "LANE_MIDDLE", "LANE_RIGHT"]
 const ANCIENT_HEALTH = 80
@@ -71,6 +72,8 @@ static func format(event: Dictionary, _library = null, names: Array = []) -> Str
 			return t("EV_TOWER_FALL", {"player": player, "health": ANCIENT_HEALTH})
 		"ancient_fall":
 			return t("EV_ANCIENT_FALL", {"player": player})
+		"concede":
+			return t("EV_CONCEDE", {"player": player})
 		"win":
 			return t("EV_WIN", {"player": player})
 		"draw":

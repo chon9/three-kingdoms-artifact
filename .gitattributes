@@ -1,0 +1,4 @@
+# Native libraries (GodotSteam, Steamworks redistributables): never touch line endings.
+*.dll binary
+*.so binary
+*.dylib binary

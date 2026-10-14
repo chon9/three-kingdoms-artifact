@@ -30,6 +30,7 @@ const ShopOverlay = preload("res://scripts/ui/shop_overlay.gd")
 const DeploymentOverlay = preload("res://scripts/ui/deployment_overlay.gd")
 const InspectOverlay = preload("res://scripts/ui/inspect_overlay.gd")
 const GameOverOverlay = preload("res://scripts/ui/game_over_overlay.gd")
+const ReconnectOverlay = preload("res://scripts/ui/reconnect_overlay.gd")
 const PassDeviceScreen = preload("res://scripts/ui/pass_device_screen.gd")
 const LogPanel = preload("res://scripts/ui/log_panel.gd")
 const UnitCard = preload("res://scripts/ui/unit_card.gd")
@@ -56,6 +57,7 @@ var shop: Control
 var deployment: Control
 var inspect: Control
 var game_over: Control
+var reconnect: Control
 var pass_screen: Control
 var log_panel: Control
 var hint_label: Label
@@ -125,6 +127,7 @@ func _init() -> void:
 	fx = _add(FxLayer.new(), "Fx")
 	log_panel = _add(LogPanel.new(), "Log")
 	game_over = _add(GameOverOverlay.new(), "GameOver")
+	reconnect = _add(ReconnectOverlay.new(), "Reconnect")
 	inspect = _add(InspectOverlay.new(), "Inspect")
 	pass_screen = _add(PassDeviceScreen.new(), "PassDevice")
 	log_panel.names_source = func() -> Array:
@@ -165,7 +168,7 @@ func _notification(what: int) -> void:
 
 func _layout() -> void:
 	var full = Rect2(Vector2.ZERO, size)
-	for node in [board, deployment, shop, hand, arrow, fx, game_over, inspect, pass_screen]:
+	for node in [board, deployment, shop, hand, arrow, fx, game_over, reconnect, inspect, pass_screen]:
 		node.position = full.position
 		node.size = full.size
 	hud.position = Vector2.ZERO
@@ -211,6 +214,10 @@ func bind(match_controller: Node) -> void:
 	controller.notice_changed.connect(func(text): show_hint(text, 4.0))
 	controller.ui_busy = func() -> bool: return queue.busy or pass_screen.visible
 	queue.idle.connect(_refresh_controls)
+	reconnect.controller = controller
+	reconnect.action_requested.connect(_on_reconnect_action)
+	controller.online_paused.connect(func(paused): reconnect.set_waiting(paused))
+	controller.connection_changed.connect(func(_info): _refresh_controls())
 
 ## Forgets the shown match so the next state is drawn from scratch.
 func reset() -> void:
@@ -222,6 +229,7 @@ func reset() -> void:
 	actions = []
 	_game_over_shown = false
 	game_over.visible = false
+	reconnect.set_waiting(controller != null and controller.waiting_for_opponent)
 	inspect.close()
 	shop.close()
 	deployment.close()
@@ -240,6 +248,7 @@ func refresh_text() -> void:
 	deployment.refresh_text()
 	inspect.refresh_text()
 	game_over.refresh_text()
+	reconnect.refresh_text()
 	pass_screen.refresh_text()
 	log_panel.refresh_text()
 	hint_label.visible = false
@@ -342,7 +351,11 @@ func _hard_sync(view: Dictionary, new_actions: Array, viewer: int) -> void:
 	_ensure_phase_ui(view, viewer, new_actions)
 	if int(view.get("winner", -1)) != -1 and not _game_over_shown:
 		_game_over_shown = true
-		game_over.show_result(int(view.winner), viewer, controller.mode == controller.MODE_LOCAL, _towers_text(view, viewer), _matchup_text(view, viewer))
+		_show_result(view, viewer)
+	elif int(view.get("winner", -1)) == -1 and _game_over_shown:
+		# An undecided state after a result (a new match) clears the result.
+		_game_over_shown = false
+		game_over.visible = false
 	log_panel.set_events(view.get("events", []))
 	_refresh_controls()
 	if controller.mode == controller.MODE_LOCAL and viewer != first_viewer and int(view.get("winner", -1)) == -1:
@@ -652,6 +665,10 @@ func _show_game_over(view: Dictionary, viewer: int) -> void:
 		return
 	_game_over_shown = true
 	await queue.wait(0.6)
+	_show_result(view, viewer)
+
+func _show_result(view: Dictionary, viewer: int) -> void:
+	game_over.disabled_actions = ["again", "save"] if controller.is_guest() else []
 	game_over.show_result(int(view.winner), viewer, controller.mode == controller.MODE_LOCAL, _towers_text(view, viewer), _matchup_text(view, viewer))
 
 func _focus_lane(lane_index: int) -> void:
@@ -708,6 +725,8 @@ func _refresh_controls() -> void:
 		int(players[1 - viewer].get("hand_count", 0)), acting_enemy)
 	own_panel.set_values(names[0], int(players[viewer].gold), int(players[viewer].get("deck_count", 0)),
 		int(players[viewer].get("hand_count", players[viewer].get("hand", []).size())), phase == "action" and not acting_enemy)
+	var online = controller.mode == controller.MODE_ONLINE
+	enemy_panel.set_connection(controller.steam_bridge.connection_info() if online else {})
 	own_deck.set_count(int(players[viewer].get("deck_count", 0)), UiKit.t("TERM_DECK"))
 	enemy_deck.set_count(int(players[1 - viewer].get("deck_count", 0)))
 	enemy_hand.set_count(int(players[1 - viewer].get("hand_count", 0)))
@@ -720,7 +739,8 @@ func _player_names(viewer: int) -> Array:
 		controller.MODE_AI:
 			return [UiKit.t("PLAYER_YOU"), UiKit.t("PLAYER_AI")]
 		controller.MODE_ONLINE:
-			return [UiKit.t("PLAYER_YOU"), UiKit.t("PLAYER_OPPONENT")]
+			var opponent = controller.opponent_name()
+			return [UiKit.t("PLAYER_YOU"), opponent if not opponent.is_empty() else UiKit.t("PLAYER_OPPONENT")]
 	return [UiKit.t("PLAYER_N", {"n": viewer + 1}), UiKit.t("PLAYER_N", {"n": 2 - viewer})]
 
 func _card_states(view: Dictionary, viewer: int, new_actions: Array) -> Array:
@@ -794,7 +814,7 @@ func show_hint(text: String, seconds: float = 3.0) -> void:
 # --- Input ---------------------------------------------------------------------
 
 func can_play() -> bool:
-	return not queue.busy and not pass_screen.visible and not inspect.visible and not game_over.visible \
+	return not queue.busy and not pass_screen.visible and not inspect.visible and not game_over.visible and not reconnect.visible \
 		and str(shown_view.get("phase", "")) == "action"
 
 func _process(delta: float) -> void:
@@ -1184,6 +1204,13 @@ func _on_shop_card_input(event: InputEvent, source: String) -> void:
 		var card_id = str(shown_view.players[shown_viewer].get("shop", {}).get(source, ""))
 		if not card_id.is_empty():
 			inspect_card(card_id)
+
+func _on_reconnect_action(action: String) -> void:
+	match action:
+		"claim":
+			controller.claim_win()
+		"leave":
+			controller.leave_online()
 
 func _on_game_over_action(action: String) -> void:
 	if action == "board":

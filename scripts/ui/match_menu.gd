@@ -1,12 +1,13 @@
 extends "res://scripts/ui/modal_panel.gd"
 ## The in-match menu (top-right button or Esc): resume, log, save or load a
-## replay, decks, settings, Steam, new match, main menu and quit.
+## replay, decks, settings, Steam, new match, concede, main menu and quit.
 
 signal selected(action: String)
 
 const ITEMS = [["resume", "MENU_RESUME"], ["log", "MENU_LOG"], ["save", "MENU_SAVE_REPLAY"],
 	["replays", "MENU_LOAD_REPLAY"], ["decks", "MENU_DECKS"], ["settings", "MENU_SETTINGS"],
-	["steam", "MENU_STEAM"], ["new", "MENU_NEW_MATCH"], ["menu", "MENU_MAIN_MENU"], ["quit", "MENU_QUIT"]]
+	["steam", "MENU_STEAM"], ["new", "MENU_NEW_MATCH"], ["concede", "MENU_CONCEDE"], ["menu", "MENU_MAIN_MENU"],
+	["quit", "MENU_QUIT"]]
 
 var buttons: Dictionary = {}
 var disabled_actions: Array = []
@@ -14,7 +15,7 @@ var disabled_actions: Array = []
 func _init() -> void:
 	super()
 	title_key = "MENU_TITLE"
-	panel_size = Vector2(420, 700)
+	panel_size = Vector2(420, 760)
 
 func build() -> void:
 	close_button.visible = false

@@ -12,7 +12,10 @@ const Library = preload("res://scripts/core/card_library.gd")
 # structured events and visible pending lane creeps.
 # 5: language-neutral state (no display names in units or players) and coded
 # error results ({"ok": false, "code": ..., "args": ..., "error": English}).
+# The concede command (always legal while the match runs) needs no format
+# change: older replays never contain it.
 const PROTOCOL_VERSION = 5
+const CONCEDE = {"type": "concede"}
 const HOLD_COST = 1
 var library = Library.new()
 var rng = RandomNumberGenerator.new()
@@ -186,10 +189,15 @@ func apply_action(player: int, command: Dictionary) -> Dictionary:
 			if not (value is int or value is float) or float(value) != floor(float(value)):
 				return _fail("bad_index", "Command indexes must be whole numbers.")
 			command[field] = int(value)
-	if command not in legal_actions(player):
+	if command == CONCEDE:
+		if not can_concede(player):
+			return _fail("illegal_action", "That action is not legal in the current state.")
+	elif command not in legal_actions(player):
 		return _fail("illegal_action", "That action is not legal in the current state.")
 	journal.append({"player": player, "command": command.duplicate(true)})
 	match command.type:
+		"concede":
+			_concede(player)
 		"pass":
 			_pass(player)
 		"play":
@@ -232,6 +240,17 @@ func apply_action(player: int, command: Dictionary) -> Dictionary:
 				_reveal_deployment()
 	state.revision += 1
 	return {"ok": true}
+
+## Either player may concede in any phase while the match is undecided. It is
+## kept out of legal_actions() so turn logic (bots, "is it my turn") ignores it.
+func can_concede(player: int) -> bool:
+	return player >= 0 and player <= 1 and not state.is_empty() and int(state.winner) == -1
+
+func _concede(player: int) -> void:
+	_event("concede", {"p": player})
+	state.winner = 1 - player
+	state.phase = "finished"
+	_event("win", {"p": state.winner})
 
 func _pass(player: int) -> void:
 	_event("pass", {"p": player})

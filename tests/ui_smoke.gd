@@ -519,6 +519,69 @@ func _run() -> void:
 		return
 	if not _require(_engine().state.players[0].roster[0].card == "drow" and _engine().state.players[1].roster[0].card == "zeus", "Starting from the deck dialog begins the chosen matchup"):
 		return
+	# --- Online pieces without Steam: lobby browser, pause overlay, link quality ----
+	var steam_dialog = app.open_steam()
+	await process_frame
+	steam_dialog._on_lobbies([{"id": 1, "host": "孙权", "status": "waiting", "compatible": true},
+		{"id": 2, "host": "", "status": "playing", "compatible": false},
+		{"id": 3, "host": "吕布", "status": "reconnecting", "compatible": true}])
+	await process_frame
+	if not _require(steam_dialog.lobby_rows.size() == 3 and steam_dialog.lobby_rows[0].label.text.find("孙权") != -1
+			and not steam_dialog.lobby_rows[0].button.disabled and steam_dialog.lobby_rows[1].button.disabled
+			and steam_dialog.version_label.text.find("GodotSteam") != -1
+			and steam_dialog.panel.get_global_rect().end.y <= 900.0, "The lobby browser lists hosts, disables other versions and fits"):
+		return
+	if not _require(steam_dialog.lobby_rows[2].button.disabled, "A lobby keeping its seat for a returning player offers no Join"):
+		return
+	app.close_dialogs()
+	# The opponent may drop while the match screen is hidden (main menu): the
+	# panel must still have its final height when the screen comes back.
+	screen.visible = false
+	screen.reconnect.set_waiting(true)
+	await process_frame
+	screen.visible = true
+	await process_frame
+	await process_frame
+	var first_height = screen.reconnect.panel.size.y
+	screen.reconnect.refresh_text()
+	await process_frame
+	await process_frame
+	if not _require(absf(first_height - screen.reconnect.panel.size.y) < 2.0,
+			"The reconnect panel has its final height on first show (%d then %d)" % [first_height, screen.reconnect.panel.size.y]):
+		return
+	if not _require(screen.reconnect.visible and not screen.can_play() and not screen.reconnect.waiting_label.text.is_empty()
+			and screen.reconnect.panel.get_global_rect().end.y <= 900.0 and not screen.reconnect.buttons.claim.visible,
+			"The reconnect overlay blocks play, fits, and offers no claim to a guest"):
+		return
+	screen.reconnect.buttons.wait.pressed.emit()
+	if not _require(screen.reconnect.collapsed and screen.reconnect.bar.visible and not screen.reconnect.panel.visible, "Keep waiting collapses the overlay to a bar"):
+		return
+	screen.reconnect.set_waiting(false)
+	screen.enemy_panel.set_connection({"level": "fair", "ping": 180, "quality": 0.9})
+	if not _require(screen.enemy_panel.tooltip_text.find("180") != -1, "The opponent's plate shows the connection quality"):
+		return
+	screen.enemy_panel.set_connection({})
+	# --- Concede through the in-match menu and its confirmation -----------------------
+	var concede_menu = app.open_menu()
+	await process_frame
+	if not _require(not concede_menu.buttons.concede.disabled, "Concede is offered during a match"):
+		return
+	concede_menu.buttons.concede.pressed.emit()
+	await process_frame
+	await process_frame
+	var confirm = app.dialogs().back() if not app.dialogs().is_empty() else null
+	if not _require(confirm != null and confirm.has_method("build") and confirm.get("confirm_button") != null, "Conceding asks for confirmation"):
+		return
+	var conceder = app.controller.viewer()
+	confirm.confirm_button.pressed.emit()
+	await _settle()
+	if not _require(int(_engine().state.winner) == 1 - conceder and screen.game_over.visible, "Confirming the concession ends the match"):
+		return
+	var after_menu = app.open_menu()
+	await process_frame
+	if not _require(after_menu.buttons.concede.disabled, "A finished match cannot be conceded"):
+		return
+	app.close_dialogs()
 	# --- Against the AI: the bot acts after the animations --------------------------
 	app.start_match(MatchController.MODE_AI)
 	await _settle()

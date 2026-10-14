@@ -2,7 +2,7 @@
 
 Generated with the OpenAI built-in image tool from [ART_PROMPTS.md](ART_PROMPTS.md) and [art_prompts.csv](art_prompts.csv). Final prompts and reference roles are recorded in [generated_art_manifest.json](generated_art_manifest.json). Game code is maintained separately by Claude Code.
 
-Generated: 83 / 111. Reviewed and accepted: 74.
+Generated: 111 / 111. Reviewed and accepted: 110.
 
 | # | Artwork | File | Status |
 |---|---|---|---|
@@ -74,46 +74,46 @@ Generated: 83 / 111. Reviewed and accepted: 74.
 | 66 | Zhen Ji | assets/art/heroes_reserve/zhenji.png | accepted |
 | 67 | Deng Ai | assets/art/heroes_reserve/dengai.png | accepted |
 | 68 | Sun Jian | assets/art/heroes_reserve/sunjian.png | accepted |
-| 69 | Sun Ce | assets/art/heroes_reserve/sunce.png | pending |
+| 69 | Sun Ce | assets/art/heroes_reserve/sunce.png | accepted |
 | 70 | Lu Xun | assets/art/heroes_reserve/luxun.png | accepted |
 | 71 | Lu Su | assets/art/heroes_reserve/lusu.png | accepted |
 | 72 | Huang Gai | assets/art/heroes_reserve/huanggai.png | accepted |
 | 73 | Taishi Ci | assets/art/heroes_reserve/taishici.png | accepted |
 | 74 | Zhou Tai | assets/art/heroes_reserve/zhoutai.png | accepted |
-| 75 | Sun Shangxiang | assets/art/heroes_reserve/sunshangxiang.png | pending corrected-image review |
+| 75 | Sun Shangxiang | assets/art/heroes_reserve/sunshangxiang.png | accepted |
 | 76 | Da Qiao | assets/art/heroes_reserve/daqiao.png | accepted |
-| 77 | Xiao Qiao | assets/art/heroes_reserve/xiaoqiao.png | pending |
-| 78 | Diaochan | assets/art/heroes_reserve/diaochan.png | pending |
-| 79 | Dong Zhuo | assets/art/heroes_reserve/dongzhuo.png | pending |
-| 80 | Zhang Jiao | assets/art/heroes_reserve/zhangjiao.png | pending |
-| 81 | Yuan Shao | assets/art/heroes_reserve/yuanshao.png | pending |
-| 82 | Hua Tuo | assets/art/heroes_reserve/huatuo.png | pending |
-| 83 | Zuo Ci | assets/art/heroes_reserve/zuoci.png | pending |
-| 84 | Meng Huo | assets/art/heroes_reserve/menghuo.png | pending generation |
-| 85 | Lady Zhurong | assets/art/heroes_reserve/zhurong.png | pending generation |
-| 86 | Gao Shun | assets/art/heroes_reserve/gaoshun.png | pending generation |
-| 87 | Chen Gong | assets/art/heroes_reserve/chengong.png | pending generation |
-| 88 | Lane board - your side | assets/art/ui/board_lane_player.png | pending generation |
-| 89 | Lane board - enemy side | assets/art/ui/board_lane_enemy.png | pending generation |
-| 90 | Three-lane overview table | assets/art/ui/board_overview.png | pending generation |
-| 91 | River divider strip | assets/art/ui/board_river.png | pending generation |
-| 92 | Rice-paper tiling texture | assets/art/ui/paper_tile.png | pending generation |
-| 93 | Tower - intact | assets/art/ui/tower_intact.png | pending generation |
-| 94 | Tower - damaged | assets/art/ui/tower_damaged.png | pending generation |
-| 95 | Tower - destroyed | assets/art/ui/tower_destroyed.png | pending generation |
-| 96 | Capital (Ancient) | assets/art/ui/ancient_capital.png | pending generation |
-| 97 | Capital - falling | assets/art/ui/ancient_capital_burning.png | pending generation |
-| 98 | Card back | assets/art/ui/card_back.png | pending generation |
-| 99 | Shu faction emblem (red) | assets/art/ui/emblem_shu.png | pending generation |
-| 100 | Wei faction emblem (blue) | assets/art/ui/emblem_wei.png | pending generation |
-| 101 | Wu faction emblem (green) | assets/art/ui/emblem_wu.png | pending generation |
-| 102 | Qun faction emblem (black) | assets/art/ui/emblem_qun.png | pending generation |
-| 103 | Initiative token (tiger tally) | assets/art/ui/initiative_token.png | pending generation |
-| 104 | Command (mana) icon | assets/art/ui/mana_command.png | pending generation |
-| 105 | Gold coin icon | assets/art/ui/gold_coin.png | pending generation |
-| 106 | Shop / armory background | assets/art/ui/shop_armory.png | pending generation |
-| 107 | Black-market stall (Secret Shop) | assets/art/ui/black_market.png | pending generation |
-| 108 | Deployment camp (Fountain) | assets/art/ui/camp_fountain.png | pending generation |
-| 109 | Main menu key art - Red Cliffs | assets/art/ui/menu_key_art.png | pending generation |
-| 110 | Victory splash background | assets/art/ui/splash_victory.png | pending generation |
-| 111 | Defeat splash background | assets/art/ui/splash_defeat.png | pending generation |
+| 77 | Xiao Qiao | assets/art/heroes_reserve/xiaoqiao.png | accepted |
+| 78 | Diaochan | assets/art/heroes_reserve/diaochan.png | accepted |
+| 79 | Dong Zhuo | assets/art/heroes_reserve/dongzhuo.png | accepted |
+| 80 | Zhang Jiao | assets/art/heroes_reserve/zhangjiao.png | accepted |
+| 81 | Yuan Shao | assets/art/heroes_reserve/yuanshao.png | accepted |
+| 82 | Hua Tuo | assets/art/heroes_reserve/huatuo.png | accepted |
+| 83 | Zuo Ci | assets/art/heroes_reserve/zuoci.png | accepted |
+| 84 | Meng Huo | assets/art/heroes_reserve/menghuo.png | accepted |
+| 85 | Lady Zhurong | assets/art/heroes_reserve/zhurong.png | accepted |
+| 86 | Gao Shun | assets/art/heroes_reserve/gaoshun.png | accepted |
+| 87 | Chen Gong | assets/art/heroes_reserve/chengong.png | accepted |
+| 88 | Lane board - your side | assets/art/ui/board_lane_player.png | accepted |
+| 89 | Lane board - enemy side | assets/art/ui/board_lane_enemy.png | accepted |
+| 90 | Three-lane overview table | assets/art/ui/board_overview.png | accepted |
+| 91 | River divider strip | assets/art/ui/board_river.png | accepted |
+| 92 | Rice-paper tiling texture | assets/art/ui/paper_tile.png | accepted with tiling note |
+| 93 | Tower - intact | assets/art/ui/tower_intact.png | accepted with sprite glow note |
+| 94 | Tower - damaged | assets/art/ui/tower_damaged.png | accepted |
+| 95 | Tower - destroyed | assets/art/ui/tower_destroyed.png | accepted |
+| 96 | Capital (Ancient) | assets/art/ui/ancient_capital.png | accepted |
+| 97 | Capital - falling | assets/art/ui/ancient_capital_burning.png | accepted |
+| 98 | Card back | assets/art/ui/card_back.png | accepted |
+| 99 | Shu faction emblem (red) | assets/art/ui/emblem_shu.png | accepted |
+| 100 | Wei faction emblem (blue) | assets/art/ui/emblem_wei.png | accepted |
+| 101 | Wu faction emblem (green) | assets/art/ui/emblem_wu.png | accepted |
+| 102 | Qun faction emblem (black) | assets/art/ui/emblem_qun.png | accepted |
+| 103 | Initiative token (tiger tally) | assets/art/ui/initiative_token.png | accepted |
+| 104 | Command (mana) icon | assets/art/ui/mana_command.png | accepted |
+| 105 | Gold coin icon | assets/art/ui/gold_coin.png | accepted |
+| 106 | Shop / armory background | assets/art/ui/shop_armory.png | accepted |
+| 107 | Black-market stall (Secret Shop) | assets/art/ui/black_market.png | accepted |
+| 108 | Deployment camp (Fountain) | assets/art/ui/camp_fountain.png | accepted |
+| 109 | Main menu key art - Red Cliffs | assets/art/ui/menu_key_art.png | pending |
+| 110 | Victory splash background | assets/art/ui/splash_victory.png | accepted |
+| 111 | Defeat splash background | assets/art/ui/splash_defeat.png | accepted |

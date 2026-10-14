@@ -19,5 +19,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $GodotPath --headless --path $PSScriptRoot --script res://tests/i18n_test.gd
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $GodotPath --headless --path $PSScriptRoot --script res://tests/steam_test.gd
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $GodotPath --headless --path $PSScriptRoot --script res://tests/ui_smoke.gd
 exit $LASTEXITCODE

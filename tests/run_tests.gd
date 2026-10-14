@@ -2,25 +2,11 @@ extends SceneTree
 
 const EngineClass = preload("res://scripts/core/match_engine.gd")
 const BotClass = preload("res://scripts/ai/heuristic_bot.gd")
-const BridgeClass = preload("res://scripts/network/steam_bridge.gd")
 const EventFormatter = preload("res://scripts/core/event_text.gd")
+const BridgeClass = preload("res://scripts/network/steam_bridge.gd")
 const Settings = preload("res://scripts/core/game_settings.gd")
 var checks = 0
 var failures: Array = []
-
-class FakeSteam extends RefCounted:
-	var sent: Array = []
-	func getNumLobbyMembers(_lobby: int) -> int:
-		return 2
-	func getLobbyMemberByIndex(_lobby: int, index: int) -> int:
-		return 1001 + index
-	func sendMessageToUser(remote: int, data: PackedByteArray, flags: int, channel: int) -> int:
-		sent.append({"remote": remote, "data": data, "flags": flags, "channel": channel})
-		return 1
-	func leaveLobby(_lobby: int) -> void:
-		pass
-	func closeSessionWithUser(_remote: int) -> bool:
-		return true
 
 func _initialize() -> void:
 	# Display text below is checked in English with the original card names.
@@ -35,7 +21,6 @@ func _initialize() -> void:
 	_test_round_cycle()
 	_test_effects_and_items()
 	_test_hidden_information()
-	_test_steam_boundary()
 	_test_creep_positions()
 	_test_no_lane_reroll()
 	_test_arrow_resets()
@@ -270,32 +255,6 @@ func _test_hidden_information() -> void:
 	engine.state.players[1].deck.reverse()
 	_check(bot.choose_action(engine, 0) == chosen, "Changing hidden opponent cards and deck order cannot influence bot choice")
 
-func _test_steam_boundary() -> void:
-	var bridge = BridgeClass.new()
-	bridge.steam = FakeSteam.new()
-	bridge.available = true
-	bridge.is_host = true
-	bridge.lobby_id = 9
-	bridge.local_id = 1001
-	bridge.peer_id = 1002
-	var commands: Array = []
-	bridge.command_received.connect(func(command, revision): commands.append([command, revision]))
-	var packet = {"protocol": bridge.PROTOCOL, "game": bridge.GAME_TAG, "kind": "command", "command": {"type": "pass"}, "revision": 0}
-	bridge._handle_packet(9999, packet)
-	_check(commands.is_empty(), "Steam rejects a packet from outside the lobby")
-	var wrong_protocol = packet.duplicate(true)
-	wrong_protocol.protocol = 99
-	bridge._handle_packet(1002, wrong_protocol)
-	_check(commands.is_empty(), "Steam rejects incompatible protocol")
-	bridge._handle_packet(1002, packet)
-	_check(commands.size() == 1, "Steam accepts a command only from the bound opponent")
-	var engine = _new()
-	bridge.send_match(engine.player_view(1), engine.legal_actions(1))
-	var envelope = JSON.parse_string(bridge.steam.sent[0].data.get_string_from_utf8())
-	_check(envelope.view.players[0].hand.is_empty() and envelope.view.players[0].deck.is_empty(), "Guest snapshot hides host cards and deck order")
-	_check(bridge.steam.sent[0].flags == 8 and bridge.steam.sent[0].channel == 71, "Steam uses reliable isolated-channel messages")
-	bridge.free()
-
 func _test_replays_and_bot_matches() -> void:
 	var bot = BotClass.new()
 	var emitted: Dictionary = {}
@@ -515,7 +474,7 @@ func _test_event_formatter_keys() -> void:
 		"ability": {"p": 1, "uid": 4, "card": "jmuy"}, "buy": {"p": 0, "gold": 3},
 		"hold": {"p": 1, "gold": 1}, "combat": {"lane": 2, "damage": [4, 7]},
 		"death": {"p": 1, "uid": 9, "card": "melee_creep", "gold": 1}, "tower_fall": {"p": 0},
-		"ancient_fall": {"p": 1}, "win": {"p": 0}, "draw": {},
+		"ancient_fall": {"p": 1}, "concede": {"p": 1}, "win": {"p": 0}, "draw": {},
 		"deployment": {"round": 2, "creeps": [[0, 2], [1, 1]]}, "deployment_revealed": {}}
 	_check(samples.size() == EventFormatter.KEYS.size(), "Every documented event key has a formatter sample")
 	for key in EventFormatter.KEYS:
@@ -561,11 +520,11 @@ func _test_language_neutral_state() -> void:
 	replay.protocol = 4
 	var stale = EngineClass.new().load_replay(replay)
 	_check(stale.get("code") == "replay_version", "Protocol 4 replays are rejected with replay_version")
-	_check(EngineClass.PROTOCOL_VERSION == 5 and BridgeClass.PROTOCOL == 5 and BridgeClass.GAME_TAG.ends_with("v5"), "Protocol 5 for engine and Steam")
+	_check(EngineClass.PROTOCOL_VERSION == 5 and BridgeClass.PROTOCOL == 6, "Replay format 5; Steam network protocol 6 (tests/steam_test.gd covers the boundary)")
 	_check(EventFormatter.error_text(illegal) == "That action is not legal in the current state.", "Error codes translate to English")
 	Settings.set_locale("zh_CN", false)
 	_check(EventFormatter.error_text(illegal) == "当前局面下不能执行该操作。", "Error codes translate to Chinese")
-	_check(EventFormatter.steam_status("lobby_created", {"lobby": "42"}) == "房间 42 已创建。请将房间号发给好友。", "Steam status codes translate")
+	_check(EventFormatter.steam_status("lobby_created", {"lobby": "42"}) == "房间 42 已创建。可邀请好友、发送房间号，或等待他人从房间列表加入。", "Steam status codes translate")
 	Settings.set_locale("en", false)
 	_check(EventFormatter.error_text({"ok": false, "error": "Raw fallback"}) == "Raw fallback", "Uncoded errors keep their fallback text")
 	var bridge = BridgeClass.new()
