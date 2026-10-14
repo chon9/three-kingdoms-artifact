@@ -1,0 +1,10 @@
+.godot/
+.tools/
+builds/
+*.log
+*.tmp
+replays/
+addons/godotsteam/
+steam_appid.txt
+assets/classic_cards/*.png
+assets/classic_cards/*.png.import
