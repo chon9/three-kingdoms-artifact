@@ -25,6 +25,8 @@ func _initialize() -> void:
 	_test_no_lane_reroll()
 	_test_arrow_resets()
 	_test_deployment_creeps_visible()
+	_test_deployment_replanning()
+	_test_deployment_placed_event()
 	_test_event_formatter_keys()
 	_test_language_neutral_state()
 	_test_replays_and_bot_matches()
@@ -282,11 +284,12 @@ func _test_replays_and_bot_matches() -> void:
 		var replay_result = restored.load_replay(serialized)
 		_check(replay_result.ok, "Serialized replay loads in seed %d: %s" % [seed_value, replay_result.get("error", "ok")])
 		_check(restored.state_digest() == engine.state_digest(), "Replay reproduces state and RNG in seed %d" % seed_value)
-	for key in ["match_start", "pass", "lane_open", "play", "combat", "death", "shop_open", "deployment", "deployment_revealed"]:
+		_check(_bot_never_replans(engine.journal), "The bot never re-plans or takes back a hero in seed %d" % seed_value)
+	for key in ["match_start", "pass", "lane_open", "play", "combat", "death", "shop_open", "deployment", "deployment_placed", "deployment_revealed"]:
 		_check(emitted.has(key), "Bot matches emit and format event key " + key)
 	_check(emitted.has("win") or emitted.has("draw"), "Bot matches emit a result event")
 	var replay = _new().replay_data()
-	_check(int(replay.protocol) == 5, "Replay format version is 5")
+	_check(int(replay.protocol) == 6, "Replay format version is 6")
 	replay.actions.append({"player": 0, "command": {"type": "play", "hand": -1}})
 	_check(not EngineClass.new().load_replay(replay).ok, "Corrupt replay action rejected")
 	var legacy = _new().replay_data()
@@ -467,6 +470,140 @@ func _test_deployment_creeps_visible() -> void:
 	_check(engine.state.pending_creeps == [[], []], "Pending creeps clear after placement")
 	_check(_board_invariants(engine), "Deployment placement keeps lanes aligned and arrows consistent")
 
+## Passes through round 1 and the shop into round-two deployment.
+func _to_deployment(seed_value: int):
+	var engine = _new(seed_value)
+	for index in range(6):
+		engine.apply_action(engine.state.active_player, {"type": "pass"})
+	engine.apply_action(0, {"type": "finish_shop"})
+	engine.apply_action(1, {"type": "finish_shop"})
+	return engine
+
+## Ready heroes of `player` still in the fountain.
+func _ready_heroes(engine, player: int) -> Array:
+	var heroes: Array = []
+	for hero in engine.state.players[player].roster:
+		if int(hero.lane) == -1 and int(hero.ready_round) <= int(engine.state.round):
+			heroes.append(hero)
+	return heroes
+
+## Confirms `player`'s deployment by always taking the first legal action.
+func _commit_first(engine, player: int) -> int:
+	var steps = 0
+	while not engine.state.players[player].finished and engine.state.phase == "deployment" and steps < 10:
+		engine.apply_action(player, engine.legal_actions(player)[0])
+		steps += 1
+	return steps
+
+func _test_deployment_replanning() -> void:
+	var engine = _to_deployment(5)
+	_check(engine.state.phase == "deployment", "Re-plan test reaches deployment")
+	var ready = _ready_heroes(engine, 0)
+	_check(not ready.is_empty(), "Player 1 has a ready hero in round two")
+	if ready.is_empty():
+		return
+	var hero = ready[0]
+	var uid = int(hero.uid)
+	var digest_rng = engine.rng.state
+	var event_count = engine.state.events.size()
+	var event_seq = int(engine.state.event_seq)
+	_check(engine.apply_action(0, {"type": "deploy", "unit": uid, "lane": 2}).ok, "A ready hero can be planned")
+	var actions = engine.legal_actions(0)
+	_check({"type": "deploy", "unit": uid, "lane": 0} in actions and {"type": "deploy", "unit": uid, "lane": 1} in actions
+		and not {"type": "deploy", "unit": uid, "lane": 2} in actions, "A planned hero may move to the other two lanes only")
+	_check({"type": "undeploy", "unit": uid} in actions, "A planned hero may be taken back")
+	_check(engine.apply_action(0, {"type": "deploy", "unit": uid, "lane": 0}).ok and int(engine.state.players[0].plans[str(uid)]) == 0, "Re-planning moves the hero to the new lane")
+	_check(engine.apply_action(0, {"type": "undeploy", "unit": uid}).ok and not engine.state.players[0].plans.has(str(uid)), "Undeploy removes the plan")
+	_check(not {"type": "finish_deployment"} in engine.legal_actions(0), "An unplanned ready hero blocks confirming")
+	_check(not engine.apply_action(0, {"type": "undeploy", "unit": uid}).ok, "An unplanned hero cannot be taken back")
+	_check(engine.apply_action(0, {"type": "deploy", "unit": uid, "lane": 1}).ok, "A taken-back hero can be planned again")
+	# Planning is private and draws no randomness.
+	_check(engine.rng.state == digest_rng and engine.state.events.size() == event_count and int(engine.state.event_seq) == event_seq,
+		"Planning, re-planning and undeploying emit no events and leave the random stream untouched")
+	_check(engine.player_view(1).players[0].plans.is_empty() and not engine.player_view(0).players[0].plans.is_empty(), "Plans stay hidden from the opponent")
+	engine.apply_action(0, {"type": "deploy", "unit": uid, "lane": 0})
+	for other in _ready_heroes(engine, 0):
+		if not engine.state.players[0].plans.has(str(other.uid)):
+			engine.apply_action(0, {"type": "deploy", "unit": int(other.uid), "lane": 2})
+	_check(engine.legal_actions(0)[0] == {"type": "finish_deployment"}, "With every hero planned, confirming is the first legal action")
+	_check(_commit_first(engine, 0) == 1, "Taking the first action confirms at once")
+	_check(engine.legal_actions(0).is_empty(), "After confirming there is no re-plan or undeploy")
+	_check(not engine.apply_action(0, {"type": "undeploy", "unit": uid}).ok, "A confirmed plan cannot be taken back")
+	_check(_commit_first(engine, 1) <= 10 and engine.state.phase == "action", "First-action loops still finish deployment")
+	_check(int(hero.lane) == 0, "The hero deploys to its last planned lane")
+
+func _test_deployment_placed_event() -> void:
+	var commands: Array = []
+	var engine = _to_deployment(11)
+	var mirror = _to_deployment(11)
+	for player in range(2):
+		var heroes = _ready_heroes(engine, player)
+		for index in range(heroes.size()):
+			var uid = int(heroes[index].uid)
+			commands.append([player, {"type": "deploy", "unit": uid, "lane": index % 3}])
+			commands.append([player, {"type": "deploy", "unit": uid, "lane": (index + 1) % 3}])
+			commands.append([player, {"type": "undeploy", "unit": uid}])
+			commands.append([player, {"type": "deploy", "unit": uid, "lane": (index + 2) % 3}])
+	var ok = true
+	for entry in commands:
+		ok = engine.apply_action(entry[0], entry[1]).ok and mirror.apply_action(entry[0], entry[1]).ok and ok
+	_check(ok, "Scripted deploy, re-plan and undeploy commands are legal")
+	var planned = [engine.state.players[0].plans.duplicate(), engine.state.players[1].plans.duplicate()]
+	for player in range(2):
+		engine.apply_action(player, {"type": "finish_deployment"})
+		mirror.apply_action(player, {"type": "finish_deployment"})
+	_check(engine.state.phase == "action", "Both confirmations reveal")
+	var events: Array = engine.state.events
+	var found: Array = []
+	for index in range(events.size()):
+		if str(events[index].k) == "deployment_placed":
+			found.append(index)
+	_check(found.size() == 1 and found[0] == events.size() - 2 and str(events.back().k) == "deployment_revealed",
+		"deployment_placed is emitted once, directly before deployment_revealed")
+	if found.is_empty():
+		return
+	var units: Array = events[found[0]].units
+	_check(units.size() == planned[0].size() + planned[1].size() + 4, "The event lists every planned hero and the four lane creeps (%d)" % units.size())
+	var uids: Dictionary = {}
+	var placed_ok = true
+	for unit in units:
+		uids[int(unit.uid)] = true
+		var live = engine.find_unit(int(unit.uid))
+		placed_ok = placed_ok and not live.is_empty() and int(live.lane) == int(unit.lane) and engine.slot_of(live) == int(unit.slot) \
+			and int(live.owner) == int(unit.p) and str(live.card) == str(unit.card) and bool(live.hero) == bool(unit.hero)
+	_check(uids.size() == units.size(), "Placed uids are unique")
+	_check(placed_ok, "Every placed entry matches the unit's final lane, column, owner and card")
+	var heroes_ok = true
+	for player in range(2):
+		for uid_text in planned[player]:
+			var match_entry = units.filter(func(unit): return int(unit.uid) == int(uid_text))
+			heroes_ok = heroes_ok and match_entry.size() == 1 and bool(match_entry[0].hero) and int(match_entry[0].p) == player \
+				and int(match_entry[0].lane) == int(planned[player][uid_text])
+	_check(heroes_ok, "Every planned hero is placed in its planned lane")
+	_check(mirror.state_digest() == engine.state_digest() and JSON.stringify(mirror.state.events.back()) == JSON.stringify(engine.state.events.back())
+		and JSON.stringify(mirror.state.events[found[0]]) == JSON.stringify(events[found[0]]), "Same seed and commands give the same placement and digest")
+	var restored = EngineClass.new()
+	var replay_result = restored.load_replay(JSON.parse_string(JSON.stringify(engine.replay_data())))
+	_check(replay_result.ok and restored.state_digest() == engine.state_digest(), "A replay with re-plans and undeploys reproduces the digest")
+
+## True when no deployment phase in `journal` takes a hero back or plans the
+## same hero twice.
+func _bot_never_replans(journal: Array) -> bool:
+	var seen: Dictionary = {}
+	for entry in journal:
+		var command: Dictionary = entry.command
+		match str(command.type):
+			"undeploy":
+				return false
+			"finish_shop":
+				seen.clear()
+			"deploy":
+				var key = "%d:%d" % [int(entry.player), int(command.unit)]
+				if seen.has(key):
+					return false
+				seen[key] = true
+	return true
+
 func _test_event_formatter_keys() -> void:
 	var library = EngineClass.Library.new()
 	var samples = {"match_start": {}, "pass": {"p": 0}, "lane_open": {"lane": 1, "p": 1},
@@ -475,7 +612,10 @@ func _test_event_formatter_keys() -> void:
 		"hold": {"p": 1, "gold": 1}, "combat": {"lane": 2, "damage": [4, 7]},
 		"death": {"p": 1, "uid": 9, "card": "melee_creep", "gold": 1}, "tower_fall": {"p": 0},
 		"ancient_fall": {"p": 1}, "concede": {"p": 1}, "win": {"p": 0}, "draw": {},
-		"deployment": {"round": 2, "creeps": [[0, 2], [1, 1]]}, "deployment_revealed": {}}
+		"deployment": {"round": 2, "creeps": [[0, 2], [1, 1]]},
+		"deployment_placed": {"units": [{"uid": 4, "p": 0, "card": "axe", "hero": true, "lane": 1, "slot": 0},
+			{"uid": 9, "p": 1, "card": "melee_creep", "hero": false, "lane": 2, "slot": 1}]},
+		"deployment_revealed": {}}
 	_check(samples.size() == EventFormatter.KEYS.size(), "Every documented event key has a formatter sample")
 	for key in EventFormatter.KEYS:
 		var event = {"k": key}
@@ -484,6 +624,12 @@ func _test_event_formatter_keys() -> void:
 		_check(not text.is_empty() and text != "?", "Formatter covers event key " + key)
 	_check(EventFormatter.format({"k": "play", "p": 0, "card": "foresight", "target_card": "axe"}, library) == "Player 1 plays Foresight on Axe.", "Formatter names cards from the library")
 	_check(EventFormatter.format({"k": "nonsense"}, library) == "?", "Unknown event keys are visible as ?")
+	var placed = {"k": "deployment_placed", "units": [{"uid": 4, "p": 0, "card": "axe", "hero": true, "lane": 1, "slot": 0},
+		{"uid": 5, "p": 0, "card": "keefe", "hero": true, "lane": 0, "slot": 2}, {"uid": 9, "p": 1, "card": "melee_creep", "hero": false, "lane": 2, "slot": 0}]}
+	_check(EventFormatter.format(placed, library) == "Heroes deploy: Player 1: Axe (Middle lane), Keefe the Bold (Left lane)",
+		"deployment_placed lists the heroes by player and lane: " + EventFormatter.format(placed, library))
+	_check(EventFormatter.format({"k": "deployment_placed", "units": [{"uid": 9, "p": 1, "card": "melee_creep", "hero": false, "lane": 2, "slot": 0}]}, library)
+		== "Only creeps deploy this round.", "A creep-only reveal says so")
 	var play = {"k": "play", "p": 0, "card": "foresight", "target_card": "axe"}
 	Settings.set_skin("three_kingdoms", false)
 	_check(EventFormatter.format(play) == "Player 1 plays Guo Jia's Legacy on Zhang Fei.", "Formatter uses the Three Kingdoms skin")
@@ -520,7 +666,7 @@ func _test_language_neutral_state() -> void:
 	replay.protocol = 4
 	var stale = EngineClass.new().load_replay(replay)
 	_check(stale.get("code") == "replay_version", "Protocol 4 replays are rejected with replay_version")
-	_check(EngineClass.PROTOCOL_VERSION == 5 and BridgeClass.PROTOCOL == 6, "Replay format 5; Steam network protocol 6 (tests/steam_test.gd covers the boundary)")
+	_check(EngineClass.PROTOCOL_VERSION == 6 and BridgeClass.PROTOCOL == 7, "Replay format 6; Steam network protocol 7 (tests/steam_test.gd covers the boundary)")
 	_check(EventFormatter.error_text(illegal) == "That action is not legal in the current state.", "Error codes translate to English")
 	Settings.set_locale("zh_CN", false)
 	_check(EventFormatter.error_text(illegal) == "当前局面下不能执行该操作。", "Error codes translate to Chinese")

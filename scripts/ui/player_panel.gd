@@ -63,7 +63,7 @@ func _draw() -> void:
 		UiKit.draw_hgradient(self, Rect2(0, 0, size.x * 0.5, size.y), Color(tint, 0.35), Color(tint, 0.0))
 	var x = 18.0
 	var center_y = size.y * 0.5
-	UiKit.draw_icon(self, "pouch", Rect2(Vector2(x, center_y - 11), Vector2(22, 22)), UiKit.GOLD)
+	UiKit.draw_gold_icon(self, Rect2(Vector2(x, center_y - 11), Vector2(22, 22)))
 	UiKit.draw_text_left(self, UiKit.bold_font(), str(gold), Vector2(x + 26, center_y), 20, UiKit.GOLD_BRIGHT, -1.0, 2)
 	x += 74.0
 	UiKit.draw_icon(self, "cards_stack", Rect2(Vector2(x, center_y - 10), Vector2(20, 20)), UiKit.PAPER_DIM)

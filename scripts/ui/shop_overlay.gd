@@ -3,7 +3,9 @@ extends Control
 ## offers (Secret Shop with HOLD, the item deck with its remaining count, one
 ## consumable), price coins on the cards, BUY buttons that grey out when you
 ## cannot afford them, your gold, and a VIEW BOARD toggle. The initiative
-## coin finishes shopping.
+## coin finishes shopping. With the art in assets/art/ui/, the chest opens on
+## the army market (shop_armory) and the Secret Shop offer stands in its own
+## black-market stall (black_market).
 
 signal buy_requested(source: String)
 signal hold_requested
@@ -34,6 +36,7 @@ func _init() -> void:
 	visible = false
 	chest = Chest.new()
 	chest.size = CHEST_SIZE
+	chest.secret_rect = Rect2(Vector2(58, 100), Vector2(CARD_SIZE.x + 52, CARD_SIZE.y + 104))
 	chest.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(chest)
 	for index in range(SOURCES.size()):
@@ -201,13 +204,18 @@ class Chest:
 	extends Control
 	var title: String = ""
 	var gold: int = 0
+	## The Secret Shop offer's stall (card, BUY button and label).
+	var secret_rect: Rect2 = Rect2()
 
 	func _draw() -> void:
 		var body = Rect2(0, 40, size.x, size.y - 40)
 		draw_colored_polygon(UiKit.round_rect_points(Rect2(body.position + Vector2(0, 14), body.size), 18.0), Color(0, 0, 0, 0.6))
 		var wood = UiKit.tex(UiKit.WOOD_WARM)
+		var armory = UiKit.ui_art("shop_armory")
 		var points = UiKit.round_rect_points(body, 18.0, 5)
-		if wood != null:
+		if armory != null:
+			UiKit.draw_cover_polygon(self, points, body, armory, Vector2(0.5, 0.55), Color(0.62, 0.58, 0.54))
+		elif wood != null:
 			var uvs = PackedVector2Array()
 			var colors = PackedColorArray()
 			for point in points:
@@ -220,10 +228,11 @@ class Chest:
 		var lid = PackedVector2Array([Vector2(26, 46), Vector2(size.x - 26, 46), Vector2(size.x - 60, 0), Vector2(60, 0)])
 		draw_colored_polygon(lid, Color(0.2, 0.11, 0.07))
 		draw_polyline(PackedVector2Array([Vector2(26, 46), Vector2(60, 0), Vector2(size.x - 60, 0), Vector2(size.x - 26, 46)]), Color(UiKit.GOLD_DARK, 0.9), 3.0, true)
-		# Inner well.
+		# Inner well (the market shows through it when painted).
 		var well = Rect2(30, 92, size.x - 60, size.y - 142)
-		UiKit.draw_round_rect(self, well, Color(0.07, 0.05, 0.04, 0.92), 10.0, Color(UiKit.GOLD_DARK, 0.8), 2.0)
+		UiKit.draw_round_rect(self, well, Color(0.07, 0.05, 0.04, 0.5 if armory != null else 0.92), 10.0, Color(UiKit.GOLD_DARK, 0.8), 2.0)
 		UiKit.draw_vgradient(self, Rect2(well.position, Vector2(well.size.x, 60)), Color(0, 0, 0, 0.5), Color(0, 0, 0, 0))
+		_draw_secret_stall()
 		# Gold lattice corners.
 		UiKit.draw_ornate(self, Rect2(10, 52, size.x - 20, size.y - 62), 11, Color(UiKit.GOLD, 0.75), 30.0)
 		# Title plate and gold.
@@ -231,5 +240,18 @@ class Chest:
 		UiKit.draw_round_rect(self, plate, Color(0.1, 0.06, 0.04), 6.0, UiKit.GOLD, 2.0)
 		UiKit.draw_text(self, UiKit.title_font(), title, plate.get_center(), 26, UiKit.GOLD_BRIGHT)
 		var purse = Vector2(size.x - 150, 76)
-		UiKit.draw_icon(self, "pouch", Rect2(purse - Vector2(16, 16), Vector2(32, 32)), UiKit.GOLD)
+		UiKit.draw_gold_icon(self, Rect2(purse - Vector2(16, 16), Vector2(32, 32)))
 		UiKit.draw_text_left(self, UiKit.bold_font(), str(gold), purse + Vector2(22, 0), 28, UiKit.GOLD_BRIGHT, -1.0, 3)
+
+	## The Secret Shop's stall: a dark alley market behind its offer, framed
+	## in Qun purple.
+	func _draw_secret_stall() -> void:
+		var stall = UiKit.ui_art("black_market")
+		if stall == null or secret_rect.size == Vector2.ZERO:
+			return
+		var points = UiKit.round_rect_points(secret_rect, 10.0, 4)
+		draw_colored_polygon(UiKit.round_rect_points(Rect2(secret_rect.position + Vector2(0, 6), secret_rect.size), 10.0), Color(0, 0, 0, 0.5))
+		UiKit.draw_cover_polygon(self, points, secret_rect, stall, Vector2(0.62, 0.5), Color(0.8, 0.74, 0.86))
+		UiKit.draw_vgradient(self, Rect2(secret_rect.position + Vector2(0, secret_rect.size.y * 0.62), Vector2(secret_rect.size.x, secret_rect.size.y * 0.38)),
+			Color(0, 0, 0, 0.0), Color(0.03, 0.01, 0.05, 0.75))
+		UiKit.draw_round_rect(self, secret_rect, Color.TRANSPARENT, 10.0, Color(0.62, 0.42, 0.78, 0.9), 2.0)

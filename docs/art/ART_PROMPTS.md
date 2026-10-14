@@ -40,7 +40,7 @@ Every prompt is complete. Each one already contains the subject, the framing rul
 
 - Card art goes to `assets/art/cards/<card id>.png`. The card id is the original Artifact id used in the game data, so Guan Yu is `keefe.png` and Cao Cao is `jmuy.png`.
 - Future heroes go to `assets/art/heroes_reserve/<name>.png`, and board and UI art to `assets/art/ui/<name>.png`.
-- Before committing, run `python tools/optimize_art.py` (add `assets/art/ui --keep-png` for transparent UI art). The game never draws art taller than 768 px, so the script replaces each oversized PNG with a 512x768 JPEG (about 120 KB) and moves the 1024x1536 master to the ignored `.tools/art_masters/`. The loader accepts `.png`, `.jpg` and `.webp`.
+- Before committing, run `python tools/optimize_art.py` (and `python tools/optimize_art.py --ui` for the board and UI art). The game never draws art taller than 768 px, so the script replaces each oversized PNG with a 512x768 JPEG (about 120 KB) and moves the 1024x1536 master to the ignored `.tools/art_masters/`. The loader accepts `.png`, `.jpg` and `.webp`.
 - Open the project in Godot once after adding files, so it creates the `.import` files, and commit those with the images.
 - The game reads these paths: card art from `assets/art/cards/<id>.(png|jpg|webp)` (the frame, name, text and stats are drawn in code over it), and the optional UI files listed in the README's Artwork section. `assets/art/heroes_reserve/` is gitignored until those heroes are in the game.
 

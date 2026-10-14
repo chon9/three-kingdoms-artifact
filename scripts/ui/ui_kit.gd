@@ -46,6 +46,10 @@ const BORDER_DIR = "res://assets/third_party/kenney_fantasy_ui_borders/"
 const WOOD_DARK = "res://assets/third_party/polyhaven_dark_wooden_planks/dark_wooden_planks_diff_1k.jpg"
 const STONE = "res://assets/third_party/polyhaven_castle_wall_slates/castle_wall_slates_diff_1k.jpg"
 const WOOD_WARM = "res://assets/third_party/ambientcg_wood066/Wood066_1K_Color.jpg"
+const UI_ART_DIR = "res://assets/art/ui/"
+const ART_EXTENSIONS = ["png", "jpg", "webp"]
+## Faction emblems by faction id (Three Kingdoms skin).
+const EMBLEMS = {"shu": "emblem_shu", "wei": "emblem_wei", "wu": "emblem_wu", "qun": "emblem_qun"}
 
 static var _textures: Dictionary = {}
 static var _ornate: Dictionary = {}
@@ -57,15 +61,60 @@ static var _theme: Theme
 
 # --- Resources ---------------------------------------------------------------
 
-## Cached texture by res:// path; null when the file is missing.
+## Cached texture by res:// path; null when the file is missing. Art paths
+## also match the same stem saved as .png, .jpg or .webp (tools/optimize_art.py
+## turns opaque PNG masters into JPEGs).
 static func tex(path: String) -> Texture2D:
 	if _textures.has(path):
 		return _textures[path]
 	var texture: Texture2D = null
-	if ResourceLoader.exists(path):
-		texture = mipmapped(load(path) as Texture2D)
+	for candidate in _art_variants(path):
+		if ResourceLoader.exists(candidate):
+			texture = mipmapped(load(candidate) as Texture2D)
+			break
 	_textures[path] = texture
 	return texture
+
+## `path`, then the same stem with the other art extensions.
+static func _art_variants(path: String) -> Array:
+	var extension = path.get_extension().to_lower()
+	if extension not in ART_EXTENSIONS:
+		return [path]
+	var result: Array = [path]
+	for other in ART_EXTENSIONS:
+		if other != extension:
+			result.append(path.get_basename() + "." + other)
+	return result
+
+## Board and interface art from assets/art/ui/ by name (any art extension).
+static func ui_art(art_name: String) -> Texture2D:
+	return tex(UI_ART_DIR + art_name + ".png")
+
+## Draws `texture` scaled so that `frame` (a rectangle in 0..1 texture
+## coordinates, e.g. a building inside a padded sprite) fills the width or
+## height of `box` (keeping its aspect), centred and standing on the box's
+## bottom edge. The rest of the texture (smoke, flames) is drawn around it.
+## Returns the screen rectangle the frame landed in.
+static func draw_framed(canvas: CanvasItem, texture: Texture2D, frame: Rect2, box: Rect2, modulate: Color = Color.WHITE,
+		flip: bool = false) -> Rect2:
+	if texture == null:
+		return Rect2()
+	var texture_size = texture.get_size()
+	var frame_size = frame.size * texture_size
+	var scale = minf(box.size.x / frame_size.x, box.size.y / frame_size.y)
+	var landed = Rect2(Vector2(box.get_center().x - frame_size.x * scale * 0.5, box.end.y - frame_size.y * scale), frame_size * scale)
+	var origin = landed.position - frame.position * texture_size * scale
+	var full = Rect2(origin, texture_size * scale)
+	if flip:
+		# Mirrored around the frame's centre line (through the UVs, so the
+		# canvas transform, e.g. a shake offset, stays untouched).
+		full.position.x = 2.0 * landed.get_center().x - full.end.x
+	var left = 1.0 if flip else 0.0
+	var right = 0.0 if flip else 1.0
+	canvas.draw_polygon(PackedVector2Array([full.position, Vector2(full.end.x, full.position.y), full.end, Vector2(full.position.x, full.end.y)]),
+		PackedColorArray([modulate, modulate, modulate, modulate]),
+		PackedVector2Array([Vector2(left, 0), Vector2(right, 0), Vector2(right, 1), Vector2(left, 1)]), texture)
+	return landed
 
 ## A mipmapped copy (optionally shrunk to `max_height`) of an imported
 ## texture, so icons and art stay smooth when drawn much smaller than their
@@ -157,6 +206,22 @@ static func faction_seal(card_id: String) -> String:
 	var key = FACTION_SEALS.get(Library.faction(card_id), "FACTION_NEUTRAL")
 	var text = t(key)
 	return text.left(1) if not text.is_empty() else ""
+
+## The faction emblem art for a faction id ("shu", "wei", "wu", "qun"), or null.
+static func faction_emblem(faction_id: String) -> Texture2D:
+	return ui_art(EMBLEMS[faction_id]) if EMBLEMS.has(faction_id) else null
+
+## Draws a card's faction emblem centred on `center` (`diameter` wide) in the
+## Three Kingdoms skin; false when there is none (neutral, Classic skin, no art).
+static func draw_card_emblem(canvas: CanvasItem, card_id: String, center: Vector2, diameter: float) -> bool:
+	if Library.current_skin() != "three_kingdoms":
+		return false
+	var texture = faction_emblem(Library.faction(card_id))
+	if texture == null:
+		return false
+	canvas.draw_circle(center + Vector2(0, diameter * 0.06), diameter * 0.48, Color(0, 0, 0, 0.45))
+	canvas.draw_texture_rect(texture, Rect2(center - Vector2(diameter, diameter) * 0.5, Vector2(diameter, diameter)), false)
+	return true
 
 # --- Styles and theme --------------------------------------------------------
 
@@ -332,6 +397,25 @@ static func draw_cover(canvas: CanvasItem, texture: Texture2D, rect: Rect2, focu
 	var origin = region.position + (region.size - visible) * focus
 	canvas.draw_texture_rect_region(texture, rect, Rect2(origin, visible), modulate)
 
+## Fills `points` (a polygon inside `rect`, e.g. a rounded rectangle) with
+## `texture` scaled to cover `rect`, keeping its aspect; `focus` (0..1) picks
+## the visible part. `source` limits the texture to a region.
+static func draw_cover_polygon(canvas: CanvasItem, points: PackedVector2Array, rect: Rect2, texture: Texture2D,
+		focus: Vector2 = Vector2(0.5, 0.5), modulate: Color = Color.WHITE, source: Rect2 = Rect2()) -> void:
+	if texture == null or rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return
+	var texture_size = texture.get_size()
+	var region = source if source.size != Vector2.ZERO else Rect2(Vector2.ZERO, texture_size)
+	var scale = maxf(rect.size.x / region.size.x, rect.size.y / region.size.y)
+	var visible = rect.size / scale
+	var origin = region.position + (region.size - visible) * focus
+	var uvs = PackedVector2Array()
+	var colors = PackedColorArray()
+	for point in points:
+		uvs.append((origin + (point - rect.position) / scale) / texture_size)
+		colors.append(modulate)
+	canvas.draw_polygon(points, colors, uvs, texture)
+
 ## A filled vertical gradient quad.
 static func draw_vgradient(canvas: CanvasItem, rect: Rect2, top: Color, bottom: Color) -> void:
 	canvas.draw_polygon(PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end,
@@ -374,6 +458,14 @@ static func draw_icon(canvas: CanvasItem, icon_name: String, rect: Rect2, color:
 	var texture = icon(icon_name)
 	if texture != null:
 		canvas.draw_texture_rect(texture, rect, false, color)
+
+## The gold icon: the painted coin (assets/art/ui/gold_coin) or the pouch.
+static func draw_gold_icon(canvas: CanvasItem, rect: Rect2) -> void:
+	var coin = ui_art("gold_coin")
+	if coin != null:
+		canvas.draw_texture_rect(coin, rect.grow(rect.size.x * 0.12), false)
+	else:
+		draw_icon(canvas, "pouch", rect, GOLD)
 
 ## Procedural ink-wash landscape: paper wash, layered mountains, mist and a
 ## sun disc, tinted by `tint`. Deterministic per `seed_text`.

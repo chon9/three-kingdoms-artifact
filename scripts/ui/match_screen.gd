@@ -13,6 +13,8 @@ extends Control
 
 signal menu_requested
 signal game_over_action(action: String)
+## The deployment reveal starts settling lane `lane` (capture timing, tests).
+signal reveal_lane_started(lane: int)
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Library = preload("res://scripts/core/card_library.gd")
@@ -85,6 +87,15 @@ var input_blocked: Callable = func() -> bool: return false
 var _deploy_band: Vector2 = Vector2(126, 548)
 var _shop_band: Vector2 = Vector2(126, 588)
 var _view_band: Vector2 = Vector2(126, 588)
+## Deployment reveal: playing, skip requested, its tweens, and whether the
+## state being applied played one (the camera then moves on sooner).
+var reveal_catcher: Control
+var _revealing: bool = false
+var _reveal_skip: bool = false
+var _reveal_tweens: Array = []
+var _revealed_this_state: bool = false
+## The player skipped this state's reveal: the camera then hurries too.
+var _reveal_skipped: bool = false
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -125,6 +136,8 @@ func _init() -> void:
 	add_child(hint_label)
 	arrow = _add(TargetArrow.new(), "TargetArrow")
 	fx = _add(FxLayer.new(), "Fx")
+	reveal_catcher = _add(RevealCatcher.new(), "RevealCatcher")
+	reveal_catcher.skipped.connect(func(): _reveal_skip = true)
 	log_panel = _add(LogPanel.new(), "Log")
 	game_over = _add(GameOverOverlay.new(), "GameOver")
 	reconnect = _add(ReconnectOverlay.new(), "Reconnect")
@@ -148,6 +161,7 @@ func _init() -> void:
 	shop.buy_requested.connect(buy)
 	shop.hold_requested.connect(hold_secret)
 	deployment.deploy_requested.connect(deploy_hero)
+	deployment.undeploy_requested.connect(undeploy_hero)
 	deployment.inspect_requested.connect(inspect_card)
 	game_over.action_requested.connect(_on_game_over_action)
 	for source in shop.slots:
@@ -168,20 +182,26 @@ func _notification(what: int) -> void:
 
 func _layout() -> void:
 	var full = Rect2(Vector2.ZERO, size)
-	for node in [board, deployment, shop, hand, arrow, fx, game_over, reconnect, inspect, pass_screen]:
+	for node in [board, deployment, shop, hand, arrow, fx, reveal_catcher, game_over, reconnect, inspect, pass_screen]:
 		node.position = full.position
 		node.size = full.size
 	hud.position = Vector2.ZERO
 	enemy_panel.position = Vector2(size.x - enemy_panel.size.x, 0)
 	own_panel.position = Vector2(size.x - own_panel.size.x, size.y - own_panel.size.y)
-	coin.position = Vector2(size.x - coin.size.x - 22, size.y - own_panel.size.y - 226)
+	# The coin's two-line hint ends a few pixels above the player panel.
+	coin.position = Vector2(size.x - coin.size.x - 22, size.y - own_panel.size.y - InitiativeCoin.CAPTION_BOTTOM - 8.0)
+	coin.queue_redraw()
 	own_deck.size = Vector2(88, 125)
 	own_deck.position = Vector2(30, size.y - 300)
 	# Under the opponent's panel, clear of the overview lanes below it.
 	enemy_deck.size = Vector2(50, 71)
 	enemy_deck.position = Vector2(size.x - 84, 50)
-	enemy_hand.size = Vector2(560, 64)
-	enemy_hand.position = Vector2((size.x - enemy_hand.size.x) * 0.5, 0)
+	# The opponent's hand fits between the lane HUD and the opponent's panel.
+	var gap_left = hud.size.x + 12.0
+	var gap_right = enemy_panel.position.x - 12.0
+	enemy_hand.size = Vector2(minf(560.0, gap_right - gap_left), 64)
+	enemy_hand.position = Vector2(maxf(gap_left, (size.x - enemy_hand.size.x) * 0.5), 0)
+	deployment.set_strip_center(enemy_hand.position.x + enemy_hand.size.x * 0.5)
 	# The fan spreads from the left edge to just short of the player panel.
 	hand.fan_left = 24.0
 	hand.fan_right = own_panel.position.x - 12.0
@@ -222,6 +242,7 @@ func bind(match_controller: Node) -> void:
 ## Forgets the shown match so the next state is drawn from scratch.
 func reset() -> void:
 	queue.clear()
+	_reveal_skip = true
 	_cancel_hold()
 	shown_view = {}
 	shown_viewer = -1
@@ -242,7 +263,7 @@ func refresh_text() -> void:
 		lane.queue_redraw()
 		for uid in lane.cards:
 			lane.cards[uid].refresh()
-		for card in lane.incoming_cards:
+		for card in lane.staged_cards():
 			card.refresh()
 	shop.refresh_text()
 	deployment.refresh_text()
@@ -270,6 +291,8 @@ func _on_state_changed(view: Dictionary, new_actions: Array) -> void:
 
 func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 	_cancel_hold()
+	_revealed_this_state = false
+	_reveal_skipped = false
 	board.display_engine.library = controller.engine.library
 	var seq = int(view.get("event_seq", 0))
 	var events = _new_events(view, seq)
@@ -278,7 +301,10 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 		return
 	if viewer != shown_viewer:
 		# Hot-seat hand-over: hide everything until the next player confirms,
-		# then replay the latest events from that player's side.
+		# then replay the latest events from that player's side. Staged heroes
+		# show the previous player's secret plans, so they go first.
+		if deployment.visible:
+			deployment.close()
 		if controller.mode == controller.MODE_LOCAL:
 			pass_screen.show_for(viewer)
 			_refresh_controls()
@@ -302,6 +328,9 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 				await _anim_combat(event, viewer)
 			"pass":
 				_anim_pass(event, viewer)
+			"deployment_placed":
+				# Before the sync below: the staged cards fly into place.
+				await _anim_deployment_reveal(event, view, viewer)
 	await _sync_all(view, new_actions, viewer, context, true)
 	for event in events:
 		match str(event.get("k", "")):
@@ -430,7 +459,7 @@ func _sync_all(view: Dictionary, new_actions: Array, viewer: int, context: Dicti
 	log_panel.set_events(view.get("events", []))
 	_refresh_controls()
 	if animated:
-		await queue.wait(0.5)
+		await queue.wait(0.2 if _reveal_skipped else 0.5)
 
 func _animate_enter(card: Control, lane: Control, order: int) -> void:
 	if AnimationQueue.instant:
@@ -647,18 +676,299 @@ func _enter_deployment(view: Dictionary, viewer: int, new_actions: Array) -> voi
 		board.apply_camera()
 	deployment.open()
 	deployment.sync(view, viewer, new_actions, _opponent_spent_text(view, viewer))
-	fx.banner(UiKit.t("PHASE_DEPLOYMENT"), UiKit.GOLD_BRIGHT, 0.5, 56)
+	fx.banner(UiKit.t("PHASE_DEPLOYMENT_ROUND", {"n": int(view.get("round", 1))}), UiKit.GOLD_BRIGHT, 0.5, 56)
 	await queue.wait(0.6)
 
+## The reveal, once both players have confirmed. The enemy's heroes fly from
+## the opponent strip into their lanes' staging fans; then, lane by lane,
+## every unit placed this round gets its combat position: a highlight hops
+## over the candidate slots and stops on the one the engine chose, and the
+## staged card flies there. The rows settle, and pathing slabs show where
+## each unblocked unit will attack before the arrows appear. A click, Space,
+## Enter or Esc skips to the end. Runs before the board syncs to `view`.
+func _anim_deployment_reveal(event: Dictionary, view: Dictionary, viewer: int) -> void:
+	_revealing = true
+	_reveal_skip = AnimationQueue.instant
+	_reveal_tweens = []
+	# Nothing may hide the reveal: a held card and an open zoom go first.
+	_cancel_hold()
+	inspect.close()
+	reveal_catcher.visible = not _reveal_skip
+	deployment.begin_reveal()
+	# The coin goes dark: no one can act until the board settles (the queue
+	# going idle mid-reveal keeps it dark too, see _refresh_controls).
+	coin.set_state(false, false, UiKit.t("HUD_WAITING"), "")
+	for lane in board.lanes:
+		lane.preview_hidden = true
+	# Online states arrive through JSON: every number may be a float.
+	var units: Array = []
+	for raw in event.get("units", []):
+		units.append({"uid": int(raw.get("uid", -1)), "p": int(raw.get("p", 0)), "card": str(raw.get("card", "")),
+			"hero": bool(raw.get("hero", false)), "lane": clampi(int(raw.get("lane", 0)), 0, 2), "slot": int(raw.get("slot", 0))})
+	if not _reveal_skip:
+		_ensure_reveal_staging(units, view, viewer)
+		# Step 1: the opponent's lane choices.
+		var enemy_heroes = units.filter(func(unit): return unit.hero and unit.p != viewer)
+		for unit in enemy_heroes:
+			var from = deployment.opponent_card_center(unit.uid)
+			if from.x < 0.0:
+				from = hud.chip_center(unit.uid)
+			if from.x < 0.0:
+				from = enemy_hand.origin()
+			deployment.hide_opponent_card(unit.uid)
+			board.lanes[unit.lane].stage_enemy_hero(unit.uid, board.staged_model(_reveal_unit(view, unit.uid), false), from,
+				DeploymentOverlay.STRIP_SCALE)
+			if sfx != null:
+				sfx.play("switch-a")
+			await _reveal_wait(0.08)
+		await _reveal_wait(0.45)
+		deployment.opponent_strip.visible = false
+		# Step 2: lanes left to right.
+		for lane_index in range(3):
+			if _reveal_skip:
+				break
+			var entries = units.filter(func(unit): return unit.lane == lane_index)
+			if not entries.is_empty():
+				await _reveal_lane(lane_index, entries, view, viewer)
+	if _reveal_skip:
+		_reveal_skipped = not AnimationQueue.instant
+		_finish_reveal_now(view, viewer)
+	else:
+		for lane in board.lanes:
+			lane.reset_reveal()
+	reveal_catcher.visible = false
+	_revealing = false
+	_revealed_this_state = true
+
+## Waits `seconds` (scaled by the animation speed), ending early on skip.
+func _reveal_wait(seconds: float) -> void:
+	var elapsed = 0.0
+	var duration = AnimationQueue.duration(seconds)
+	while elapsed < duration and not _reveal_skip and is_inside_tree():
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+
+## A unit of `view` by uid, as it waits to enter (no lane, so its stats
+## carry no lane auras).
+func _reveal_unit(view: Dictionary, uid: int) -> Dictionary:
+	for lane in view.lanes:
+		for row in lane.units:
+			for unit in row:
+				if unit != null and int(unit.uid) == uid:
+					var copy: Dictionary = unit.duplicate()
+					copy.lane = -1
+					return copy
+	return {}
+
+## The staging matches what the reveal places (it does unless the viewer
+## changed in hot-seat play): creeps of both sides and your heroes.
+func _ensure_reveal_staging(units: Array, view: Dictionary, viewer: int) -> void:
+	for lane_index in range(3):
+		var lane = board.lanes[lane_index]
+		var sides: Array = [[], []]
+		var creeps: Array = [[], []]
+		for unit in units:
+			if unit.lane != lane_index or (unit.hero and unit.p != viewer):
+				continue
+			var side = 1 if unit.p == viewer else 0
+			var spec = {"card_id": unit.card, "uid": unit.uid if unit.hero else -1, "kind": "hero" if unit.hero else "creep",
+				"movable": false, "selected": false, "hidden": false, "model": board.staged_model(_reveal_unit(view, unit.uid), side == 1)}
+			if unit.hero:
+				spec.key = "h%d" % unit.uid
+				sides[side].append(spec)
+			else:
+				spec.key = "c%d_%d" % [side, creeps[side].size()]
+				creeps[side].append(spec)
+		var wanted: Array = []
+		var current: Array = []
+		for side in range(2):
+			sides[side] = creeps[side] + sides[side]
+			for spec in sides[side]:
+				wanted.append(spec.key)
+			for entry in lane.staged[side]:
+				current.append(entry.key)
+		wanted.sort()
+		current.sort()
+		if wanted != current:
+			lane.set_staged(sides[0], sides[1])
+
+## Settles one lane: final columns, the deciding highlight and a flight for
+## each placed unit (in the engine's placement order), then the rows close
+## the staging strip and the pathing slabs show where unblocked units attack.
+func _reveal_lane(lane_index: int, entries: Array, view: Dictionary, viewer: int) -> void:
+	reveal_lane_started.emit(lane_index)
+	var lane = board.lanes[lane_index]
+	var change: Dictionary = board.sync_lane(lane_index, view, viewer)
+	var placed: Dictionary = {}
+	for entry in entries:
+		placed[entry.uid] = true
+	for card in change.added:
+		card.modulate.a = 0.0
+		lane.flying[card.uid] = true
+	for card in change.removed:
+		UiKit.discard(card)
+	for card in change.moved:
+		var rest = card.position
+		card.position = change.moved[card]
+		_reveal_tweens.append(_tween_to(card, "position", rest, 0.3))
+	var candidates: Array = [[], []]
+	for side in range(2):
+		for column in range(lane.columns[side].size()):
+			var uid = int(lane.columns[side][column])
+			if uid == -1 or placed.has(uid):
+				candidates[side].append(column)
+	lane.candidates = candidates
+	_reveal_tweens.append(_tween_to(lane, "candidate_alpha", 1.0, 0.15))
+	await _reveal_wait(0.15)
+	var claimed: Array = [{}, {}]
+	for entry in entries:
+		if _reveal_skip:
+			return
+		var side = 1 if entry.p == viewer else 0
+		var column = lane.columns[side].find(entry.uid)
+		if column == -1:
+			continue
+		await _reveal_roulette(lane, side, column, entry.uid, claimed[side])
+		if _reveal_skip:
+			return
+		claimed[side][column] = true
+		_reveal_flight(lane, entry, side, column)
+	await _reveal_wait(0.32)
+	if _reveal_skip:
+		return
+	lane.roulette = {}
+	lane.build_slabs(board.lane_models[lane_index])
+	var settle = lane.close_staging(AnimationQueue.duration(0.3))
+	if settle != null:
+		_reveal_tweens.append(settle)
+	_reveal_tweens.append(_tween_to(lane, "candidate_alpha", 0.0, 0.3))
+	_reveal_tweens.append(_tween_to(lane, "slab_t", 1.0, 0.36))
+	await _reveal_wait(0.36)
+	if _reveal_skip:
+		return
+	lane.preview_hidden = false
+	_reveal_tweens.append(_tween_to(lane, "slab_alpha", 0.0, 0.15))
+	await _reveal_wait(0.16)
+	if _reveal_skip:
+		return
+	for uid in lane.cards:
+		lane.cards[uid].modulate.a = 1.0
+	lane.reset_reveal()
+	lane.layout()
+
+## The deciding highlight: 3-5 decelerating hops over the free candidate
+## slots of `side`, ending on `column`. Purely visual: the hops come from a
+## UI-only generator seeded by the unit, never the match's random stream.
+func _reveal_roulette(lane: Control, side: int, column: int, uid: int, claimed: Dictionary) -> void:
+	var options: Array = lane.candidates[side].filter(func(value): return not claimed.has(value))
+	if options.size() <= 1:
+		lane.roulette = {"side": side, "column": column, "landing": true}
+		lane.queue_redraw()
+		await _reveal_wait(0.1)
+		return
+	var rng = RandomNumberGenerator.new()
+	rng.seed = uid * 7919 + int(lane.lane_index)
+	var durations = [0.03, 0.04, 0.05, 0.06, 0.08]
+	var hops = rng.randi_range(3, 5)
+	var sequence: Array = []
+	var others = options.filter(func(value): return value != column)
+	for hop in range(hops - 1):
+		# Never the same slot twice in a row, and not the final slot just before landing.
+		var previous = sequence.back() if not sequence.is_empty() else -1
+		var last = hop == hops - 2
+		var pool = options.filter(func(value): return value != previous and not (last and value == column))
+		if pool.is_empty():
+			pool = others
+		sequence.append(pool[rng.randi_range(0, pool.size() - 1)])
+	sequence.append(column)
+	for index in range(sequence.size()):
+		lane.roulette = {"side": side, "column": sequence[index], "landing": index == sequence.size() - 1}
+		lane.queue_redraw()
+		if sfx != null and index == sequence.size() - 1:
+			sfx.play("tap-b")
+		await _reveal_wait(durations[durations.size() - sequence.size() + index])
+		if _reveal_skip:
+			return
+
+## Flies the staged card for `entry` into its combat position along a curve
+## that bows toward the river, then lands it on the board card.
+func _reveal_flight(lane: Control, entry: Dictionary, side: int, column: int) -> void:
+	var card: Control = lane.cards.get(entry.uid)
+	if card == null:
+		return
+	var staged: Control = lane.take_staged("h%d" % entry.uid) if entry.hero else lane.take_staged_kind(side, "creep")
+	var start: Vector2
+	if staged != null:
+		start = staged.position + UnitCard.SIZE * 0.5
+		card.rotation = staged.rotation
+		card.scale = staged.scale
+		UiKit.discard(staged)
+	else:
+		start = lane.fan_center(side, 0, 1)
+		card.rotation = 0.0
+		card.scale = Vector2.ONE * lane.STAGE_SCALE
+	card.modulate.a = 1.0
+	card.position = start - UnitCard.SIZE * 0.5
+	lane.move_child(card, -1)
+	var finish = lane.slot_center(column, side == 1)
+	var bend = (start + finish) * 0.5 + Vector2(0, -40.0 if side == 1 else 40.0)
+	var fly = func(t: float) -> void:
+		var point = start * (1.0 - t) * (1.0 - t) + bend * 2.0 * (1.0 - t) * t + finish * t * t
+		card.position = point - UnitCard.SIZE * 0.5
+	var land = func() -> void:
+		lane.flying.erase(entry.uid)
+		lane.candidates[side].erase(column)
+		lane.layout()
+		fx.burst(card.get_global_rect().get_center(), "cast", 0.4 * card.scale.x)
+		_flash(card)
+		if sfx != null:
+			sfx.play("tap-a")
+	var duration = AnimationQueue.duration(0.3)
+	var tween = card.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_method(fly, 0.0, 1.0, duration)
+	tween.tween_property(card, "rotation", 0.0, duration)
+	tween.tween_property(card, "scale", Vector2.ONE * lane._scale, duration)
+	tween.chain().tween_callback(land)
+	_reveal_tweens.append(tween)
+
+## A reveal tween of one property (tracked so a skip can stop it).
+func _tween_to(target: Object, property: String, value, seconds: float) -> Tween:
+	var tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(target, property, value, AnimationQueue.duration(seconds))
+	return tween
+
+## Skip: stop every reveal animation and show the settled board at once,
+## exactly as a completed reveal leaves it.
+func _finish_reveal_now(view: Dictionary, viewer: int) -> void:
+	for tween in _reveal_tweens:
+		if tween is Tween and tween.is_valid():
+			tween.kill()
+	_reveal_tweens = []
+	for lane in board.lanes:
+		lane.clear_staging()
+		lane.reset_reveal()
+	_free_removed(board.sync(view, viewer, []))
+	for lane in board.lanes:
+		for uid in lane.cards:
+			var card: Control = lane.cards[uid]
+			card.modulate = Color.WHITE
+			card.rotation = 0.0
+			card.flash = 0.0
+			card.scale = Vector2.ONE * lane._scale
+			card.queue_redraw()
+		lane.layout()
+	deployment.opponent_strip.visible = false
+
 func _exit_deployment(view: Dictionary) -> void:
-	await queue.wait(0.7)
+	if not _reveal_skipped:
+		await queue.wait(0.35 if _revealed_this_state else 0.7)
 	deployment.close()
 	hand.set_lowered(false)
 	board.slide_to(int(view.lane), 0.0)
-	await queue.finish(board.set_overview(false, AnimationQueue.duration(0.5)))
+	await queue.finish(board.set_overview(false, AnimationQueue.duration(0.3 if _reveal_skipped else 0.5)))
 	_set_band(_view_band)
 	fx.banner(EventText.lane_name(int(view.lane)), UiKit.GOLD_BRIGHT, 0.4, 46, _river_y())
-	await queue.wait(0.3)
+	await queue.wait(0.15 if _reveal_skipped else 0.3)
 
 func _show_game_over(view: Dictionary, viewer: int) -> void:
 	if _game_over_shown:
@@ -711,10 +1021,18 @@ func _refresh_controls() -> void:
 			var can = {"type": "finish_shop"} in actions
 			coin.set_state(can, can, UiKit.t("BTN_FINISH_SHOPPING") if can else UiKit.t("HUD_WAITING"), UiKit.t("SHOP_HINT") if can else "")
 		"deployment":
-			var can = {"type": "finish_deployment"} in actions
-			var waiting = view.players[viewer].get("finished", false)
-			coin.set_state(can, can, UiKit.t("BTN_CONFIRM_DEPLOYMENT") if not waiting else UiKit.t("HUD_WAITING"),
-				UiKit.t("DEPLOY_DRAG_HINT") if not can and not waiting else "")
+			if _revealing:
+				# Both sides confirmed: the reveal plays and nothing can move.
+				coin.set_state(false, false, UiKit.t("HUD_WAITING"), "")
+			else:
+				var can = {"type": "finish_deployment"} in actions
+				var waiting = view.players[viewer].get("finished", false)
+				var coin_hint = ""
+				if not waiting and not deployment.hero_cards.is_empty():
+					coin_hint = UiKit.t("DEPLOY_DRAG_HINT")
+				elif not waiting and not view.players[viewer].get("plans", {}).is_empty():
+					coin_hint = UiKit.t("DEPLOY_ALL_ASSIGNED")
+				coin.set_state(can, can, UiKit.t("BTN_CONFIRM_DEPLOYMENT") if not waiting else UiKit.t("HUD_WAITING"), coin_hint)
 		_:
 			coin.set_state(false, false, UiKit.t("PHASE_FINISHED"), "")
 	coin.enabled = coin.enabled and not busy
@@ -895,6 +1213,9 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 
 func _handle_key(event: InputEventKey) -> bool:
+	if _revealing and event.keycode in [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER, KEY_ESCAPE]:
+		_reveal_skip = true
+		return true
 	match event.keycode:
 		KEY_ESCAPE:
 			if not hold.is_empty():
@@ -1176,6 +1497,10 @@ func _cancel_hold() -> void:
 func _on_board_pressed(point: Vector2, button: int, double_click: bool) -> void:
 	if not hold.is_empty():
 		return
+	var phase = str(shown_view.get("phase", ""))
+	# Staged units: right-click inspects, a press on your hero drags it.
+	if phase == "deployment" and deployment.visible and deployment.handle_board_press(point, button):
+		return
 	var card: Control = board.unit_at(point)
 	if button == MOUSE_BUTTON_RIGHT:
 		if card != null:
@@ -1183,7 +1508,6 @@ func _on_board_pressed(point: Vector2, button: int, double_click: bool) -> void:
 		return
 	if button != MOUSE_BUTTON_LEFT:
 		return
-	var phase = str(shown_view.get("phase", ""))
 	if phase == "deployment" and deployment.handle_board_click(point):
 		return
 	if card != null and card.ability_hit(point):
@@ -1257,6 +1581,14 @@ func deploy_hero(uid: int, lane: int) -> void:
 	if command in actions:
 		if sfx != null:
 			sfx.play("click-a")
+		controller.act(command)
+
+## Takes a planned hero back to the tray (before confirming).
+func undeploy_hero(uid: int) -> void:
+	var command = {"type": "undeploy", "unit": uid}
+	if command in actions:
+		if sfx != null:
+			sfx.play("click-b")
 		controller.act(command)
 
 func use_ability(uid: int) -> bool:
@@ -1358,3 +1690,22 @@ func ability_point(uid: int) -> Vector2:
 	if card == null or card.ability_rect().size == Vector2.ZERO:
 		return Vector2.ZERO
 	return card.get_global_transform() * card.ability_rect().get_center()
+
+## Full-screen catcher shown while the deployment reveal plays: any click
+## skips to the end. It says so at the bottom centre.
+class RevealCatcher:
+	extends Control
+	signal skipped
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		visible = false
+
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed:
+			skipped.emit()
+			accept_event()
+
+	func _draw() -> void:
+		UiKit.draw_text(self, UiKit.body_font(), UiKit.t("DEPLOY_SKIP_HINT"), Vector2(size.x * 0.5, size.y * 0.655), 14,
+			Color(UiKit.PAPER, 0.6), -1.0, 2)

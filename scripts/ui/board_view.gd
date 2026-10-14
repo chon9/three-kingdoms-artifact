@@ -129,30 +129,49 @@ func sync(new_view: Dictionary, new_viewer: int, actions: Array) -> Array:
 	view = new_view
 	viewer = new_viewer
 	display_engine.state = new_view
-	var ability_ready: Dictionary = {}
-	for action in actions:
-		if action.get("type", "") == "ability":
-			ability_ready[int(action.unit)] = true
+	var ability_ready = _ability_ready(actions)
 	var changes: Array = []
 	for index in range(3):
-		var lane = new_view.lanes[index]
-		var models = build_models(index, ability_ready)
-		lane_models[index] = models
-		lanes[index].active = new_view.phase == "action" and int(new_view.lane) == index
-		changes.append(lanes[index].sync(lane, viewer, models))
+		changes.append(_sync_lane_models(index, ability_ready))
 	queue_redraw()
 	return changes
 
+## Syncs only lane `index` to `new_view` (the deployment reveal settles one
+## lane at a time); the other lanes keep what they show. Returns that lane's
+## change record.
+func sync_lane(index: int, new_view: Dictionary, new_viewer: int, actions: Array = []) -> Dictionary:
+	view = new_view
+	viewer = new_viewer
+	display_engine.state = new_view
+	return _sync_lane_models(index, _ability_ready(actions))
+
+func _ability_ready(actions: Array) -> Dictionary:
+	var ready: Dictionary = {}
+	for action in actions:
+		if action.get("type", "") == "ability":
+			ready[int(action.unit)] = true
+	return ready
+
+func _sync_lane_models(index: int, ability_ready: Dictionary) -> Dictionary:
+	var models = build_models(index, ability_ready)
+	lane_models[index] = models
+	lanes[index].active = view.phase == "action" and int(view.lane) == index
+	return lanes[index].sync(view.lanes[index], viewer, models)
+
+## Display models for lane `lane_index` of the current view. While heroes are
+## being planned, the previous round's arrows are rerolled at the reveal, so
+## no damage, death or tower-damage preview is shown.
 func build_models(lane_index: int, ability_ready: Dictionary = {}) -> Dictionary:
 	var lane = view.lanes[lane_index]
 	var preview = display_engine.combat_preview(lane_index)
+	var planning = str(view.get("phase", "")) == "deployment"
 	var models: Dictionary = {}
 	for side in range(2):
 		for unit in lane.units[side]:
 			if unit == null:
 				continue
 			var uid = int(unit.uid)
-			var damage = int(preview.unit_damage.get(str(uid), 0))
+			var damage = 0 if planning else int(preview.unit_damage.get(str(uid), 0))
 			var target = display_engine.combat_target_of(unit)
 			var arrow = 0
 			if not target.is_empty():
@@ -168,9 +187,22 @@ func build_models(lane_index: int, ability_ready: Dictionary = {}) -> Dictionary
 				"base_attack": int(definition.get("attack", unit.attack)), "base_armor": int(definition.get("armor", unit.armor)),
 				"arrow": arrow, "tower": target.is_empty(), "damage": damage,
 				"dies": damage > 0 and damage >= int(unit.health),
-				"ability_ready": ability_ready.has(uid), "passive": passive}
-	models["tower_damage"] = [int(preview.tower_damage[1 - viewer]), int(preview.tower_damage[viewer])]
+				"ability_ready": ability_ready.has(uid), "passive": passive, "preview_hidden": planning}
+	if planning:
+		models["tower_damage"] = [0, 0]
+	else:
+		models["tower_damage"] = [int(preview.tower_damage[1 - viewer]), int(preview.tower_damage[viewer])]
 	return models
+
+## Display model for a unit that is not on the board yet (a staged creep or
+## hero): its own stats with items, at full health, without combat preview.
+func staged_model(unit: Dictionary, own: bool) -> Dictionary:
+	var health = display_engine.max_health_of(unit)
+	var definition = Library.raw_definition(str(unit.get("card", "")))
+	return {"unit": unit, "own": own, "attack": display_engine.attack_of(unit), "armor": display_engine.armor_of(unit),
+		"health": health, "max_health": health, "base_attack": int(definition.get("attack", unit.get("attack", 0))),
+		"base_armor": int(definition.get("armor", unit.get("armor", 0))), "arrow": 0, "tower": false, "damage": 0,
+		"dies": false, "ability_ready": false, "passive": false, "preview_hidden": true}
 
 func model(uid: int) -> Dictionary:
 	for models in lane_models:
@@ -218,8 +250,13 @@ func _gui_input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	var rect = Rect2(Vector2.ZERO, size)
+	# The strategist's war map (three roads between two capitals) under the
+	# lanes; the CC0 wood when the painting is missing.
+	var war_map = UiKit.ui_art("board_overview")
 	var wood = UiKit.tex(UiKit.WOOD_WARM)
-	if wood != null:
+	if war_map != null:
+		UiKit.draw_cover(self, war_map, rect, Vector2(0.5, 0.5), Color(0.4, 0.37, 0.34))
+	elif wood != null:
 		draw_texture_rect(wood, rect, true, Color(0.36, 0.3, 0.26))
 	else:
 		draw_rect(rect, Color("221a14"))

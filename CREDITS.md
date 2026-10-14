@@ -57,6 +57,26 @@ It is distributed with the repository under the project's [MIT license](LICENSE)
 The committed files are 512x768 JPEG reductions made by `tools/optimize_art.py`;
 the 1024x1536 masters are kept outside the repository.
 
+The board and interface art in `assets/art/ui/` is original to this project
+too: the lane grounds (`board_lane_player`, `board_lane_enemy`), the river
+(`board_river`), the war map behind the lanes (`board_overview`), the gate
+tower in three states (`tower_intact`, `tower_damaged`, `tower_destroyed`),
+the capital (`ancient_capital`, `ancient_capital_burning`), the four faction
+emblems (`emblem_shu`, `emblem_wei`, `emblem_wu`, `emblem_qun`), the gold,
+mana and initiative icons (`gold_coin`, `mana_command`, `initiative_token`),
+the rice paper behind rules text (`paper_tile`), the card back
+(`card_back`), the army market and the Secret Shop stall (`shop_armory`,
+`black_market`), the deployment camp (`camp_fountain`), the main menu key art
+(`menu_key_art`) and the victory and defeat backgrounds (`splash_victory`,
+`splash_defeat`). It was generated with OpenAI's built-in image tool from the
+"Board & UI" prompts in [docs/art/ART_PROMPTS.md](docs/art/ART_PROMPTS.md),
+with the same records as the card art, and it is distributed with the
+repository under the project's [MIT license](LICENSE). The committed files are
+reductions made by `tools/optimize_art.py --ui`: opaque backgrounds as JPEGs
+at most 1536 px wide, transparent sprites and icons as palette PNGs at most
+768 px tall (buildings) or 512 px (icons and emblems); the full-size masters
+are kept outside the repository.
+
 ## Card text and names
 
 The Three Kingdoms names and rules text in `data/locale/` are original to this

@@ -2,12 +2,14 @@ extends SceneTree
 ## Exercises the real UI through its scene and, for play interactions, real
 ## mouse events pushed into the viewport: drag-play (untargeted, targeted,
 ## creep positions), Battlefield Control's two stages (click and drag), hero
-## ability clicks, the initiative coin, shop hold/buy, deployment drags,
-## inspect, dialogs, replays, live locale switching and both card skins, plus
-## regressions found in review: a deployment drag surviving a state update,
-## incoming creep ghosts (real stats, inside the lane), edge lane switching
-## only for cross-lane cards, a readable and clickable 14-card hand, tooltips
-## rebuilt on a language switch, and dialogs centred on their real size.
+## ability clicks, the initiative coin, shop hold/buy, deployment (staging
+## strips, drags from the tray and between lanes, taking a hero back, the
+## click fallback, the commit lock, privacy of the opponent's plans, the
+## reveal and skipping it), the fountain HUD, inspect, dialogs, replays, live
+## locale switching and both card skins, plus regressions found in review:
+## drags surviving a state update, edge lane switching only for cross-lane
+## cards, a readable and clickable 14-card hand, tooltips rebuilt on a
+## language switch, and dialogs centred on their real size.
 ## Every check exits with code 1 on failure; a watchdog also exits with code 1
 ## if a script error stops the coroutine before it can finish.
 
@@ -17,6 +19,9 @@ const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
 const MatchController = preload("res://scripts/game/match_controller.gd")
 const Library = preload("res://scripts/core/card_library.gd")
 const EventText = preload("res://scripts/core/event_text.gd")
+const UnitCard = preload("res://scripts/ui/unit_card.gd")
+const UiKit = preload("res://scripts/ui/ui_kit.gd")
+const Bot = preload("res://scripts/ai/heuristic_bot.gd")
 const WATCHDOG_SECONDS = 240.0
 var app
 var screen
@@ -134,6 +139,12 @@ func _run() -> void:
 		return
 	if not _require(absf(screen.size.x - 1440.0) < 1.0 and absf(screen.size.y - 900.0) < 1.0, "Match screen fills the 1440x900 base view (got %s)" % screen.size):
 		return
+	# Every board and UI painting loads by name, whatever its format (the
+	# optimizer turns opaque PNG masters into JPEGs).
+	for file_name in DirAccess.get_files_at("res://assets/art/ui"):
+		if file_name.get_extension() in ["png", "jpg", "webp"]:
+			if not _require(UiKit.ui_art(file_name.get_basename()) != null, "UI art %s loads by name" % file_name):
+				return
 	# --- Hot-seat match through every phase -------------------------------------
 	app.start_match(MatchController.MODE_LOCAL)
 	app.bot_timer.stop()
@@ -179,24 +190,15 @@ func _run() -> void:
 		return
 	if not _require(screen.deployment.visible and _engine().player_view(0).pending_creeps[1].size() == 2, "Deployment shows both players' lane creeps"):
 		return
-	var ghosts = 0
-	for lane in screen.board.lanes:
-		ghosts += lane.incoming_cards.size()
-	if not _require(ghosts >= 4, "Pending creeps appear as ghost cards in the lanes"):
+	if not await _check_staging():
 		return
-	var creep = Library.raw_definition("melee_creep")
-	for lane in screen.board.lanes:
-		var table: Rect2 = lane.get_global_transform() * lane.table_rect()
-		for ghost in lane.incoming_cards:
-			var unit: Dictionary = ghost.model.unit
-			if ghost.card_id == "melee_creep" and not _require(int(unit.attack) == int(creep.attack) and int(unit.health) == int(creep.health),
-					"Incoming creep ghosts show the creep's real stats (got %d/%d)" % [int(unit.attack), int(unit.health)]):
-				return
-			if not _require(table.grow(2.0).encloses(ghost.get_global_rect()), "Incoming ghost cards stay inside their lane (%s in %s)" % [ghost.get_global_rect(), table]):
-				return
 	for turn in range(2):
 		await _settle()
 		var deployer = app.local_player
+		if turn == 0 and not await _check_replanning(deployer):
+			return
+		if turn == 1 and not _check_staging_privacy(deployer):
+			return
 		var tray: Array = screen.deployment.hero_cards.duplicate()
 		for card_index in range(tray.size()):
 			var cards = screen.deployment.hero_cards
@@ -210,15 +212,6 @@ func _run() -> void:
 			_press_and_move(from, to)
 			if not _require(screen.board.lanes[target_lane].drop_state == 2, "Dragging a hero lights up the lane under it"):
 				return
-			if card_index == 0:
-				# A state published mid-drag (the opponent planning its own
-				# deployment) must not destroy the dragged hero.
-				app.controller.refresh()
-				await _settle()
-				if not _require(is_instance_valid(card) and card.is_inside_tree() and screen.deployment.dragging == card,
-						"A hero being dragged survives a state update"):
-					return
-				_mouse(to, 0, false, true)
 			_mouse(to, MOUSE_BUTTON_LEFT, false)
 			await _settle()
 			if not _require(int(_engine().state.players[deployer].plans.get(str(uid), -1)) == target_lane, "Dropping a hero on a lane plans its deployment"):
@@ -226,6 +219,8 @@ func _run() -> void:
 		_click(screen.coin_point())
 		await _settle()
 	if not _require(_engine().state.phase == "action", "Deployment reveal returns to the action phase"):
+		return
+	if not _check_reveal_result():
 		return
 	if not _require(not screen.deployment.visible and not screen.shop.visible and not screen.board.overview, "Overlays close and the camera returns to a lane"):
 		return
@@ -592,14 +587,365 @@ func _run() -> void:
 	await _settle()
 	if not _require(int(_engine().state.revision) > revision and int(_engine().state.revision) >= revision + 1, "The AI responds once the board is idle"):
 		return
+	# --- Deployment against the AI: fountain HUD, commit lock, reveal skip ----------
+	if not await _check_ai_deployment():
+		return
 	app.show_main_menu()
 	if not _require(app.menu.visible and app.menu.buttons.resume.visible, "The main menu offers to resume the match"):
 		return
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment drag (incl. a state update mid-drag) and incoming creep ghosts, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn and replay restoration." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn and replay restoration." % checks)
 	app.queue_free()
 	await process_frame
 	_restore_settings()
 	quit(0)
+
+# --- Deployment staging, re-planning and the reveal -------------------------------
+
+## Units entering a lane float in its staging strip (left side), never in a
+## combat position, and no combat preview is shown while heroes are planned.
+func _check_staging() -> bool:
+	var creep = Library.raw_definition("melee_creep")
+	var staged_creeps = 0
+	var own_card: Control = null
+	var own_lane: Control = null
+	for lane in screen.board.lanes:
+		var table: Rect2 = lane.get_global_transform() * lane.table_rect()
+		var leftmost = INF
+		for side in range(2):
+			for uid in lane.columns[side]:
+				if int(uid) != -1 and lane.cards.has(int(uid)):
+					leftmost = minf(leftmost, lane.cards[int(uid)].get_global_rect().position.x)
+		for card in lane.staged_cards():
+			var bounds: Rect2 = card.get_global_transform() * Rect2(Vector2.ZERO, UnitCard.SIZE)
+			if not _require(not lane.cards.values().has(card), "Staged cards are never board units"):
+				return false
+			if not _require(table.grow(2.0).encloses(bounds), "Staged cards stay inside their lane (%s in %s)" % [bounds, table]):
+				return false
+			if not _require(leftmost == INF or bounds.end.x <= leftmost + 2.0, "Staged cards float left of the unit rows (%.0f > %.0f)" % [bounds.end.x, leftmost]):
+				return false
+			if card.card_id == "melee_creep":
+				staged_creeps += 1
+				if not _require(int(card.model.attack) == int(creep.attack) and int(card.model.health) == int(creep.health),
+						"Staged creeps show the creep's real stats (got %d/%d)" % [int(card.model.attack), int(card.model.health)]):
+					return false
+		for entry in lane.staged[1]:
+			if own_card == null:
+				own_card = entry.card
+				own_lane = lane
+		if not _require(lane._count == maxi(lane.columns[0].size(), lane.columns[1].size()), "Staging never takes a combat position"):
+			return false
+	if not _require(staged_creeps >= 4, "Both players' lane creeps are staged (%d)" % staged_creeps):
+		return false
+	for models in screen.board.lane_models:
+		if not _require(models.get("tower_damage", [0, 0]) == [0, 0], "No tower damage is previewed while heroes are planned"):
+			return false
+		for uid in models:
+			if uid is int and not _require(not models[uid].get("dies", false), "No death is previewed while heroes are planned"):
+				return false
+	if not _require(own_card != null, "Your lane creeps are staged"):
+		return false
+	if not _require(absf(own_card.rotation_degrees) >= 3.0 and own_card.scale.x > own_lane._scale and own_card.floating == 1.0,
+			"Staged cards are tilted, larger than the row and lifted (%.1f deg, %.2f vs %.2f)" % [own_card.rotation_degrees, own_card.scale.x, own_lane._scale]):
+		return false
+	# The float bobs in real time only.
+	AnimationQueue.instant = false
+	own_lane._update_processing()
+	var resting_y = own_card.position.y
+	await create_timer(0.5).timeout
+	var bobbed = absf(own_card.position.y - resting_y) > 0.01
+	AnimationQueue.instant = true
+	own_lane._update_processing()
+	own_lane.layout()
+	return _require(bobbed, "Staged cards bob gently")
+
+## Tray to lane, re-planning by drag, taking back to the tray and the click
+## fallback, with states published mid-drag.
+func _check_replanning(deployer: int) -> bool:
+	var deployment = screen.deployment
+	var lanes: Array = screen.board.lanes
+	if not _require(not deployment.hero_cards.is_empty(), "A ready hero waits in the tray"):
+		return false
+	var card: Control = deployment.hero_cards[0]
+	var uid = int(card.get_meta("uid"))
+	var key = "h%d" % uid
+	_press_and_move(card.get_global_rect().get_center(), screen.lane_point(0))
+	# A state published mid-drag (the opponent planning) keeps the dragged hero.
+	app.controller.refresh()
+	await _settle()
+	if not _require(is_instance_valid(card) and card.is_inside_tree() and deployment.dragging == card, "A hero being dragged survives a state update"):
+		return false
+	_mouse(screen.lane_point(0), 0, false, true)
+	_mouse(screen.lane_point(0), MOUSE_BUTTON_LEFT, false)
+	await _settle()
+	if not _require(_plan(deployer, uid) == 0 and deployment.hero_card(uid) == null and lanes[0].staged_entry(key).get("movable", false),
+			"A dropped hero leaves the tray and floats, movable, in its lane's staging strip"):
+		return false
+	# Drag the staged hero on to the right lane; a state published mid-drag keeps it.
+	_press_and_move(lanes[0].staged_global_center(key), screen.lane_point(1))
+	app.controller.refresh()
+	await _settle()
+	if not _require(deployment.drag_proxy() != null and lanes[0].staged_entry(key).get("hidden", false), "A staged hero being dragged survives a state update"):
+		return false
+	_mouse(screen.lane_point(2), 0, false, true)
+	if not _require(lanes[2].drop_state == 2 and lanes[1].drop_state == 1, "Dragging a staged hero lights up the lane under it"):
+		return false
+	_mouse(screen.lane_point(2), MOUSE_BUTTON_LEFT, false)
+	await _settle()
+	if not _require(_plan(deployer, uid) == 2 and not lanes[2].staged_entry(key).is_empty() and lanes[0].staged_entry(key).is_empty(),
+			"Dropping a staged hero on another lane re-plans it there"):
+		return false
+	if not _require(deployment.drag_proxy() == null and not lanes[2].staged_entry(key).get("hidden", true), "The re-planned hero shows in its new lane"):
+		return false
+	# Back to the tray: the hero is unplanned and confirming is blocked.
+	var tray_point = deployment.tray.get_global_rect().get_center()
+	_press_and_move(lanes[2].staged_global_center(key), tray_point)
+	if not _require(deployment.tray.drop_state == 2 and deployment.hint_label.text == UiKit.t("DEPLOY_UNASSIGN_HINT"), "The tray lights up to take a hero back"):
+		return false
+	_mouse(tray_point, MOUSE_BUTTON_LEFT, false)
+	await _settle()
+	if not _require(not _engine().state.players[deployer].plans.has(str(uid)) and deployment.hero_card(uid) != null and lanes[2].staged_entry(key).is_empty(),
+			"Dropping a staged hero on the tray takes it back"):
+		return false
+	if not _require(not {"type": "finish_deployment"} in screen.actions and not screen.coin.enabled, "An unplanned hero keeps the coin from confirming"):
+		return false
+	# Click fallback: tray hero, then a lane; staged hero, then another lane.
+	_click(deployment.hero_card(uid).get_global_rect().get_center())
+	if not _require(deployment.selected_uid == uid and lanes[0].drop_state == 1, "Clicking a tray hero selects it"):
+		return false
+	_click(screen.lane_point(2))
+	await _settle()
+	if not _require(_plan(deployer, uid) == 2, "Clicking a lane plans the selected hero"):
+		return false
+	_click(lanes[2].staged_global_center(key))
+	if not _require(deployment.selected_uid == uid and lanes[2].staged_entry(key).card.target_state == 3, "Clicking a staged hero selects it"):
+		return false
+	_click(screen.lane_point(1))
+	await _settle()
+	if not _require(_plan(deployer, uid) == 1 and not lanes[1].staged_entry(key).is_empty(), "Clicking another lane re-plans the selected staged hero"):
+		return false
+	return true
+
+func _plan(player: int, uid: int) -> int:
+	return int(_engine().state.players[player].plans.get(str(uid), -1))
+
+## The opponent's planned heroes never appear before the reveal; its ready
+## heroes are shown in the strip at the top.
+func _check_staging_privacy(viewer: int) -> bool:
+	for lane in screen.board.lanes:
+		for entry in lane.staged[0]:
+			if not _require(entry.kind == "creep", "Only the opponent's creeps are staged before the reveal"):
+				return false
+	var ready: Array = []
+	for hero in _engine().state.players[1 - viewer].roster:
+		if int(hero.lane) == -1 and int(hero.ready_round) <= int(_engine().state.round):
+			ready.append(int(hero.uid))
+	var shown: Array = screen.deployment.strip_uids()
+	ready.sort()
+	shown.sort()
+	return _require(ready == shown and screen.deployment.opponent_strip.visible == not ready.is_empty(),
+		"The opponent strip shows exactly the opponent's ready heroes (%s vs %s)" % [shown, ready])
+
+## After the reveal every lane is settled and every placed unit sits in the
+## column the engine chose.
+func _check_reveal_result() -> bool:
+	var placed: Dictionary = {}
+	for event in _engine().state.events:
+		if str(event.get("k", "")) == "deployment_placed":
+			placed = event
+	if not _require(not placed.is_empty(), "The reveal reports where every unit was placed"):
+		return false
+	for lane in screen.board.lanes:
+		if not _require(lane.staged_cards().is_empty() and lane.staging == 0.0 and lane.slabs.is_empty() and not lane.preview_hidden,
+				"The reveal leaves no staging, slabs or hidden previews"):
+			return false
+	var viewer = screen.shown_viewer
+	for unit in placed.units:
+		var column: Array = screen.board.lanes[int(unit.lane)].columns[1 if int(unit.p) == viewer else 0]
+		if not _require(int(unit.slot) < column.size() and int(column[int(unit.slot)]) == int(unit.uid), "Revealed units land in their engine columns"):
+			return false
+	return true
+
+## Every card rests in its slot at the lane's scale (a reveal finished or skipped).
+func _board_settled() -> bool:
+	var view: Dictionary = screen.shown_view
+	var viewer = screen.shown_viewer
+	for index in range(3):
+		var lane = screen.board.lanes[index]
+		var rows = [view.lanes[index].units[1 - viewer], view.lanes[index].units[viewer]]
+		for side in range(2):
+			if lane.columns[side].size() != rows[side].size():
+				return false
+			for column in range(rows[side].size()):
+				var uid = int(lane.columns[side][column])
+				if uid != (-1 if rows[side][column] == null else int(rows[side][column].uid)):
+					return false
+				if uid == -1:
+					continue
+				var card: Control = lane.cards[uid]
+				var rest = lane.slot_center(column, side == 1) - UnitCard.SIZE * 0.5
+				if card.position.distance_to(rest) > 0.5 or absf(card.rotation) > 0.001 or absf(card.scale.x - lane._scale) > 0.001 or card.modulate.a < 0.999:
+					return false
+		if lane.staging != 0.0 or not lane.staged_cards().is_empty():
+			return false
+	return true
+
+## Fountain chips, their status lines and the opponent hand around the HUD.
+func _check_fountain(label: String) -> bool:
+	var hud = screen.hud
+	var rects: Dictionary = hud.fountain_rects()
+	var area = Rect2(0, 0, hud.FOUNTAIN_W, hud.HEIGHT)
+	var chips: Array = rects.chips[0] + rects.chips[1]
+	if not _require(rects.chips[0].size() == 5 and rects.chips[1].size() == 5, "%s: five chips per side in the fountain" % label):
+		return false
+	for index in range(chips.size()):
+		if not _require(area.encloses(chips[index]), "%s: fountain chips stay inside the fountain" % label):
+			return false
+		for other in range(index + 1, chips.size()):
+			if not _require(not chips[index].intersects(chips[other]), "%s: fountain chips never overlap" % label):
+				return false
+		for side in range(2):
+			for status in rects.status[side]:
+				if not _require(not status.intersects(chips[index]), "%s: fountain status marks never sit on a chip" % label):
+					return false
+	for status in rects.status[0]:
+		if not _require(status.end.y <= rects.chips[0][0].position.y, "%s: the enemy's status line is above its chips" % label):
+			return false
+	for status in rects.status[1]:
+		if not _require(status.position.y >= rects.chips[1][0].end.y, "%s: your status line is below your chips" % label):
+			return false
+	var enemy_hand: Rect2 = screen.enemy_hand.get_global_rect()
+	return _require(enemy_hand.position.x >= hud.get_global_rect().end.x and enemy_hand.end.x <= screen.enemy_panel.get_global_rect().position.x,
+		"%s: the opponent's hand fits between the HUD and its panel (%s)" % [label, enemy_hand])
+
+## The tray's hero cards stay inside its frame with the opponent's spending
+## line below it, and the coin's caption and two-line hint stay on screen and
+## clear of the player panel.
+func _check_deploy_layout(label: String) -> bool:
+	var deployment = screen.deployment
+	var tray: Rect2 = deployment.tray.get_global_rect()
+	if not _require(not deployment.hero_cards.is_empty(), "%s: a hero waits in the tray" % label):
+		return false
+	for card in deployment.hero_cards:
+		var bounds: Rect2 = card.get_global_rect()
+		if not _require(bounds.end.y <= tray.end.y - 6.0 and bounds.position.y >= deployment.hint_label.get_global_rect().end.y - 1.0,
+				"%s: tray heroes sit inside the frame, under the hint (%s in %s)" % [label, bounds, tray]):
+			return false
+	if not _require(deployment.info_label.get_global_rect().position.y >= tray.end.y, "%s: the opponent's spending line sits under the tray" % label):
+		return false
+	var coin = screen.coin
+	var rects: Dictionary = coin.caption_rects()
+	if not _require(rects.has("plate") and rects.has("hint"), "%s: the coin shows its caption and hint" % label):
+		return false
+	var panel_top = screen.own_panel.get_global_rect().position.y
+	for part in ["plate", "hint"]:
+		var bounds: Rect2 = coin.get_global_transform() * rects[part]
+		if not _require(bounds.position.x >= 0.0 and bounds.end.x <= screen.size.x - 4.0 and bounds.end.y <= panel_top - 2.0,
+				"%s: the coin's %s stays on screen and above the player panel (%s)" % [label, part, bounds]):
+			return false
+	return true
+
+## Against the AI: five heroes per fountain, the commit lock, and a reveal
+## in real time that a click skips to the settled board.
+func _check_ai_deployment() -> bool:
+	var engine = _engine()
+	var bot = Bot.new()
+	app.bot_timer.stop()
+	app.bot_timer.paused = true
+	var guard = 0
+	while engine.state.phase != "deployment" and engine.state.winner == -1 and guard < 600:
+		var player = int(engine.state.active_player) if engine.state.phase == "action" else (1 if engine.state.players[0].finished else 0)
+		engine.apply_action(player, bot.choose_action(engine, player))
+		guard += 1
+	if not _require(engine.state.phase == "deployment", "The AI match reaches a deployment"):
+		return false
+	# Five heroes in each fountain: two ready, the rest one or two rounds out.
+	var round_now = int(engine.state.round)
+	var waits = [0, 0, 1, 2, 1]
+	for player in range(2):
+		var roster: Array = engine.state.players[player].roster
+		for index in range(roster.size()):
+			engine._remove_from_lane(roster[index])
+			roster[index].lane = -1
+			roster[index].ready_round = round_now + waits[index % waits.size()]
+	var ready_uid = int(engine.state.players[0].roster[0].uid)
+	engine.apply_action(0, {"type": "deploy", "unit": ready_uid, "lane": 1})
+	app.controller.refresh()
+	await _settle()
+	if not _check_fountain("1440x900") or not _check_deploy_layout("1440x900"):
+		return false
+	var dots = screen.hud.fountain_layout()[1].filter(func(entry): return entry.status == "dots")
+	if not _require(dots.size() == 1 and int(dots[0].lane) == 1, "Lane dots mark your planned hero's lane"):
+		return false
+	root.size = Vector2i(1280, 720)
+	await process_frame
+	await process_frame
+	var wide = absf(screen.size.x - 1600.0) < 1.0
+	var fits = _check_fountain("1280x720") and _check_deploy_layout("1280x720")
+	root.size = Vector2i(1440, 900)
+	await process_frame
+	await process_frame
+	if not fits or not _require(wide, "A 1280x720 window gives a 1600x900 canvas (got %s)" % screen.size):
+		return false
+	# Plan the other ready hero, confirm, then try to move a staged hero.
+	for card in screen.deployment.hero_cards.duplicate():
+		screen.deploy_hero(int(card.get_meta("uid")), 0)
+	await _settle()
+	_click(screen.coin_point())
+	await _settle()
+	if not _require(engine.state.players[0].finished and not engine.state.players[1].finished, "The player confirmed before the AI"):
+		return false
+	var plans_before = engine.state.players[0].plans.duplicate()
+	var key = "h%d" % ready_uid
+	_press_and_move(screen.board.lanes[1].staged_global_center(key), screen.lane_point(2))
+	_mouse(screen.lane_point(2), MOUSE_BUTTON_LEFT, false)
+	await _settle()
+	var glowing = false
+	for lane in screen.board.lanes:
+		for entry in lane.staged[1]:
+			glowing = glowing or entry.card.target_state == 4
+	if not _require(engine.state.players[0].plans == plans_before and not glowing and screen.deployment.drag_proxy() == null,
+			"After confirming, staged heroes no longer move or glow"):
+		return false
+	# A zoom left open when the reveal starts must not hide it.
+	_click(screen.board.lanes[1].staged_global_center(key), MOUSE_BUTTON_RIGHT)
+	await _settle()
+	if not _require(screen.inspect.visible, "Right-clicking a confirmed staged hero inspects it"):
+		return false
+	# The coin as it stands when you are the last to confirm (lit, inviting
+	# changes): the reveal must turn it dark.
+	screen.coin.set_state(true, true, UiKit.t("BTN_CONFIRM_DEPLOYMENT"), UiKit.t("DEPLOY_ALL_ASSIGNED"))
+	# The AI confirms: the reveal plays in real time and a click skips it.
+	AnimationQueue.instant = false
+	while not engine.state.players[1].finished and engine.state.phase == "deployment":
+		engine.apply_action(1, bot.choose_action(engine, 1))
+	app.controller.refresh()
+	await create_timer(0.3).timeout
+	var was_revealing = screen._revealing
+	var zoom_closed = not screen.inspect.visible
+	var coin_dark = not screen.coin.lit and not screen.coin.enabled and screen.coin.sub_caption.is_empty()
+	# The queue going idle mid-reveal refreshes the controls: still dark.
+	screen._refresh_controls()
+	coin_dark = coin_dark and not screen.coin.lit and not screen.coin.enabled and screen.coin.caption == UiKit.t("HUD_WAITING")
+	_click(screen.size * 0.5)
+	await process_frame
+	await process_frame
+	var skipped = not screen._revealing or screen._reveal_skip
+	var waited = 0.0
+	while screen.queue.busy and waited < 1.0:
+		await process_frame
+		waited += root.get_process_delta_time()
+	var idle = not screen.queue.busy
+	AnimationQueue.instant = true
+	app.bot_timer.paused = false
+	if not _require(was_revealing and zoom_closed, "The reveal closes an open card zoom (revealing %s, zoom closed %s)" % [was_revealing, zoom_closed]):
+		return false
+	if not _require(coin_dark, "The coin is dark and offers nothing while the reveal plays"):
+		return false
+	if not _require(was_revealing and skipped, "A click skips the reveal at once (revealing %s, skipped %s)" % [was_revealing, skipped]):
+		return false
+	if not _require(idle, "A skipped reveal hands control back within a second"):
+		return false
+	return _require(engine.state.phase == "action" and _board_settled() and _check_reveal_result(), "A skipped reveal leaves the board exactly settled")

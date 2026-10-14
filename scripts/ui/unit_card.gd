@@ -27,16 +27,27 @@ void fragment() {
 
 ## Display model from the board: unit, own, attack, armor, health,
 ## max_health, base_attack, base_armor, arrow, tower, damage, dies,
-## ability_ready, cooldown, passive.
+## ability_ready, cooldown, passive, preview_hidden.
 var model: Dictionary = {}
 var uid: int = -1
 var card_id: String = ""
 var own: bool = true
-## 0 none, 1 legal target, 2 hovered legal target, 3 chosen source, 4 deploy ghost.
+## 0 none, 1 legal target, 2 hovered legal target, 3 chosen source (or the
+## selected staged hero), 4 movable staged hero.
 var target_state: int = 0
 var hovered: bool = false
 var flash: float = 0.0
 var ghost: bool = false
+## 0 resting on the table, 1 lifted (deployment staging, drags): a deeper,
+## larger shadow.
+var floating: float = 0.0
+## Hides the combat preview (arrow, damage tag, death mark, grey art) even
+## when the model has one; the lane sets it while a reveal plays.
+var preview_hidden: bool = false:
+	set(value):
+		if preview_hidden != value:
+			preview_hidden = value
+			apply(model)
 var _pulse: float = 0.0
 var _mark: Control
 static var _grey: ShaderMaterial
@@ -57,7 +68,7 @@ func apply(display: Dictionary) -> void:
 	uid = int(unit.get("uid", -1))
 	card_id = str(unit.get("card", ""))
 	own = display.get("own", true)
-	material = _grey_material() if display.get("dies", false) and not ghost else null
+	material = _grey_material() if _marked_dying() else null
 	_mark.queue_redraw()
 	queue_redraw()
 
@@ -67,6 +78,11 @@ func refresh() -> void:
 
 func is_hero() -> bool:
 	return model.get("unit", {}).get("hero", false)
+
+## True while no combat preview (arrow, damage, death) may be shown: the
+## planning phase, a reveal in progress, ghost cards.
+func hides_preview() -> bool:
+	return ghost or preview_hidden or model.get("preview_hidden", false)
 
 ## Local rectangle of the active-ability badge (empty when there is none).
 func ability_rect() -> Rect2:
@@ -115,8 +131,9 @@ func _draw() -> void:
 			UiKit.draw_glow(self, rect, 8.0, UiKit.PLAYABLE, 1.4)
 		4:
 			UiKit.draw_glow(self, rect, 8.0, UiKit.PLAYABLE, 0.8)
-	# Shadow and body.
-	draw_colored_polygon(UiKit.round_rect_points(Rect2(rect.position + Vector2(0, 5), rect.size), 8.0), Color(0, 0, 0, 0.4 * alpha))
+	# Shadow (deeper and larger while the card floats) and body.
+	var shadow = Rect2(rect.position + Vector2(0, lerpf(5.0, 14.0, floating)), rect.size).grow(6.0 * floating)
+	draw_colored_polygon(UiKit.round_rect_points(shadow, 8.0 + 6.0 * floating), Color(0, 0, 0, lerpf(0.4, 0.55, floating) * alpha))
 	UiKit.draw_round_rect(self, rect, Color(0.09, 0.085, 0.08, alpha), 8.0)
 	var art_rect = Rect2(2, BAR_H, SIZE.x - 4, STATS_TOP - BAR_H)
 	var real_art = CardArt.draw(self, art_rect, card_id, true, Color(1, 1, 1, alpha))
@@ -141,11 +158,11 @@ func _draw() -> void:
 		UiKit.draw_round_rect(self, rect.grow(1), Color.TRANSPARENT, 9.0, Color(1, 1, 1, 0.55), 1.5)
 	if flash > 0.0:
 		UiKit.draw_round_rect(self, rect, Color(1, 0.93, 0.8, flash * 0.42), 8.0)
-	if not ghost:
+	if not hides_preview():
 		_draw_arrow()
 
 func _marked_dying() -> bool:
-	return model.get("dies", false) and not ghost
+	return model.get("dies", false) and not hides_preview()
 
 func _draw_name(canvas: CanvasItem, alpha: float) -> void:
 	UiKit.draw_vgradient(canvas, Rect2(2, STATS_TOP - 30, SIZE.x - 4, 30), Color(0, 0, 0, 0), Color(0, 0, 0, 0.82 * alpha))
@@ -279,7 +296,7 @@ func _draw_arrow() -> void:
 
 func _draw_damage_tag() -> void:
 	var damage = int(model.get("damage", 0))
-	if damage <= 0 or ghost:
+	if damage <= 0 or hides_preview():
 		return
 	var text = "-%d" % damage
 	var font = UiKit.bold_font()
@@ -291,7 +308,7 @@ func _draw_damage_tag() -> void:
 ## Drawn on an unshaded child so it stays red on greyed (dying) cards.
 func _draw_death_mark() -> void:
 	_draw_damage_tag()
-	if not model.get("dies", false) or ghost:
+	if not _marked_dying():
 		return
 	var center = Vector2(SIZE.x * 0.5, (BAR_H + STATS_TOP) * 0.5)
 	var arm = 40.0

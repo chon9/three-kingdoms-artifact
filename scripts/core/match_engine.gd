@@ -14,7 +14,10 @@ const Library = preload("res://scripts/core/card_library.gd")
 # error results ({"ok": false, "code": ..., "args": ..., "error": English}).
 # The concede command (always legal while the match runs) needs no format
 # change: older replays never contain it.
-const PROTOCOL_VERSION = 5
+# 6: a planned hero may be re-planned to another lane or taken back
+# (undeploy) until its player confirms, and the reveal emits
+# deployment_placed. Older builds reject such replays.
+const PROTOCOL_VERSION = 6
 const CONCEDE = {"type": "concede"}
 const HOLD_COST = 1
 var library = Library.new()
@@ -107,13 +110,27 @@ func legal_actions(player: int) -> Array:
 		if owner.finished:
 			return actions
 		var unplanned = false
+		var planned: Array = []
 		for hero in owner.roster:
-			if hero.lane == -1 and hero.ready_round <= state.round and not owner.plans.has(str(hero.uid)):
-				unplanned = true
-				for lane in range(3):
-					actions.append({"type": "deploy", "unit": hero.uid, "lane": lane})
+			if hero.lane != -1 or hero.ready_round > state.round:
+				continue
+			if owner.plans.has(str(hero.uid)):
+				planned.append(hero)
+				continue
+			unplanned = true
+			for lane in range(3):
+				actions.append({"type": "deploy", "unit": hero.uid, "lane": lane})
 		if not unplanned:
 			actions.append({"type": "finish_deployment"})
+		# Re-planning and taking a hero back come last, so callers that take
+		# legal_actions(p)[0] (scripts, tests) still reach finish_deployment.
+		for hero in planned:
+			var current = int(owner.plans[str(hero.uid)])
+			for lane in range(3):
+				if lane != current:
+					actions.append({"type": "deploy", "unit": hero.uid, "lane": lane})
+		for hero in planned:
+			actions.append({"type": "undeploy", "unit": hero.uid})
 		return actions
 	if state.phase != "action" or state.active_player != player:
 		return actions
@@ -233,7 +250,10 @@ func apply_action(player: int, command: Dictionary) -> Dictionary:
 			if state.players[0].finished and state.players[1].finished:
 				_begin_deployment()
 		"deploy":
+			# Planning (or re-planning) is private: no event, no randomness.
 			state.players[player].plans[str(command.unit)] = int(command.lane)
+		"undeploy":
+			state.players[player].plans.erase(str(command.unit))
 		"finish_deployment":
 			state.players[player].finished = true
 			if state.players[0].finished and state.players[1].finished:
@@ -650,11 +670,20 @@ func _reveal_deployment() -> void:
 		for lane_index in pending[player]:
 			placements.append([_make_creep(player), int(lane_index)])
 	state.pending_creeps = [[], []]
+	# _place_all shuffles `placements` in place: read back the placement
+	# order (and each unit's final combat position) for the reveal animation.
+	# Reading state only, so the random stream and ids are unchanged.
 	_place_all(placements)
+	var placed: Array = []
+	for entry in placements:
+		var unit: Dictionary = entry[0]
+		placed.append({"uid": int(unit.uid), "p": int(unit.owner), "card": str(unit.card),
+			"hero": bool(unit.hero), "lane": int(unit.lane), "slot": _slot_of(unit)})
 	_roll_arrows()
 	state.phase = "action"
 	state.active_player = state.initiative
 	state.first_pass = -1
+	_event("deployment_placed", {"units": placed})
 	_event("deployment_revealed")
 
 func _make_unit(definition: Dictionary, player: int, is_hero: bool) -> Dictionary:

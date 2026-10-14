@@ -17,11 +17,24 @@ func choose_action(engine, player: int) -> Dictionary:
 				return action
 		return actions.back()
 	if view.phase == "deployment":
+		# Only unplanned heroes are deployed; the bot never re-plans or takes a
+		# hero back, so a deployment phase always ends.
 		var best_lane = _deployment_lane(engine, view, player)
+		var plans: Dictionary = view.players[player].plans
+		var first: Dictionary = {}
 		for action in actions:
-			if action.type == "deploy" and action.lane == best_lane:
+			if action.type != "deploy" or plans.has(str(action.unit)):
+				continue
+			if int(action.lane) == best_lane:
 				return action
-		return actions.back()
+			if first.is_empty():
+				first = action
+		if not first.is_empty():
+			return first
+		for action in actions:
+			if action.type == "finish_deployment":
+				return action
+		return {}
 	var best_action: Dictionary = actions[0]
 	var baseline = _evaluate(engine, view, player)
 	var best_score = -INF

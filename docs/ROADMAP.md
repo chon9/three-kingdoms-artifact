@@ -24,9 +24,9 @@ Remaining fidelity work: exact placement/targeting restrictions, general trigger
 
 - Bilingual (English / Simplified Chinese) interface and card text with live switching, subset fonts, and the Three Kingdoms card theme as the default (the Classic names remain an optional theme). Locale-independent state digests.
 - Generated Three Kingdoms art for all 49 supported cards (512x768 JPEG in `assets/art/cards/`, masters kept outside the repository; see `docs/art/`).
-- Classic-style board: one lane at a time with a sliding camera and an all-lanes overview, lane HUD, towers with mana and health, combat arrows and the live damage preview on every unit, drag-to-play with a target arrow (two stages for Battlefield Control), creep position ghosts, cross-lane aiming at the screen edge, the initiative coin, the shop chest with HOLD, drag-to-lane deployment with incoming creep ghosts, inspection, event animations (casts, combat, deaths, lane changes), a match log in the HUD's player names, a main menu, settings and a hot-seat privacy screen.
+- Classic-style board: one lane at a time with a sliding camera and an all-lanes overview, lane HUD, towers with mana and health, combat arrows and the live damage preview on every unit, drag-to-play with a target arrow (two stages for Battlefield Control), creep position ghosts, cross-lane aiming at the screen edge, the initiative coin, the shop chest with HOLD, deployment staging strips with re-planning until confirmation and an animated, skippable reveal with pathing slabs, inspection, event animations (casts, combat, deaths, lane changes), a match log in the HUD's player names, a main menu, settings and a hot-seat privacy screen.
 
-Remaining: chess clocks, improvements, pets, deck trays and pathing-card slabs at deployment, timeline replay playback, music, and art for the board and UI elements (towers, coin, card back, menu key art) and the reserve heroes. The animated presentation is checked by hand and by screenshots; the automated UI test runs with animations skipped.
+Remaining: chess clocks, improvements, pets, deck trays, the round-one deployment reveal, timeline replay playback, music, and art for the reserve heroes. The animated presentation is checked by hand and by screenshots; the automated UI test runs with animations skipped.
 
 ## Next — Steam matches between friends
 

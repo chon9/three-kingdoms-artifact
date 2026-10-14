@@ -8,6 +8,13 @@ signal pressed
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const RADIUS = 66.0
+## Least gap between a caption and the right edge of the parent.
+const EDGE_MARGIN = 8.0
+## Height of the hint under the caption plate (up to two lines).
+const SUB_HEIGHT = 38.0
+## Bottom of the lowest caption line (coin centre, plate, hint): the parent
+## keeps whatever sits below the coin clear of it.
+const CAPTION_BOTTOM = RADIUS + 14.0 + RADIUS + 26.0 + 19.0 + SUB_HEIGHT
 
 var lit: bool = false
 var enabled: bool = false
@@ -18,6 +25,8 @@ var glyph: String = "令"
 var _hover: bool = false
 var _spin: float = 0.0
 var _press: float = 0.0
+var _sub_text: TextParagraph
+var _sub_key: String = ""
 
 func _init() -> void:
 	size = Vector2(190, 200)
@@ -94,11 +103,37 @@ func _draw() -> void:
 		UiKit.draw_text(self, UiKit.title_font(), glyph, c, int(radius_now * 0.95), Color("fff0c4") if lit else Color("cbbfa8"))
 	draw_arc(c, radius_now - 2.0, PI * 1.05, PI * 1.75, 24, Color(1, 1, 1, 0.35 if lit else 0.15), 3.0, true)
 	# Captions.
-	var caption_y = c.y + RADIUS + 26.0
-	if not caption.is_empty():
-		var width = UiKit.title_font().get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 21).x + 26.0
-		var plate = Rect2(Vector2(c.x - width * 0.5, caption_y - 15.0), Vector2(width, 30.0))
+	var rects = caption_rects()
+	if rects.has("plate"):
+		var plate: Rect2 = rects.plate
 		UiKit.draw_round_rect(self, plate, Color(0.06, 0.06, 0.07, 0.88), 15.0, Color(UiKit.GOLD, 0.8) if enabled else Color(1, 1, 1, 0.15), 1.0)
 		UiKit.draw_text(self, UiKit.title_font(), caption, plate.get_center(), 21, UiKit.GOLD_BRIGHT if enabled else UiKit.PAPER_DIM)
+	if rects.has("hint"):
+		var origin: Vector2 = rects.hint.position
+		_sub_text.draw_outline(get_canvas_item(), origin, 2, Color(0, 0, 0, 0.85))
+		_sub_text.draw(get_canvas_item(), origin, UiKit.PAPER_DIM)
+
+## Local rectangles of the caption plate ("plate") and the hint under it
+## ("hint"), each present only when shown. Both stay clear of the parent's
+## right edge.
+func caption_rects() -> Dictionary:
+	var rects = {}
+	var c = center()
+	var caption_y = c.y + RADIUS + 26.0
+	var right_limit = get_parent_area_size().x - position.x - EDGE_MARGIN
+	if not caption.is_empty():
+		var width = UiKit.title_font().get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 21).x + 26.0
+		rects.plate = Rect2(Vector2(minf(c.x - width * 0.5, right_limit - width), caption_y - 15.0), Vector2(width, 30.0))
 	if not sub_caption.is_empty():
-		UiKit.draw_text(self, UiKit.body_font(), sub_caption, Vector2(c.x, caption_y + 28.0), 14, UiKit.PAPER_DIM, size.x + 40.0, 2)
+		# Up to two centred lines under the caption plate.
+		var width = size.x + 40.0
+		var key = "%s|%s" % [sub_caption, TranslationServer.get_locale()]
+		# A caption that needs two lines is split evenly (no one-word last line).
+		var full = UiKit.body_font().get_string_size(sub_caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+		if full > width:
+			width = minf(width, full * 0.56 + 16.0)
+		if key != _sub_key:
+			_sub_key = key
+			_sub_text = UiKit.fit_paragraph(sub_caption, UiKit.body_font(), Vector2(width, SUB_HEIGHT), 14, 11)
+		rects.hint = Rect2(Vector2(minf(c.x - width * 0.5, right_limit - width), caption_y + 19.0), Vector2(width, _sub_text.get_size().y))
+	return rects

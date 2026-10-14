@@ -22,12 +22,13 @@ extends RefCounted
 ##   win                p
 ##   draw                               -
 ##   deployment         round, creeps  (creeps = [[lane, ...], [lane, ...]])
+##   deployment_placed  units          ([{uid, p, card, hero, lane, slot}] in placement order)
 ##   deployment_revealed                -
 
 const Library = preload("res://scripts/core/card_library.gd")
 const KEYS = ["match_start", "pass", "lane_open", "shop_open", "play", "ability",
 	"buy", "hold", "combat", "death", "tower_fall", "ancient_fall", "concede", "win", "draw",
-	"deployment", "deployment_revealed"]
+	"deployment", "deployment_placed", "deployment_revealed"]
 const LANE_KEYS = ["LANE_LEFT", "LANE_MIDDLE", "LANE_RIGHT"]
 const ANCIENT_HEALTH = 80
 
@@ -89,6 +90,21 @@ static func format(event: Dictionary, _library = null, names: Array = []) -> Str
 					"lanes": t("LIST_SEPARATOR").join(lanes) if not lanes.is_empty() else t("WORD_NONE")}))
 			return t("EV_DEPLOYMENT", {"round": int(event.get("round", 1)),
 				"creeps": t("LIST_GROUP_SEPARATOR").join(parts)})
+		"deployment_placed":
+			# Heroes grouped by player; the creeps were announced by "deployment".
+			var groups: Array = []
+			for side in range(2):
+				var heroes: Array = []
+				for unit in event.get("units", []):
+					if bool(unit.get("hero", false)) and int(unit.get("p", 0)) == side:
+						heroes.append(t("EV_DEPLOYMENT_PLACED_HERO", {"card": Library.loc(str(unit.get("card", ""))),
+							"lane": lane_name(unit.get("lane", 0))}))
+				if not heroes.is_empty():
+					groups.append(t("EV_DEPLOYMENT_PLACED_GROUP", {"player": _player(side, names),
+						"heroes": t("LIST_SEPARATOR").join(heroes)}))
+			if groups.is_empty():
+				return t("EV_DEPLOYMENT_PLACED_NONE")
+			return t("EV_DEPLOYMENT_PLACED", {"groups": t("LIST_GROUP_SEPARATOR").join(groups)})
 		"deployment_revealed":
 			return t("EV_DEPLOYMENT_REVEALED")
 	return "?"

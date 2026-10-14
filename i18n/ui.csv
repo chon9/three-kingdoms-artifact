@@ -52,6 +52,7 @@ PHASE_ACTION,Action Phase,行动阶段
 PHASE_COMBAT,Combat Phase,交战阶段
 PHASE_SHOP,Shopping Phase,军市阶段
 PHASE_DEPLOYMENT,Deployment Phase,部署阶段
+PHASE_DEPLOYMENT_ROUND,Deployment · Round {n},部署 · 第{n}回合
 PHASE_FINISHED,Match Over,对局结束
 ROUND_N,Round {n},第{n}回合
 LANE_LEFT,Left lane,左路
@@ -206,6 +207,10 @@ DEPLOY_ENEMY_CREEPS,Enemy creeps: {lanes},敌方兵卒：{lanes}
 DEPLOY_PLANNED,Planned: {lane},已部署：{lane}
 DEPLOY_HIDDEN,Choices stay hidden until both players confirm.,双方确认前，部署对彼此保密。
 DEPLOY_WAITING,Waiting for the opponent to deploy…,等待对手部署……
+DEPLOY_ALL_ASSIGNED,"All heroes assigned. Drag one to change its lane, then confirm.",武将均已部署。可拖动更换路线，然后确认。
+DEPLOY_UNASSIGN_HINT,Drop here to take the hero back.,拖到此处可撤回该武将。
+DEPLOY_OPPONENT_READY,Opponent's heroes ready to deploy,敌方待出阵武将
+DEPLOY_SKIP_HINT,Click to skip,点击跳过
 FOUNTAIN_TITLE,Fountain,大营
 FOUNTAIN_RESERVE,Reserve and fallen heroes,大营待命武将
 FOUNTAIN_READY_ROUND,Ready in round {n},第{n}回合就绪
@@ -367,6 +372,10 @@ EV_WIN,{player} wins.,{player}获胜。
 EV_DRAW,Draw.,平局。
 EV_DEPLOYMENT,Round {round}. Lane creeps: {creeps}. Choose lanes for available heroes; choices reveal together.,第{round}回合。各路兵卒：{creeps}。为可出阵的武将选择路线，双方同时揭晓。
 EV_DEPLOYMENT_CREEPS,{player}: {lanes},{player}：{lanes}
+EV_DEPLOYMENT_PLACED,Heroes deploy: {groups},武将出阵：{groups}
+EV_DEPLOYMENT_PLACED_GROUP,{player}: {heroes},{player}：{heroes}
+EV_DEPLOYMENT_PLACED_HERO,{card} ({lane}),{card}（{lane}）
+EV_DEPLOYMENT_PLACED_NONE,Only creeps deploy this round.,本回合仅兵卒出阵。
 EV_DEPLOYMENT_REVEALED,Deployment revealed. Left lane opens.,部署揭晓，左路开战。
 WORD_NONE,none,无
 LIST_SEPARATOR,", ",、

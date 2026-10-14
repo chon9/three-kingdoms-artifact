@@ -2,9 +2,13 @@ extends SceneTree
 ## Captures the main UI states as PNGs in res://.tools/shots/. Needs the real
 ## renderer, so run it without --headless:
 ##   godot --path . -s res://tests/capture_preview.gd [-- --only=lane_action,shop]
-## Shots: main_menu, lane_action, lane_action_zh, drag_targeting, inspect,
-## overview, hand_full (13 cards), combat (mid-animation), shop, shop_zh,
-## deployment, game_over, game_over_zh.
+## Shots: main_menu, deployment_staging (round-two staging strips),
+## deployment_staging_zh,
+## deployment_reassign (a staged hero dragged toward another lane),
+## deployment_reveal (mid-reveal), lane_action, lane_action_zh,
+## drag_targeting, inspect, overview, hand_full (13 cards), combat
+## (mid-animation), shop, shop_zh, deployment (a tray hero mid-drag),
+## game_over, game_over_zh, hud_fountain (five heroes per fountain).
 ## Pass --size=1280x720 to check the smaller window.
 
 const MainScene = preload("res://scenes/main.tscn")
@@ -55,12 +59,12 @@ func _shot(shot_name: String) -> void:
 func _wait(seconds: float) -> void:
 	await create_timer(seconds).timeout
 
+## Waits (up to 20 s of real time) until the presentation queue is idle.
 func _idle() -> void:
 	var queue = app.screen.queue
-	var guard = 0
-	while queue.busy and guard < 600:
+	var deadline = Time.get_ticks_msec() + 20000
+	while queue.busy and Time.get_ticks_msec() < deadline:
 		await process_frame
-		guard += 1
 
 func _publish() -> void:
 	app.controller.state_changed.emit(app.controller.view(), app.controller.actions())
@@ -126,6 +130,7 @@ func _run() -> void:
 	app.controller.current_seed = SEED
 	app.start_match(MatchController.MODE_AI)
 	app.bot_timer.paused = true
+	await _capture_deployment_staging()
 	AnimationQueue.instant = true
 	var reached = _advance(_busy_lane)
 	AnimationQueue.instant = false
@@ -169,6 +174,7 @@ func _run() -> void:
 	await _capture_combat()
 	await _capture_shop_and_deployment()
 	await _capture_game_over()
+	await _capture_hud_fountain()
 	print("Shots: ", ", ".join(saved))
 	app.queue_free()
 	await process_frame
@@ -289,3 +295,99 @@ func _capture_game_over() -> void:
 		await _wait(0.2)
 		await _shot("game_over_zh")
 		app.set_locale("en")
+
+## A press, a drag in `steps` moves and (optionally) the release.
+func _drag(start: Vector2, finish: Vector2, release: bool, steps: int = 10) -> void:
+	_mouse(start)
+	await _frames(2)
+	_mouse(start, MOUSE_BUTTON_LEFT, true)
+	for step in range(1, steps + 1):
+		_mouse(start.lerp(finish, step / float(steps)), 0, true)
+		await _frames(1)
+	if release:
+		_mouse(finish, MOUSE_BUTTON_LEFT, false)
+
+## Round-two deployment against the AI: heroes staged in the lanes, a staged
+## hero dragged toward another lane, and the reveal mid-animation.
+func _capture_deployment_staging() -> void:
+	if not (_wanted("deployment_staging") or _wanted("deployment_staging_zh") or _wanted("deployment_reassign") or _wanted("deployment_reveal")):
+		return
+	var screen = app.screen
+	var engine = app.engine
+	AnimationQueue.instant = true
+	_advance(func(state): return state.phase == "deployment")
+	AnimationQueue.instant = false
+	await _wait(0.8)
+	await _idle()
+	for lane_index in range(2):
+		if screen.deployment.hero_cards.is_empty():
+			break
+		var card = screen.deployment.hero_cards[0]
+		await _drag(card.get_global_rect().get_center(), screen.lane_point(lane_index), true)
+		await _wait(0.4)
+	_mouse(screen.size * 0.5)
+	await _wait(0.6)
+	await _shot("deployment_staging")
+	if _wanted("deployment_staging_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.2)
+		await _shot("deployment_staging_zh")
+		app.set_locale("en")
+		await _wait(0.2)
+	var key = ""
+	for entry in screen.board.lanes[0].staged[1]:
+		if entry.kind == "hero":
+			key = entry.key
+	if not key.is_empty():
+		var start = screen.board.lanes[0].staged_global_center(key)
+		var middle = (screen.lane_point(1) + screen.lane_point(2)) * 0.5
+		await _drag(start, middle, false)
+		_mouse(screen.lane_point(2), 0, true)
+		await _wait(0.2)
+		await _shot("deployment_reassign")
+		_mouse(screen.lane_point(2), MOUSE_BUTTON_LEFT, false)
+		await _wait(0.5)
+	# Confirm; the AI confirms too and the reveal plays in real time.
+	screen.press_coin()
+	await _idle()
+	var started: Array = []
+	var on_lane = func(lane: int) -> void:
+		started.append(lane)
+	screen.reveal_lane_started.connect(on_lane)
+	while not engine.state.players[1].finished and engine.state.phase == "deployment":
+		engine.apply_action(1, bot.choose_action(engine, 1))
+	_publish()
+	var deadline = Time.get_ticks_msec() + 15000
+	while not started.any(func(lane): return lane >= 1) and screen.queue.busy and Time.get_ticks_msec() < deadline:
+		await process_frame
+	await _wait(0.35)
+	await _shot("deployment_reveal")
+	screen.reveal_lane_started.disconnect(on_lane)
+	await _idle()
+	await _wait(0.3)
+
+## Five heroes in each fountain (two ready, the rest one or two rounds out)
+## during a deployment, with one of yours planned.
+func _capture_hud_fountain() -> void:
+	if not _wanted("hud_fountain"):
+		return
+	app.controller.current_seed = SEED + 7
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	AnimationQueue.instant = true
+	_advance(func(state): return state.phase == "deployment")
+	var engine = app.engine
+	var round_now = int(engine.state.round)
+	var waits = [0, 0, 1, 2, 1]
+	for player in range(2):
+		var roster: Array = engine.state.players[player].roster
+		for index in range(roster.size()):
+			engine._remove_from_lane(roster[index])
+			roster[index].lane = -1
+			roster[index].ready_round = round_now + waits[index % waits.size()]
+	engine.apply_action(0, {"type": "deploy", "unit": int(engine.state.players[0].roster[0].uid), "lane": 1})
+	_publish()
+	AnimationQueue.instant = false
+	_mouse(app.screen.size * 0.5)
+	await _wait(0.8)
+	await _shot("hud_fountain")

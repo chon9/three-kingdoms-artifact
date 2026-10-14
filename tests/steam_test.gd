@@ -715,7 +715,7 @@ func _test_online_match() -> void:
 			guest.act(guest.actions()[0])
 			guest_moves += 1
 		elif not host.actions().is_empty():
-			host.act(host.actions().back())
+			host.act(_planning_choice(host.actions()))
 		_pump([host.steam_bridge, guest.steam_bridge], 3)
 	_check(guest_moves >= 2 and int(guest.view().revision) == int(host.engine.state.revision), "Guest commands apply on the host and the new state comes back")
 	_check(host.engine.journal.any(func(entry): return entry.player == 1), "The host journal records the guest's moves")
@@ -794,6 +794,15 @@ func _online_pair(public: bool = false) -> Array:
 
 func _kinds(packets: Array, kind: String) -> int:
 	return packets.filter(func(packet): return packet is Dictionary and packet.get("kind") == kind).size()
+
+## A planning-phase move that always makes progress: the finishing action
+## when it is legal, otherwise the first action (never a deployment re-plan
+## or undeploy, which come last and could loop).
+func _planning_choice(actions: Array) -> Dictionary:
+	for action in actions:
+		if str(action.get("type", "")).begins_with("finish"):
+			return action
+	return actions[0]
 
 func _test_steam_events() -> void:
 	# Friends-list "Join game" (GameRichPresenceJoinRequested_t) joins via the connect string.
@@ -914,8 +923,8 @@ func _test_review_fixes() -> void:
 	# Malformed and deeply nested packets are dropped quietly.
 	var commands: Array = []
 	host.steam_bridge.command_received.connect(func(command, _revision): commands.append(command))
-	for raw in ["{\"game\":5,\"kind\":\"command\"}", "not json", "{\"game\":\"%s\",\"protocol\":\"6\",\"kind\":\"command\",\"command\":{},\"revision\":0}" % Bridge.GAME_TAG,
-			"{\"game\":\"%s\",\"protocol\":6,\"kind\":\"command\",\"revision\":0,\"command\":{\"x\":%s}}" % [Bridge.GAME_TAG, "[".repeat(200) + "]".repeat(200)]]:
+	for raw in ["{\"game\":5,\"kind\":\"command\"}", "not json", "{\"game\":\"%s\",\"protocol\":\"%d\",\"kind\":\"command\",\"command\":{},\"revision\":0}" % [Bridge.GAME_TAG, Bridge.PROTOCOL],
+			"{\"game\":\"%s\",\"protocol\":%d,\"kind\":\"command\",\"revision\":0,\"command\":{\"x\":%s}}" % [Bridge.GAME_TAG, Bridge.PROTOCOL, "[".repeat(200) + "]".repeat(200)]]:
 		guest_steam.sendMessageToUser(HOST_ID, raw.to_utf8_buffer(), 40, Bridge.CHANNEL)
 	_pump([host.steam_bridge], 1)
 	_check(commands.is_empty() and host.steam_bridge.bound_opponent == GUEST_ID, "Malformed, mistyped and deeply nested packets are dropped")

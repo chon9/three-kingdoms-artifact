@@ -2,8 +2,9 @@ extends Control
 ## A full card face drawn in code, used for the hand, shop, deployment tray,
 ## cast display and inspector. Layout follows Classic cards: a colour title
 ## bar with the cost gem and the localized name, an art window with a type
-## disc, then a rules text box (spells, items, creeps with abilities) and a
-## stat bar (heroes, creeps) or a gold price coin (items), plus a faction seal.
+## disc, then a rules text box on rice paper (spells, items, creeps with
+## abilities) and a stat bar (heroes, creeps) or a gold price coin (items),
+## plus the faction emblem (or a seal without the emblem art).
 ##
 ## Every size is relative to BASE, so one script draws thumbnails and the
 ## large inspect view.
@@ -144,8 +145,12 @@ func _draw() -> void:
 		UiKit.draw_disc(self, coin, 15.0 * s, Color("b98a2e"), UiKit.GOLD_BRIGHT, 2.0 * s)
 		UiKit.draw_text(self, UiKit.bold_font(), str(int(definition.get("price", 0))), coin, int(17 * s), Color("2a1a08"))
 	var faction = Library.faction(card_id)
-	if faction != "neutral" and Library.current_skin() == "three_kingdoms" and not layout.stat_bar:
-		UiKit.draw_seal(self, Vector2(size.x * 0.5, size.y - 9.0 * s), 15.0 * s, UiKit.faction_seal(card_id))
+	if faction != "neutral" and Library.current_skin() == "three_kingdoms":
+		if layout.stat_bar:
+			# Heroes and creeps carry the emblem on the art's top-right corner.
+			UiKit.draw_card_emblem(self, card_id, layout.art.position + Vector2(layout.art.size.x - 15.0 * s, 15.0 * s), 24.0 * s)
+		elif not UiKit.draw_card_emblem(self, card_id, Vector2(size.x * 0.5, size.y - 11.0 * s), 21.0 * s):
+			UiKit.draw_seal(self, Vector2(size.x * 0.5, size.y - 9.0 * s), 15.0 * s, UiKit.faction_seal(card_id))
 	# Frame.
 	UiKit.draw_round_rect(self, rect, Color.TRANSPARENT, radius, bar_color.lightened(0.15), maxf(1.0, 2.0 * s))
 	UiKit.draw_round_rect(self, rect.grow(-2.0 * s), Color.TRANSPARENT, radius - 2.0 * s, Color(0, 0, 0, 0.6), 1.0)
@@ -174,7 +179,21 @@ func _top_rounded(rect: Rect2, radius: float) -> PackedVector2Array:
 
 func _draw_text_box(layout: Dictionary, s: float) -> void:
 	var box: Rect2 = layout.text
-	UiKit.draw_vgradient(self, box, Color("2c2926"), Color("201e1c"))
+	var paper = UiKit.ui_art("paper_tile")
+	var ink = Color("ece4d4")
+	if paper != null:
+		# Rice paper at about its own grain, from a spot that differs per card,
+		# with dark ink on it.
+		var paper_size = paper.get_size()
+		var region_size = (box.size / maxf(0.35, s) * 1.4).min(paper_size)
+		var room = paper_size - region_size
+		var seed_value = absi(hash(card_id))
+		var region = Rect2(Vector2(seed_value % maxi(1, int(room.x)), (seed_value / 7) % maxi(1, int(room.y))), region_size)
+		draw_texture_rect_region(paper, box, region, Color(0.88, 0.83, 0.74))
+		UiKit.draw_vgradient(self, Rect2(box.position, Vector2(box.size.x, box.size.y * 0.25)), Color(0.2, 0.12, 0.05, 0.25), Color(0.2, 0.12, 0.05, 0.0))
+		ink = Color("2a1f16")
+	else:
+		UiKit.draw_vgradient(self, box, Color("2c2926"), Color("201e1c"))
 	draw_line(box.position, Vector2(box.end.x, box.position.y), Color(UiKit.GOLD_DARK, 0.8), maxf(1.0, 1.5 * s))
 	var text = Library.loc(card_id, "text")
 	var area = box.size - Vector2(12.0, 10.0) * s
@@ -183,7 +202,7 @@ func _draw_text_box(layout: Dictionary, s: float) -> void:
 		_text_key = key
 		_text = UiKit.fit_paragraph(text, UiKit.body_font(), area, int(15 * s), maxi(7, int(9 * s)))
 	var height = _text.get_size().y
-	_text.draw(get_canvas_item(), Vector2(box.position.x + 6.0 * s, box.position.y + (box.size.y - height) * 0.5), Color("ece4d4"))
+	_text.draw(get_canvas_item(), Vector2(box.position.x + 6.0 * s, box.position.y + (box.size.y - height) * 0.5), ink)
 
 func _draw_stat_bar(layout: Dictionary, s: float, color_id: String) -> void:
 	var bar: Rect2 = layout.bar

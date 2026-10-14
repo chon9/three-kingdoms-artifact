@@ -44,7 +44,8 @@ const APP_ID = 480
 const GAME_TAG = "sanguo_classic_revival"
 ## 6: hello/welcome/reject handshake with content hash, ping/pong heartbeat,
 ## concede command, numbers normalized on receipt.
-const PROTOCOL = 6
+## 7: match format 6 (deploy re-plans, undeploy, the deployment_placed event).
+const PROTOCOL = 7
 const CHANNEL = 71
 # Steam Networking Messages send flags (k_nSteamNetworkingSend_*).
 const SEND_RELIABLE = 8

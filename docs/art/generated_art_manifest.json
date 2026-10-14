@@ -1,7 +1,10 @@
 {
   "generator": "OpenAI built-in image generation",
   "promptSource": "docs/art/art_prompts.csv",
-  "styleAnchor": "assets/art/cards/keefe.png",
+  "styleAnchor": "assets/art/cards/keefe.jpg",
+  "styleAnchorMaster": ".tools/art_masters/assets/art/cards/keefe.png",
+  "validationReport": "docs/art/art_asset_validation.json",
+  "handoff": "docs/art/ART_HANDOFF.md",
   "assets": [
     {
       "number": 1,
@@ -14,7 +17,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-390cb9cb-cbdc-4c11-8c77-fc8354d1bcab.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/keefe.png",
+      "runtime_file": "assets/art/cards/keefe.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 2,
@@ -36,7 +43,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-c61b7cc8-4599-463f-a3b4-ca68aa56f7f4.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/axe.png",
+      "runtime_file": "assets/art/cards/axe.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 3,
@@ -49,7 +60,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/jmuy.png",
+      "runtime_file": "assets/art/cards/jmuy.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 4,
@@ -62,7 +77,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/zeus.png",
+      "runtime_file": "assets/art/cards/zeus.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 5,
@@ -75,7 +94,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/farvhan.png",
+      "runtime_file": "assets/art/cards/farvhan.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 6,
@@ -97,7 +120,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-bc21b4b6-c58c-4cd6-a058-b6a57157b434.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/lycan.png",
+      "runtime_file": "assets/art/cards/lycan.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 7,
@@ -110,7 +137,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/drow.png",
+      "runtime_file": "assets/art/cards/drow.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 8,
@@ -123,7 +154,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/rix.png",
+      "runtime_file": "assets/art/cards/rix.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 9,
@@ -145,7 +180,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-a1093897-97fd-4bb3-958d-c124712749d8.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/phantom_assassin.png",
+      "runtime_file": "assets/art/cards/phantom_assassin.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 10,
@@ -167,7 +206,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-48513e9b-4fb9-48b1-85b0-54bb55714620.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/debbi.png",
+      "runtime_file": "assets/art/cards/debbi.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 11,
@@ -189,7 +232,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-fdf5c129-f9b5-48cb-bd38-6ec0e5fc3c2f.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/melee_creep.png",
+      "runtime_file": "assets/art/cards/melee_creep.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 12,
@@ -202,7 +249,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/prowler_vanguard.png",
+      "runtime_file": "assets/art/cards/prowler_vanguard.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 13,
@@ -215,7 +266,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/centaur_hunter.png",
+      "runtime_file": "assets/art/cards/centaur_hunter.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 14,
@@ -237,7 +292,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-14bce10e-d5b6-4106-bf0d-08ed428e4521.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/thunderhide_pack.png",
+      "runtime_file": "assets/art/cards/thunderhide_pack.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 15,
@@ -250,7 +309,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/bronze_legionnaire.png",
+      "runtime_file": "assets/art/cards/bronze_legionnaire.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 16,
@@ -263,7 +326,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/savage_wolf.png",
+      "runtime_file": "assets/art/cards/savage_wolf.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 17,
@@ -276,7 +343,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/ogre_conscript.png",
+      "runtime_file": "assets/art/cards/ogre_conscript.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 18,
@@ -298,7 +369,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-a1bbca01-8ba2-49ab-867e-3d6129fb21ce.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/untested_grunt.png",
+      "runtime_file": "assets/art/cards/untested_grunt.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 19,
@@ -320,7 +395,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-1a7632a3-922d-4222-b1ef-b0bc841130bd.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/claymore.png",
+      "runtime_file": "assets/art/cards/claymore.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 20,
@@ -342,7 +421,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-90e268d7-d287-449c-aac0-6df72ae87a22.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/broadsword.png",
+      "runtime_file": "assets/art/cards/broadsword.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 21,
@@ -364,7 +447,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-79bc04ff-38b2-4dfb-b5fc-aaf494c884b1.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/short_sword.png",
+      "runtime_file": "assets/art/cards/short_sword.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 22,
@@ -377,7 +464,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/leather_armor.png",
+      "runtime_file": "assets/art/cards/leather_armor.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 23,
@@ -390,7 +481,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/travelers_cloak.png",
+      "runtime_file": "assets/art/cards/travelers_cloak.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 24,
@@ -403,7 +498,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/healing_salve.png",
+      "runtime_file": "assets/art/cards/healing_salve.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 25,
@@ -416,7 +515,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/potion_of_knowledge.png",
+      "runtime_file": "assets/art/cards/potion_of_knowledge.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 26,
@@ -429,7 +532,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/town_portal_scroll.png",
+      "runtime_file": "assets/art/cards/town_portal_scroll.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 27,
@@ -451,7 +558,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-fce75d97-4ebb-4956-b357-15324a2cae6a.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/fighting_instinct.png",
+      "runtime_file": "assets/art/cards/fighting_instinct.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 28,
@@ -474,7 +585,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-62b7ca3f-8d5e-43a2-91da-741223a9d2ff.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/cards/berserkers_call.png",
+      "runtime_file": "assets/art/cards/berserkers_call.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 29,
@@ -488,7 +603,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\heroes_reserve\\zhaoyun.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/defensive_stance.png",
+      "runtime_file": "assets/art/cards/defensive_stance.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 30,
@@ -502,7 +621,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\heroes_reserve\\huangzhong.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/combat_training.png",
+      "runtime_file": "assets/art/cards/combat_training.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 31,
@@ -516,7 +639,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\jmuy.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/battlefield_control.png",
+      "runtime_file": "assets/art/cards/battlefield_control.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 32,
@@ -530,7 +657,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\zeus.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/thundergods_wrath.png",
+      "runtime_file": "assets/art/cards/thundergods_wrath.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 33,
@@ -543,7 +674,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/foresight.png",
+      "runtime_file": "assets/art/cards/foresight.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 34,
@@ -556,7 +691,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/annihilation.png",
+      "runtime_file": "assets/art/cards/annihilation.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 35,
@@ -569,7 +708,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/lightning_strike.png",
+      "runtime_file": "assets/art/cards/lightning_strike.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 36,
@@ -583,7 +726,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\melee_creep.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/dimensional_portal.png",
+      "runtime_file": "assets/art/cards/dimensional_portal.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 37,
@@ -596,7 +743,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/tower_barrage.png",
+      "runtime_file": "assets/art/cards/tower_barrage.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 38,
@@ -609,7 +760,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/thunderstorm.png",
+      "runtime_file": "assets/art/cards/thunderstorm.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 39,
@@ -622,7 +777,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/arm_the_rebellion.png",
+      "runtime_file": "assets/art/cards/arm_the_rebellion.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 40,
@@ -635,7 +794,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/stars_align.png",
+      "runtime_file": "assets/art/cards/stars_align.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 41,
@@ -649,7 +812,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\drow.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/gust.png",
+      "runtime_file": "assets/art/cards/gust.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 42,
@@ -662,7 +829,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/avernus_blessing.png",
+      "runtime_file": "assets/art/cards/avernus_blessing.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 43,
@@ -676,7 +847,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\rix.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/act_of_defiance.png",
+      "runtime_file": "assets/art/cards/act_of_defiance.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 44,
@@ -690,7 +865,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\debbi.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/no_accident.png",
+      "runtime_file": "assets/art/cards/no_accident.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 45,
@@ -703,7 +882,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/hip_fire.png",
+      "runtime_file": "assets/art/cards/hip_fire.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 46,
@@ -717,7 +900,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\phantom_assassin.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/coup_de_grace.png",
+      "runtime_file": "assets/art/cards/coup_de_grace.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 47,
@@ -730,7 +917,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/pick_off.png",
+      "runtime_file": "assets/art/cards/pick_off.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 48,
@@ -743,7 +934,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/slay.png",
+      "runtime_file": "assets/art/cards/slay.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 49,
@@ -756,7 +951,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/cards/forward_charge.png",
+      "runtime_file": "assets/art/cards/forward_charge.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 50,
@@ -778,7 +977,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-83f2e904-5382-48bf-a0da-6fea0ea99f36.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/liubei.png",
+      "runtime_file": "assets/art/heroes_reserve/liubei.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 51,
@@ -800,7 +1003,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-5f83f379-f928-4c04-a884-4fb6590955ac.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/zhaoyun.png",
+      "runtime_file": "assets/art/heroes_reserve/zhaoyun.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 52,
@@ -813,7 +1020,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/zhugeliang.png",
+      "runtime_file": "assets/art/heroes_reserve/zhugeliang.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 53,
@@ -835,7 +1046,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-cf4a5f2d-30fc-43d6-8848-266ec1c2145b.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/machao.png",
+      "runtime_file": "assets/art/heroes_reserve/machao.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 54,
@@ -848,7 +1063,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/huangzhong.png",
+      "runtime_file": "assets/art/heroes_reserve/huangzhong.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 55,
@@ -861,7 +1080,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/weiyan.png",
+      "runtime_file": "assets/art/heroes_reserve/weiyan.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 56,
@@ -874,7 +1097,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/jiangwei.png",
+      "runtime_file": "assets/art/heroes_reserve/jiangwei.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 57,
@@ -887,7 +1114,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/pangtong.png",
+      "runtime_file": "assets/art/heroes_reserve/pangtong.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 58,
@@ -900,7 +1131,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/huangyueying.png",
+      "runtime_file": "assets/art/heroes_reserve/huangyueying.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 59,
@@ -914,7 +1149,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\foresight.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/guojia.png",
+      "runtime_file": "assets/art/heroes_reserve/guojia.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 60,
@@ -927,7 +1166,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/xunyu.png",
+      "runtime_file": "assets/art/heroes_reserve/xunyu.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 61,
@@ -941,7 +1184,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\thunderstorm.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/zhangliao.png",
+      "runtime_file": "assets/art/heroes_reserve/zhangliao.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 62,
@@ -954,7 +1201,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/xuchu.png",
+      "runtime_file": "assets/art/heroes_reserve/xuchu.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 63,
@@ -968,7 +1219,11 @@
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png",
         "K:\\Project\\Mini2\\assets\\art\\cards\\no_accident.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/dianwei.png",
+      "runtime_file": "assets/art/heroes_reserve/dianwei.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 64,
@@ -990,7 +1245,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-a61dd021-2c08-495e-bd74-657e7079a8c1.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/xiahoudun.png",
+      "runtime_file": "assets/art/heroes_reserve/xiahoudun.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 65,
@@ -1003,7 +1262,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/xiahouyuan.png",
+      "runtime_file": "assets/art/heroes_reserve/xiahouyuan.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 66,
@@ -1016,7 +1279,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/zhenji.png",
+      "runtime_file": "assets/art/heroes_reserve/zhenji.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 67,
@@ -1029,7 +1296,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/dengai.png",
+      "runtime_file": "assets/art/heroes_reserve/dengai.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 68,
@@ -1042,7 +1313,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/sunjian.png",
+      "runtime_file": "assets/art/heroes_reserve/sunjian.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 69,
@@ -1066,7 +1341,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-6a4f4248-e1f9-4440-9491-09f3da2eb93d.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/sunce.png",
+      "runtime_file": "assets/art/heroes_reserve/sunce.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 70,
@@ -1079,7 +1358,11 @@
       "references": [
         "K:\\Project\\Mini2\\assets\\art\\cards\\keefe.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/luxun.png",
+      "runtime_file": "assets/art/heroes_reserve/luxun.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 71,
@@ -1092,7 +1375,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/lusu.png",
+      "runtime_file": "assets/art/heroes_reserve/lusu.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 72,
@@ -1114,7 +1401,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-2845cd99-075b-4daa-9ef9-63abca06bc28.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/huanggai.png",
+      "runtime_file": "assets/art/heroes_reserve/huanggai.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 73,
@@ -1127,7 +1418,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/taishici.png",
+      "runtime_file": "assets/art/heroes_reserve/taishici.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 74,
@@ -1140,7 +1435,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/zhoutai.png",
+      "runtime_file": "assets/art/heroes_reserve/zhoutai.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 75,
@@ -1169,7 +1468,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-91554789-c8bc-42c6-8d59-2f8f7bdf7783.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/sunshangxiang.png",
+      "runtime_file": "assets/art/heroes_reserve/sunshangxiang.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 76,
@@ -1182,7 +1485,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/daqiao.png",
+      "runtime_file": "assets/art/heroes_reserve/daqiao.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 77,
@@ -1196,7 +1503,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-a3337d4b-c718-4686-ac4c-28826361bb58.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/xiaoqiao.png",
+      "runtime_file": "assets/art/heroes_reserve/xiaoqiao.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 78,
@@ -1210,7 +1521,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-e2dfdb44-c570-4cf9-b9fc-bc542835a6b2.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/diaochan.png",
+      "runtime_file": "assets/art/heroes_reserve/diaochan.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 79,
@@ -1224,7 +1539,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-e2dfdb44-c570-4cf9-b9fc-bc542835a6b2.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/dongzhuo.png",
+      "runtime_file": "assets/art/heroes_reserve/dongzhuo.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 80,
@@ -1246,7 +1565,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-cfe68f76-ef07-40a7-9a9e-8858a37e415a.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/zhangjiao.png",
+      "runtime_file": "assets/art/heroes_reserve/zhangjiao.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 81,
@@ -1259,7 +1582,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/yuanshao.png",
+      "runtime_file": "assets/art/heroes_reserve/yuanshao.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 82,
@@ -1273,7 +1600,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-fce75d97-4ebb-4956-b357-15324a2cae6a.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/huatuo.png",
+      "runtime_file": "assets/art/heroes_reserve/huatuo.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 83,
@@ -1286,7 +1617,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/zuoci.png",
+      "runtime_file": "assets/art/heroes_reserve/zuoci.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 84,
@@ -1299,7 +1634,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/menghuo.png",
+      "runtime_file": "assets/art/heroes_reserve/menghuo.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 85,
@@ -1321,7 +1660,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-845c678f-97f4-4843-a35a-e97c3b0a5f57.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/zhurong.png",
+      "runtime_file": "assets/art/heroes_reserve/zhurong.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 86,
@@ -1334,7 +1677,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/gaoshun.png",
+      "runtime_file": "assets/art/heroes_reserve/gaoshun.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 87,
@@ -1347,7 +1694,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/heroes_reserve/chengong.png",
+      "runtime_file": "assets/art/heroes_reserve/chengong.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 88,
@@ -1360,7 +1711,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/board_lane_player.png",
+      "runtime_file": "assets/art/ui/board_lane_player.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 89,
@@ -1374,7 +1729,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-a48d446d-9631-49bb-b386-70d542d75629.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/board_lane_enemy.png",
+      "runtime_file": "assets/art/ui/board_lane_enemy.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 90,
@@ -1387,7 +1746,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/board_overview.png",
+      "runtime_file": "assets/art/ui/board_overview.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 91,
@@ -1410,7 +1773,11 @@
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-1c4533e3-1f96-4860-9503-3533d8f7c93f.png"
         }
       ],
-      "notes": "Horizontal opposite-edge mean RGB difference 15.21 on 8-bit scale; reeds and water may show a repeat boundary. Use the original as a single stretched divider or review repeat edges in engine."
+      "notes": "Horizontal opposite-edge mean RGB difference 15.21 on 8-bit scale; reeds and water may show a repeat boundary. Use the original as a single stretched divider or review repeat edges in engine.",
+      "master_file": ".tools/art_masters/assets/art/ui/board_river.png",
+      "runtime_file": "assets/art/ui/board_river.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 92,
@@ -1424,7 +1791,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
       "review": "accepted with tiling note",
-      "notes": "Native 1254x1254 square. Opposite-edge RGB differences measured 8.55 horizontal / 8.08 vertical (8-bit scale); visually quiet paper texture, not a mathematically exact seamless tile."
+      "notes": "Native 1254x1254 square. Opposite-edge RGB differences measured 8.55 horizontal / 8.08 vertical (8-bit scale); visually quiet paper texture, not a mathematically exact seamless tile.",
+      "master_file": ".tools/art_masters/assets/art/ui/paper_tile.png",
+      "runtime_file": "assets/art/ui/paper_tile.jpg",
+      "native_size": "1254x1254",
+      "runtime_size": "1254x1254"
     },
     {
       "number": 93,
@@ -1461,7 +1832,11 @@
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-9cbfee6e-56db-45df-94fd-b32a02d3dcc4.png"
         }
       ],
-      "notes": "PNG has real alpha and a complete building silhouette, but image generation retained a soft translucent warm halo after extraction edits. See handoff notes; validate over the final board palette."
+      "notes": "PNG has real alpha and a complete building silhouette, but image generation retained a soft translucent warm halo after extraction edits. See handoff notes; validate over the final board palette.",
+      "master_file": ".tools/art_masters/assets/art/ui/tower_intact.png",
+      "runtime_file": "assets/art/ui/tower_intact.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 94,
@@ -1476,7 +1851,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-9cbfee6e-56db-45df-94fd-b32a02d3dcc4.png"
       ],
       "review": "accepted",
-      "notes": "Real alpha with a soft translucent warm halo retained by the image generator. Align the building base when transitioning between states."
+      "notes": "Real alpha with a soft translucent warm halo retained by the image generator. Align the building base when transitioning between states.",
+      "master_file": ".tools/art_masters/assets/art/ui/tower_damaged.png",
+      "runtime_file": "assets/art/ui/tower_damaged.png",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 95,
@@ -1491,7 +1870,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-9cbfee6e-56db-45df-94fd-b32a02d3dcc4.png"
       ],
       "review": "accepted",
-      "notes": "Real alpha with a soft translucent warm halo retained by the image generator. Align the building base when transitioning between states."
+      "notes": "Real alpha with a soft translucent warm halo retained by the image generator. Align the building base when transitioning between states.",
+      "master_file": ".tools/art_masters/assets/art/ui/tower_destroyed.png",
+      "runtime_file": "assets/art/ui/tower_destroyed.png",
+      "native_size": "1024x1536",
+      "runtime_size": "512x768"
     },
     {
       "number": 96,
@@ -1515,7 +1898,11 @@
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-dae6e137-075a-407d-a64c-8d1cf74e3eb2.png"
         }
       ],
-      "notes": "Complete capital complex reframed with generous padding. Real alpha includes a soft translucent warm halo; align its base and normalize visible building scale in the UI."
+      "notes": "Complete capital complex reframed with generous padding. Real alpha includes a soft translucent warm halo; align its base and normalize visible building scale in the UI.",
+      "master_file": ".tools/art_masters/assets/art/ui/ancient_capital.png",
+      "runtime_file": "assets/art/ui/ancient_capital.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 97,
@@ -1539,7 +1926,11 @@
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-c7a280b9-2e40-498a-8e52-cea1de62b20c.png"
         }
       ],
-      "notes": "Burning state reframed with clear margins; real alpha includes a translucent fire halo. Align base and normalize visible building scale against ancient_capital rather than relying solely on canvas size."
+      "notes": "Burning state reframed with clear margins; real alpha includes a translucent fire halo. Align base and normalize visible building scale against ancient_capital rather than relying solely on canvas size.",
+      "master_file": ".tools/art_masters/assets/art/ui/ancient_capital_burning.png",
+      "runtime_file": "assets/art/ui/ancient_capital_burning.png",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 98,
@@ -1561,7 +1952,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-5acb0f11-38e7-4bfe-9dbd-bd5cf4e9f2fa.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/ui/card_back.png",
+      "runtime_file": "assets/art/ui/card_back.jpg",
+      "native_size": "1024x1536",
+      "runtime_size": "1024x1536"
     },
     {
       "number": 99,
@@ -1583,7 +1978,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/ui/emblem_shu.png",
+      "runtime_file": "assets/art/ui/emblem_shu.png",
+      "native_size": "1254x1254",
+      "runtime_size": "1254x1254"
     },
     {
       "number": 100,
@@ -1597,7 +1996,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/emblem_wei.png",
+      "runtime_file": "assets/art/ui/emblem_wei.png",
+      "native_size": "1254x1254",
+      "runtime_size": "512x512"
     },
     {
       "number": 101,
@@ -1611,7 +2014,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/emblem_wu.png",
+      "runtime_file": "assets/art/ui/emblem_wu.png",
+      "native_size": "1254x1254",
+      "runtime_size": "512x512"
     },
     {
       "number": 102,
@@ -1625,7 +2032,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-41360138-a0e7-4501-afff-aa9bc6a1dae6.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/emblem_qun.png",
+      "runtime_file": "assets/art/ui/emblem_qun.png",
+      "native_size": "1254x1254",
+      "runtime_size": "512x512"
     },
     {
       "number": 103,
@@ -1647,7 +2058,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-fae3870e-822e-4765-90f2-bcde5ce0d2ee.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/ui/initiative_token.png",
+      "runtime_file": "assets/art/ui/initiative_token.png",
+      "native_size": "1254x1254",
+      "runtime_size": "1254x1254"
     },
     {
       "number": 104,
@@ -1669,7 +2084,11 @@
           ],
           "source": "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-f83038d8-f2e9-4496-bb31-8a99326a740a.png"
         }
-      ]
+      ],
+      "master_file": ".tools/art_masters/assets/art/ui/mana_command.png",
+      "runtime_file": "assets/art/ui/mana_command.png",
+      "native_size": "1254x1254",
+      "runtime_size": "1254x1254"
     },
     {
       "number": 105,
@@ -1682,7 +2101,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/gold_coin.png",
+      "runtime_file": "assets/art/ui/gold_coin.png",
+      "native_size": "1254x1254",
+      "runtime_size": "512x512"
     },
     {
       "number": 106,
@@ -1695,7 +2118,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/shop_armory.png",
+      "runtime_file": "assets/art/ui/shop_armory.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 107,
@@ -1708,7 +2135,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/black_market.png",
+      "runtime_file": "assets/art/ui/black_market.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 108,
@@ -1721,7 +2152,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/camp_fountain.png",
+      "runtime_file": "assets/art/ui/camp_fountain.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 109,
@@ -1735,7 +2170,11 @@
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png",
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-418d165c-d40a-4800-bbba-ec1a22065fbe.png"
       ],
-      "review": "pending"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/menu_key_art.png",
+      "runtime_file": "assets/art/ui/menu_key_art.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 110,
@@ -1748,7 +2187,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/splash_victory.png",
+      "runtime_file": "assets/art/ui/splash_victory.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     },
     {
       "number": 111,
@@ -1761,7 +2204,11 @@
       "references": [
         "C:\\Users\\AlexChon9\\.codex\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-d47630be-1179-49db-bf30-fbf5ae632bed.png"
       ],
-      "review": "accepted"
+      "review": "accepted",
+      "master_file": ".tools/art_masters/assets/art/ui/splash_defeat.png",
+      "runtime_file": "assets/art/ui/splash_defeat.jpg",
+      "native_size": "1536x1024",
+      "runtime_size": "1536x1024"
     }
   ]
 }

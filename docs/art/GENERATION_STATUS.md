@@ -2,7 +2,7 @@
 
 Generated with the OpenAI built-in image tool from [ART_PROMPTS.md](ART_PROMPTS.md) and [art_prompts.csv](art_prompts.csv). Final prompts and reference roles are recorded in [generated_art_manifest.json](generated_art_manifest.json). Game code is maintained separately by Claude Code.
 
-Generated: 111 / 111. Reviewed and accepted: 110.
+Generated: 111 / 111. Reviewed and accepted: 111.
 
 | # | Artwork | File | Status |
 |---|---|---|---|
@@ -114,6 +114,6 @@ Generated: 111 / 111. Reviewed and accepted: 110.
 | 106 | Shop / armory background | assets/art/ui/shop_armory.png | accepted |
 | 107 | Black-market stall (Secret Shop) | assets/art/ui/black_market.png | accepted |
 | 108 | Deployment camp (Fountain) | assets/art/ui/camp_fountain.png | accepted |
-| 109 | Main menu key art - Red Cliffs | assets/art/ui/menu_key_art.png | pending |
+| 109 | Main menu key art - Red Cliffs | assets/art/ui/menu_key_art.png | accepted |
 | 110 | Victory splash background | assets/art/ui/splash_victory.png | accepted |
 | 111 | Defeat splash background | assets/art/ui/splash_defeat.png | accepted |

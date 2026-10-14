@@ -102,7 +102,7 @@ func _draw() -> void:
 	UiKit.draw_text(self, UiKit.title_font(), UiKit.t(result_key), Vector2(size.x * 0.5, size.y * 0.37), title_size,
 		Color(color, _reveal), -1.0, 8, Color(0.1, 0.02, 0.0, 0.8 * _reveal))
 	UiKit.draw_text(self, UiKit.title_font(), subtitle, Vector2(size.x * 0.5, size.y * 0.5), 30, Color(UiKit.PAPER, _reveal), -1.0, 3)
-	UiKit.draw_text(self, UiKit.body_font(), detail, Vector2(size.x * 0.5, size.y * 0.56), 18, Color(UiKit.PAPER_DIM, _reveal), size.x * 0.8, 2)
+	UiKit.draw_text(self, UiKit.body_font(), detail, Vector2(size.x * 0.5, size.y * 0.56), 18, Color(UiKit.PAPER, _reveal), size.x * 0.8, 4)
 	if victory and result_key != "RESULT_DRAW":
 		var title_width = UiKit.title_font().get_string_size(UiKit.t(result_key), HORIZONTAL_ALIGNMENT_LEFT, -1, title_size).x
 		UiKit.draw_seal(self, Vector2(size.x * 0.5 + maxf(240.0, title_width * 0.5 + 56.0), size.y * 0.33), 56.0, SEAL_GLYPH)

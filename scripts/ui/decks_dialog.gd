@@ -1,7 +1,7 @@
 extends "res://scripts/ui/modal_panel.gd"
-## Deck selection: one preset per player with its description, five heroes
-## and the main and item deck lists, all localized. Start launches the
-## matchup; Browse opens the card catalog.
+## Deck selection: one preset per player with the emblems of its factions,
+## its description, five heroes and the main and item deck lists, all
+## localized. Start launches the matchup; Browse opens the card catalog.
 
 signal start_requested(decks: Array)
 signal catalog_requested
@@ -35,8 +35,16 @@ func build() -> void:
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		column.add_theme_constant_override("separation", 8)
 		row.add_child(column)
-		var heading = label(column, "", 20, UiKit.GOLD)
+		# The heading shares its row with the deck's faction emblems.
+		var heading_row = HBoxContainer.new()
+		heading_row.add_theme_constant_override("separation", 6)
+		column.add_child(heading_row)
+		var heading = label(heading_row, "", 20, UiKit.GOLD)
 		heading.add_theme_font_override("font", UiKit.title_font())
+		heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var emblems = HBoxContainer.new()
+		emblems.add_theme_constant_override("separation", 4)
+		heading_row.add_child(emblems)
 		var selector = OptionButton.new()
 		selector.name = "DeckSelector%d" % side
 		selector.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
@@ -57,7 +65,7 @@ func build() -> void:
 		list.bbcode_enabled = true
 		list.add_theme_font_size_override("normal_font_size", 15)
 		column.add_child(list)
-		columns.append({"heading": heading, "description": description, "heroes": heroes, "list": list})
+		columns.append({"heading": heading, "emblems": emblems, "description": description, "heroes": heroes, "list": list})
 	summary = label(body, "", 14, UiKit.MUTED, true)
 	start_button = button(footer, "", 21)
 	start_button.name = "Start"
@@ -98,6 +106,22 @@ func _fill(side: int) -> void:
 	column.description.text = Library.preset_text(str(choices[side]), "description")
 	for child in column.heroes.get_children():
 		UiKit.discard(child)
+	for child in column.emblems.get_children():
+		UiKit.discard(child)
+	# The factions the deck's heroes fight for, as emblems (Three Kingdoms skin).
+	var factions: Array = []
+	for hero_id in preset.get("heroes", []):
+		var faction = Library.faction(str(hero_id))
+		if faction not in factions and UiKit.faction_emblem(faction) != null and Library.current_skin() == "three_kingdoms":
+			factions.append(faction)
+	for faction in factions:
+		var emblem = TextureRect.new()
+		emblem.texture = UiKit.faction_emblem(faction)
+		emblem.custom_minimum_size = Vector2(30, 30)
+		emblem.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		emblem.tooltip_text = UiKit.t("FACTION_" + faction.to_upper())
+		column.emblems.add_child(emblem)
 	for hero_id in preset.get("heroes", []):
 		var card = CardView.new()
 		card.setup(str(hero_id))

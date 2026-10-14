@@ -4,14 +4,36 @@ extends Control
 ## index-aligned combat positions (column n holds the enemy unit above and
 ## the viewer's unit below). The board sets `zoom` (0 lane view, 1 overview)
 ## and the lane's rectangle; every position here derives from those.
+##
+## Deployment staging: while heroes are planned, units entering this lane
+## float in a strip on the lane's left side (the viewer's in the bottom-left
+## corner, the enemy's in the top-left corner), tilted, lifted and bobbing.
+## They never take a combat position; the rows shift right to make room.
+## The reveal draws the candidate slots, the deciding highlight and the
+## pathing slabs here; match_screen.gd drives its timeline.
 
 const UnitCard = preload("res://scripts/ui/unit_card.gd")
 const TowerView = preload("res://scripts/ui/tower_view.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Library = preload("res://scripts/core/card_library.gd")
+const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
 const LANE_KEYS = ["LANE_LEFT", "LANE_MIDDLE", "LANE_RIGHT"]
 const GAP = 12.0
 const OVERVIEW_SCALE = 0.72
+## Staged cards read about 1.2x the (shrunk) overview row.
+const STAGE_SCALE = 0.74
+## Tilt in degrees: [enemy, own].
+const STAGE_TILT = [4.0, -5.0]
+const STAGE_MARGIN = 12.0
+const STAGE_STEP_X = 6.0
+## Fan x-steps counted toward the reserved strip.
+const STAGE_MAX_FAN_X = 3
+const BOB_PERIOD = 2.4
+const BOB_AMP = 3.0
+const LIFT = 8.0
+const HOVER_SCALE = 1.12
+const HOVER_LIFT = 8.0
+const ENEMY_ARROW_TINT = Color("c9d36a")
 
 var lane_index: int = 0
 var zoom: float = 0.0
@@ -25,18 +47,60 @@ var columns: Array = [[], []]
 ## Creep placement candidates while a creep card is held: [{position, column}].
 var ghost_slots: Array = []
 var hovered_slot: int = -999
-## Deployment previews: [enemy card ids, own card ids] shown as ghost cards.
-var incoming: Array = [[], []]
-var incoming_cards: Array = []
 var towers: Array = []
+## 0..1: how much of the staging strip is reserved (tweened as the strip
+## opens, and to 0 when the reveal settles this lane).
+var staging: float = 0.0
+## Staged units [enemy entries, own entries], back to front. An entry is
+## {key, card_id, uid, kind ("creep" or "hero"), movable, selected, hidden,
+## model, card (UnitCard)} plus layout state.
+var staged: Array = [[], []]
+## Staged card under the pointer (raised to the front), "" for none.
+var hovered_key: String = "":
+	set(value):
+		if hovered_key != value:
+			hovered_key = value
+			_hover_changed()
+## Hides arrows, damage tags and death marks on every card (reveal).
+var preview_hidden: bool = false:
+	set(value):
+		preview_hidden = value
+		for uid in cards:
+			cards[uid].preview_hidden = value
+		for tower in towers:
+			tower.preview_hidden = value
+## Reveal: candidate columns per side [enemy, own] drawn as slot outlines,
+## the deciding highlight ({"side", "column", "landing"}) and the pathing
+## slabs ({column, attacker_own, arrow}) with their animation progress.
+var candidates: Array = [[], []]
+var candidate_alpha: float = 0.0:
+	set(value):
+		candidate_alpha = value
+		queue_redraw()
+var roulette: Dictionary = {}
+var slabs: Array = []
+var slab_t: float = 0.0:
+	set(value):
+		slab_t = value
+		queue_redraw()
+var slab_alpha: float = 1.0:
+	set(value):
+		slab_alpha = value
+		queue_redraw()
+## uids whose cards are flying into place; layout leaves them alone.
+var flying: Dictionary = {}
 var _scale: float = 1.0
-## Combat positions laid out this frame: the rows plus incoming ghost cards.
+## Combat positions laid out this frame.
 var _count: int = 0
+var _bob_time: float = 0.0
+var _staging_tween: Tween
+var _staging_target: float = 0.0
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	set_process(false)
 	for side in range(2):
 		var tower = TowerView.new()
 		tower.own = side == 1
@@ -67,7 +131,7 @@ func tower_scale() -> float:
 
 func _fit_scale(count: int) -> float:
 	var base = lerpf(1.0, OVERVIEW_SCALE, zoom)
-	var available = table_rect().size.x - lerpf(170.0, 12.0, zoom)
+	var available = table_rect().size.x - stage_reserve() - lerpf(170.0, 12.0, zoom)
 	var needed = maxf(1.0, float(count)) * (UnitCard.SIZE.x + _gap())
 	return minf(base, available / needed) if needed > 0.0 else base
 
@@ -78,22 +142,77 @@ func spacing() -> float:
 func _gap() -> float:
 	return lerpf(GAP, 5.0, zoom)
 
+## Centre x of the unit rows: the table centre, or the centre of what the
+## staging strip leaves.
+func row_center_x() -> float:
+	var table = table_rect()
+	var reserve = stage_reserve()
+	return table.position.x + reserve + (table.size.x - reserve) * 0.5
+
 ## Centre x of combat position `column` among `count` positions.
 func column_x(column: float, count: int) -> float:
-	return size.x * 0.5 + (column - (count - 1) * 0.5) * spacing()
+	return row_center_x() + (column - (count - 1) * 0.5) * spacing()
 
 func slot_center(column: float, own: bool) -> Vector2:
 	return Vector2(column_x(column, _count), row_center_y(own))
 
-## Incoming ghost cards are appended after the existing combat positions.
-func incoming_count() -> int:
-	return maxi(incoming[0].size(), incoming[1].size())
+## Card-sized rectangle of a combat position.
+func slot_rect(column: float, own: bool) -> Rect2:
+	var card_size = UnitCard.SIZE * _scale
+	return Rect2(slot_center(column, own) - card_size * 0.5, card_size)
+
+# --- Staging geometry ----------------------------------------------------------
+
+func stage_card_size() -> Vector2:
+	return UnitCard.SIZE * STAGE_SCALE
+
+## Width of the bounding box of a staged card tilted 5 degrees.
+func _stage_rot_width() -> float:
+	var card_size = stage_card_size()
+	var angle = deg_to_rad(5.0)
+	return card_size.x * cos(angle) + card_size.y * sin(angle)
+
+## Width reserved on the lane's left for the staging strip.
+func stage_reserve() -> float:
+	return staging * (STAGE_MARGIN + _stage_rot_width() + STAGE_STEP_X * STAGE_MAX_FAN_X + 8.0)
+
+## Resting centre of staged card `index` of `count` on `side` (0 enemy at
+## the top-left, 1 own at the bottom-left; index 0 is the back card).
+func fan_center(side: int, index: int, count: int) -> Vector2:
+	var card_size = stage_card_size()
+	var table = table_rect()
+	var x = table.position.x + STAGE_MARGIN + card_size.x * 0.5 + STAGE_STEP_X * mini(index, STAGE_MAX_FAN_X)
+	if side == 1:
+		var top = river_y() + 12.0
+		var bottom = table.end.y - 8.0
+		var step = clampf((bottom - top - card_size.y) / maxf(1.0, count - 1), 0.0, 0.3 * card_size.y)
+		return Vector2(x, bottom - card_size.y * 0.5 - step * index)
+	# The enemy fan hangs from the top edge: leave room for the lift, the bob
+	# and the tilt so the back card never pokes out of the table.
+	var enemy_top = table.position.y + 8.0 + LIFT + BOB_AMP + 3.5
+	var enemy_bottom = river_y() - 12.0
+	var enemy_step = clampf((enemy_bottom - enemy_top - card_size.y) / maxf(1.0, count - 1), 0.0, 0.3 * card_size.y)
+	return Vector2(x, enemy_top + card_size.y * 0.5 + enemy_step * index)
+
+func _fan_rotation(side: int, index: int) -> float:
+	return deg_to_rad(STAGE_TILT[side] + 1.5 * index * (1.0 if side == 1 else -1.0))
+
+## Where a staged entry rests now: {"center", "rotation", "scale"} (local),
+## with the lift, the bob and the hover raise.
+func _stage_target(side: int, index: int, entry: Dictionary) -> Dictionary:
+	var count = staged[side].size()
+	var center = fan_center(side, index, count)
+	var bob = 0.0 if AnimationQueue.instant else sin(_bob_time * TAU / BOB_PERIOD + index * 1.3) * BOB_AMP
+	var hover = float(entry.get("h", 0.0))
+	center.y += -LIFT + bob - HOVER_LIFT * hover
+	return {"center": center, "rotation": lerpf(_fan_rotation(side, index), 0.0, hover),
+		"scale": STAGE_SCALE * lerpf(1.0, HOVER_SCALE, hover)}
 
 # --- Layout ------------------------------------------------------------------
 
-## Positions towers, unit cards, ghost cards and slots for the current zoom.
+## Positions towers, unit cards, staged cards and slots for the current zoom.
 func layout() -> void:
-	_count = columns[1].size() + incoming_count()
+	_count = maxi(columns[0].size(), columns[1].size())
 	_scale = _fit_scale(_count + (2 if not ghost_slots.is_empty() else 0))
 	for side in range(2):
 		var tower: Control = towers[side]
@@ -103,9 +222,9 @@ func layout() -> void:
 	for side in range(2):
 		for column in range(columns[side].size()):
 			var uid = int(columns[side][column])
-			if uid != -1 and cards.has(uid):
+			if uid != -1 and cards.has(uid) and not flying.has(uid):
 				_place_card(cards[uid], slot_center(column, side == 1))
-	_layout_incoming()
+	_layout_staged()
 	queue_redraw()
 
 func _place_card(card: Control, center: Vector2) -> void:
@@ -114,15 +233,35 @@ func _place_card(card: Control, center: Vector2) -> void:
 		card.refresh()
 	card.position = center - UnitCard.SIZE * 0.5
 
-func _layout_incoming() -> void:
-	var index = 0
+## Places every staged card: its fan slot, eased in from where it started
+## (an arrival or a re-fan) by its progress `t`.
+func _layout_staged() -> void:
 	for side in range(2):
-		var start = columns[1].size()
-		for card_index in range(incoming[side].size()):
-			if index >= incoming_cards.size():
-				break
-			_place_card(incoming_cards[index], slot_center(start + card_index, side == 1))
-			index += 1
+		for index in range(staged[side].size()):
+			var entry: Dictionary = staged[side][index]
+			var card: Control = entry.card
+			if not is_instance_valid(card):
+				continue
+			var target = _stage_target(side, index, entry)
+			var t = float(entry.get("t", 1.0))
+			if t < 1.0 and entry.has("from"):
+				var eased = 1.0 - pow(1.0 - t, 3.0)
+				var from: Dictionary = entry.from
+				target = {"center": from.center.lerp(target.center, eased),
+					"rotation": lerp_angle(float(from.rotation), float(target.rotation), eased),
+					"scale": lerpf(float(from.scale), float(target.scale), eased)}
+			card.position = target.center - UnitCard.SIZE * 0.5
+			card.rotation = target.rotation
+			if not card.scale.is_equal_approx(Vector2.ONE * target.scale):
+				card.scale = Vector2.ONE * target.scale
+			card.visible = not entry.get("hidden", false)
+
+func _process(delta: float) -> void:
+	_bob_time += delta
+	_layout_staged()
+
+func _update_processing() -> void:
+	set_process(staging > 0.0 and not staged_cards().is_empty() and not AnimationQueue.instant)
 
 # --- State -------------------------------------------------------------------
 
@@ -148,6 +287,7 @@ func sync(lane: Dictionary, viewer: int, models: Dictionary) -> Dictionary:
 			var card: Control = cards.get(uid)
 			if card == null:
 				card = UnitCard.new()
+				card.preview_hidden = preview_hidden
 				add_child(card)
 				cards[uid] = card
 				result.added.append(card)
@@ -156,36 +296,20 @@ func sync(lane: Dictionary, viewer: int, models: Dictionary) -> Dictionary:
 		if not seen.has(uid):
 			result.removed.append(cards[uid])
 			cards.erase(uid)
+			flying.erase(uid)
 	var structures = lane.structures
 	var damage = models.get("tower_damage", [0, 0])
 	towers[0].apply(structures[1 - viewer], int(lane.mana[1 - viewer]), int(lane.max_mana[1 - viewer]), int(damage[1]))
 	towers[1].apply(structures[viewer], int(lane.mana[viewer]), int(lane.max_mana[viewer]), int(damage[0]))
 	for card in towers:
 		move_child(card, 0)
+	if not result.added.is_empty():
+		_restack_staged()
 	layout()
 	for uid in cards:
 		if old_positions.has(uid) and old_positions[uid] != cards[uid].position:
 			result.moved[cards[uid]] = old_positions[uid]
 	return result
-
-func set_incoming(enemy_cards: Array, own_cards: Array) -> void:
-	for card in incoming_cards:
-		UiKit.discard(card)
-	incoming_cards.clear()
-	incoming = [enemy_cards, own_cards]
-	for side in range(2):
-		for card_id in incoming[side]:
-			var card = UnitCard.new()
-			card.ghost = true
-			var definition = Library.raw_definition(card_id)
-			var health = int(definition.get("health", 0))
-			card.apply({"unit": {"card": card_id, "color": str(definition.get("color", "neutral")),
-				"hero": str(definition.get("kind", "")) == "hero", "attack": int(definition.get("attack", 0)),
-				"armor": int(definition.get("armor", 0)), "health": health, "max_health": health, "uid": -2}, "own": side == 1})
-			card.target_state = 4 if side == 1 else 0
-			add_child(card)
-			incoming_cards.append(card)
-	layout()
 
 func set_ghost_slots(positions: Array) -> void:
 	ghost_slots = []
@@ -201,9 +325,338 @@ func set_ghost_slots(positions: Array) -> void:
 	layout()
 
 func ghost_rect(slot: Dictionary) -> Rect2:
-	var center = slot_center(slot.column, true)
-	var card_size = UnitCard.SIZE * _scale
-	return Rect2(center - card_size * 0.5, card_size)
+	return slot_rect(slot.column, true)
+
+# --- Staging -------------------------------------------------------------------
+
+## Shows the units entering this lane in the staging strip. `enemy` and
+## `own` are entries {key, card_id, uid, kind, movable, selected, hidden,
+## model}; existing cards are kept by key. A new entry whose key is in
+## `arrive_from` (a global point) flies in from there.
+func set_staged(enemy: Array, own: Array, arrive_from: Dictionary = {}) -> void:
+	var old: Dictionary = {}
+	for side in range(2):
+		for entry in staged[side]:
+			old[entry.key] = entry
+	var lists = [enemy, own]
+	var fresh: Array = [[], []]
+	var moves: Array = []
+	for side in range(2):
+		var reflow = lists[side].size() != staged[side].size()
+		for index in range(lists[side].size()):
+			var spec: Dictionary = lists[side][index]
+			var entry: Dictionary = old.get(spec.key, {})
+			old.erase(spec.key)
+			if entry.is_empty():
+				entry = {"t": 1.0, "h": 0.0, "card": _make_stage_card()}
+				if arrive_from.has(spec.key) and not AnimationQueue.instant:
+					entry.from = {"center": get_global_transform().affine_inverse() * Vector2(arrive_from[spec.key]),
+						"rotation": 0.0, "scale": STAGE_SCALE * 0.9}
+					entry.t = 0.0
+					moves.append([entry, 0.25])
+			elif reflow or staged[side].find(entry) != index:
+				if _begin_move(entry):
+					moves.append([entry, 0.2])
+			for field in spec:
+				entry[field] = spec[field]
+			_apply_stage_card(entry)
+			fresh[side].append(entry)
+	for key in old:
+		_discard_entry(old[key])
+	staged = fresh
+	for move in moves:
+		_tween_entry(move[0], move[1])
+	_restack_staged()
+	_set_staging_target(0.0 if staged_cards().is_empty() else 1.0)
+	_update_processing()
+	layout()
+
+func _make_stage_card() -> Control:
+	var card = UnitCard.new()
+	card.floating = 1.0
+	card.preview_hidden = true
+	card.scale = Vector2.ONE * STAGE_SCALE
+	add_child(card)
+	return card
+
+func _apply_stage_card(entry: Dictionary) -> void:
+	var card: Control = entry.card
+	if card.model != entry.model:
+		card.apply(entry.model)
+	card.target_state = 3 if entry.get("selected", false) else (4 if entry.get("movable", false) else 0)
+	card.visible = not entry.get("hidden", false)
+	card.queue_redraw()
+
+## Prepares easing `entry` from where it is drawn now to its (new) fan slot;
+## false when it should simply jump (instant mode, no card yet).
+func _begin_move(entry: Dictionary) -> bool:
+	if AnimationQueue.instant or not is_instance_valid(entry.get("card")) or not is_inside_tree():
+		return false
+	var card: Control = entry.card
+	entry.from = {"center": card.position + UnitCard.SIZE * 0.5, "rotation": card.rotation, "scale": card.scale.x}
+	entry.t = 0.0
+	return true
+
+func _tween_entry(entry: Dictionary, seconds: float) -> void:
+	if entry.get("tween") is Tween and entry.tween.is_valid():
+		entry.tween.kill()
+	if not is_inside_tree():
+		entry.t = 1.0
+		return
+	var tween = create_tween()
+	tween.tween_method(_set_entry_progress.bind(entry, "t"), float(entry.get("t", 0.0)), 1.0, AnimationQueue.duration(seconds))
+	entry.tween = tween
+
+## Tween step for an entry's arrival (`t`) or hover (`h`) progress.
+func _set_entry_progress(value: float, entry: Dictionary, field: String) -> void:
+	entry[field] = value
+	if not is_processing():
+		_layout_staged()
+
+func _discard_entry(entry: Dictionary) -> void:
+	if entry.get("tween") is Tween and entry.tween.is_valid():
+		entry.tween.kill()
+	if entry.get("hover_tween") is Tween and entry.hover_tween.is_valid():
+		entry.hover_tween.kill()
+	if is_instance_valid(entry.get("card")):
+		UiKit.discard(entry.card)
+
+## Staged cards stay above the unit cards, back to front, the hovered one last.
+func _restack_staged() -> void:
+	var hovered_card: Control = null
+	for side in range(2):
+		for entry in staged[side]:
+			if is_instance_valid(entry.card):
+				move_child(entry.card, -1)
+				if entry.key == hovered_key:
+					hovered_card = entry.card
+	if hovered_card != null:
+		move_child(hovered_card, -1)
+
+## Opens or closes the staging strip, sliding the rows aside.
+func _set_staging_target(target: float) -> void:
+	if is_equal_approx(_staging_target, target):
+		return
+	_staging_target = target
+	if _staging_tween != null and _staging_tween.is_valid():
+		_staging_tween.kill()
+	if AnimationQueue.instant or not is_inside_tree() or zoom < 0.99:
+		staging = target
+		return
+	_staging_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_staging_tween.tween_method(set_staging, staging, target, AnimationQueue.duration(0.2))
+
+## Sets the reserved strip (tweened by the reveal) and lays the lane out.
+func set_staging(value: float) -> void:
+	staging = value
+	_update_processing()
+	layout()
+
+## Tweens the strip closed (the reveal's re-centre); returns the tween.
+func close_staging(seconds: float) -> Tween:
+	_staging_target = 0.0
+	if _staging_tween != null and _staging_tween.is_valid():
+		_staging_tween.kill()
+	if seconds <= 0.0 or not is_inside_tree():
+		set_staging(0.0)
+		return null
+	_staging_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_staging_tween.tween_method(set_staging, staging, 0.0, seconds)
+	return _staging_tween
+
+func _hover_changed() -> void:
+	for side in range(2):
+		for entry in staged[side]:
+			var target = 1.0 if entry.key == hovered_key else 0.0
+			if is_equal_approx(float(entry.get("h", 0.0)), target):
+				continue
+			if entry.get("hover_tween") is Tween and entry.hover_tween.is_valid():
+				entry.hover_tween.kill()
+			if AnimationQueue.instant or not is_inside_tree():
+				entry.h = target
+				continue
+			var tween = create_tween()
+			tween.tween_method(_set_entry_progress.bind(entry, "h"), float(entry.get("h", 0.0)), target, AnimationQueue.duration(0.12))
+			entry.hover_tween = tween
+	_restack_staged()
+	_layout_staged()
+
+## Every staged card, enemy then own, back to front.
+func staged_cards() -> Array:
+	var result: Array = []
+	for side in range(2):
+		for entry in staged[side]:
+			if is_instance_valid(entry.get("card")):
+				result.append(entry.card)
+	return result
+
+func staged_entry(key: String) -> Dictionary:
+	for side in range(2):
+		for entry in staged[side]:
+			if entry.key == key:
+				return entry
+	return {}
+
+func _staged_side_index(key: String) -> Vector2i:
+	for side in range(2):
+		for index in range(staged[side].size()):
+			if staged[side][index].key == key:
+				return Vector2i(side, index)
+	return Vector2i(-1, -1)
+
+## Global resting centre of a staged entry (without the bob).
+func staged_global_center(key: String) -> Vector2:
+	var at = _staged_side_index(key)
+	if at.x == -1:
+		return get_global_transform() * fan_center(1, staged[1].size(), staged[1].size() + 1)
+	var center = fan_center(at.x, at.y, staged[at.x].size()) - Vector2(0, LIFT)
+	return get_global_transform() * center
+
+## Global centre where the next own staged card would rest (drop targets).
+func stage_anchor(side: int) -> Vector2:
+	var count = staged[side].size() + 1
+	return get_global_transform() * (fan_center(side, count - 1, count) - Vector2(0, LIFT))
+
+func set_staged_hidden(key: String, hidden: bool) -> void:
+	var entry = staged_entry(key)
+	if entry.is_empty():
+		return
+	entry.hidden = hidden
+	_apply_stage_card(entry)
+
+## Marks the staged hero `uid` as selected (stronger glow); -1 clears.
+func select_staged(uid: int) -> void:
+	for entry in staged[1]:
+		if entry.get("kind", "") == "hero":
+			entry.selected = int(entry.uid) == uid
+			_apply_stage_card(entry)
+
+## Nothing moves any more (the player confirmed or the reveal started).
+func lock_staging() -> void:
+	hovered_key = ""
+	for side in range(2):
+		for entry in staged[side]:
+			entry.movable = false
+			entry.selected = false
+			entry.hidden = false
+			_apply_stage_card(entry)
+
+## The movable own staged hero under `global_point` (front to back), or -1.
+func staged_hero_at(global_point: Vector2) -> int:
+	var entry = _staged_at(global_point, true)
+	return int(entry.uid) if not entry.is_empty() else -1
+
+## Any staged entry under `global_point` (creeps and enemy units included).
+func staged_at(global_point: Vector2) -> Dictionary:
+	return _staged_at(global_point, false)
+
+func _staged_at(global_point: Vector2, movable_heroes: bool) -> Dictionary:
+	var order: Array = []
+	for side in [1, 0]:
+		var entries: Array = staged[side].duplicate()
+		entries.reverse()
+		order.append_array(entries)
+	for index in range(order.size()):
+		if order[index].key == hovered_key:
+			order.push_front(order.pop_at(index))
+			break
+	for entry in order:
+		if movable_heroes and (entry.get("kind", "") != "hero" or not entry.get("movable", false)):
+			continue
+		var card: Control = entry.card
+		if not is_instance_valid(card) or not card.visible:
+			continue
+		var local = card.get_global_transform().affine_inverse() * global_point
+		if Rect2(Vector2.ZERO, UnitCard.SIZE).has_point(local):
+			return entry
+	return {}
+
+## Removes the staged entry `key` and returns its card (still parented), so
+## the reveal can fly it into place; null when there is none.
+func take_staged(key: String) -> Control:
+	var at = _staged_side_index(key)
+	if at.x == -1:
+		return null
+	return _take(at.x, at.y)
+
+## Takes the front-most staged entry of `kind` on `side` (creeps are
+## interchangeable; enemy heroes are matched the same way).
+func take_staged_kind(side: int, kind: String) -> Control:
+	for index in range(staged[side].size() - 1, -1, -1):
+		if staged[side][index].get("kind", "") == kind:
+			return _take(side, index)
+	return null
+
+func _take(side: int, index: int) -> Control:
+	var entry: Dictionary = staged[side][index]
+	if entry.get("tween") is Tween and entry.tween.is_valid():
+		entry.tween.kill()
+	if entry.get("hover_tween") is Tween and entry.hover_tween.is_valid():
+		entry.hover_tween.kill()
+	staged[side].remove_at(index)
+	for other in staged[side]:
+		if _begin_move(other):
+			_tween_entry(other, 0.2)
+	if hovered_key == entry.key:
+		hovered_key = ""
+	return entry.card
+
+## Reveal: an enemy hero enters the enemy staging fan from `from_global`
+## (its card in the opponent strip, drawn at `from_scale`).
+func stage_enemy_hero(uid: int, model: Dictionary, from_global: Vector2, from_scale: float) -> void:
+	var entry = {"key": "h%d" % uid, "card_id": str(model.get("unit", {}).get("card", "")), "uid": uid, "kind": "hero",
+		"movable": false, "selected": false, "hidden": false, "model": model, "t": 1.0, "h": 0.0, "card": _make_stage_card()}
+	for other in staged[0]:
+		if _begin_move(other):
+			_tween_entry(other, 0.2)
+	staged[0].append(entry)
+	if not AnimationQueue.instant and is_inside_tree():
+		entry.from = {"center": get_global_transform().affine_inverse() * from_global, "rotation": 0.0, "scale": from_scale}
+		entry.t = 0.0
+		_tween_entry(entry, 0.45)
+	_apply_stage_card(entry)
+	_restack_staged()
+	_update_processing()
+	layout()
+
+## Frees every staged card and closes the strip at once.
+func clear_staging() -> void:
+	for side in range(2):
+		for entry in staged[side]:
+			_discard_entry(entry)
+	staged = [[], []]
+	hovered_key = ""
+	if _staging_tween != null and _staging_tween.is_valid():
+		_staging_tween.kill()
+	_staging_target = 0.0
+	staging = 0.0
+	_update_processing()
+	layout()
+
+## Clears the reveal visuals: candidate outlines, highlight, slabs, flights.
+func reset_reveal() -> void:
+	candidates = [[], []]
+	candidate_alpha = 0.0
+	roulette = {}
+	slabs = []
+	slab_t = 0.0
+	slab_alpha = 1.0
+	flying.clear()
+	preview_hidden = false
+	queue_redraw()
+
+## Pathing slabs for the reveal: every unit with nothing opposite it gets a
+## slab in that empty cell, showing where it will attack.
+func build_slabs(models: Dictionary) -> void:
+	slabs = []
+	for side in range(2):
+		for column in range(columns[side].size()):
+			var uid = int(columns[side][column])
+			if uid == -1 or column >= columns[1 - side].size() or int(columns[1 - side][column]) != -1:
+				continue
+			slabs.append({"column": column, "attacker_own": side == 1, "arrow": int(models.get(uid, {}).get("arrow", 0))})
+	slab_t = 0.0
+	slab_alpha = 1.0
 
 # --- Hit testing (global coordinates) ------------------------------------------
 
@@ -241,17 +694,25 @@ func _draw() -> void:
 	for point in points:
 		shadow.append(point + Vector2(0, 10))
 	draw_colored_polygon(shadow, Color(0, 0, 0, 0.55))
-	_textured(points, UiKit.WOOD_DARK, 760.0, Color(1.42, 1.28, 1.1))
+	var enemy_ground = UiKit.ui_art("board_lane_enemy")
+	var own_ground = UiKit.ui_art("board_lane_player")
+	var painted = enemy_ground != null and own_ground != null
+	if painted:
+		_draw_ground(table, radius, enemy_ground, own_ground)
+	else:
+		_textured(points, UiKit.WOOD_DARK, 760.0, Color(1.42, 1.28, 1.1))
 	# Ink-wash shading: warm toward the enemy, cool toward the viewer.
 	UiKit.draw_vgradient(self, Rect2(table.position, Vector2(table.size.x, table.size.y * 0.5)),
 		Color(0.22, 0.08, 0.05, 0.35), Color(0.1, 0.08, 0.06, 0.0))
 	UiKit.draw_vgradient(self, Rect2(table.position + Vector2(0, table.size.y * 0.5), Vector2(table.size.x, table.size.y * 0.5)),
 		Color(0.04, 0.09, 0.1, 0.0), Color(0.02, 0.1, 0.11, 0.35))
-	_draw_mountains(table)
+	if not painted:
+		_draw_mountains(table)
 	_draw_wall(table, false)
 	_draw_wall(table, true)
 	_draw_river(table)
 	_draw_ghost_slots()
+	_draw_reveal()
 	var outline = points.duplicate()
 	outline.append(points[0])
 	draw_polyline(outline, Color(0.05, 0.04, 0.03, 0.9), 5.0, true)
@@ -263,6 +724,41 @@ func _draw() -> void:
 		UiKit.draw_glow(self, table, radius, UiKit.PLAYABLE, 0.8 if drop_state == 1 else 1.8)
 		if drop_state == 2:
 			draw_colored_polygon(points, Color(UiKit.PLAYABLE, 0.08))
+
+## The battlefield ground (assets/art/ui/board_lane_*): the enemy's half,
+## darker and colder, above the river and yours below, each painting
+## cover-fitted with its outer edge (banner, palisade) toward the walls and
+## dimmed so the cards stay readable.
+func _draw_ground(table: Rect2, radius: float, enemy_ground: Texture2D, own_ground: Texture2D) -> void:
+	var middle = river_y()
+	var top = Rect2(table.position, Vector2(table.size.x, middle - table.position.y))
+	var bottom = Rect2(Vector2(table.position.x, middle), Vector2(table.size.x, table.end.y - middle))
+	UiKit.draw_cover_polygon(self, _half_points(top, radius, true), top, enemy_ground, Vector2(0.5, 0.2), Color(0.58, 0.56, 0.56))
+	UiKit.draw_cover_polygon(self, _half_points(bottom, radius, false), bottom, own_ground, Vector2(0.5, 0.8), Color(0.66, 0.64, 0.6))
+
+## A rectangle with its top (or bottom) corners rounded: half of the table.
+func _half_points(rect: Rect2, radius: float, round_top: bool) -> PackedVector2Array:
+	var points = PackedVector2Array()
+	var steps = 6
+	if round_top:
+		for step in range(steps + 1):
+			var angle = PI + PI * 0.5 * step / steps
+			points.append(rect.position + Vector2(radius, radius) + Vector2(cos(angle), sin(angle)) * radius)
+		for step in range(steps + 1):
+			var angle = PI * 1.5 + PI * 0.5 * step / steps
+			points.append(Vector2(rect.end.x - radius, rect.position.y + radius) + Vector2(cos(angle), sin(angle)) * radius)
+		points.append(rect.end)
+		points.append(Vector2(rect.position.x, rect.end.y))
+	else:
+		points.append(rect.position)
+		points.append(Vector2(rect.end.x, rect.position.y))
+		for step in range(steps + 1):
+			var angle = PI * 0.5 * step / steps
+			points.append(rect.end - Vector2(radius, radius) + Vector2(cos(angle), sin(angle)) * radius)
+		for step in range(steps + 1):
+			var angle = PI * 0.5 + PI * 0.5 * step / steps
+			points.append(Vector2(rect.position.x + radius, rect.end.y - radius) + Vector2(cos(angle), sin(angle)) * radius)
+	return points
 
 func _textured(points: PackedVector2Array, path: String, tile: float, tint: Color) -> void:
 	var texture = UiKit.tex(path)
@@ -342,23 +838,64 @@ func _draw_river(table: Rect2) -> void:
 	var center_y = river_y()
 	var height = lerpf(38.0, 20.0, zoom)
 	var band = Rect2(table.position.x + 2, center_y - height * 0.5, table.size.x - 4, height)
-	UiKit.draw_vgradient(self, band, Color(0.08, 0.2, 0.23, 0.92), Color(0.03, 0.1, 0.13, 0.95))
-	for wave in range(3):
-		var points = PackedVector2Array()
-		var y = band.position.y + band.size.y * (0.28 + wave * 0.22)
-		var steps = 48
-		for step in range(steps + 1):
-			var x = band.position.x + band.size.x * float(step) / steps
-			points.append(Vector2(x, y + sin(step * 0.7 + wave * 1.9 + lane_index) * height * 0.07))
-		draw_polyline(points, Color(0.65, 0.9, 0.92, 0.16 - wave * 0.03), 1.4, true)
-	draw_line(band.position, Vector2(band.end.x, band.position.y), Color(0.85, 0.75, 0.55, 0.35), 2.0)
-	draw_line(Vector2(band.position.x, band.end.y), band.end, Color(0, 0, 0, 0.55), 2.0)
+	var art = UiKit.ui_art("board_river")
+	if art != null:
+		_draw_river_art(art, table, center_y)
+	else:
+		UiKit.draw_vgradient(self, band, Color(0.08, 0.2, 0.23, 0.92), Color(0.03, 0.1, 0.13, 0.95))
+		for wave in range(3):
+			var points = PackedVector2Array()
+			var y = band.position.y + band.size.y * (0.28 + wave * 0.22)
+			var steps = 48
+			for step in range(steps + 1):
+				var x = band.position.x + band.size.x * float(step) / steps
+				points.append(Vector2(x, y + sin(step * 0.7 + wave * 1.9 + lane_index) * height * 0.07))
+			draw_polyline(points, Color(0.65, 0.9, 0.92, 0.16 - wave * 0.03), 1.4, true)
+		draw_line(band.position, Vector2(band.end.x, band.position.y), Color(0.85, 0.75, 0.55, 0.35), 2.0)
+		draw_line(Vector2(band.position.x, band.end.y), band.end, Color(0, 0, 0, 0.55), 2.0)
 	var label = UiKit.t(LANE_KEYS[lane_index])
 	var font = UiKit.title_font()
-	var font_size = int(lerpf(21.0, 15.0, zoom))
+	var font_size = int(lerpf(22.0, 17.0, zoom))
 	var text_width = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var label_center = Vector2(band.position.x + lerpf(70.0, 12.0, zoom) + text_width * 0.5, center_y)
-	UiKit.draw_text(self, font, label, label_center, font_size, Color(UiKit.GOLD_BRIGHT, 0.85 if active else 0.55), -1.0, 2)
+	var label_center = Vector2(band.position.x + lerpf(70.0, 12.0, zoom) + stage_reserve() + text_width * 0.5, center_y)
+	# A dark outline keeps the name readable on the painted river.
+	UiKit.draw_text(self, font, label, label_center, font_size, Color(UiKit.GOLD_BRIGHT, 0.95 if active else 0.85), -1.0, 4,
+		Color(0.02, 0.02, 0.03, 0.9))
+
+## The painted river (assets/art/ui/board_river): the water and both banks
+## from the middle of the painting, repeated across the lane with every
+## other copy mirrored (no seams), its banks fading into the ground.
+func _draw_river_art(art: Texture2D, table: Rect2, center_y: float) -> void:
+	var height = lerpf(58.0, 30.0, zoom)
+	var top_v = 0.25
+	var bottom_v = 0.71
+	var art_size = art.get_size()
+	var tile = height * art_size.x / (art_size.y * (bottom_v - top_v))
+	var rows = [[0.0, 0.0], [0.24, 1.0], [0.76, 1.0], [1.0, 0.0]]
+	var left = table.position.x + 2.0
+	var right = table.end.x - 2.0
+	var tint = Color(0.78, 0.82, 0.84)
+	var index = 0
+	var x = left
+	while x < right:
+		var width = minf(tile, right - x)
+		var u0 = 0.0
+		var u1 = width / tile
+		if index % 2 == 1:
+			u0 = 1.0
+			u1 = 1.0 - width / tile
+		for row in range(3):
+			var y0 = center_y - height * 0.5 + height * rows[row][0]
+			var y1 = center_y - height * 0.5 + height * rows[row + 1][0]
+			var v0 = lerpf(top_v, bottom_v, rows[row][0])
+			var v1 = lerpf(top_v, bottom_v, rows[row + 1][0])
+			var a0 = Color(tint, rows[row][1])
+			var a1 = Color(tint, rows[row + 1][1])
+			draw_polygon(PackedVector2Array([Vector2(x, y0), Vector2(x + width, y0), Vector2(x + width, y1), Vector2(x, y1)]),
+				PackedColorArray([a0, a0, a1, a1]),
+				PackedVector2Array([Vector2(u0, v0), Vector2(u1, v0), Vector2(u1, v1), Vector2(u0, v1)]), art)
+		x += width
+		index += 1
 
 func _draw_ghost_slots() -> void:
 	for slot in ghost_slots:
@@ -371,3 +908,57 @@ func _draw_ghost_slots() -> void:
 		draw_line(center - Vector2(arm, 0), center + Vector2(arm, 0), Color(UiKit.PLAYABLE, 0.9), 3.0)
 		draw_line(center - Vector2(0, arm), center + Vector2(0, arm), Color(UiKit.PLAYABLE, 0.9), 3.0)
 
+## Reveal visuals: candidate slot outlines with a chevron toward the river,
+## the deciding highlight and the pathing slabs.
+func _draw_reveal() -> void:
+	if candidate_alpha > 0.0:
+		for side in range(2):
+			for column in candidates[side]:
+				var rect = slot_rect(column, side == 1)
+				UiKit.draw_round_rect(self, rect, Color(UiKit.PLAYABLE, 0.05 * candidate_alpha), 8.0 * _scale,
+					Color(UiKit.PLAYABLE, 0.55 * candidate_alpha), 2.0)
+				_chevron(rect.get_center(), -1.0 if side == 1 else 1.0, 9.0 * _scale / 0.72, Color(UiKit.PLAYABLE, 0.6 * candidate_alpha))
+	if not roulette.is_empty():
+		var rect = slot_rect(roulette.column, int(roulette.side) == 1)
+		if roulette.get("landing", false):
+			UiKit.draw_round_rect(self, rect, Color(UiKit.PLAYABLE, 0.28), 8.0 * _scale, Color(UiKit.PLAYABLE.lightened(0.4), 1.0), 3.0)
+		else:
+			UiKit.draw_round_rect(self, rect, Color(UiKit.PLAYABLE, 0.14), 8.0 * _scale, Color(UiKit.PLAYABLE, 0.95), 2.5)
+		UiKit.draw_glow(self, rect, 8.0 * _scale, UiKit.PLAYABLE, 1.0 if roulette.get("landing", false) else 0.6)
+	for slab in slabs:
+		_draw_slab(slab)
+
+## A small chevron pointing up (direction -1) or down (+1).
+func _chevron(center: Vector2, direction: float, arm: float, color: Color) -> void:
+	var tip = center + Vector2(0, direction * arm * 0.6)
+	draw_polyline(PackedVector2Array([tip + Vector2(-arm, -direction * arm), tip, tip + Vector2(arm, -direction * arm)]), color, 3.0, true)
+
+## A pathing slab: drops into the empty cell across from an unblocked unit,
+## flips over to show where that unit will attack, then fades.
+func _draw_slab(slab: Dictionary) -> void:
+	var own = bool(slab.attacker_own)
+	var center = slot_center(slab.column, not own)
+	var card_size = UnitCard.SIZE * _scale * 0.86
+	var drop = clampf(slab_t / 0.4, 0.0, 1.0)
+	var flip = clampf((slab_t - 0.4) / 0.3, 0.0, 1.0)
+	var grow = lerpf(1.25, 1.0, drop)
+	var alpha = drop * slab_alpha
+	if alpha <= 0.0:
+		return
+	var squash = absf(cos(flip * PI)) if flip > 0.0 and flip < 1.0 else 1.0
+	draw_set_transform(center, 0.0, Vector2(grow * squash, grow))
+	var rect = Rect2(-card_size * 0.5, card_size)
+	UiKit.draw_round_rect(self, rect, Color(0.07, 0.07, 0.08, 0.92 * alpha), 7.0 * _scale, Color(UiKit.GOLD_DARK, alpha), 2.0)
+	var tint = UiKit.PAPER if own else ENEMY_ARROW_TINT
+	if flip < 0.5:
+		UiKit.draw_text(self, UiKit.bold_font(), "▼", Vector2.ZERO, int(28.0 * _scale / 0.72), Color(UiKit.GOLD, 0.8 * alpha))
+	else:
+		var direction = Vector2(int(slab.arrow), -1.0 if own else 1.0).normalized()
+		var length = card_size.y * 0.32
+		var tail = -direction * length
+		var tip = direction * length
+		var side = direction.orthogonal() * length * 0.45
+		var neck = tip - direction * length * 0.55
+		draw_line(tail, neck, Color(tint, alpha), maxf(3.0, 7.0 * _scale), true)
+		draw_colored_polygon(PackedVector2Array([tip, neck + side, neck - side]), Color(tint, alpha))
+	draw_set_transform(Vector2.ZERO)
