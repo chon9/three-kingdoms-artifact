@@ -1,0 +1,354 @@
+{
+	"schema_version": 1,
+	"description": "Three Kingdoms glossary. en keeps the Artifact keyword used in rules text; en_alias is the themed English name; zh_CN is the term used in Chinese rules text and UI.",
+	"terms": [
+		{
+			"key": "lane",
+			"en": "Lane",
+			"en_alias": "",
+			"zh_CN": "路"
+		},
+		{
+			"key": "tower",
+			"en": "Tower",
+			"en_alias": "",
+			"zh_CN": "城楼"
+		},
+		{
+			"key": "ancient",
+			"en": "Ancient",
+			"en_alias": "Capital",
+			"zh_CN": "都城"
+		},
+		{
+			"key": "mana",
+			"en": "Mana",
+			"en_alias": "Command",
+			"zh_CN": "军令"
+		},
+		{
+			"key": "gold",
+			"en": "Gold",
+			"en_alias": "",
+			"zh_CN": "金"
+		},
+		{
+			"key": "initiative",
+			"en": "Initiative",
+			"en_alias": "",
+			"zh_CN": "先手"
+		},
+		{
+			"key": "pass",
+			"en": "Pass",
+			"en_alias": "Hold",
+			"zh_CN": "按兵不动"
+		},
+		{
+			"key": "attack",
+			"en": "Attack",
+			"en_alias": "",
+			"zh_CN": "攻击"
+		},
+		{
+			"key": "armor",
+			"en": "Armor",
+			"en_alias": "",
+			"zh_CN": "护甲"
+		},
+		{
+			"key": "health",
+			"en": "Health",
+			"en_alias": "",
+			"zh_CN": "体力"
+		},
+		{
+			"key": "siege",
+			"en": "Siege",
+			"en_alias": "",
+			"zh_CN": "攻城"
+		},
+		{
+			"key": "piercing_damage",
+			"en": "Piercing damage",
+			"en_alias": "",
+			"zh_CN": "穿透伤害"
+		},
+		{
+			"key": "silence",
+			"en": "Silence",
+			"en_alias": "",
+			"zh_CN": "沉默"
+		},
+		{
+			"key": "condemn",
+			"en": "Condemn",
+			"en_alias": "",
+			"zh_CN": "处斩"
+		},
+		{
+			"key": "creep",
+			"en": "Creep",
+			"en_alias": "Troop",
+			"zh_CN": "兵卒"
+		},
+		{
+			"key": "hero",
+			"en": "Hero",
+			"en_alias": "General",
+			"zh_CN": "武将"
+		},
+		{
+			"key": "spell",
+			"en": "Spell",
+			"en_alias": "Stratagem",
+			"zh_CN": "计策"
+		},
+		{
+			"key": "unit",
+			"en": "Unit",
+			"en_alias": "",
+			"zh_CN": "单位"
+		},
+		{
+			"key": "deploy",
+			"en": "Deploy",
+			"en_alias": "",
+			"zh_CN": "出阵"
+		},
+		{
+			"key": "redeploy",
+			"en": "Redeploy",
+			"en_alias": "",
+			"zh_CN": "重新出阵"
+		},
+		{
+			"key": "fountain",
+			"en": "Fountain",
+			"en_alias": "Camp",
+			"zh_CN": "大营"
+		},
+		{
+			"key": "shop",
+			"en": "Shop",
+			"en_alias": "Armory",
+			"zh_CN": "军市"
+		},
+		{
+			"key": "secret_shop",
+			"en": "Secret Shop",
+			"en_alias": "Black Market",
+			"zh_CN": "黑市"
+		},
+		{
+			"key": "item",
+			"en": "Item",
+			"en_alias": "",
+			"zh_CN": "军备"
+		},
+		{
+			"key": "equipment",
+			"en": "Equipment",
+			"en_alias": "",
+			"zh_CN": "装备"
+		},
+		{
+			"key": "item_slots",
+			"en": "Weapon / Armor / Accessory slot",
+			"en_alias": "",
+			"zh_CN": "兵器 / 防具 / 坐骑"
+		},
+		{
+			"key": "consumable",
+			"en": "Consumable",
+			"en_alias": "Supply",
+			"zh_CN": "补给"
+		},
+		{
+			"key": "improvement",
+			"en": "Improvement",
+			"en_alias": "Fortification",
+			"zh_CN": "营建"
+		},
+		{
+			"key": "signature_card",
+			"en": "Signature card",
+			"en_alias": "",
+			"zh_CN": "专属卡"
+		},
+		{
+			"key": "active_ability",
+			"en": "Active ability",
+			"en_alias": "",
+			"zh_CN": "主动技能"
+		},
+		{
+			"key": "passive_ability",
+			"en": "Passive ability",
+			"en_alias": "",
+			"zh_CN": "被动技能"
+		},
+		{
+			"key": "cooldown",
+			"en": "Cooldown",
+			"en_alias": "",
+			"zh_CN": "冷却"
+		},
+		{
+			"key": "combat",
+			"en": "Combat",
+			"en_alias": "",
+			"zh_CN": "交战"
+		},
+		{
+			"key": "battle",
+			"en": "Battle",
+			"en_alias": "",
+			"zh_CN": "交锋"
+		},
+		{
+			"key": "block",
+			"en": "Block / Blocked",
+			"en_alias": "",
+			"zh_CN": "阻挡 / 被阻挡"
+		},
+		{
+			"key": "adjacent",
+			"en": "Adjacent",
+			"en_alias": "",
+			"zh_CN": "相邻"
+		},
+		{
+			"key": "enemy_neighbors",
+			"en": "Enemy neighbors",
+			"en_alias": "",
+			"zh_CN": "敌方邻位单位"
+		},
+		{
+			"key": "ally",
+			"en": "Ally / Allied",
+			"en_alias": "",
+			"zh_CN": "友方"
+		},
+		{
+			"key": "enemy",
+			"en": "Enemy",
+			"en_alias": "",
+			"zh_CN": "敌方"
+		},
+		{
+			"key": "permanently",
+			"en": "Permanently",
+			"en_alias": "",
+			"zh_CN": "永久"
+		},
+		{
+			"key": "round",
+			"en": "Round",
+			"en_alias": "",
+			"zh_CN": "回合"
+		},
+		{
+			"key": "summon",
+			"en": "Summon",
+			"en_alias": "",
+			"zh_CN": "召唤"
+		},
+		{
+			"key": "draw",
+			"en": "Draw",
+			"en_alias": "",
+			"zh_CN": "摸牌"
+		},
+		{
+			"key": "discard",
+			"en": "Discard",
+			"en_alias": "",
+			"zh_CN": "弃置"
+		},
+		{
+			"key": "heal",
+			"en": "Heal",
+			"en_alias": "",
+			"zh_CN": "恢复"
+		},
+		{
+			"key": "death",
+			"en": "Dies / Death",
+			"en_alias": "",
+			"zh_CN": "阵亡"
+		},
+		{
+			"key": "deck",
+			"en": "Deck",
+			"en_alias": "",
+			"zh_CN": "牌组"
+		},
+		{
+			"key": "hand",
+			"en": "Hand",
+			"en_alias": "",
+			"zh_CN": "手牌"
+		},
+		{
+			"key": "melee_creep",
+			"en": "Melee Creep token",
+			"en_alias": "Foot Soldier",
+			"zh_CN": "步卒"
+		},
+		{
+			"key": "red",
+			"en": "Red",
+			"en_alias": "Shu",
+			"zh_CN": "红色（蜀）"
+		},
+		{
+			"key": "blue",
+			"en": "Blue",
+			"en_alias": "Wei",
+			"zh_CN": "蓝色（魏）"
+		},
+		{
+			"key": "green",
+			"en": "Green",
+			"en_alias": "Wu",
+			"zh_CN": "绿色（吴）"
+		},
+		{
+			"key": "black",
+			"en": "Black",
+			"en_alias": "Qun",
+			"zh_CN": "黑色（群）"
+		},
+		{
+			"key": "damage",
+			"en": "Damage",
+			"en_alias": "",
+			"zh_CN": "伤害"
+		},
+		{
+			"key": "active_lane",
+			"en": "Active lane",
+			"en_alias": "",
+			"zh_CN": "当前路"
+		},
+		{
+			"key": "neutral",
+			"en": "Neutral",
+			"en_alias": "",
+			"zh_CN": "中立"
+		},
+		{
+			"key": "attack_straight_ahead",
+			"en": "Attack straight ahead",
+			"en_alias": "",
+			"zh_CN": "攻击正前方"
+		},
+		{
+			"key": "deployment",
+			"en": "Deployment",
+			"en_alias": "",
+			"zh_CN": "部署"
+		}
+	]
+}

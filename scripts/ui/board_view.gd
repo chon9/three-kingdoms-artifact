@@ -1,0 +1,255 @@
+extends Control
+## The three lanes and the camera over them. Lane view shows one lane filling
+## the screen (lanes sit side by side and the camera slides between them);
+## overview shows all three lanes small, side by side. `focus` (0..2) and
+## `zoom` (0 lane view, 1 overview) are tweened for the transitions.
+##
+## The board turns a player view into per-unit display models with a display
+## engine (attack and armor with auras, combat targets, the damage preview)
+## and hands them to the lanes.
+
+signal lane_selected(index: int)
+signal board_pressed(global_point: Vector2, button: int, double_click: bool)
+
+const LaneView = preload("res://scripts/ui/lane_view.gd")
+const UiKit = preload("res://scripts/ui/ui_kit.gd")
+const Library = preload("res://scripts/core/card_library.gd")
+const MatchEngine = preload("res://scripts/core/match_engine.gd")
+const PASSIVE_FIELDS = ["neighbor_armor", "neighbor_attack", "global_attack", "hero_bonus", "static_field",
+	"hero_tower_bonus", "rapid_deployment", "combat_growth_attack", "combat_growth_health"]
+
+var lanes: Array = []
+var focus: float = 0.0
+var zoom: float = 0.0
+var focus_lane: int = 0
+var overview: bool = false
+## Vertical band used by the overview (shop and deployment shrink it).
+var overview_top: float = 86.0
+var overview_bottom: float = 640.0
+var display_engine = MatchEngine.new()
+var view: Dictionary = {}
+var viewer: int = 0
+## Per lane: uid -> display model, plus "tower_damage".
+var lane_models: Array = [{}, {}, {}]
+var chevrons: Array = []
+var _camera: Tween
+var _zoom_tween: Tween
+
+func _init() -> void:
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	clip_contents = true
+	for index in range(3):
+		var lane = LaneView.new()
+		lane.lane_index = index
+		add_child(lane)
+		lanes.append(lane)
+	for direction in [-1, 1]:
+		var chevron = Chevron.new()
+		chevron.direction = direction
+		chevron.pressed.connect(_on_chevron.bind(direction))
+		add_child(chevron)
+		chevrons.append(chevron)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		apply_camera()
+
+# --- Camera ------------------------------------------------------------------
+
+func apply_camera() -> void:
+	var width = size.x
+	var height = size.y
+	if width <= 0.0:
+		return
+	var margin = 26.0
+	var lane_width = (width - margin * 2.0) / 3.0
+	for index in range(3):
+		var lane: Control = lanes[index]
+		var lane_rect = Rect2((index - focus) * width, 0, width, height)
+		var over_rect = Rect2(margin + index * lane_width + 5.0, overview_top, lane_width - 10.0, overview_bottom - overview_top)
+		lane.position = lane_rect.position.lerp(over_rect.position, zoom)
+		lane.size = lane_rect.size.lerp(over_rect.size, zoom)
+		lane.zoom = zoom
+		lane.visible = Rect2(lane.position, lane.size).intersects(Rect2(Vector2.ZERO, size))
+		lane.layout()
+	for chevron in chevrons:
+		chevron.size = Vector2(54, 116)
+		chevron.position = Vector2(10 if chevron.direction < 0 else width - 64, height * 0.456 - 58)
+		var target = focus_lane + chevron.direction
+		chevron.visible = zoom < 0.5 and target >= 0 and target <= 2
+		chevron.modulate.a = 1.0 - zoom * 2.0
+	queue_redraw()
+
+## Slides the camera to `index` (lane view). Await the returned tween's
+## `finished` signal, or ignore it.
+func slide_to(index: int, duration: float = 0.45) -> Tween:
+	index = clampi(index, 0, 2)
+	focus_lane = index
+	if _camera != null and _camera.is_valid():
+		_camera.kill()
+	if duration <= 0.0:
+		focus = index
+		apply_camera()
+		return null
+	_camera = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_camera.tween_method(_set_focus, focus, float(index), duration)
+	return _camera
+
+func set_overview(enabled: bool, duration: float = 0.4) -> Tween:
+	overview = enabled
+	if _zoom_tween != null and _zoom_tween.is_valid():
+		_zoom_tween.kill()
+	if duration <= 0.0:
+		zoom = 1.0 if enabled else 0.0
+		apply_camera()
+		return null
+	_zoom_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_zoom_tween.tween_method(_set_zoom, zoom, 1.0 if enabled else 0.0, duration)
+	return _zoom_tween
+
+func _set_focus(value: float) -> void:
+	focus = value
+	apply_camera()
+
+func _set_zoom(value: float) -> void:
+	zoom = value
+	apply_camera()
+
+func _on_chevron(direction: int) -> void:
+	var target = clampi(focus_lane + direction, 0, 2)
+	slide_to(target)
+	lane_selected.emit(target)
+
+# --- State -------------------------------------------------------------------
+
+## Builds display models for every unit and syncs the lanes. Returns, per
+## lane, the lane's change record ({"added", "removed", "moved"}).
+func sync(new_view: Dictionary, new_viewer: int, actions: Array) -> Array:
+	view = new_view
+	viewer = new_viewer
+	display_engine.state = new_view
+	var ability_ready: Dictionary = {}
+	for action in actions:
+		if action.get("type", "") == "ability":
+			ability_ready[int(action.unit)] = true
+	var changes: Array = []
+	for index in range(3):
+		var lane = new_view.lanes[index]
+		var models = build_models(index, ability_ready)
+		lane_models[index] = models
+		lanes[index].active = new_view.phase == "action" and int(new_view.lane) == index
+		changes.append(lanes[index].sync(lane, viewer, models))
+	queue_redraw()
+	return changes
+
+func build_models(lane_index: int, ability_ready: Dictionary = {}) -> Dictionary:
+	var lane = view.lanes[lane_index]
+	var preview = display_engine.combat_preview(lane_index)
+	var models: Dictionary = {}
+	for side in range(2):
+		for unit in lane.units[side]:
+			if unit == null:
+				continue
+			var uid = int(unit.uid)
+			var damage = int(preview.unit_damage.get(str(uid), 0))
+			var target = display_engine.combat_target_of(unit)
+			var arrow = 0
+			if not target.is_empty():
+				arrow = signi(display_engine.slot_of(target) - display_engine.slot_of(unit))
+			var definition = Library.raw_definition(str(unit.card))
+			var passive = false
+			for field in PASSIVE_FIELDS:
+				if unit.get(field, 0):
+					passive = true
+			models[uid] = {"unit": unit, "own": side == viewer,
+				"attack": display_engine.attack_of(unit), "armor": display_engine.armor_of(unit),
+				"health": int(unit.health), "max_health": display_engine.max_health_of(unit),
+				"base_attack": int(definition.get("attack", unit.attack)), "base_armor": int(definition.get("armor", unit.armor)),
+				"arrow": arrow, "tower": target.is_empty(), "damage": damage,
+				"dies": damage > 0 and damage >= int(unit.health),
+				"ability_ready": ability_ready.has(uid), "passive": passive}
+	models["tower_damage"] = [int(preview.tower_damage[1 - viewer]), int(preview.tower_damage[viewer])]
+	return models
+
+func model(uid: int) -> Dictionary:
+	for models in lane_models:
+		if models.has(uid):
+			return models[uid]
+	return {}
+
+# --- Lookup and hit testing -------------------------------------------------
+
+func unit_card(uid: int) -> Control:
+	for lane in lanes:
+		if lane.cards.has(uid):
+			return lane.cards[uid]
+	return null
+
+func lane_of_uid(uid: int) -> int:
+	for index in range(3):
+		if lanes[index].cards.has(uid):
+			return index
+	return -1
+
+func unit_at(global_point: Vector2) -> Control:
+	for lane in lanes:
+		if lane.visible:
+			var card = lane.unit_at(global_point)
+			if card != null:
+				return card
+	return null
+
+func lane_at(global_point: Vector2) -> int:
+	for index in range(3):
+		if lanes[index].visible and lanes[index].contains(global_point):
+			return index
+	return -1
+
+func tower(lane_index: int, own: bool) -> Control:
+	return lanes[lane_index].towers[1 if own else 0]
+
+# --- Input and drawing ----------------------------------------------------
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		board_pressed.emit(get_global_transform() * event.position, event.button_index, event.double_click)
+		accept_event()
+
+func _draw() -> void:
+	var rect = Rect2(Vector2.ZERO, size)
+	var wood = UiKit.tex(UiKit.WOOD_WARM)
+	if wood != null:
+		draw_texture_rect(wood, rect, true, Color(0.36, 0.3, 0.26))
+	else:
+		draw_rect(rect, Color("221a14"))
+	UiKit.draw_vgradient(self, Rect2(0, 0, size.x, size.y * 0.3), Color(0, 0, 0, 0.55), Color(0, 0, 0, 0))
+	UiKit.draw_vgradient(self, Rect2(0, size.y * 0.7, size.x, size.y * 0.3), Color(0, 0, 0, 0), Color(0, 0, 0, 0.6))
+	UiKit.draw_hgradient(self, Rect2(0, 0, size.x * 0.18, size.y), Color(0, 0, 0, 0.5), Color(0, 0, 0, 0))
+	UiKit.draw_hgradient(self, Rect2(size.x * 0.82, 0, size.x * 0.18, size.y), Color(0, 0, 0, 0), Color(0, 0, 0, 0.5))
+
+## Translucent lane-switch chevron on a screen edge.
+class Chevron:
+	extends Control
+	signal pressed
+	var direction: int = 1
+	var _hover: bool = false
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		mouse_entered.connect(func(): _hover = true; queue_redraw())
+		mouse_exited.connect(func(): _hover = false; queue_redraw())
+
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			pressed.emit()
+			accept_event()
+
+	func _draw() -> void:
+		var rect = Rect2(Vector2.ZERO, size)
+		draw_style_box(UiKit.box(Color(0.05, 0.05, 0.06, 0.55 if _hover else 0.35), Color(1, 1, 1, 0.25 if _hover else 0.1), 6, 1, 0.0), rect)
+		var center = size * 0.5
+		var arm = Vector2(-direction * 12.0, 22.0)
+		var tip = center + Vector2(direction * 10.0, 0)
+		var color = Color(1, 1, 1, 0.85 if _hover else 0.55)
+		draw_polyline(PackedVector2Array([tip + Vector2(arm.x, -arm.y), tip, tip + arm]), color, 6.0, true)

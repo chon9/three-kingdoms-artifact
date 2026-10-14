@@ -20,6 +20,14 @@ Godot project, three-lane training matches, validated commands, seeded RNG, basi
 
 Remaining fidelity work: exact placement/targeting restrictions, general trigger queue, complete shops and custom deck editing.
 
+## Three Kingdoms theme and match interface (implemented)
+
+- Bilingual (English / Simplified Chinese) interface and card text with live switching, subset fonts, and the Three Kingdoms card theme as the default (the Classic names remain an optional theme). Locale-independent state digests.
+- Generated Three Kingdoms art for all 49 supported cards (512x768 JPEG in `assets/art/cards/`, masters kept outside the repository; see `docs/art/`).
+- Classic-style board: one lane at a time with a sliding camera and an all-lanes overview, lane HUD, towers with mana and health, combat arrows and the live damage preview on every unit, drag-to-play with a target arrow (two stages for Battlefield Control), creep position ghosts, cross-lane aiming at the screen edge, the initiative coin, the shop chest with HOLD, drag-to-lane deployment with incoming creep ghosts, inspection, event animations (casts, combat, deaths, lane changes), a match log in the HUD's player names, a main menu, settings and a hot-seat privacy screen.
+
+Remaining: chess clocks, improvements, pets, deck trays and pathing-card slabs at deployment, timeline replay playback, concede, music, and art for the board and UI elements (towers, coin, card back, menu key art) and the reserve heroes. The animated presentation is checked by hand and by screenshots; the automated UI test runs with animations skipped.
+
 ## Next — Steam matches between friends
 
 - Install and pin a compatible GodotSteam extension and record its version/license.
@@ -39,8 +47,8 @@ Remaining fidelity work: exact placement/targeting restrictions, general trigger
 
 ## 0.5 — Community alpha
 
-- Better animation, audio, readable card text, keyboard controls and accessibility settings.
-- Original or explicitly licensed visual/audio content with provenance records.
+- Music and fuller sound, accessibility settings (text size, color-blind cues, reduced motion) and rebindable keys.
+- Remaining original visual/audio content with provenance records (board and UI art, reserve heroes).
 - Signed/reproducible Windows and Linux builds, crash diagnostics and packaging.
 - Contributor onboarding, public issue templates, fidelity dashboard and a playable release announcement.
 

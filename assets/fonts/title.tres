@@ -1,0 +1,8 @@
+[gd_resource type="FontVariation" load_steps=3 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/SanguoKai-Medium.ttf" id="1_kai"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSansSC-Regular.otf" id="2_body"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_body")])
+base_font = ExtResource("1_kai")

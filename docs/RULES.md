@@ -41,7 +41,7 @@ This file separates implemented mechanics from verified fidelity. The supported 
 | Extra effects | Tower Barrage includes tower damage; Stars Align grants temporary mana; Dimensional Portal summons three creeps | Implemented and tested |
 | Triggers | Supported continuous auras, Zeus post-spell trigger and Wolf post-combat growth | Complete general event queue absent |
 | Log events | Structured dictionaries (`{"k": key, ...}`) formatted by `scripts/core/event_text.gd` | Implemented; English only, ready for `tr()` |
-| Replays | Seed, selected decks and validated commands restore state/RNG | Protocol 4; previous replay protocols rejected clearly |
+| Replays | Seed, selected decks and validated commands restore state/RNG | Protocol 5 (language-neutral state); previous replay protocols rejected clearly |
 
 ## Combat positions
 

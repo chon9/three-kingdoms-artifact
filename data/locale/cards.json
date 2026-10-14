@@ -1,0 +1,1072 @@
+{
+	"schema_version": 1,
+	"description": "Display text per card id and deck preset. Rules data stays in data/classic_cards.json. {placeholders} are filled from the card definition numbers. Missing zh_CN falls back to en, then to the raw definition.",
+	"locales": [
+		"en",
+		"zh_CN"
+	],
+	"default_skin": "three_kingdoms",
+	"skins": {
+		"three_kingdoms": {
+			"title": {
+				"en": "Three Kingdoms",
+				"zh_CN": "三国"
+			},
+			"cards": {
+				"axe": {
+					"name": {
+						"en": "Zhang Fei",
+						"zh_CN": "张飞"
+					},
+					"text": {
+						"en": "Zhang Fei has no active or passive ability.",
+						"zh_CN": "张飞没有主动或被动技能。"
+					},
+					"faction": "shu"
+				},
+				"jmuy": {
+					"name": {
+						"en": "Cao Cao",
+						"zh_CN": "曹操"
+					},
+					"text": {
+						"en": "Talent Edict: draw a card. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "求贤令：摸一张牌。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Talent Edict",
+						"zh_CN": "求贤令"
+					}
+				},
+				"farvhan": {
+					"name": {
+						"en": "Sun Quan",
+						"zh_CN": "孙权"
+					},
+					"text": {
+						"en": "Lord of Jiangdong: adjacent allied units have +{neighbor_armor} armor.",
+						"zh_CN": "坐镇江东：相邻的友方单位+{neighbor_armor}护甲。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Lord of Jiangdong",
+						"zh_CN": "坐镇江东"
+					}
+				},
+				"keefe": {
+					"name": {
+						"en": "Guan Yu",
+						"zh_CN": "关羽"
+					},
+					"text": {
+						"en": "Guan Yu has no active or passive ability.",
+						"zh_CN": "关羽没有主动或被动技能。"
+					},
+					"faction": "shu"
+				},
+				"debbi": {
+					"name": {
+						"en": "Jia Xu",
+						"zh_CN": "贾诩"
+					},
+					"text": {
+						"en": "Flawless Scheme: attacks deal +{hero_tower_bonus} damage to heroes and towers.",
+						"zh_CN": "算无遗策：攻击对武将和城楼额外造成{hero_tower_bonus}点伤害。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Flawless Scheme",
+						"zh_CN": "算无遗策"
+					}
+				},
+				"lycan": {
+					"name": {
+						"en": "Gan Ning",
+						"zh_CN": "甘宁"
+					},
+					"text": {
+						"en": "Hundred-Rider Raid: adjacent allies have +{neighbor_attack} attack.",
+						"zh_CN": "百骑劫营：相邻友方单位+{neighbor_attack}攻击。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Hundred-Rider Raid",
+						"zh_CN": "百骑劫营"
+					}
+				},
+				"rix": {
+					"name": {
+						"en": "Lü Meng",
+						"zh_CN": "吕蒙"
+					},
+					"text": {
+						"en": "Three Days Apart: Lü Meng can redeploy in the round after dying.",
+						"zh_CN": "士别三日：吕蒙阵亡后，可在下一回合重新出阵。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Three Days Apart",
+						"zh_CN": "士别三日"
+					}
+				},
+				"drow": {
+					"name": {
+						"en": "Zhou Yu",
+						"zh_CN": "周瑜"
+					},
+					"text": {
+						"en": "Heroic Bearing: every other ally in all lanes has +{global_attack} attack.",
+						"zh_CN": "雄姿英发：所有路中的其他友方单位+{global_attack}攻击。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Heroic Bearing",
+						"zh_CN": "雄姿英发"
+					}
+				},
+				"phantom_assassin": {
+					"name": {
+						"en": "Lü Bu",
+						"zh_CN": "吕布"
+					},
+					"text": {
+						"en": "Peerless: deal +{hero_bonus} battle damage to heroes.",
+						"zh_CN": "无双：对武将造成的战斗伤害+{hero_bonus}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Peerless",
+						"zh_CN": "无双"
+					}
+				},
+				"zeus": {
+					"name": {
+						"en": "Sima Yi",
+						"zh_CN": "司马懿"
+					},
+					"text": {
+						"en": "Wolf's Glance: after a blue spell, deal {static_field} piercing damage to Sima Yi's enemy neighbors.",
+						"zh_CN": "鹰视狼顾：你施放蓝色计策后，对司马懿的敌方邻位单位造成{static_field}点穿透伤害。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Wolf's Glance",
+						"zh_CN": "鹰视狼顾"
+					}
+				},
+				"melee_creep": {
+					"name": {
+						"en": "Foot Soldier",
+						"zh_CN": "步卒"
+					},
+					"text": {
+						"en": "Foot Soldier: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "步卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "neutral"
+				},
+				"travelers_cloak": {
+					"name": {
+						"en": "Dilu Horse",
+						"zh_CN": "的卢"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health.",
+						"zh_CN": "装备者+{health}体力。"
+					},
+					"faction": "neutral"
+				},
+				"leather_armor": {
+					"name": {
+						"en": "Rhino-Hide Armor",
+						"zh_CN": "犀皮甲"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor.",
+						"zh_CN": "装备者+{armor}护甲。"
+					},
+					"faction": "neutral"
+				},
+				"short_sword": {
+					"name": {
+						"en": "Seven-Star Dagger",
+						"zh_CN": "七星刀"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack.",
+						"zh_CN": "装备者+{attack}攻击。"
+					},
+					"faction": "neutral"
+				},
+				"healing_salve": {
+					"name": {
+						"en": "Wound Balm",
+						"zh_CN": "金疮药"
+					},
+					"text": {
+						"en": "Heal a unit for {amount}.",
+						"zh_CN": "为一个单位恢复{amount}点体力。"
+					},
+					"faction": "neutral"
+				},
+				"potion_of_knowledge": {
+					"name": {
+						"en": "Silk Pouch Stratagem",
+						"zh_CN": "锦囊妙计"
+					},
+					"text": {
+						"en": "Draw a card.",
+						"zh_CN": "摸一张牌。"
+					},
+					"faction": "neutral"
+				},
+				"town_portal_scroll": {
+					"name": {
+						"en": "Sound the Retreat",
+						"zh_CN": "鸣金收兵"
+					},
+					"text": {
+						"en": "Return an allied hero to the Fountain, fully healed and ready for the next deployment.",
+						"zh_CN": "将一名友方武将召回大营，恢复全部体力，并可在下次部署时出阵。"
+					},
+					"faction": "neutral"
+				},
+				"prowler_vanguard": {
+					"name": {
+						"en": "Jiefan Guard",
+						"zh_CN": "解烦卫"
+					},
+					"text": {
+						"en": "Adjacent allied units have +{neighbor_armor} armor.",
+						"zh_CN": "相邻的友方单位+{neighbor_armor}护甲。"
+					},
+					"faction": "wu"
+				},
+				"fighting_instinct": {
+					"name": {
+						"en": "Scraping the Bone",
+						"zh_CN": "刮骨疗毒"
+					},
+					"text": {
+						"en": "Permanently give a red hero +{attack} attack and +{armor} armor.",
+						"zh_CN": "永久使一名红色武将+{attack}攻击、+{armor}护甲。"
+					},
+					"faction": "shu"
+				},
+				"no_accident": {
+					"name": {
+						"en": "Wancheng Ambush",
+						"zh_CN": "宛城之变"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit.",
+						"zh_CN": "对一个单位造成{amount}点伤害。"
+					},
+					"faction": "qun"
+				},
+				"battlefield_control": {
+					"name": {
+						"en": "Command Through the Emperor",
+						"zh_CN": "挟天子以令诸侯"
+					},
+					"text": {
+						"en": "Choose a unit, then choose its combat target.",
+						"zh_CN": "选择一个单位，再为其指定交战目标。"
+					},
+					"faction": "wei"
+				},
+				"centaur_hunter": {
+					"name": {
+						"en": "Wudang Flying Army",
+						"zh_CN": "无当飞军"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "shu"
+				},
+				"thunderhide_pack": {
+					"name": {
+						"en": "Tower Ship",
+						"zh_CN": "楼船"
+					},
+					"text": {
+						"en": "Siege {siege}: when blocked during combat, also deal {siege} tower damage.",
+						"zh_CN": "攻城{siege}：交战中被阻挡时，同时对城楼造成{siege}点伤害。"
+					},
+					"faction": "wu"
+				},
+				"bronze_legionnaire": {
+					"name": {
+						"en": "White-Plume Guard",
+						"zh_CN": "白毦兵"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "shu"
+				},
+				"savage_wolf": {
+					"name": {
+						"en": "Silk-Sail Raiders",
+						"zh_CN": "锦帆贼"
+					},
+					"text": {
+						"en": "After combat, permanently gain +{combat_growth_attack} attack and +{combat_growth_health} health.",
+						"zh_CN": "交战后，永久获得+{combat_growth_attack}攻击和+{combat_growth_health}体力。"
+					},
+					"faction": "wu"
+				},
+				"ogre_conscript": {
+					"name": {
+						"en": "Wuxi Tribal Warriors",
+						"zh_CN": "五溪蛮兵"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "shu"
+				},
+				"untested_grunt": {
+					"name": {
+						"en": "Yellow Turban Zealot",
+						"zh_CN": "黄巾力士"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "qun"
+				},
+				"broadsword": {
+					"name": {
+						"en": "Qinggang Sword",
+						"zh_CN": "青釭剑"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack.",
+						"zh_CN": "装备者+{attack}攻击。"
+					},
+					"faction": "neutral"
+				},
+				"claymore": {
+					"name": {
+						"en": "Green Dragon Crescent Blade",
+						"zh_CN": "青龙偃月刀"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack.",
+						"zh_CN": "装备者+{attack}攻击。"
+					},
+					"faction": "neutral"
+				},
+				"hip_fire": {
+					"name": {
+						"en": "Hidden Arrow",
+						"zh_CN": "暗箭"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit. Get initiative.",
+						"zh_CN": "对一个单位造成{amount}点伤害。获得先手。"
+					},
+					"faction": "qun"
+				},
+				"thundergods_wrath": {
+					"name": {
+						"en": "Gaoping Tombs Coup",
+						"zh_CN": "高平陵之变"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to every enemy hero in all lanes.",
+						"zh_CN": "对所有路中的每名敌方武将造成{amount}点穿透伤害。"
+					},
+					"faction": "wei"
+				},
+				"berserkers_call": {
+					"name": {
+						"en": "Roar at Changban",
+						"zh_CN": "长坂怒喝"
+					},
+					"text": {
+						"en": "An allied red hero battles its enemy neighbors.",
+						"zh_CN": "令一名友方红色武将与其所有敌方邻位单位交锋。"
+					},
+					"faction": "shu"
+				},
+				"defensive_stance": {
+					"name": {
+						"en": "Courage Through and Through",
+						"zh_CN": "一身是胆"
+					},
+					"text": {
+						"en": "Give a hero +{armor} armor for this round.",
+						"zh_CN": "本回合使一名武将+{armor}护甲。"
+					},
+					"faction": "shu"
+				},
+				"combat_training": {
+					"name": {
+						"en": "Vigorous in Old Age",
+						"zh_CN": "老当益壮"
+					},
+					"text": {
+						"en": "Permanently give a hero +{attack} attack.",
+						"zh_CN": "永久使一名武将+{attack}攻击。"
+					},
+					"faction": "shu"
+				},
+				"foresight": {
+					"name": {
+						"en": "Guo Jia's Legacy",
+						"zh_CN": "遗计"
+					},
+					"text": {
+						"en": "Draw two cards.",
+						"zh_CN": "摸两张牌。"
+					},
+					"faction": "wei"
+				},
+				"coup_de_grace": {
+					"name": {
+						"en": "Chained Stratagem",
+						"zh_CN": "连环计"
+					},
+					"text": {
+						"en": "Discard a random card from your hand, then condemn a hero.",
+						"zh_CN": "随机弃置一张手牌，然后处斩一名武将。"
+					},
+					"faction": "qun"
+				},
+				"arm_the_rebellion": {
+					"name": {
+						"en": "Sons of Jiangdong",
+						"zh_CN": "江东子弟"
+					},
+					"text": {
+						"en": "Permanently give allied creeps +{attack} attack and +{armor} armor.",
+						"zh_CN": "永久使所有友方兵卒+{attack}攻击、+{armor}护甲。"
+					},
+					"faction": "wu"
+				},
+				"annihilation": {
+					"name": {
+						"en": "Flood of Xiapi",
+						"zh_CN": "水淹下邳"
+					},
+					"text": {
+						"en": "Condemn every unit in this lane.",
+						"zh_CN": "处斩本路中的所有单位。"
+					},
+					"faction": "wei"
+				},
+				"stars_align": {
+					"name": {
+						"en": "East Wind",
+						"zh_CN": "东风"
+					},
+					"text": {
+						"en": "Your tower gains {amount} mana for this round.",
+						"zh_CN": "本回合你的城楼获得{amount}点军令。"
+					},
+					"faction": "wu"
+				},
+				"gust": {
+					"name": {
+						"en": "Sow Discord",
+						"zh_CN": "反间计"
+					},
+					"text": {
+						"en": "Silence an enemy hero and its adjacent allies for this round.",
+						"zh_CN": "本回合沉默一名敌方武将及其相邻的敌方单位。"
+					},
+					"faction": "wu"
+				},
+				"lightning_strike": {
+					"name": {
+						"en": "Thunderbolt Catapult",
+						"zh_CN": "霹雳车"
+					},
+					"text": {
+						"en": "Deal {amount} damage to the enemy tower.",
+						"zh_CN": "对敌方城楼造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"pick_off": {
+					"name": {
+						"en": "Fallen Phoenix Slope",
+						"zh_CN": "落凤坡"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit in any lane. Pay mana and use a black hero in the active lane.",
+						"zh_CN": "对任意一路中的一个单位造成{amount}点伤害。需支付军令，并由当前路中的一名黑色武将施放。"
+					},
+					"faction": "qun"
+				},
+				"dimensional_portal": {
+					"name": {
+						"en": "Raise the Qingzhou Army",
+						"zh_CN": "收编青州兵"
+					},
+					"text": {
+						"en": "Summon three Foot Soldiers.",
+						"zh_CN": "召唤三名步卒。"
+					},
+					"faction": "wei"
+				},
+				"avernus_blessing": {
+					"name": {
+						"en": "Tiger of Jiangdong",
+						"zh_CN": "江东猛虎"
+					},
+					"text": {
+						"en": "Permanently give a unit +{attack} attack.",
+						"zh_CN": "永久使一个单位+{attack}攻击。"
+					},
+					"faction": "wu"
+				},
+				"tower_barrage": {
+					"name": {
+						"en": "Ten Thousand Arrows",
+						"zh_CN": "万箭齐发"
+					},
+					"text": {
+						"en": "Deal {amount} damage to every enemy unit and the enemy tower.",
+						"zh_CN": "对每个敌方单位和敌方城楼造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"slay": {
+					"name": {
+						"en": "Poisoned Wine",
+						"zh_CN": "鸩酒"
+					},
+					"text": {
+						"en": "Condemn a creep.",
+						"zh_CN": "处斩一名兵卒。"
+					},
+					"faction": "qun"
+				},
+				"thunderstorm": {
+					"name": {
+						"en": "Terror of Xiaoyao Ford",
+						"zh_CN": "威震逍遥津"
+					},
+					"text": {
+						"en": "Deal {amount} damage to every enemy unit and the enemy tower.",
+						"zh_CN": "对每个敌方单位和敌方城楼造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"forward_charge": {
+					"name": {
+						"en": "Formation Breakers",
+						"zh_CN": "陷阵营"
+					},
+					"text": {
+						"en": "Allies gain +{siege} siege this round and attack straight ahead.",
+						"zh_CN": "本回合所有友方单位+{siege}攻城，并攻击正前方。"
+					},
+					"faction": "qun"
+				},
+				"act_of_defiance": {
+					"name": {
+						"en": "Crossing in White",
+						"zh_CN": "白衣渡江"
+					},
+					"text": {
+						"en": "Silence a unit for this round.",
+						"zh_CN": "本回合沉默一个单位。"
+					},
+					"faction": "wu"
+				}
+			},
+			"presets": {
+				"starter": {
+					"name": {
+						"en": "Contest of Warlords",
+						"zh_CN": "群雄逐鹿"
+					},
+					"description": {
+						"en": "All four factions: Zhang Fei, Cao Cao, Sun Quan, Guan Yu and Jia Xu. Straightforward combat and spell play.",
+						"zh_CN": "四方势力齐聚：张飞、曹操、孙权、关羽、贾诩，以直接的交战与计策取胜。"
+					}
+				},
+				"green_assault": {
+					"name": {
+						"en": "Jiangdong Vanguard",
+						"zh_CN": "江东劲旅"
+					},
+					"description": {
+						"en": "Zhou Yu and Gan Ning strengthen your board. Silk-Sail Raiders grow after combat; Tower Ships break towers.",
+						"zh_CN": "周瑜与甘宁强化全军。锦帆贼每战愈强，楼船攻破城楼。"
+					}
+				},
+				"blue_black_control": {
+					"name": {
+						"en": "Schemes of Chaos",
+						"zh_CN": "乱世权谋"
+					},
+					"description": {
+						"en": "Sima Yi and Lü Bu threaten heroes. Use cross-lane damage, removal and board clears to control combat.",
+						"zh_CN": "司马懿与吕布专克武将。以跨路伤害、处斩与清场掌控战局。"
+					}
+				}
+			}
+		},
+		"classic": {
+			"title": {
+				"en": "Artifact Classic",
+				"zh_CN": "Artifact 经典"
+			},
+			"cards": {
+				"axe": {
+					"name": {
+						"en": "Axe"
+					},
+					"text": {
+						"en": "Axe has no active or passive ability."
+					}
+				},
+				"jmuy": {
+					"name": {
+						"en": "J'Muy the Wise"
+					},
+					"text": {
+						"en": "Wisdom of the Elders: draw a card. Active ability; cooldown {ability_cooldown}."
+					},
+					"ability_name": {
+						"en": "Wisdom of the Elders"
+					}
+				},
+				"farvhan": {
+					"name": {
+						"en": "Farvhan the Dreamer"
+					},
+					"text": {
+						"en": "Pack Leadership: adjacent allied units have +{neighbor_armor} armor."
+					},
+					"ability_name": {
+						"en": "Pack Leadership"
+					}
+				},
+				"keefe": {
+					"name": {
+						"en": "Keefe the Bold"
+					},
+					"text": {
+						"en": "Keefe has no active or passive ability."
+					}
+				},
+				"debbi": {
+					"name": {
+						"en": "Debbi the Cunning"
+					},
+					"text": {
+						"en": "Meticulous Planner: attacks deal +{hero_tower_bonus} damage to heroes and towers."
+					},
+					"ability_name": {
+						"en": "Meticulous Planner"
+					}
+				},
+				"lycan": {
+					"name": {
+						"en": "Lycan"
+					},
+					"text": {
+						"en": "Feral Impulse: adjacent allies have +{neighbor_attack} attack."
+					},
+					"ability_name": {
+						"en": "Feral Impulse"
+					}
+				},
+				"rix": {
+					"name": {
+						"en": "Rix"
+					},
+					"text": {
+						"en": "Rapid Deployment: Rix can redeploy in the round after dying."
+					},
+					"ability_name": {
+						"en": "Rapid Deployment"
+					}
+				},
+				"drow": {
+					"name": {
+						"en": "Drow Ranger"
+					},
+					"text": {
+						"en": "Precision Aura: every other ally in all lanes has +{global_attack} attack."
+					},
+					"ability_name": {
+						"en": "Precision Aura"
+					}
+				},
+				"phantom_assassin": {
+					"name": {
+						"en": "Phantom Assassin"
+					},
+					"text": {
+						"en": "Efficient Killer: deal +{hero_bonus} battle damage to heroes."
+					},
+					"ability_name": {
+						"en": "Efficient Killer"
+					}
+				},
+				"zeus": {
+					"name": {
+						"en": "Zeus"
+					},
+					"text": {
+						"en": "Static Field: after a blue spell, deal {static_field} piercing damage to Zeus's enemy neighbors."
+					},
+					"ability_name": {
+						"en": "Static Field"
+					}
+				},
+				"melee_creep": {
+					"name": {
+						"en": "Melee Creep"
+					},
+					"text": {
+						"en": "Melee Creep: {attack} attack, {armor} armor, {health} health."
+					}
+				},
+				"travelers_cloak": {
+					"name": {
+						"en": "Traveler's Cloak"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health."
+					}
+				},
+				"leather_armor": {
+					"name": {
+						"en": "Leather Armor"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor."
+					}
+				},
+				"short_sword": {
+					"name": {
+						"en": "Short Sword"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack."
+					}
+				},
+				"healing_salve": {
+					"name": {
+						"en": "Healing Salve"
+					},
+					"text": {
+						"en": "Heal a unit for {amount}."
+					}
+				},
+				"potion_of_knowledge": {
+					"name": {
+						"en": "Potion of Knowledge"
+					},
+					"text": {
+						"en": "Draw a card."
+					}
+				},
+				"town_portal_scroll": {
+					"name": {
+						"en": "Town Portal Scroll"
+					},
+					"text": {
+						"en": "Return an allied hero to the Fountain, fully healed and ready for the next deployment."
+					}
+				},
+				"prowler_vanguard": {
+					"name": {
+						"en": "Prowler Vanguard"
+					},
+					"text": {
+						"en": "Adjacent allied units have +{neighbor_armor} armor."
+					}
+				},
+				"fighting_instinct": {
+					"name": {
+						"en": "Fighting Instinct"
+					},
+					"text": {
+						"en": "Permanently give a red hero +{attack} attack and +{armor} armor."
+					}
+				},
+				"no_accident": {
+					"name": {
+						"en": "No Accident"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit."
+					}
+				},
+				"battlefield_control": {
+					"name": {
+						"en": "Battlefield Control"
+					},
+					"text": {
+						"en": "Choose a unit, then choose its combat target."
+					}
+				},
+				"centaur_hunter": {
+					"name": {
+						"en": "Centaur Hunter"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health."
+					}
+				},
+				"thunderhide_pack": {
+					"name": {
+						"en": "Thunderhide Pack"
+					},
+					"text": {
+						"en": "Siege {siege}: when blocked during combat, also deal {siege} tower damage."
+					}
+				},
+				"bronze_legionnaire": {
+					"name": {
+						"en": "Bronze Legionnaire"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health."
+					}
+				},
+				"savage_wolf": {
+					"name": {
+						"en": "Savage Wolf"
+					},
+					"text": {
+						"en": "After combat, permanently gain +{combat_growth_attack} attack and +{combat_growth_health} health."
+					}
+				},
+				"ogre_conscript": {
+					"name": {
+						"en": "Ogre Conscript"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health."
+					}
+				},
+				"untested_grunt": {
+					"name": {
+						"en": "Untested Grunt"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health."
+					}
+				},
+				"broadsword": {
+					"name": {
+						"en": "Broadsword"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack."
+					}
+				},
+				"claymore": {
+					"name": {
+						"en": "Claymore"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack."
+					}
+				},
+				"hip_fire": {
+					"name": {
+						"en": "Hip Fire"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit. Get initiative."
+					}
+				},
+				"thundergods_wrath": {
+					"name": {
+						"en": "Thundergod's Wrath"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to every enemy hero in all lanes."
+					}
+				},
+				"berserkers_call": {
+					"name": {
+						"en": "Berserker's Call"
+					},
+					"text": {
+						"en": "An allied red hero battles its enemy neighbors."
+					}
+				},
+				"defensive_stance": {
+					"name": {
+						"en": "Defensive Stance"
+					},
+					"text": {
+						"en": "Give a hero +{armor} armor for this round."
+					}
+				},
+				"combat_training": {
+					"name": {
+						"en": "Combat Training"
+					},
+					"text": {
+						"en": "Permanently give a hero +{attack} attack."
+					}
+				},
+				"foresight": {
+					"name": {
+						"en": "Foresight"
+					},
+					"text": {
+						"en": "Draw two cards."
+					}
+				},
+				"coup_de_grace": {
+					"name": {
+						"en": "Coup de Grace"
+					},
+					"text": {
+						"en": "Discard a random card from your hand, then condemn a hero."
+					}
+				},
+				"arm_the_rebellion": {
+					"name": {
+						"en": "Arm the Rebellion"
+					},
+					"text": {
+						"en": "Permanently give allied creeps +{attack} attack and +{armor} armor."
+					}
+				},
+				"annihilation": {
+					"name": {
+						"en": "Annihilation"
+					},
+					"text": {
+						"en": "Condemn every unit in this lane."
+					}
+				},
+				"stars_align": {
+					"name": {
+						"en": "Stars Align"
+					},
+					"text": {
+						"en": "Your tower gains {amount} mana for this round."
+					}
+				},
+				"gust": {
+					"name": {
+						"en": "Gust"
+					},
+					"text": {
+						"en": "Silence an enemy hero and its adjacent allies for this round."
+					}
+				},
+				"lightning_strike": {
+					"name": {
+						"en": "Lightning Strike"
+					},
+					"text": {
+						"en": "Deal {amount} damage to the enemy tower."
+					}
+				},
+				"pick_off": {
+					"name": {
+						"en": "Pick Off"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit in any lane. Pay mana and use a black hero in the active lane."
+					}
+				},
+				"dimensional_portal": {
+					"name": {
+						"en": "Dimensional Portal"
+					},
+					"text": {
+						"en": "Summon three Melee Creeps."
+					}
+				},
+				"avernus_blessing": {
+					"name": {
+						"en": "Avernus' Blessing"
+					},
+					"text": {
+						"en": "Permanently give a unit +{attack} attack."
+					}
+				},
+				"tower_barrage": {
+					"name": {
+						"en": "Tower Barrage"
+					},
+					"text": {
+						"en": "Deal {amount} damage to every enemy unit and the enemy tower."
+					}
+				},
+				"slay": {
+					"name": {
+						"en": "Slay"
+					},
+					"text": {
+						"en": "Condemn a creep."
+					}
+				},
+				"thunderstorm": {
+					"name": {
+						"en": "Thunderstorm"
+					},
+					"text": {
+						"en": "Deal {amount} damage to every enemy unit and the enemy tower."
+					}
+				},
+				"forward_charge": {
+					"name": {
+						"en": "Forward Charge"
+					},
+					"text": {
+						"en": "Allies gain +{siege} siege this round and attack straight ahead."
+					}
+				},
+				"act_of_defiance": {
+					"name": {
+						"en": "Act of Defiance"
+					},
+					"text": {
+						"en": "Silence a unit for this round."
+					}
+				}
+			},
+			"presets": {
+				"starter": {
+					"name": {
+						"en": "Classic Starter"
+					},
+					"description": {
+						"en": "Four colors, familiar basic heroes, straightforward combat and spell play."
+					}
+				},
+				"green_assault": {
+					"name": {
+						"en": "Green Assault"
+					},
+					"description": {
+						"en": "Drow and Lycan strengthen your board. Savage Wolves grow after combat; Thunderhide Pack breaks towers."
+					}
+				},
+				"blue_black_control": {
+					"name": {
+						"en": "Blue / Black Control"
+					},
+					"description": {
+						"en": "Zeus and Phantom Assassin threaten heroes. Use cross-lane damage, removal and board clears to control combat."
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,373 @@
+keys,en,zh_CN
+APP_TITLE,Three Kingdoms: Three Lanes,三国·三路争锋
+APP_SUBTITLE,An open-source revival of Classic three-lane card battles,开源复刻经典三路卡牌对战
+APP_DISCLAIMER,Fan project. Not affiliated with or endorsed by Valve.,爱好者作品，与 Valve 无关，亦未获其认可。
+MENU_PLAY_AI,Play against AI,人机对战
+MENU_PLAY_LOCAL,Local two-player,本地双人
+MENU_PLAY_ONLINE,Online (Steam),联机对战（Steam）
+MENU_DECKS,Decks,牌组
+MENU_CATALOG,Card catalog,卡牌图鉴
+MENU_SETTINGS,Settings,设置
+MENU_RULES,How to play,玩法说明
+MENU_CREDITS,Credits,鸣谢
+MENU_QUIT,Quit,退出
+MENU_NEW_MATCH,New match,新对局
+MENU_RESUME,Resume,继续
+MENU_MAIN_MENU,Main menu,主菜单
+MENU_CONCEDE,Concede,认输
+MENU_CONCEDE_CONFIRM,Concede this match?,确定认输吗？
+MENU_LOG,Log,战报
+MENU_SAVE_REPLAY,Save replay,保存回放
+MENU_LOAD_REPLAY,Load replay,载入回放
+MENU_STEAM,Steam,Steam
+MENU_REPLAYS,Replays,回放
+MENU_RESUME_MATCH,Continue match,继续对局
+MENU_TITLE,Menu,菜单
+MODE_AI,Against AI,人机
+MODE_LOCAL,Local two-player,本地双人
+MODE_ONLINE,Online,联机
+SETTINGS_TITLE,Settings,设置
+SETTINGS_LANGUAGE,Language,语言
+SETTINGS_SKIN,Card theme,卡牌主题
+SETTINGS_SKIN_HINT,Changes names and art only. Rules are identical.,仅更改名称与画面，规则完全相同。
+SETTINGS_SOUND,Sound,音效
+SETTINGS_VOLUME,Volume,音量
+SETTINGS_ANIMATION_SPEED,Animation speed,动画速度
+SETTINGS_FULLSCREEN,Fullscreen,全屏
+SETTINGS_SHOW_HINTS,Show hints,显示提示
+LANG_EN,English,English
+LANG_ZH_CN,简体中文,简体中文
+SKIN_THREE_KINGDOMS,Three Kingdoms,三国
+SKIN_CLASSIC,Artifact Classic (original names),Artifact 经典（原版名称）
+BTN_OK,OK,确定
+BTN_CANCEL,Cancel,取消
+BTN_CLOSE,Close,关闭
+BTN_BACK,Back,返回
+BTN_CONFIRM,Confirm,确认
+BTN_YES,Yes,是
+BTN_NO,No,否
+BTN_START,Start,开始
+BTN_CONTINUE,Continue,继续
+PHASE_ACTION,Action Phase,行动阶段
+PHASE_COMBAT,Combat Phase,交战阶段
+PHASE_SHOP,Shopping Phase,军市阶段
+PHASE_DEPLOYMENT,Deployment Phase,部署阶段
+PHASE_FINISHED,Match Over,对局结束
+ROUND_N,Round {n},第{n}回合
+LANE_LEFT,Left lane,左路
+LANE_MIDDLE,Middle lane,中路
+LANE_RIGHT,Right lane,右路
+LANE_LEFT_SHORT,Left,左
+LANE_MIDDLE_SHORT,Mid,中
+LANE_RIGHT_SHORT,Right,右
+LANE_N,Lane {n},第{n}路
+LANE_ACTIVE,Active lane,当前路
+LANE_PREV,Previous lane,上一路
+LANE_NEXT,Next lane,下一路
+LANE_OVERVIEW,Overview,全局
+LANE_EMPTY,No units in this lane,此路暂无单位
+PLAYER_N,Player {n},玩家{n}
+PLAYER_YOU,You,我方
+PLAYER_OPPONENT,Opponent,敌方
+PLAYER_AI,AI,电脑
+LOG_PLAYER_YOU,Your army,我方
+HUD_GOLD,{n} gold,{n}金
+HUD_MANA,{current}/{max},{current}/{max}
+HUD_MANA_TOOLTIP,Mana in this lane: {current} of {max},本路军令：{current}/{max}
+HUD_DECK,Deck {n},牌组 {n}
+HUD_HAND,Hand {n},手牌 {n}
+HUD_ENEMY_HAND,Enemy hand {n},敌方手牌 {n}
+HUD_TOWER_HP,{n},{n}
+HUD_PENDING_DAMAGE,-{n},-{n}
+HUD_YOUR_TURN,Your action,轮到你行动
+HUD_OPPONENT_TURN,Opponent is acting,敌方行动中
+HUD_PLAYER_TO_ACT,{player} to act,{player}行动
+HUD_VIEWING,Viewing {player},当前视角：{player}
+HUD_INITIATIVE_YOU,You have initiative,我方持有先手
+HUD_INITIATIVE_OPPONENT,Opponent has initiative,敌方持有先手
+HUD_STATS,{attack} / {armor} / {health},{attack} / {armor} / {health}
+HUD_STATS_LEGEND,Attack / Armor / Health,攻击 / 护甲 / 体力
+HUD_STRUCTURE_DAMAGE,Tower damage  {up} up  /  {down} down,城楼伤害  上 {up}  /  下 {down}
+HUD_SILENCED,Silenced,已沉默
+HUD_WILL_DIE,Will fall,将阵亡
+HUD_COOLDOWN,Ready in {n} rounds,{n}回合后就绪
+HUD_READY,Ready,就绪
+HUD_TIMER,{minutes}:{seconds},{minutes}:{seconds}
+HUD_INCOMING_DAMAGE,Takes {n} damage in combat.,交战中将受到{n}点伤害。
+HUD_WAITING,Waiting,等待中
+BTN_PASS,Pass,按兵不动
+BTN_PASS_TOOLTIP,Pass the initiative. Two passes in a row start combat; the first to pass gets initiative in the next lane.,交出先手。双方连续按兵不动即开始交战；先按兵不动者在下一路获得先手。
+BTN_USE_ABILITY,Use {ability},发动{ability}
+BTN_ABILITY_COOLDOWN,{ability}: ready in {n} rounds,{ability}：{n}回合后就绪
+BTN_CONFIRM_DEPLOYMENT,Confirm deployment,确认部署
+BTN_FINISH_SHOPPING,Done shopping,结束采买
+BTN_BUY,Buy,购买
+BTN_BUY_PRICE,Buy · {n} gold,购买 · {n}金
+BTN_HOLD,Hold · {n} gold,保留 · {n}金
+BTN_HOLD_TOOLTIP,Pay {n} gold to keep this Secret Shop item for the next shop.,支付{n}金，将此黑市军备保留到下次军市。
+BTN_VIEW_BOARD,View board,查看战场
+BTN_VIEW_SHOP,Back to shop,返回军市
+BTN_NEW_POSITION,+ New position,+ 新位置
+BTN_PLACE_HERE,Place here,置于此处
+BTN_TARGET_STRUCTURE,Target the {structure},攻击{structure}
+SLOT_EMPTY,Empty slot,空位
+HAND_TITLE,Your hand · {n} cards,手牌 · {n}张
+HAND_EMPTY,Your hand is empty. Pass to continue.,手牌已空，按兵不动以继续。
+REASON_PLAYABLE,Play,可出
+REASON_NOT_ACTION_PHASE,Next action phase,待行动阶段
+REASON_OPPONENT_TURN,Opponent's turn,敌方回合
+REASON_NEED_MANA,Need {n} mana,需{n}军令
+REASON_NEED_HERO,Need a {color} hero,需{color}武将
+REASON_NO_TARGET,No legal target,无合法目标
+REASON_TOOLTIP,"Needs your turn, enough mana, and a hero of the same color in the active lane.",需要轮到你行动、军令充足，且当前路有同色武将。
+HINT_DEFAULT,"Select a card, then a highlighted target. Two consecutive passes trigger combat.",选择一张手牌，再选择高亮目标。双方连续按兵不动即开始交战。
+HINT_SELECT_TARGET,Choose a highlighted target.,请选择高亮目标。
+HINT_SELECT_POSITION,"Choose a highlighted empty combat position, or a new position at either end of the lane.",选择高亮的空交战位置，或在此路两端开辟新位置。
+HINT_SELECT_DESTINATION,Now choose this unit's combat target: a highlighted opposing unit or the opposing tower.,再为该单位选择交战目标：高亮的对面单位或对面城楼。
+HINT_CANNOT_PLAY,"This card cannot be played now. Check your turn, hero color, mana and targets.",此牌暂不可打出。请检查回合、武将颜色、军令与目标。
+HINT_AFTER_ACTION,Two consecutive passes trigger simultaneous combat. The first passer keeps initiative.,双方连续按兵不动即同时交战，先按兵不动者保有先手。
+HINT_DRAG_CARD,Drag a card onto the board to play it.,将手牌拖到战场上即可打出。
+HINT_RIGHT_CLICK_CANCEL,Right-click to cancel,右键取消
+HINT_HOVER_TO_READ,Hover a card to read it,悬停卡牌以查看详情
+HINT_CLICK_TO_ENLARGE,Click artwork to enlarge,点击卡图放大
+HINT_DROP_TO_CAST,Drop or click on the board to play it.,在战场上松开或点击即可打出。
+HINT_CLOSE_INSPECT,Click anywhere or press Esc to close.,点击任意处或按 Esc 关闭。
+HINT_ABILITY_UNAVAILABLE,That ability cannot be used right now.,该技能现在无法发动。
+BANNER_TOWER_FALL,Tower destroyed,城楼告破
+BANNER_ANCIENT_FALL,Ancient destroyed,都城陷落
+HOTSEAT_PASS_TITLE,Pass the device to {player},请将设备交给{player}
+HOTSEAT_PASS_HINT,The other player should look away. Hands stay hidden until you continue.,另一位玩家请回避。继续之前，手牌不会显示。
+HOTSEAT_CONTINUE,I am {player}: continue,我是{player}，继续
+HINT_NEW_MATCH,New match · Seed {seed}. Play a card or pass.,新对局 · 种子 {seed}。打出一张牌或按兵不动。
+HINT_HOST_ONLY,Only the lobby host can start a new match.,只有房主可以开始新对局。
+HINT_CONNECTED_GUEST,Connected to host. You are Player 2.,已连接房主。你是玩家2。
+CARD_DETAILS,Card details,卡牌详情
+CARD_COST,{n} mana,{n}军令
+CARD_PRICE,{n} gold,{n}金
+CARD_SIGNATURE,Signature card: {card},专属卡：{card}
+CARD_SIGNATURE_OF,Signature card of {hero},{hero}的专属卡
+CARD_CROSS_LANE,Cross-lane,跨路
+CARD_COLOR_COST,{color} · {n} mana,{color} · {n}军令
+CARD_ACTIVE_ABILITY,Active ability,主动技能
+CARD_ABILITY_LINE,{label}: {ability},{label}：{ability}
+CARD_PASSIVE_ABILITY,Passive ability,被动技能
+CARD_NO_ABILITY,No ability,无技能
+CARD_EQUIPPED,Equipped: {items},装备：{items}
+KIND_HERO,Hero,武将
+KIND_CREEP,Creep,兵卒
+KIND_SPELL,Spell,计策
+KIND_ITEM,Item,军备
+KIND_IMPROVEMENT,Improvement,营建
+SLOT_WEAPON,Weapon,兵器
+SLOT_ARMOR,Armor,防具
+SLOT_ACCESSORY,Accessory,坐骑
+SLOT_CONSUMABLE,Consumable,补给
+COLOR_RED,Red,红色
+COLOR_BLUE,Blue,蓝色
+COLOR_GREEN,Green,绿色
+COLOR_BLACK,Black,黑色
+COLOR_ITEM,Item,军备
+COLOR_NEUTRAL,Neutral,中立
+FACTION_SHU,Shu,蜀
+FACTION_WEI,Wei,魏
+FACTION_WU,Wu,吴
+FACTION_QUN,Qun,群
+FACTION_NEUTRAL,Neutral,中立
+STAT_ATTACK,Attack,攻击
+STAT_ARMOR,Armor,护甲
+STAT_HEALTH,Health,体力
+STAT_SIEGE,Siege,攻城
+STAT_LINE,Attack {attack} · Armor {armor} · Health {health},攻击 {attack} · 护甲 {armor} · 体力 {health}
+STRUCTURE_TOWER,Tower,城楼
+STRUCTURE_ANCIENT,Ancient,都城
+STRUCTURE_YOUR_TOWER,Your tower,我方城楼
+STRUCTURE_ENEMY_TOWER,Enemy tower,敌方城楼
+STRUCTURE_YOUR_ANCIENT,Your ancient,我方都城
+STRUCTURE_ENEMY_ANCIENT,Enemy ancient,敌方都城
+STRUCTURE_DESTROYED,Destroyed,已摧毁
+SHOP_TITLE,Shop,军市
+SHOP_SECRET,Secret Shop,黑市
+SHOP_ITEM_DECK,Item deck,军备牌组
+SHOP_ITEM_DECK_COUNT,Item deck {n}/{total},军备牌组 {n}/{total}
+SHOP_CONSUMABLES,Consumables,补给
+SHOP_SOLD,Sold,已售出
+SHOP_UNAVAILABLE,Sold / unavailable,已售出 / 无货
+SHOP_HELD,Held for the next shop,已保留至下次军市
+SHOP_NOT_ENOUGH_GOLD,Not enough gold,金不足
+SHOP_HINT,Items cost gold and are played for free.,军备以金购买，打出时不耗军令。
+SHOP_WAITING,Waiting for the opponent to finish shopping…,等待对手结束采买……
+SHOP_OPPONENT_SPENT,Opponent bought {n} items for {gold} gold,对手购买了{n}件军备，花费{gold}金
+DEPLOY_TITLE,Deployment,部署
+DEPLOY_HINT,Choose a lane for each ready hero. Both players reveal together.,为每名就绪武将选择出阵路线。双方同时揭晓。
+DEPLOY_DRAG_HINT,Drag each ready hero onto a lane.,将就绪武将拖入一路。
+DEPLOY_READY_HEROES,Heroes ready to deploy,待出阵武将
+DEPLOY_YOUR_CREEPS,Your creeps: {lanes},我方兵卒：{lanes}
+DEPLOY_ENEMY_CREEPS,Enemy creeps: {lanes},敌方兵卒：{lanes}
+DEPLOY_PLANNED,Planned: {lane},已部署：{lane}
+DEPLOY_HIDDEN,Choices stay hidden until both players confirm.,双方确认前，部署对彼此保密。
+DEPLOY_WAITING,Waiting for the opponent to deploy…,等待对手部署……
+FOUNTAIN_TITLE,Fountain,大营
+FOUNTAIN_RESERVE,Reserve and fallen heroes,大营待命武将
+FOUNTAIN_READY_ROUND,Ready in round {n},第{n}回合就绪
+FOUNTAIN_READY_NOW,Ready now,已就绪
+FOUNTAIN_IN_LANE,In {lane},位于{lane}
+RESULT_VICTORY,Victory,胜利
+RESULT_DEFEAT,Defeat,败北
+RESULT_DRAW,Draw,平局
+RESULT_PLAYER_WINS,{player} wins,{player}获胜
+RESULT_WIN_CONDITION,"Destroy two towers, or one ancient, to win.",摧毁两座城楼或一座都城即可获胜。
+RESULT_PLAY_AGAIN,Play again,再来一局
+RESULT_TOWERS,Towers destroyed: {player1} {n1}  ·  {player2} {n2},攻破城楼：{player1} {n1}  ·  {player2} {n2}
+DECKS_TITLE,Choose your decks,选择牌组
+DECKS_YOURS,Your deck,我方牌组
+DECKS_OPPONENT,Opponent's deck,敌方牌组
+DECKS_HEROES,Heroes,武将
+DECKS_MAIN,Main deck · {n} cards,主牌组 · {n}张
+DECKS_ITEMS,Item deck · {n} cards,军备牌组 · {n}张
+DECKS_LINE,{n} × {card},{n} × {card}
+DECKS_SUMMARY,"Each preset has 5 heroes, 40 main cards including hero signatures, and 9 equipment cards.",每套预设牌组含5名武将、40张主牌（含专属卡）与9张装备。
+DECKS_START,Start this matchup,以此对阵开局
+DECKS_VIEW_HEROES,View current heroes,查看当前武将
+DECKS_BROWSE,Browse all supported cards,浏览全部卡牌
+DECKS_VS,{deck1} vs {deck2},{deck1} 对阵 {deck2}
+ROSTER_TITLE,Your five heroes,我方五名武将
+CATALOG_TITLE,Card catalog,卡牌图鉴
+CATALOG_FILTER_ALL,All,全部
+CATALOG_COUNT,{n} cards,{n}张
+LOG_TITLE,Match log,战报
+LOG_EMPTY,Nothing has happened yet.,尚无记录。
+REPLAY_SAVED,Replay saved: {path},回放已保存：{path}
+REPLAY_SAVE_FAILED,Could not save replay: {error},无法保存回放：{error}
+REPLAY_RESTORED,Replay restored at revision {n}. Local two-player mode allows inspection and continuation.,回放已恢复至第{n}步。可在本地双人模式中查看或继续。
+REPLAY_FILTER,Match replay,对局回放
+REPLAYS_TITLE,Replays,回放
+REPLAYS_LOAD,Load,载入
+REPLAYS_BROWSE,Open file…,打开文件……
+REPLAYS_EMPTY,No saved replays yet. Save one from the in-match menu.,尚无保存的回放。可在对局菜单中保存。
+REPLAYS_HINT,Loading a replay continues that match in local two-player mode.,载入回放后，将以本地双人模式继续该对局。
+STEAM_TITLE,Online lobbies (Steam),联机房间（Steam）
+STEAM_HOST,Host friends-only lobby,创建好友房间
+STEAM_JOIN,Join lobby,加入房间
+STEAM_INVITE,Invite Steam friends,邀请 Steam 好友
+STEAM_COPY_ID,Copy lobby ID,复制房间号
+STEAM_LEAVE,Leave lobby,离开房间
+STEAM_LOBBY,Lobby: {lobby},房间：{lobby}
+STEAM_LOBBY_PLACEHOLDER,Paste your friend's lobby ID,粘贴好友的房间号
+STEAM_DOCS_HINT,See docs/STEAM.md for optional GodotSteam setup. Offline play works with standard Godot.,GodotSteam 为可选组件，设置方法见 docs/STEAM.md。离线游玩无需任何额外组件。
+STEAM_NOT_INSTALLED,GodotSteam is not installed. Offline AI and local play are available.,未安装 GodotSteam。可进行人机与本地双人对战。
+STEAM_MISSING_METHOD,This GodotSteam build is missing {method}. See docs/STEAM.md.,当前 GodotSteam 版本缺少 {method}。详见 docs/STEAM.md。
+STEAM_INIT_FAILED,Steam could not initialize: {reason},Steam 初始化失败：{reason}
+STEAM_CONNECTED,Steam connected. Development App ID {app_id}. Create or join a two-player lobby.,已连接 Steam（开发用 App ID {app_id}）。请创建或加入双人房间。
+STEAM_CREATING_LOBBY,Creating a friends-only lobby…,正在创建好友房间……
+STEAM_INVALID_LOBBY_ID,Enter a valid numeric Steam lobby ID.,请输入有效的数字房间号。
+STEAM_JOINING_LOBBY,Joining lobby…,正在加入房间……
+STEAM_SNAPSHOT_TOO_LARGE,Match snapshot is too large for the development transport.,对局数据过大，开发用传输通道无法发送。
+STEAM_SEND_FAILED,Steam send failed ({result}). Check that your opponent is connected.,Steam 发送失败（{result}）。请确认对手仍在线。
+STEAM_CREATE_FAILED,Steam lobby creation failed ({result}).,创建 Steam 房间失败（{result}）。
+STEAM_LOBBY_CREATED,Lobby {lobby} created. Share its ID with a friend.,房间 {lobby} 已创建。请将房间号发给好友。
+STEAM_JOIN_FAILED,Steam lobby join failed ({result}).,加入 Steam 房间失败（{result}）。
+STEAM_INCOMPATIBLE_LOBBY,This lobby belongs to another game or incompatible version.,该房间属于其他游戏或不兼容的版本。
+STEAM_RESERVED_OPPONENT,This match is reserved for the original opponent. Create a new lobby for another player.,本局仅限原对手加入。如需与他人对战，请新建房间。
+STEAM_WAITING_OPPONENT,Lobby {lobby}: waiting for your opponent.,房间 {lobby}：等待对手加入。
+STEAM_HOST_UNAVAILABLE,The original host is unavailable. Host migration is not supported yet.,原房主已离开。暂不支持更换房主。
+STEAM_OPPONENT_CONNECTED,Lobby {lobby}: opponent connected.,房间 {lobby}：对手已连接。
+ERR_DECK_SELECTION,Choose one deck for each player.,请为双方各选择一套牌组。
+ERR_BAD_INDEX,Command indexes must be whole numbers.,指令序号必须为整数。
+ERR_ILLEGAL_ACTION,That action is not legal in the current state.,当前局面下不能执行该操作。
+ERR_REPLAY_VERSION,Replay version or card pack does not match.,回放版本或卡牌包不匹配。
+ERR_REPLAY_SEED,Replay has no valid seed.,回放缺少有效的随机种子。
+ERR_REPLAY_ACTIONS,Invalid replay actions.,回放操作记录无效。
+ERR_REPLAY_DECKS,Replay has no valid deck selection.,回放缺少有效的牌组选择。
+ERR_REPLAY_ENTRY,Invalid replay entry.,回放记录条目无效。
+ERR_REPLAY_ILLEGAL,Replay contains an illegal action at revision {revision}.,回放在第{revision}步含有非法操作。
+ERR_REPLAY_INVALID_JSON,Invalid JSON replay.,回放文件不是有效的 JSON。
+ERR_DECK_HERO_COUNT,A deck needs five heroes.,牌组需要五名武将。
+ERR_DECK_HERO_INVALID,Heroes must be supported and unique.,武将必须为已支持的卡牌且不可重复。
+ERR_DECK_MISSING_LISTS,Missing main or item deck.,缺少主牌组或军备牌组。
+ERR_DECK_MAIN_CARD,Unsupported main-deck card.,主牌组含有不支持的卡牌。
+ERR_DECK_MAIN_COPIES,Main cards need one to three whole copies.,主牌组每张卡需1至3张。
+ERR_DECK_MAIN_SIZE,The main deck needs at least forty cards.,主牌组至少需要四十张牌。
+ERR_DECK_SIGNATURES,Each hero requires three signature copies.,每名武将需配三张专属卡。
+ERR_DECK_ITEM_CARD,Item decks use supported equipment.,军备牌组只能使用已支持的装备。
+ERR_DECK_ITEM_COPIES,Item counts must be positive whole numbers.,军备数量必须为正整数。
+ERR_DECK_ITEM_SIZE,The item deck needs at least nine cards.,军备牌组至少需要九张牌。
+EV_MATCH_START,Round 1. Left lane opens. Destroy two towers or one ancient to win.,第1回合，左路开战。摧毁两座城楼或一座都城即可获胜。
+EV_PASS,{player} passes.,{player}按兵不动。
+EV_LANE_OPEN,{lane} opens. {player} has initiative.,{lane}开战，{player}持有先手。
+EV_SHOP_OPEN,"Shopping. Spend kill gold on equipment, or keep it for later.",军市开张。可用斩获的金购置装备，也可留待日后。
+EV_PLAY,{player} plays {card}.,{player}打出{card}。
+EV_PLAY_TARGET,{player} plays {card} on {target}.,{player}对{target}打出{card}。
+EV_ABILITY,{card} uses {ability}: draw a card.,{card}发动{ability}：摸一张牌。
+EV_ITS_ABILITY,its ability,技能
+EV_BUY,{player} spends {gold} gold in the shop.,{player}在军市花费{gold}金。
+EV_HOLD,{player} pays {gold} gold to hold the Secret Shop item.,{player}支付{gold}金，保留黑市军备。
+EV_COMBAT,{lane} combat: {player1} deals {damage1} structure damage; {player2} deals {damage2}.,{lane}交战：{player1}对城楼造成{damage1}点伤害；{player2}造成{damage2}点。
+EV_DEATH,{card} falls. {player} earns {gold} gold.,{card}阵亡，{player}获得{gold}金。
+EV_TOWER_FALL,{player}'s tower falls. An {health}-health ancient is exposed.,{player}的城楼被攻破，{health}点体力的都城暴露在外。
+EV_ANCIENT_FALL,{player}'s ancient falls.,{player}的都城陷落。
+EV_WIN,{player} wins.,{player}获胜。
+EV_DRAW,Draw.,平局。
+EV_DEPLOYMENT,Round {round}. Lane creeps: {creeps}. Choose lanes for available heroes; choices reveal together.,第{round}回合。各路兵卒：{creeps}。为可出阵的武将选择路线，双方同时揭晓。
+EV_DEPLOYMENT_CREEPS,{player}: {lanes},{player}：{lanes}
+EV_DEPLOYMENT_REVEALED,Deployment revealed. Left lane opens.,部署揭晓，左路开战。
+WORD_NONE,none,无
+LIST_SEPARATOR,", ",、
+LIST_GROUP_SEPARATOR,; ,；
+TERM_LANE,Lane,路
+TERM_TOWER,Tower,城楼
+TERM_ANCIENT,Ancient,都城
+TERM_MANA,Mana,军令
+TERM_GOLD,Gold,金
+TERM_INITIATIVE,Initiative,先手
+TERM_PASS,Pass,按兵不动
+TERM_ATTACK,Attack,攻击
+TERM_ARMOR,Armor,护甲
+TERM_HEALTH,Health,体力
+TERM_SIEGE,Siege,攻城
+TERM_PIERCING_DAMAGE,Piercing damage,穿透伤害
+TERM_SILENCE,Silence,沉默
+TERM_CONDEMN,Condemn,处斩
+TERM_CREEP,Creep,兵卒
+TERM_HERO,Hero,武将
+TERM_SPELL,Spell,计策
+TERM_UNIT,Unit,单位
+TERM_DEPLOY,Deploy,出阵
+TERM_REDEPLOY,Redeploy,重新出阵
+TERM_FOUNTAIN,Fountain,大营
+TERM_SHOP,Shop,军市
+TERM_SECRET_SHOP,Secret Shop,黑市
+TERM_ITEM,Item,军备
+TERM_EQUIPMENT,Equipment,装备
+TERM_ITEM_SLOTS,Weapon / Armor / Accessory slot,兵器 / 防具 / 坐骑
+TERM_CONSUMABLE,Consumable,补给
+TERM_IMPROVEMENT,Improvement,营建
+TERM_SIGNATURE_CARD,Signature card,专属卡
+TERM_ACTIVE_ABILITY,Active ability,主动技能
+TERM_PASSIVE_ABILITY,Passive ability,被动技能
+TERM_COOLDOWN,Cooldown,冷却
+TERM_COMBAT,Combat,交战
+TERM_BATTLE,Battle,交锋
+TERM_BLOCK,Block / Blocked,阻挡 / 被阻挡
+TERM_ADJACENT,Adjacent,相邻
+TERM_ENEMY_NEIGHBORS,Enemy neighbors,敌方邻位单位
+TERM_ALLY,Ally / Allied,友方
+TERM_ENEMY,Enemy,敌方
+TERM_PERMANENTLY,Permanently,永久
+TERM_ROUND,Round,回合
+TERM_SUMMON,Summon,召唤
+TERM_DRAW,Draw,摸牌
+TERM_DISCARD,Discard,弃置
+TERM_HEAL,Heal,恢复
+TERM_DEATH,Dies / Death,阵亡
+TERM_DECK,Deck,牌组
+TERM_HAND,Hand,手牌
+TERM_MELEE_CREEP,Melee Creep token,步卒
+TERM_RED,Red,红色（蜀）
+TERM_BLUE,Blue,蓝色（魏）
+TERM_GREEN,Green,绿色（吴）
+TERM_BLACK,Black,黑色（群）
+TERM_DAMAGE,Damage,伤害
+TERM_ACTIVE_LANE,Active lane,当前路
+TERM_NEUTRAL,Neutral,中立
+TERM_ATTACK_STRAIGHT_AHEAD,Attack straight ahead,攻击正前方
+TERM_DEPLOYMENT,Deployment,部署

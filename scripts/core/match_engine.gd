@@ -10,7 +10,9 @@ extends RefCounted
 const Library = preload("res://scripts/core/card_library.gd")
 # 4: aligned combat positions, play.position for creep cards, hold command,
 # structured events and visible pending lane creeps.
-const PROTOCOL_VERSION = 4
+# 5: language-neutral state (no display names in units or players) and coded
+# error results ({"ok": false, "code": ..., "args": ..., "error": English}).
+const PROTOCOL_VERSION = 5
 const HOLD_COST = 1
 var library = Library.new()
 var rng = RandomNumberGenerator.new()
@@ -23,7 +25,7 @@ var deck_ids: Array = ["starter", "starter"]
 func start(seed_value: int = 1, selected_decks: Array = ["starter", "starter"]) -> Dictionary:
 	if not library.presets().is_empty():
 		if selected_decks.size() != 2:
-			return {"ok": false, "error": "Choose one deck for each player."}
+			return _fail("deck_selection", "Choose one deck for each player.")
 		for preset_id in selected_decks:
 			var entry = library.preset(str(preset_id))
 			var validation = library.validate_preset(entry)
@@ -51,8 +53,7 @@ func start(seed_value: int = 1, selected_decks: Array = ["starter", "starter"]) 
 		_shuffle(item_deck)
 		state.players.append({"hand": [], "deck": deck, "gold": 0,
 			"roster": roster, "plans": {}, "finished": false, "bought": [],
-			"item_deck": item_deck, "shop": {}, "held_secret": "", "preset": str(deck_ids[player]),
-			"deck_name": library.preset(str(deck_ids[player])).get("name", "Training")})
+			"item_deck": item_deck, "shop": {}, "held_secret": "", "preset": str(deck_ids[player])})
 	for lane in range(3):
 		state.lanes.append({"units": [[], []], "mana": [3, 3],
 			"max_mana": [3, 3], "mana_bonus": [0, 0], "structures": [
@@ -183,10 +184,10 @@ func apply_action(player: int, command: Dictionary) -> Dictionary:
 		if command.has(field):
 			var value = command[field]
 			if not (value is int or value is float) or float(value) != floor(float(value)):
-				return {"ok": false, "error": "Command indexes must be whole numbers."}
+				return _fail("bad_index", "Command indexes must be whole numbers.")
 			command[field] = int(value)
 	if command not in legal_actions(player):
-		return {"ok": false, "error": "That action is not legal in the current state."}
+		return _fail("illegal_action", "That action is not legal in the current state.")
 	journal.append({"player": player, "command": command.duplicate(true)})
 	match command.type:
 		"pass":
@@ -638,7 +639,8 @@ func _reveal_deployment() -> void:
 	_event("deployment_revealed")
 
 func _make_unit(definition: Dictionary, player: int, is_hero: bool) -> Dictionary:
-	var result = {"uid": next_id, "card": definition.id, "name": definition.name,
+	# Units carry ids and numbers only; display text is looked up by "card".
+	var result = {"uid": next_id, "card": definition.id,
 		"owner": player, "hero": is_hero, "color": definition.get("color", "neutral"),
 		"attack": int(definition.attack), "armor": int(definition.get("armor", 0)),
 		"max_health": int(definition.health), "health": int(definition.health),
@@ -654,7 +656,7 @@ func _make_unit(definition: Dictionary, player: int, is_hero: bool) -> Dictionar
 		"combat_growth_health": int(definition.get("combat_growth_health", 0)),
 		"siege": int(definition.get("siege", 0)), "temp_siege": 0, "silenced": false,
 		"hero_tower_bonus": int(definition.get("hero_tower_bonus", 0)),
-		"ability": definition.get("ability", ""), "ability_name": definition.get("ability_name", ""),
+		"ability": definition.get("ability", ""),
 		"ability_cooldown": int(definition.get("ability_cooldown", 0)), "cooldown": 0}
 	next_id += 1
 	return result
@@ -761,7 +763,7 @@ func _slot_of(unit: Dictionary) -> int:
 func _make_creep(player: int) -> Dictionary:
 	var definition = library.definition("melee_creep")
 	if definition.is_empty():
-		definition = {"id": "melee_creep", "name": "Melee Creep", "attack": 2, "health": 4, "color": "neutral"}
+		definition = {"id": "melee_creep", "attack": 2, "health": 4, "color": "neutral"}
 	return _make_unit(definition, player, false)
 
 func _spawn_creep(player: int, lane_index: int) -> void:
@@ -846,6 +848,13 @@ func armor_of(unit: Dictionary) -> int:
 func _max_health(unit: Dictionary) -> int:
 	return int(unit.max_health) + _item_stat(unit, "health")
 
+## Public read-only helpers for display code (board preview, arrows).
+func slot_of(unit: Dictionary) -> int:
+	return _slot_of(unit)
+
+func max_health_of(unit: Dictionary) -> int:
+	return _max_health(unit)
+
 func _item_stat(unit: Dictionary, stat: String) -> int:
 	var total = 0
 	for card_id in unit.items.values():
@@ -897,24 +906,30 @@ func replay_data() -> Dictionary:
 
 func load_replay(data: Dictionary) -> Dictionary:
 	if data.get("protocol") != PROTOCOL_VERSION or not Library.PACKS.has(data.get("content_pack", "")):
-		return {"ok": false, "error": "Replay version or card pack does not match."}
+		return _fail("replay_version", "Replay version or card pack does not match.")
 	if not data.get("seed") is float and not data.get("seed") is int:
-		return {"ok": false, "error": "Replay has no valid seed."}
+		return _fail("replay_seed", "Replay has no valid seed.")
 	if not data.get("actions") is Array or data.actions.size() > 20000:
-		return {"ok": false, "error": "Invalid replay actions."}
+		return _fail("replay_actions", "Invalid replay actions.")
 	if not data.get("decks") is Array:
-		return {"ok": false, "error": "Replay has no valid deck selection."}
+		return _fail("replay_decks", "Replay has no valid deck selection.")
 	library = Library.new(data.content_pack)
 	var initial = start(int(data.seed), data.get("decks", ["starter", "starter"]))
 	if not initial.ok:
 		return initial
 	for entry in data.actions:
 		if not entry is Dictionary or not entry.get("command") is Dictionary:
-			return {"ok": false, "error": "Invalid replay entry."}
+			return _fail("replay_entry", "Invalid replay entry.")
 		var result = apply_action(int(entry.get("player", -1)), entry.command)
 		if not result.ok:
-			return {"ok": false, "error": "Replay contains an illegal action at revision %d." % state.revision}
+			return _fail("replay_illegal", "Replay contains an illegal action at revision %d." % state.revision,
+				{"revision": int(state.revision)})
 	return {"ok": true}
+
+## Failed command or load result. `code` and `args` are stable for UI
+## translation (i18n key ERR_<CODE>); `error` is an English fallback only.
+static func _fail(code: String, message: String, args: Dictionary = {}) -> Dictionary:
+	return {"ok": false, "code": code, "args": args, "error": message}
 
 func state_digest() -> String:
 	return (JSON.stringify(state) + str(rng.state) + str(next_id)).sha256_text()

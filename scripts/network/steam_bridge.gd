@@ -2,13 +2,15 @@ extends Node
 ## Optional GodotSteam adapter. Standard Godot must boot without this extension.
 ## The host owns the rules; guests receive only their own redacted observation.
 
+## `message` is an English fallback; `status_code`/`status_args` identify the
+## status for translation (i18n key STEAM_<CODE>).
 signal status_changed(message: String)
 signal match_received(view: Dictionary, actions: Array)
 signal command_received(command: Dictionary, revision: int)
 
 const APP_ID = 480
-const GAME_TAG = "classic_revival_classic_v4"
-const PROTOCOL = 4
+const GAME_TAG = "classic_revival_classic_v5"
+const PROTOCOL = 5
 const CHANNEL = 71
 const RELIABLE = 8
 const MAX_PACKET_BYTES = 262144
@@ -20,6 +22,8 @@ var peer_id: int = 0
 var local_id: int = 0
 var bound_opponent: int = 0
 var status = "GodotSteam is not installed. Offline AI and local play are available."
+var status_code = "not_installed"
+var status_args: Dictionary = {}
 var cached_match: Dictionary = {}
 
 func _ready() -> void:
@@ -30,13 +34,14 @@ func _ready() -> void:
 		"sendMessageToUser", "receiveMessagesOnChannel", "acceptSessionWithUser"]
 	for method in required:
 		if not steam.has_method(method):
-			_set_status("This GodotSteam build is missing %s. See docs/STEAM.md." % method)
+			_set_status("missing_method", "This GodotSteam build is missing %s. See docs/STEAM.md." % method, {"method": method})
 			return
 	# Current GodotSteam signature is app_id first, embed_callbacks second.
 	# We run callbacks explicitly in _process.
 	var result = steam.call("steamInitEx", APP_ID, false)
 	if int(result.get("status", -1)) != 0:
-		_set_status("Steam could not initialize: " + str(result.get("verbal", "Start Steam and try again.")))
+		var reason = str(result.get("verbal", "Start Steam and try again."))
+		_set_status("init_failed", "Steam could not initialize: " + reason, {"reason": reason})
 		return
 	available = true
 	local_id = int(steam.call("getSteamID"))
@@ -44,7 +49,7 @@ func _ready() -> void:
 	steam.connect("lobby_joined", _lobby_joined)
 	steam.connect("lobby_chat_update", _lobby_changed)
 	steam.connect("network_messages_session_request", _session_requested)
-	_set_status("Steam connected. Development App ID 480. Create or join a two-player lobby.")
+	_set_status("connected", "Steam connected. Development App ID 480. Create or join a two-player lobby.", {"app_id": APP_ID})
 
 func _process(_delta: float) -> void:
 	if not available:
@@ -66,18 +71,18 @@ func host_lobby() -> void:
 		leave_lobby()
 		is_host = true
 		steam.call("createLobby", 1, 2) # Friends-only, two members.
-		_set_status("Creating a friends-only lobby…")
+		_set_status("creating_lobby", "Creating a friends-only lobby…")
 
 func join_lobby(id_text: String) -> void:
 	if not available:
 		return
 	if not id_text.is_valid_int() or int(id_text) <= 0:
-		_set_status("Enter a valid numeric Steam lobby ID.")
+		_set_status("invalid_lobby_id", "Enter a valid numeric Steam lobby ID.")
 		return
 	leave_lobby()
 	is_host = false
 	steam.call("joinLobby", int(id_text))
-	_set_status("Joining lobby…")
+	_set_status("joining_lobby", "Joining lobby…")
 
 func invite_friends() -> void:
 	if available and lobby_id != 0:
@@ -112,31 +117,31 @@ func _send(packet: Dictionary) -> void:
 	envelope["game"] = GAME_TAG
 	var bytes = JSON.stringify(envelope).to_utf8_buffer()
 	if bytes.size() > MAX_PACKET_BYTES:
-		_set_status("Match snapshot is too large for the development transport.")
+		_set_status("snapshot_too_large", "Match snapshot is too large for the development transport.")
 		return
 	var result = int(steam.call("sendMessageToUser", peer_id, bytes, RELIABLE, CHANNEL))
 	if result != 1:
-		_set_status("Steam send failed (%d). Check that your opponent is connected." % result)
+		_set_status("send_failed", "Steam send failed (%d). Check that your opponent is connected." % result, {"result": result})
 
 func _lobby_created(result: int, created_id: int) -> void:
 	if result != 1:
-		_set_status("Steam lobby creation failed (%d)." % result)
+		_set_status("create_failed", "Steam lobby creation failed (%d)." % result, {"result": result})
 		return
 	lobby_id = created_id
 	is_host = true
 	steam.call("setLobbyData", lobby_id, "game", GAME_TAG)
 	steam.call("setLobbyData", lobby_id, "protocol", str(PROTOCOL))
-	_set_status("Lobby %d created. Share its ID with a friend." % lobby_id)
+	_set_status("lobby_created", "Lobby %d created. Share its ID with a friend." % lobby_id, {"lobby": str(lobby_id)})
 
 func _lobby_joined(joined_id: int, _permissions: int, _locked: bool, response: int) -> void:
 	if response != 1:
-		_set_status("Steam lobby join failed (%d)." % response)
+		_set_status("join_failed", "Steam lobby join failed (%d)." % response, {"result": response})
 		return
 	lobby_id = joined_id
 	if not is_host:
 		if steam.call("getLobbyData", lobby_id, "game") != GAME_TAG or steam.call("getLobbyData", lobby_id, "protocol") != str(PROTOCOL):
 			leave_lobby()
-			_set_status("This lobby belongs to another game or incompatible version.")
+			_set_status("incompatible_lobby", "This lobby belongs to another game or incompatible version.")
 			return
 	_refresh_peer()
 
@@ -150,17 +155,17 @@ func _refresh_peer() -> void:
 		var member = int(steam.call("getLobbyMemberByIndex", lobby_id, index))
 		if member != local_id:
 			if bound_opponent != 0 and bound_opponent != member:
-				_set_status("This match is reserved for the original opponent. Create a new lobby for another player.")
+				_set_status("reserved_opponent", "This match is reserved for the original opponent. Create a new lobby for another player.")
 				return
 			peer_id = member
 			bound_opponent = member
 	if peer_id == 0:
-		_set_status("Lobby %d: waiting for your opponent." % lobby_id)
+		_set_status("waiting_opponent", "Lobby %d: waiting for your opponent." % lobby_id, {"lobby": str(lobby_id)})
 		return
 	if not is_host and int(steam.call("getLobbyOwner", lobby_id)) != peer_id:
-		_set_status("The original host is unavailable. Host migration is not supported yet.")
+		_set_status("host_unavailable", "The original host is unavailable. Host migration is not supported yet.")
 		return
-	_set_status("Lobby %d: opponent connected." % lobby_id)
+	_set_status("opponent_connected", "Lobby %d: opponent connected." % lobby_id, {"lobby": str(lobby_id)})
 	if is_host:
 		_send(cached_match)
 	else:
@@ -202,7 +207,9 @@ func _valid_view(view: Dictionary) -> bool:
 	# commands still go through the engine's complete legality validation.
 	return view.get("lanes") is Array and view.lanes.size() == 3 and view.get("players") is Array and view.players.size() == 2 and view.get("events") is Array and view.has("phase") and view.has("revision") and view.has("round") and view.has("lane") and view.has("active_player") and view.has("winner")
 
-func _set_status(message: String) -> void:
+func _set_status(code: String, message: String, args: Dictionary = {}) -> void:
+	status_code = code
+	status_args = args
 	status = message
 	status_changed.emit(message)
 

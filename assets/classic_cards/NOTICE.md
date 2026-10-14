@@ -4,4 +4,4 @@ The image manifest points to original Artifact card images on Valve's public Ste
 
 These images and card identities are Valve/artist content. They are **not covered by this repository's MIT source-code license**. Artist names and source URLs are recorded in `manifest.json`. The source repository provides the manifest and a downloader rather than claiming to relicense the artwork.
 
-No modified PNGs are generated. Card thumbnails crop the original texture when displayed on the board. Native Godot controls overlay patched Axe stats, Gust text and equipment prices on older archived fronts; the underlying artwork remains unchanged.
+No modified PNGs are generated. With the Classic card theme the game crops the art window of each original render and draws the card frame, name, rules text and stats itself, so text and stats printed on older archived fronts (for example pre-patch Axe stats, Gust text and equipment prices) are not shown. The underlying files remain unchanged.

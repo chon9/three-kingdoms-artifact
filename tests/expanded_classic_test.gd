@@ -3,10 +3,13 @@ extends SceneTree
 const MatchEngine = preload("res://scripts/core/match_engine.gd")
 const Bot = preload("res://scripts/ai/heuristic_bot.gd")
 const EventFormatter = preload("res://scripts/core/event_text.gd")
+const Settings = preload("res://scripts/core/game_settings.gd")
 var checks = 0
 var failures: Array = []
 
 func _initialize() -> void:
+	Settings.set_locale("en", false)
+	Settings.set_skin("classic", false)
 	_profiles()
 	_auras()
 	_silence()

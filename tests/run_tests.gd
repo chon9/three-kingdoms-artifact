@@ -4,6 +4,7 @@ const EngineClass = preload("res://scripts/core/match_engine.gd")
 const BotClass = preload("res://scripts/ai/heuristic_bot.gd")
 const BridgeClass = preload("res://scripts/network/steam_bridge.gd")
 const EventFormatter = preload("res://scripts/core/event_text.gd")
+const Settings = preload("res://scripts/core/game_settings.gd")
 var checks = 0
 var failures: Array = []
 
@@ -22,6 +23,9 @@ class FakeSteam extends RefCounted:
 		return true
 
 func _initialize() -> void:
+	# Display text below is checked in English with the original card names.
+	Settings.set_locale("en", false)
+	Settings.set_skin("classic", false)
 	_test_initial_state()
 	_test_validation_and_colors()
 	_test_initiative()
@@ -37,6 +41,7 @@ func _initialize() -> void:
 	_test_arrow_resets()
 	_test_deployment_creeps_visible()
 	_test_event_formatter_keys()
+	_test_language_neutral_state()
 	_test_replays_and_bot_matches()
 	if failures.is_empty():
 		print("PASS: %d checks, including 24 complete seeded bot matches and replay round trips." % checks)
@@ -322,7 +327,7 @@ func _test_replays_and_bot_matches() -> void:
 		_check(emitted.has(key), "Bot matches emit and format event key " + key)
 	_check(emitted.has("win") or emitted.has("draw"), "Bot matches emit a result event")
 	var replay = _new().replay_data()
-	_check(int(replay.protocol) == 4, "Replay format version is 4")
+	_check(int(replay.protocol) == 5, "Replay format version is 5")
 	replay.actions.append({"player": 0, "command": {"type": "play", "hand": -1}})
 	_check(not EngineClass.new().load_replay(replay).ok, "Corrupt replay action rejected")
 	var legacy = _new().replay_data()
@@ -520,3 +525,49 @@ func _test_event_formatter_keys() -> void:
 		_check(not text.is_empty() and text != "?", "Formatter covers event key " + key)
 	_check(EventFormatter.format({"k": "play", "p": 0, "card": "foresight", "target_card": "axe"}, library) == "Player 1 plays Foresight on Axe.", "Formatter names cards from the library")
 	_check(EventFormatter.format({"k": "nonsense"}, library) == "?", "Unknown event keys are visible as ?")
+	var play = {"k": "play", "p": 0, "card": "foresight", "target_card": "axe"}
+	Settings.set_skin("three_kingdoms", false)
+	_check(EventFormatter.format(play) == "Player 1 plays Guo Jia's Legacy on Zhang Fei.", "Formatter uses the Three Kingdoms skin")
+	Settings.set_locale("zh_CN", false)
+	_check(EventFormatter.format(play) == "玩家1对张飞打出遗计。", "Formatter uses zh_CN templates and names")
+	_check(EventFormatter.format({"k": "lane_open", "lane": 1, "p": 1}) == "中路开战，玩家2持有先手。", "Lane names are translated")
+	Settings.set_locale("en", false)
+	Settings.set_skin("classic", false)
+
+func _test_language_neutral_state() -> void:
+	var engine = EngineClass.new()
+	engine.start(5, ["starter", "green_assault"])
+	var named: Array = []
+	for owner in engine.state.players:
+		if owner.has("deck_name"):
+			named.append("deck_name")
+		for hero in owner.roster:
+			for field in ["name", "ability_name", "text"]:
+				if hero.has(field):
+					named.append(field)
+	for lane in engine.state.lanes:
+		for row in lane.units:
+			for unit in row:
+				if unit != null and (unit.has("name") or unit.has("ability_name")):
+					named.append(unit.card)
+	_check(named.is_empty(), "Match state holds ids and numbers, not display names: %s" % str(named))
+	var illegal = engine.apply_action(1 - int(engine.state.active_player), {"type": "pass"})
+	_check(not illegal.ok and illegal.get("code") == "illegal_action" and not str(illegal.get("error", "")).is_empty(), "Illegal commands return a code and an English fallback")
+	var fraction = engine.apply_action(0, {"type": "play", "hand": 0.5})
+	_check(fraction.get("code") == "bad_index", "Fractional indexes return bad_index")
+	_check(engine.start(3, ["starter"]).get("code") == "deck_selection", "Bad deck selection returns deck_selection")
+	_check(engine.library.validate_preset({"heroes": []}).get("code") == "deck_hero_count", "Deck validation returns codes")
+	var replay = engine.replay_data()
+	replay.protocol = 4
+	var stale = EngineClass.new().load_replay(replay)
+	_check(stale.get("code") == "replay_version", "Protocol 4 replays are rejected with replay_version")
+	_check(EngineClass.PROTOCOL_VERSION == 5 and BridgeClass.PROTOCOL == 5 and BridgeClass.GAME_TAG.ends_with("v5"), "Protocol 5 for engine and Steam")
+	_check(EventFormatter.error_text(illegal) == "That action is not legal in the current state.", "Error codes translate to English")
+	Settings.set_locale("zh_CN", false)
+	_check(EventFormatter.error_text(illegal) == "当前局面下不能执行该操作。", "Error codes translate to Chinese")
+	_check(EventFormatter.steam_status("lobby_created", {"lobby": "42"}) == "房间 42 已创建。请将房间号发给好友。", "Steam status codes translate")
+	Settings.set_locale("en", false)
+	_check(EventFormatter.error_text({"ok": false, "error": "Raw fallback"}) == "Raw fallback", "Uncoded errors keep their fallback text")
+	var bridge = BridgeClass.new()
+	_check(bridge.status_code == "not_installed", "Steam bridge exposes a status code")
+	bridge.free()

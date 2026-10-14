@@ -16,6 +16,17 @@ window/size/viewport_height=900
 window/size/window_width_override=1280
 window/size/window_height_override=800
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[gui]
+
+theme/custom="res://assets/theme/default_theme.tres"
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://i18n/ui.en.translation", "res://i18n/ui.zh_CN.translation")
+locale/fallback="en"
+locale/include_text_server_data=true
 
 [rendering]
 renderer/rendering_method="gl_compatibility"

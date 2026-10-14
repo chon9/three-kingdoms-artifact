@@ -1,0 +1,6 @@
+Source: Poly Haven, https://polyhaven.com/a/dark_wooden_planks
+Author: Amal Kumar
+License: CC0 1.0 Universal (public domain). https://polyhaven.com/license
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Downscaled from the 2K diffuse map to 1024x1024 JPEG.
