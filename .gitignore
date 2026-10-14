@@ -8,3 +8,4 @@ addons/godotsteam/
 steam_appid.txt
 assets/classic_cards/*.png
 assets/classic_cards/*.png.import
+.playwright-mcp/
