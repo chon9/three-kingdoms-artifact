@@ -2,8 +2,8 @@
 config_version=5
 
 [application]
-config/name="Classic Revival — Three-Lane Prototype"
-config/version="0.3.0"
+config/name="Three Kingdoms: Three Lanes"
+config/version="0.4.0"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="ClassicRevival"
 run/main_scene="res://scenes/main.tscn"
