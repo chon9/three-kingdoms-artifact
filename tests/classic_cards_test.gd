@@ -97,13 +97,23 @@ func _passives() -> void:
 	var creep = engine._make_unit(engine.library.cards.melee_creep, 0, false)
 	prowler.lane = 0
 	creep.lane = 0
+	var blocker = engine._make_unit(engine.library.cards.melee_creep, 1, false)
+	blocker.lane = 0
 	engine.state.lanes[0].units[0] = [farvhan, prowler, creep]
+	engine.state.lanes[0].units[1] = [engine.state.lanes[0].units[1][0], blocker, null]
 	_check(engine.armor_of(farvhan) == 1, "Prowler aura reaches Farvhan")
 	_check(engine.armor_of(prowler) == 1, "Farvhan aura reaches adjacent Prowler")
 	_check(engine.armor_of(creep) == 1, "Prowler aura reaches adjacent creep")
 	prowler.health = 0
 	engine._clean_dead(0)
 	_check(engine.armor_of(creep) == 0 and engine.armor_of(farvhan) == 0, "Destroyed aura disappears immediately without stacking permanently")
+	# With an enemy still opposite, Prowler's position stays as a gap. Once that
+	# enemy also dies the empty position collapses and the creep slides next to
+	# Farvhan, so it now gets his neighbor aura.
+	blocker.health = 0
+	engine._clean_dead(0)
+	_check(engine.state.lanes[0].units[0].size() == 2 and engine.state.lanes[0].units[1].size() == 2, "Position empty on both sides collapses")
+	_check(engine.armor_of(creep) == 1, "Collapsed lane makes the creep Farvhan's neighbor")
 	engine = _fixture(4)
 	var debbi = engine.state.lanes[0].units[0][0]
 	_check(engine.battle_attack(debbi, {}) == 9, "Debbi deals nine damage to towers")
@@ -129,17 +139,18 @@ func _jmuy() -> void:
 func _berserkers_call() -> void:
 	var engine = _fixture()
 	var axe = engine.state.lanes[0].units[0][0]
-	engine.state.lanes[0].units[0] = [null, axe]
+	engine.state.lanes[0].units[0] = [null, axe, null, null]
 	var opponents: Array = []
 	for index in range(4):
 		var creep = engine._make_unit(engine.library.cards.melee_creep, 1, false)
 		creep.lane = 0
 		opponents.append(creep)
-	engine.state.lanes[0].units[1] = opponents
+	engine.state.lanes[0].units[1] = opponents.duplicate()
 	_check(_play(engine, "berserkers_call", axe.uid).ok, "Berserker's Call is a legal red-hero action")
 	_check(axe.health == 10, "Axe armor blocks every melee-creep battle separately")
-	_check(engine.state.lanes[0].units[1].slice(0, 3) == [null, null, null], "Call battles all three enemy neighbors")
-	_check(engine.state.lanes[0].units[1][3] != null, "Call does not hit non-neighbors")
+	_check(opponents.slice(0, 3).all(func(creep): return creep.lane == -1), "Call battles all three enemy neighbors")
+	_check(opponents[3].lane == 0, "Call does not hit non-neighbors")
+	_check(engine.state.lanes[0].units == [[axe, null], [null, opponents[3]]], "Positions emptied on both sides collapse after the battles")
 	_check(engine.state.players[0].gold == 3 and engine.state.lanes[0].mana[0] == 4, "Call pays six mana and awards creep bounties")
 	engine = _fixture()
 	axe = engine.state.lanes[0].units[0][0]
@@ -149,15 +160,32 @@ func _berserkers_call() -> void:
 	opponent.health = 2
 	opponent.armor = 0
 	_check(_play(engine, "berserkers_call", axe.uid).ok, "Mutually lethal battle resolves")
-	_check(engine.state.lanes[0].units[0][0] == null and engine.state.lanes[0].units[1][0] == null, "Call's opposing battle damage is simultaneous")
+	_check(axe.lane == -1 and opponent.lane == -1 and engine.state.lanes[0].units == [[], []], "Call's opposing battle damage is simultaneous")
 	_check(engine.state.players[0].gold == 5 and engine.state.players[1].gold == 5, "Both battle casualties award their enemy gold")
 
 func _targeting() -> void:
 	var engine = _fixture(1)
 	var jmuy = engine.state.lanes[0].units[0][0]
 	var enemy = engine.state.lanes[0].units[1][0]
-	_check(_play(engine, "battlefield_control", jmuy.uid, 0).ok, "Battlefield Control can choose the tower")
-	_check(engine.combat_preview(0).tower_damage[0] == 3, "Chosen tower target changes the combat forecast")
+	_check(not _play(engine, "battlefield_control", jmuy.uid, 0).ok, "A unit blocked in all three positions across cannot be redirected to the tower")
+	# Open a right-hand position: an empty enemy slot across lets J'Muy pick the tower.
+	var ally = engine._make_unit(engine.library.cards.melee_creep, 0, false)
+	ally.lane = 0
+	engine.state.lanes[0].units[0].append(ally)
+	engine.state.lanes[0].units[1].append(null)
+	_check(_play(engine, "battlefield_control", jmuy.uid, 0).ok, "Battlefield Control can choose the tower through an empty position across")
+	_check(engine.combat_preview(0).tower_damage[0] >= 3, "Chosen tower target changes the combat forecast")
+	# A far enemy beyond the three positions across is never a legal destination.
+	engine = _fixture(1)
+	jmuy = engine.state.lanes[0].units[0][0]
+	enemy = engine.state.lanes[0].units[1][0]
+	var far = engine._make_unit(engine.library.cards.melee_creep, 1, false)
+	far.lane = 0
+	engine.state.lanes[0].units[0].append(null)
+	engine.state.lanes[0].units[1].append(null)
+	engine.state.lanes[0].units[0].append(null)
+	engine.state.lanes[0].units[1].append(far)
+	_check(not _play(engine, "battlefield_control", jmuy.uid, far.uid).ok, "Battlefield Control cannot reach an enemy two positions away")
 	_check(_play(engine, "battlefield_control", jmuy.uid, enemy.uid).ok, "Battlefield Control can choose an enemy unit")
 	_check(engine.combat_preview(0).tower_damage[0] == 0, "Chosen enemy unit replaces the tower target")
 	engine.state.players[0].hand = ["battlefield_control"]
@@ -179,10 +207,31 @@ func _spells() -> void:
 	engine.state.lanes[0].units[1].append(creep)
 	_check(_play(engine, "tower_barrage").ok, "Tower Barrage plays")
 	_check(enemy.health == 10, "Tower Barrage respects two armor")
-	_check(engine.state.lanes[0].units[1][1] == null and engine.state.lanes[0].structures[1].health == 38, "Tower Barrage hits enemy creeps and the enemy tower")
+	_check(creep.lane == -1 and engine.state.lanes[0].structures[1].health == 38, "Tower Barrage hits enemy creeps and the enemy tower")
 	engine = _fixture(1)
 	_check(_play(engine, "dimensional_portal").ok, "Dimensional Portal plays")
 	_check(engine.state.lanes[0].units[0].size() == 4, "Portal summons three real Melee Creeps")
+	_check(engine.state.lanes[0].units[0].filter(func(unit): return unit != null and unit.card == "melee_creep").size() == 3, "Portal creeps fill new end positions when no own slot is empty")
+	# Summons only roll pathing for the new units. An allied flanker keeps its
+	# diagonal arrow; an enemy flanker is reset when a summon lands in front.
+	engine = _fixture(1)
+	var jmuy = engine.state.lanes[0].units[0][0]
+	var enemy_hero = engine.state.lanes[0].units[1][0]
+	var ally = engine._make_unit(engine.library.cards.melee_creep, 0, false)
+	engine._place(ally, 0, 1)
+	ally.arrow = -1
+	_check(_play(engine, "dimensional_portal").ok, "Dimensional Portal plays beside an allied flanker")
+	_check(ally.arrow == -1 and engine.combat_target_of(ally).uid == enemy_hero.uid, "Summon does not reroll existing arrows")
+	engine = _fixture(1)
+	jmuy = engine.state.lanes[0].units[0][0]
+	var flanker = engine._make_unit(engine.library.cards.melee_creep, 1, false)
+	engine._place(flanker, 0, 1)
+	flanker.arrow = -1
+	_check(engine.combat_target_of(flanker).uid == jmuy.uid, "Enemy flanker attacks J'Muy diagonally")
+	_check(_play(engine, "dimensional_portal").ok, "Dimensional Portal plays beside an enemy flanker")
+	var blocker = engine.state.lanes[0].units[0][engine._slot_of(flanker)]
+	_check(blocker != null and blocker.card == "melee_creep", "First summon fills the only empty own position")
+	_check(flanker.arrow == 0 and engine.combat_target_of(flanker).uid == blocker.uid, "A summon placed in front resets the flanker to attack it")
 	engine = _fixture(1)
 	_check(_play(engine, "foresight").ok and engine.state.players[0].hand.size() == 2, "Foresight draws two cards")
 	engine = _fixture(2)

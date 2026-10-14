@@ -3,6 +3,7 @@ extends SceneTree
 const EngineClass = preload("res://scripts/core/match_engine.gd")
 const BotClass = preload("res://scripts/ai/heuristic_bot.gd")
 const BridgeClass = preload("res://scripts/network/steam_bridge.gd")
+const EventFormatter = preload("res://scripts/core/event_text.gd")
 var checks = 0
 var failures: Array = []
 
@@ -31,6 +32,11 @@ func _initialize() -> void:
 	_test_effects_and_items()
 	_test_hidden_information()
 	_test_steam_boundary()
+	_test_creep_positions()
+	_test_no_lane_reroll()
+	_test_arrow_resets()
+	_test_deployment_creeps_visible()
+	_test_event_formatter_keys()
 	_test_replays_and_bot_matches()
 	if failures.is_empty():
 		print("PASS: %d checks, including 24 complete seeded bot matches and replay round trips." % checks)
@@ -98,8 +104,8 @@ func _test_validation_and_colors() -> void:
 	_check(not engine.apply_action(-1, {"type": "pass"}).ok, "Invalid player rejected")
 	engine.state.players[0].hand = ["blue_bolt", "red_guard"]
 	var actions = engine.legal_actions(0)
-	_check({"type": "play", "hand": 1} in actions, "Matching red hero allows red creep")
-	_check(actions.size() == 2, "No blue hero blocks blue spell")
+	_check({"type": "play", "hand": 1, "position": -1} in actions and {"type": "play", "hand": 1, "position": 1} in actions, "Matching red hero allows red creep at either lane end")
+	_check(actions.size() == 3, "No blue hero blocks blue spell")
 	engine.state.lanes[0].mana[0] = 1
 	_check(engine.legal_actions(0) == [{"type": "pass"}], "Insufficient mana blocks cards")
 	engine.state.lanes[0].mana[0] = 3
@@ -118,7 +124,7 @@ func _test_initiative() -> void:
 	engine = _duel()
 	engine.state.players[1].hand = ["red_guard"]
 	engine.apply_action(0, {"type": "pass"})
-	engine.apply_action(1, {"type": "play", "hand": 0})
+	engine.apply_action(1, {"type": "play", "hand": 0, "position": 1})
 	_check(engine.state.first_pass == -1 and engine.state.active_player == 0, "A card resets consecutive passes")
 	engine.apply_action(0, {"type": "pass"})
 	_check(engine.state.lane == 0, "A pass separated by a card does not trigger combat")
@@ -133,7 +139,7 @@ func _test_simultaneous_combat() -> void:
 	engine.apply_action(0, {"type": "pass"})
 	engine.apply_action(1, {"type": "pass"})
 	for player in range(2):
-		_check(engine.state.lanes[0].units[player][0] == null, "Both lethal attackers die simultaneously")
+		_check(engine.state.lanes[0].units[player].is_empty(), "Both lethal attackers die simultaneously and their position collapses")
 		_check(engine.state.players[player].gold == 5, "Hero kill pays five gold")
 		_check(engine.state.players[player].roster[0].ready_round == 3, "Dead hero skips the next round")
 		_check(engine.state.players[player].roster[0].lane == -1, "Fallen hero leaves lane and stays in roster")
@@ -152,6 +158,7 @@ func _test_armor() -> void:
 	neighbor.arrow = -1
 	neighbor.lane = 0
 	engine.state.lanes[0].units[0].append(neighbor)
+	engine.state.lanes[0].units[1].append(null)
 	_check(engine.combat_preview(0).unit_damage[str(defender.uid)] == 6, "Armor applies independently to each incoming attack")
 
 func _test_victory() -> void:
@@ -171,7 +178,8 @@ func _test_victory() -> void:
 	engine = _duel()
 	for player in range(2):
 		engine.state.lanes[0].structures[player] = {"health": 1, "ancient": true, "destroyed": false}
-		engine.state.lanes[0].units[player][0].arrow = 1
+		# Blocked units attack forward; force the tower like Battlefield Control.
+		engine.state.lanes[0].units[player][0].combat_target = 0
 	engine.apply_action(0, {"type": "pass"})
 	engine.apply_action(1, {"type": "pass"})
 	_check(engine.state.winner == 2, "Simultaneous ancient destruction produces a draw")
@@ -285,23 +293,230 @@ func _test_steam_boundary() -> void:
 
 func _test_replays_and_bot_matches() -> void:
 	var bot = BotClass.new()
+	var emitted: Dictionary = {}
 	for seed_value in range(1, 25):
 		var engine = _new(seed_value)
 		var steps = 0
+		var aligned = _board_invariants(engine)
+		var events_ok = _format_new_events(engine, 0, emitted)
 		while engine.state.winner == -1 and steps < 1200:
 			var player = int(engine.state.active_player) if engine.state.phase == "action" else (1 if engine.state.players[0].finished else 0)
 			var action = bot.choose_action(engine, player)
 			if action.is_empty():
 				failures.append("Bot stalled in seed %d, phase %s" % [seed_value, engine.state.phase])
 				break
+			var seen = int(engine.state.event_seq)
 			_check(engine.apply_action(player, action).ok, "Bot action stays legal in seed %d" % seed_value)
+			aligned = aligned and _board_invariants(engine)
+			events_ok = _format_new_events(engine, seen, emitted) and events_ok
 			steps += 1
 		_check(engine.state.winner != -1, "Bot match terminates in seed %d" % seed_value)
+		_check(aligned, "Rows stay aligned, compacted and arrow-consistent after every bot action in seed %d" % seed_value)
+		_check(events_ok, "Every emitted event formats to known non-empty text in seed %d" % seed_value)
 		var restored = EngineClass.new()
 		var serialized = JSON.parse_string(JSON.stringify(engine.replay_data()))
 		var replay_result = restored.load_replay(serialized)
 		_check(replay_result.ok, "Serialized replay loads in seed %d: %s" % [seed_value, replay_result.get("error", "ok")])
 		_check(restored.state_digest() == engine.state_digest(), "Replay reproduces state and RNG in seed %d" % seed_value)
+	for key in ["match_start", "pass", "lane_open", "play", "combat", "death", "shop_open", "deployment", "deployment_revealed"]:
+		_check(emitted.has(key), "Bot matches emit and format event key " + key)
+	_check(emitted.has("win") or emitted.has("draw"), "Bot matches emit a result event")
 	var replay = _new().replay_data()
+	_check(int(replay.protocol) == 4, "Replay format version is 4")
 	replay.actions.append({"player": 0, "command": {"type": "play", "hand": -1}})
 	_check(not EngineClass.new().load_replay(replay).ok, "Corrupt replay action rejected")
+	var legacy = _new().replay_data()
+	legacy.protocol = 3
+	_check(not EngineClass.new().load_replay(legacy).ok, "Protocol 3 replays are rejected clearly")
+
+# Board invariants that must hold after every completed command: both rows
+# have equal length, no position is empty on both sides, every unit knows its
+# lane and owner, and a diagonal arrow only exists while the unit is unblocked
+# and a unit stands on that diagonal.
+func _board_invariants(engine) -> bool:
+	for lane_index in range(3):
+		var rows = engine.state.lanes[lane_index].units
+		if rows[0].size() != rows[1].size():
+			return false
+		for slot in range(rows[0].size()):
+			if rows[0][slot] == null and rows[1][slot] == null:
+				return false
+			for side in range(2):
+				var unit = rows[side][slot]
+				if unit == null:
+					continue
+				if int(unit.owner) != side or int(unit.lane) != lane_index:
+					return false
+				if int(unit.arrow) != 0 and int(unit.combat_target) < 0:
+					var enemies = rows[1 - side]
+					var diagonal = slot + int(unit.arrow)
+					if enemies[slot] != null or diagonal < 0 or diagonal >= enemies.size() or enemies[diagonal] == null:
+						return false
+	return true
+
+func _format_new_events(engine, seen: int, emitted: Dictionary) -> bool:
+	var events = engine.state.events
+	var fresh = mini(int(engine.state.event_seq) - seen, events.size())
+	var ok = true
+	for event in events.slice(events.size() - fresh):
+		var text = EventFormatter.format(event, engine.library)
+		emitted[str(event.get("k", ""))] = true
+		if text.is_empty() or text == "?" or str(event.get("k", "")) not in EventFormatter.KEYS:
+			ok = false
+	return ok
+
+func _set_rows(engine, rows: Array) -> void:
+	# rows = [[p0 unit or null, ...], [p1 unit or null, ...]] for lane 0.
+	engine.state.lanes[0].units = rows
+	for side in range(2):
+		for unit in rows[side]:
+			if unit != null:
+				unit.lane = 0
+	engine.state.lanes[0].mana = [20, 20]
+
+func _test_creep_positions() -> void:
+	var engine = _duel()
+	var lane = engine.state.lanes[0]
+	lane.mana = [20, 20]
+	var enemy_creep = engine._make_unit({"id": "melee_creep", "name": "Melee Creep", "attack": 2, "health": 4}, 1, false)
+	engine._place(enemy_creep, 0, 1)
+	_check(lane.units[0].size() == 2 and lane.units[0][1] == null, "A new right-end position opens an empty slot opposite")
+	engine.state.players[0].hand = ["red_guard"]
+	var positions: Array = []
+	for action in engine.legal_actions(0):
+		if action.type == "play":
+			positions.append(action.position)
+	_check(positions == [-1, 1, 2], "Creep card offers the left end, each empty own slot and the right end")
+	_check(engine.apply_action(0, {"type": "play", "hand": 0, "position": 1}).ok, "Creep can enter a chosen empty position")
+	_check(lane.units[0][1] != null and lane.units[0][1].card == "red_guard" and lane.units[1][1] == enemy_creep, "Chosen position is opposite the enemy creep")
+	engine.state.active_player = 0
+	engine.state.players[0].hand = ["red_guard"]
+	_check(not engine.apply_action(0, {"type": "play", "hand": 0, "position": 0}).ok, "An occupied position is not a legal choice")
+	_check(not engine.apply_action(0, {"type": "play", "hand": 0}).ok, "A creep card requires a position")
+	_check(engine.apply_action(0, {"type": "play", "hand": 0, "position": -1}).ok, "Creep can open a new left-end position")
+	_check(lane.units[0][0].card == "red_guard" and lane.units[1][0] == null and lane.units[0].size() == 3 and lane.units[1].size() == 3, "Left-end insertion shifts both rows together")
+	engine.state.active_player = 0
+	engine.state.players[0].hand = ["red_guard"]
+	_check(engine.apply_action(0, {"type": "play", "hand": 0, "position": 3}).ok, "Creep can open a new right-end position")
+	_check(lane.units[0][3].card == "red_guard" and lane.units[1][3] == null, "Right-end insertion appends to both rows")
+	_check(_board_invariants(engine), "Creep insertions keep the board aligned")
+	engine.state.lanes[1].units = [[], []]
+	_check(engine.creep_positions(1, 0) == [0], "An empty lane offers exactly one new position")
+
+func _test_no_lane_reroll() -> void:
+	var engine = _duel()
+	var hero0 = engine.state.players[0].roster[0]
+	var hero1 = engine.state.players[1].roster[0]
+	var creep = engine._make_unit({"id": "melee_creep", "name": "Melee Creep", "attack": 2, "health": 4}, 0, false)
+	_set_rows(engine, [[hero0, null, creep], [null, hero1, null]])
+	hero0.arrow = 1
+	hero1.arrow = -1
+	creep.arrow = -1
+	var watched = [hero0, hero1, creep]
+	var before: Array = []
+	for unit in watched:
+		before.append([int(unit.arrow), int(engine.combat_target_of(unit).get("uid", 0))])
+	for attempt in range(6):
+		var player = attempt % 2
+		engine.state.active_player = player
+		engine.state.players[player].hand = ["red_guard"]
+		var end = -1 if attempt < 3 else engine.state.lanes[0].units[player].size()
+		_check(engine.apply_action(player, {"type": "play", "hand": 0, "position": end}).ok, "End-position creep play %d is legal" % attempt)
+		var after: Array = []
+		for unit in watched:
+			after.append([int(unit.arrow), int(engine.combat_target_of(unit).get("uid", 0))])
+		_check(after == before, "Playing a creep never rerolls or retargets other arrows (play %d)" % attempt)
+	_check(_board_invariants(engine), "Repeated end insertions keep arrows consistent")
+
+func _test_arrow_resets() -> void:
+	var engine = _duel()
+	var hero0 = engine.state.players[0].roster[0]
+	var hero1 = engine.state.players[1].roster[0]
+	_set_rows(engine, [[hero0, null], [null, hero1]])
+	hero1.arrow = -1
+	_check(engine.combat_target_of(hero1).uid == hero0.uid, "Diagonal arrow targets the left enemy neighbor")
+	engine.state.players[0].hand = ["red_guard"]
+	_check(engine.apply_action(0, {"type": "play", "hand": 0, "position": 1}).ok, "Creep placed opposite a diagonal attacker")
+	_check(hero1.arrow == 0 and engine.combat_target_of(hero1).card == "red_guard", "Placing a unit directly opposite resets the attacker to face it")
+	engine = _duel()
+	hero0 = engine.state.players[0].roster[0]
+	hero1 = engine.state.players[1].roster[0]
+	_set_rows(engine, [[hero0, null], [null, hero1]])
+	hero1.arrow = -1
+	hero0.health = 0
+	engine._clean_dead(0)
+	_check(hero1.arrow == 0, "A diagonal target's death resets the attacker to forward")
+	_check(engine.state.lanes[0].units[0] == [null] and engine.state.lanes[0].units[1].size() == 1, "The emptied position collapses after cleanup")
+	_check(engine.combat_target_of(hero1).is_empty(), "With nothing opposite, forward means the tower")
+	engine = _duel()
+	hero0 = engine.state.players[0].roster[0]
+	hero1 = engine.state.players[1].roster[0]
+	_set_rows(engine, [[hero0, null], [null, hero1]])
+	hero1.arrow = -1
+	engine._remove_from_lane(hero0)
+	_check(hero1.arrow == 0 and engine.state.lanes[0].units[0] == [null], "A target leaving play resets pathing and compacts the lane")
+	engine = _duel()
+	hero0 = engine.state.players[0].roster[0]
+	hero1 = engine.state.players[1].roster[0]
+	_set_rows(engine, [[hero0, null], [null, hero1]])
+	hero1.combat_target = hero0.uid
+	hero0.health = 0
+	engine._clean_dead(0)
+	_check(hero1.combat_target == -1 and hero1.arrow == 0, "A chosen combat target's death resets the redirect to forward")
+
+func _creep_counts(engine) -> Array:
+	var counts = [[0, 0, 0], [0, 0, 0]]
+	for lane_index in range(3):
+		for side in range(2):
+			for unit in engine.state.lanes[lane_index].units[side]:
+				if unit != null and not unit.hero:
+					counts[side][lane_index] += 1
+	return counts
+
+func _test_deployment_creeps_visible() -> void:
+	var engine = _new(5)
+	for index in range(6):
+		engine.apply_action(engine.state.active_player, {"type": "pass"})
+	engine.apply_action(0, {"type": "finish_shop"})
+	engine.apply_action(1, {"type": "finish_shop"})
+	_check(engine.state.phase == "deployment", "Shopping leads to deployment")
+	var pending = engine.state.pending_creeps.duplicate(true)
+	var valid = pending.size() == 2
+	for side in range(pending.size()):
+		valid = valid and pending[side].size() == 2 and pending[side].all(func(lane_index): return lane_index >= 0 and lane_index <= 2)
+	_check(valid, "Two lane creeps per player are assigned at the start of deployment")
+	for viewer in range(2):
+		_check(engine.player_view(viewer).pending_creeps == pending, "Both players see lane creep assignments before choosing heroes")
+	_check(engine.legal_actions(0).any(func(action): return action.type == "deploy"), "Heroes are still unchosen while creeps are visible")
+	var before = _creep_counts(engine)
+	for player in range(2):
+		var safety = 0
+		while not engine.state.players[player].finished and engine.state.phase == "deployment" and safety < 10:
+			engine.apply_action(player, engine.legal_actions(player)[0])
+			safety += 1
+	var after = _creep_counts(engine)
+	var matched = true
+	for side in range(2):
+		for lane_index in range(3):
+			matched = matched and after[side][lane_index] - before[side][lane_index] == pending[side].count(lane_index)
+	_check(matched, "Revealed creeps enter exactly the announced lanes")
+	_check(engine.state.pending_creeps == [[], []], "Pending creeps clear after placement")
+	_check(_board_invariants(engine), "Deployment placement keeps lanes aligned and arrows consistent")
+
+func _test_event_formatter_keys() -> void:
+	var library = EngineClass.Library.new()
+	var samples = {"match_start": {}, "pass": {"p": 0}, "lane_open": {"lane": 1, "p": 1},
+		"shop_open": {}, "play": {"p": 0, "card": "foresight", "target": 3, "target_card": "axe"},
+		"ability": {"p": 1, "uid": 4, "card": "jmuy"}, "buy": {"p": 0, "gold": 3},
+		"hold": {"p": 1, "gold": 1}, "combat": {"lane": 2, "damage": [4, 7]},
+		"death": {"p": 1, "uid": 9, "card": "melee_creep", "gold": 1}, "tower_fall": {"p": 0},
+		"ancient_fall": {"p": 1}, "win": {"p": 0}, "draw": {},
+		"deployment": {"round": 2, "creeps": [[0, 2], [1, 1]]}, "deployment_revealed": {}}
+	_check(samples.size() == EventFormatter.KEYS.size(), "Every documented event key has a formatter sample")
+	for key in EventFormatter.KEYS:
+		var event = {"k": key}
+		event.merge(samples.get(key, {}))
+		var text = EventFormatter.format(event, library)
+		_check(not text.is_empty() and text != "?", "Formatter covers event key " + key)
+	_check(EventFormatter.format({"k": "play", "p": 0, "card": "foresight", "target_card": "axe"}, library) == "Player 1 plays Foresight on Axe.", "Formatter names cards from the library")
+	_check(EventFormatter.format({"k": "nonsense"}, library) == "?", "Unknown event keys are visible as ?")

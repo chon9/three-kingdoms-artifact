@@ -2,6 +2,7 @@ extends SceneTree
 
 const MatchEngine = preload("res://scripts/core/match_engine.gd")
 const Bot = preload("res://scripts/ai/heuristic_bot.gd")
+const EventFormatter = preload("res://scripts/core/event_text.gd")
 var checks = 0
 var failures: Array = []
 
@@ -12,6 +13,7 @@ func _initialize() -> void:
 	_cross_lane_and_zeus()
 	_growth_siege_and_removal()
 	_consumables_and_shop()
+	_hold_and_shuffle()
 	_privacy_and_validation()
 	_matchup_matrix()
 	for failure in failures:
@@ -41,8 +43,10 @@ func _empty():
 func _unit(engine, card_id: String, owner: int, lane_index: int = 0):
 	var definition = engine.library.definition(card_id)
 	var unit = engine._make_unit(definition, owner, definition.kind == "hero")
-	unit.lane = lane_index
-	engine.state.lanes[lane_index].units[owner].append(unit)
+	# Deterministic fixture placement: first empty own position, else a new
+	# position at the right end, keeping both rows aligned.
+	var position = engine.state.lanes[lane_index].units[owner].find(null)
+	engine._place(unit, lane_index, position if position != -1 else engine.state.lanes[lane_index].units[owner].size())
 	return unit
 
 func _play(engine, card_id: String, target: int = -1) -> Dictionary:
@@ -107,8 +111,7 @@ func _silence() -> void:
 	var far = _unit(engine, "jmuy", 1)
 	_check(_play(engine, "gust", jmuy.uid).ok, "Updated Gust targets one enemy hero")
 	_check(left.silenced and jmuy.silenced and right.silenced and not far.silenced, "Gust silences only the hero and its adjacent allies")
-	far.lane = -1
-	engine.state.lanes[0].units[1][3] = null
+	engine._remove_from_lane(far)
 	engine.state.active_player = 1
 	engine.state.players[1].hand = ["foresight", "short_sword"]
 	var actions = engine.legal_actions(1)
@@ -157,7 +160,7 @@ func _growth_siege_and_removal() -> void:
 	var pack = _unit(engine, "thunderhide_pack", 0)
 	_unit(engine, "axe", 1)
 	_check(engine.combat_preview(0).tower_damage[0] == 6, "Blocked Thunderhide Pack applies siege")
-	engine.state.lanes[0].units[1] = []
+	engine.state.lanes[0].units[1] = [null]
 	_check(engine.combat_preview(0).tower_damage[0] == 14, "Unblocked pack deals attack without extra siege")
 	engine = _empty()
 	_unit(engine, "axe", 0)
@@ -206,6 +209,48 @@ func _consumables_and_shop() -> void:
 	_check(not engine.apply_action(0, {"type": "buy", "card": "claymore", "source": "consumable"}).ok, "Cannot forge an item in another shop source")
 	_check(engine.state_digest() == before, "Rejected shop command is inert")
 
+func _hold_and_shuffle() -> void:
+	var engine = _empty()
+	engine.state.phase = "shop"
+	engine._prepare_shop()
+	var owner = engine.state.players[0]
+	owner.gold = 3
+	var secret = owner.shop.secret
+	_check({"type": "hold"} in engine.legal_actions(0), "Hold is offered with at least one gold")
+	_check(engine.apply_action(0, {"type": "hold"}).ok, "Hold is a legal shop command")
+	_check(owner.gold == 2 and owner.held_secret == secret, "Hold costs one gold and records the Secret Shop item")
+	_check(owner.shop.secret == secret, "Holding does not buy or remove the offer")
+	_check({"type": "hold"} not in engine.legal_actions(0), "Hold can be used only once per shop phase")
+	_check(not engine.apply_action(0, {"type": "hold"}).ok, "Second hold in the same phase is rejected")
+	_check(engine.player_view(1).players[0].held_secret == "", "Opponent cannot see which item was held")
+	_check(EventFormatter.format(engine.state.events.back(), engine.library) == "Player 1 pays 1 gold to hold the Secret Shop item.", "Hold is logged without the item identity")
+	_check(engine.library.cards[secret].name not in str(engine.state.events.back()), "Hold event does not reveal the item")
+	engine._prepare_shop()
+	_check(owner.shop.secret == secret and owner.held_secret == "", "Held item returns in the next shop phase, then the hold is spent")
+	var poor = _empty()
+	poor.state.phase = "shop"
+	poor._prepare_shop()
+	poor.state.players[0].gold = 0
+	_check({"type": "hold"} not in poor.legal_actions(0) and not poor.apply_action(0, {"type": "hold"}).ok, "Hold needs one gold")
+	poor.state.players[0].gold = 100
+	poor.apply_action(0, {"type": "buy", "card": poor.state.players[0].shop.secret, "source": "secret"})
+	_check({"type": "hold"} not in poor.legal_actions(0), "A sold-out Secret Shop slot cannot be held")
+	# The item deck is reshuffled at every shopping phase, keeping its contents.
+	var shuffled = _empty()
+	var deck = shuffled.state.players[0].item_deck
+	var original = deck.duplicate()
+	var changed = false
+	for phase in range(4):
+		var before = deck.duplicate()
+		shuffled._prepare_shop()
+		changed = changed or deck != before
+	var sorted_now = deck.duplicate()
+	sorted_now.sort()
+	original.sort()
+	_check(changed, "Item deck order changes across shopping phases")
+	_check(sorted_now == original, "Shuffling keeps the same item-deck cards")
+	_check(shuffled.state.players[0].shop.item == deck.back(), "Item Shop offers the top card of the reshuffled deck")
+
 func _privacy_and_validation() -> void:
 	var engine = MatchEngine.new()
 	engine.start(4, ["green_assault", "blue_black_control"])
@@ -235,15 +280,34 @@ func _matchup_matrix() -> void:
 				var engine = MatchEngine.new()
 				engine.start(seed_value, [first, second])
 				var steps = 0
+				var invariant = _aligned(engine)
+				var formatted = true
 				while engine.state.winner == -1 and steps < 1500:
 					var player = int(engine.state.active_player) if engine.state.phase == "action" else (1 if engine.state.players[0].finished else 0)
 					var command = bot.choose_action(engine, player)
 					if command.is_empty():
 						failures.append("Bot stalled: %s vs %s" % [first, second])
 						break
+					var seen = int(engine.state.event_seq)
 					_check(engine.apply_action(player, command).ok, "Expansion bot action is legal")
+					invariant = invariant and _aligned(engine)
+					var events = engine.state.events
+					for event in events.slice(events.size() - mini(int(engine.state.event_seq) - seen, events.size())):
+						var text = EventFormatter.format(event, engine.library)
+						formatted = formatted and not text.is_empty() and text != "?"
 					steps += 1
 				_check(engine.state.winner != -1, "Matchup terminates: %s vs %s" % [first, second])
+				_check(invariant, "Lanes stay aligned and compacted: %s vs %s" % [first, second])
+				_check(formatted, "Every matchup event formats: %s vs %s" % [first, second])
 				var restored = MatchEngine.new()
 				_check(restored.load_replay(JSON.parse_string(JSON.stringify(engine.replay_data()))).ok, "Expanded replay loads with deck IDs")
 				_check(restored.state_digest() == engine.state_digest(), "Expanded replay preserves every field and RNG")
+
+func _aligned(engine) -> bool:
+	for lane in engine.state.lanes:
+		if lane.units[0].size() != lane.units[1].size():
+			return false
+		for slot in range(lane.units[0].size()):
+			if lane.units[0][slot] == null and lane.units[1][slot] == null:
+				return false
+	return true

@@ -4,6 +4,8 @@ const MatchEngine = preload("res://scripts/core/match_engine.gd")
 const Bot = preload("res://scripts/ai/heuristic_bot.gd")
 const SteamBridge = preload("res://scripts/network/steam_bridge.gd")
 const CardFace = preload("res://scripts/ui/card_face.gd")
+const EventFormatter = preload("res://scripts/core/event_text.gd")
+const LANE_NAMES = ["Left", "Middle", "Right"]
 const GOLD = Color("d1ae75")
 const MUTED = Color("8897a8")
 const COLORS = {"red": Color("c76560"), "blue": Color("66a0d0"),
@@ -196,14 +198,38 @@ func _unit_row(parent: Control, view: Dictionary, player: int, side: int, lane_i
 	parent.add_child(scroll)
 	var row = HBoxContainer.new()
 	scroll.add_child(row)
-	for unit in view.lanes[lane_index].units[side]:
+	# Creep cards: legal combat positions for the selected hand card.
+	var positions: Array = []
+	if selected_hand != -1 and view.phase == "action" and lane_index == view.lane:
+		for action in actions:
+			if action.type == "play" and int(action.hand) == selected_hand and action.has("position"):
+				positions.append(int(action.position))
+	var row_size = view.lanes[lane_index].units[side].size()
+	if side != player:
+		# Keep both rows column-aligned while end positions are offered.
+		if -1 in positions:
+			var spacer = Control.new()
+			spacer.custom_minimum_size = Vector2(80, 126)
+			row.add_child(spacer)
+		positions = []
+	if -1 in positions or (row_size == 0 and 0 in positions):
+		var left_end = _button(row, "+ New\nposition", _choose_position.bind(-1 if row_size > 0 else 0))
+		left_end.custom_minimum_size = Vector2(80, 126)
+		left_end.add_theme_stylebox_override("normal", _style(Color("1c2937"), GOLD, 6))
+	for slot in range(row_size):
+		var unit = view.lanes[lane_index].units[side][slot]
 		var tile = Button.new()
 		tile.custom_minimum_size = Vector2(112, 126)
 		tile.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		row.add_child(tile)
 		if unit == null:
-			tile.text = "Empty\nslot"
-			tile.disabled = true
+			if slot in positions:
+				tile.text = "Place\nhere"
+				tile.add_theme_stylebox_override("normal", _style(Color("1c2937"), GOLD, 6))
+				tile.pressed.connect(_choose_position.bind(slot))
+			else:
+				tile.text = "Empty\nslot"
+				tile.disabled = true
 			continue
 		var valid_target = false
 		for action in actions:
@@ -247,7 +273,11 @@ func _unit_row(parent: Control, view: Dictionary, player: int, side: int, lane_i
 		tile.tooltip_text = "%s\n%s\nAttack %d · Armor %d · Health %d" % [unit.name, definition.get("text", ""), display_engine.attack_of(unit), display_engine.armor_of(unit), unit.health]
 		tile.mouse_entered.connect(_inspect.bind(str(unit.card)))
 		tile.pressed.connect(_target_unit.bind(int(unit.uid)))
-	if view.lanes[lane_index].units[side].is_empty():
+	if row_size > 0 and row_size in positions:
+		var right_end = _button(row, "+ New\nposition", _choose_position.bind(row_size))
+		right_end.custom_minimum_size = Vector2(80, 126)
+		right_end.add_theme_stylebox_override("normal", _style(Color("1c2937"), GOLD, 6))
+	if row_size == 0 and positions.is_empty():
 		_label(row, "No units in this lane", 13, MUTED)
 
 func _sidebar(parent: Control, view: Dictionary, player: int, actions: Array) -> void:
@@ -280,8 +310,20 @@ func _sidebar(parent: Control, view: Dictionary, player: int, actions: Array) ->
 			button.tooltip_text = card.text
 			var effect = _label(column, card.text, 12, MUTED)
 			effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			if source == "secret":
+				if not str(view.players[player].get("held_secret", "")).is_empty():
+					_label(column, "Held for the next shop", 12, GOLD)
+				elif {"type": "hold"} in actions:
+					_button(column, "Hold for next shop · 1 gold", _act.bind({"type": "hold"}))
 		_button(column, "Finish shopping", _act.bind({"type": "finish_shop"}), {"type": "finish_shop"} not in actions)
 	elif view.phase == "deployment":
+		# Lane creeps for this round are public before heroes are chosen.
+		var pending = view.get("pending_creeps", [[], []])
+		for side in [player, 1 - player]:
+			var lanes: Array = []
+			for lane_index in pending[side]:
+				lanes.append(LANE_NAMES[int(lane_index)])
+			_label(column, "%s creeps: %s" % ["Your" if side == player else "Enemy", ", ".join(lanes) if not lanes.is_empty() else "none"], 12, MUTED)
 		var seen_units: Array = []
 		for action in actions:
 			if action.type != "deploy" or action.unit in seen_units:
@@ -441,7 +483,10 @@ func _open_log() -> void:
 	add_child(dialog)
 	var text_box = RichTextLabel.new()
 	text_box.custom_minimum_size = Vector2(580, 470)
-	text_box.text = "\n\n".join(_view().events)
+	var lines: Array = []
+	for event in _view().events:
+		lines.append(EventFormatter.format(event, engine.library))
+	text_box.text = "\n\n".join(lines)
 	text_box.scroll_following = true
 	dialog.add_child(text_box)
 	dialog.confirmed.connect(dialog.queue_free)
@@ -642,6 +687,11 @@ func _select_card(index: int) -> void:
 	_inspect(str(view.players[_view_player(view)].hand[index]))
 	for action in _actions(_view_player(view)):
 		if action.type == "play" and int(action.hand) == index:
+			if action.has("position"):
+				selected_hand = index
+				notice = "Choose a highlighted empty combat position, or a new position at either end of the lane."
+				_render()
+				return
 			if not action.has("target"):
 				_act(action)
 				return
@@ -664,6 +714,12 @@ func _target_unit(uid: int) -> void:
 				notice = "Now choose this unit's combat target: a highlighted opposing unit or its opposing tower."
 				_render()
 				return
+			_act(action)
+			return
+
+func _choose_position(position: int) -> void:
+	for action in _actions(_view_player(_view())):
+		if action.type == "play" and int(action.hand) == selected_hand and int(action.get("position", -2)) == position:
 			_act(action)
 			return
 

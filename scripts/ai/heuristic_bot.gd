@@ -12,6 +12,9 @@ func choose_action(engine, player: int) -> Dictionary:
 		for action in actions:
 			if action.type == "buy":
 				return action
+		for action in actions:
+			if action.type == "hold" and _should_hold(engine, view, player):
+				return action
 		return actions.back()
 	if view.phase == "deployment":
 		var best_lane = _deployment_lane(engine, view, player)
@@ -41,10 +44,30 @@ func choose_action(engine, player: int) -> Dictionary:
 				score += mini(int(card.amount), int(view.players[player].deck_count)) * 0.9
 			if card.get("initiative", false):
 				score += 0.35
+			if action.has("position"):
+				score += _position_bonus(engine, view, player, card, int(action.position))
 		if score > best_score:
 			best_score = score
 			best_action = action
 	return best_action
+
+# Holding is rare: only when the Secret Shop item is just out of reach and
+# nothing else was affordable this phase.
+func _should_hold(engine, view: Dictionary, player: int) -> bool:
+	var secret = str(view.players[player].shop.get("secret", ""))
+	if secret.is_empty():
+		return false
+	var price = int(engine.library.cards[secret].price)
+	var gold = int(view.players[player].gold)
+	return price > gold and price <= gold + 3
+
+# Creep placement tie-breaker on top of the simulated evaluation: block the
+# strongest enemy attacker, or take an open position to push tower damage.
+func _position_bonus(engine, view: Dictionary, player: int, card: Dictionary, position: int) -> float:
+	var enemies = view.lanes[view.lane].units[1 - player]
+	if position >= 0 and position < enemies.size() and enemies[position] != null:
+		return engine.attack_of(enemies[position]) * 0.12
+	return 0.2 + float(card.get("attack", 0)) * 0.04
 
 func _deployment_lane(engine, view: Dictionary, player: int) -> int:
 	var best_lane = 0
@@ -59,6 +82,15 @@ func _deployment_lane(engine, view: Dictionary, player: int) -> int:
 		for planned_lane in view.players[player].plans.values():
 			if planned_lane == lane_index:
 				ally_strength += 10.0
+		# Lane creeps for this round are public before heroes are chosen.
+		var pending = view.get("pending_creeps", [[], []])
+		for side in range(2):
+			for creep_lane in pending[side]:
+				if int(creep_lane) == lane_index:
+					if side == player:
+						ally_strength += 2.0
+					else:
+						enemy_strength += 2.0
 		for unit in lane.units[1 - player]:
 			if unit != null:
 				enemy_strength += engine.attack_of(unit) + float(unit.health) * 0.25

@@ -6,7 +6,7 @@ This file separates implemented mechanics from verified fidelity. The supported 
 
 | Area | Prototype behavior | Fidelity status |
 | --- | --- | --- |
-| Lanes | Left → middle → right; no five-slot cap | Basic structure implemented |
+| Lanes | Left → middle → right; no five-slot cap; one shared, index-aligned row of combat positions per lane | Implemented; see "Combat positions" below |
 | Mana | Three initially, one more per round, refilled independently | Implemented; modifiers absent |
 | Actions | Players alternate; legal commands validate before mutation | Implemented |
 | Initiative | First consecutive passer opens next lane; playing resets passes; initiative effects keep the action | Implemented and tested; complex ability interactions absent |
@@ -17,12 +17,12 @@ This file separates implemented mechanics from verified fidelity. The supported 
 | Gold | Opponent receives bounty whenever a unit dies, including friendly spell damage and symmetric clears | Implemented; modifiers and special bounties absent |
 | Heroes | Original five plus Drow, Lycan, Phantom Assassin, Zeus and Rix | Ten supported heroes, five per chosen deck |
 | Death | Normal heroes return after a full round; Rix returns next round; Fountain immediately heals and clears temporary effects | Implemented and tested |
-| Deployment | Choose lane, commit privately, reveal together; hero heals on return | Basic flow implemented |
-| Placement | Seeded empty-slot selection or append; gaps retained | **Approximation**, not Classic's complete insertion/compaction algorithm |
-| Creeps | One per lane initially; two random-lane creeps per subsequent round | Basic training flow; exact Classic placement distribution unverified |
-| Combat arrows | Forced straight when blocked; 50% straight/25% each side when open, only redirect to an adjacent unit | **Approximation**; rerolls on summon and between rounds need fidelity work |
-| Draw | Five opening cards, then two per later round; empty deck draws nothing | Implemented; draw-step timing still needs reference verification |
-| Shop | Secret slot, equipment-deck slot, consumable slot; equipment purchases advance the nine-card item deck | Implemented using supported pools; full Classic pool/distribution unverified |
+| Deployment | Lane creeps are assigned and shown to both players first; heroes are then assigned to lanes privately; after both confirm, each player draws two cards, then all new units are placed in one shuffled order and every unit's arrow is rolled | Implemented per the wiki Phases page and tested |
+| Placement | Creep cards: the player chooses an empty own slot or a new position at either end. Summons, lane creeps and deployed heroes: a random empty own slot, otherwise a new position at a random end | Implemented and tested; random-placement details are an assumption (below) |
+| Creeps | Round 1: one Melee Creep per lane per player. Later rounds: two per player, each in a random lane, revealed at the start of deployment | Implemented and tested |
+| Combat arrows | Stored per unit as an offset -1/0/1. Blocked units attack forward. Otherwise 50% forward, 25% left, 25% right; a diagonal with no unit means forward. Rolled for every unit at the end of deployment, and only for the new unit when one enters during an action phase. Reset to forward when a unit is placed directly opposite, or when the attacker's target leaves play | Implemented per the wiki Pathing page and tested |
+| Draw | Five opening cards, then two per later round after deployment choices are confirmed; empty deck draws nothing | Implemented |
+| Shop | Secret Shop, item-deck and consumable slots. The item deck is reshuffled every shopping phase; buying from it reveals the next card. Hold: pay 1 gold, once per shop phase, to keep the Secret Shop offer for the next shopping phase | Implemented per the wiki Item Shop page and tested; supported pools only |
 | Equipment | Weapon, armor and accessory slots; replacement; retained through death | Real printed effects implemented |
 | Decks | Three presets; 5 unique heroes, 40 main cards with all signature copies, 9 equipment cards | Validated preset selection; custom deck editing and complete format rules absent |
 | Cards | Ten heroes and 39 other definitions | Supported slice; full catalog absent |
@@ -40,7 +40,34 @@ This file separates implemented mechanics from verified fidelity. The supported 
 | Signatures | Fighting Instinct permanent buffs, No Accident damage, Prowler aura, Battlefield Control redirection, Berserker's Call neighbor battles | Implemented and tested; full edge interactions require reference fixtures |
 | Extra effects | Tower Barrage includes tower damage; Stars Align grants temporary mana; Dimensional Portal summons three creeps | Implemented and tested |
 | Triggers | Supported continuous auras, Zeus post-spell trigger and Wolf post-combat growth | Complete general event queue absent |
-| Replays | Seed, selected decks and validated commands restore state/RNG | Protocol 3; previous replay protocols rejected clearly |
+| Log events | Structured dictionaries (`{"k": key, ...}`) formatted by `scripts/core/event_text.gd` | Implemented; English only, ready for `tr()` |
+| Replays | Seed, selected decks and validated commands restore state/RNG | Protocol 4; previous replay protocols rejected clearly |
+
+## Combat positions
+
+Each lane holds one ordered list of combat positions. In the engine this is stored as `lanes[i].units[0]` and `lanes[i].units[1]`. These two rows always have the same length, and index `n` in both is the same position. "Neighbors" are the own-row units at `n - 1` and `n + 1`, and an empty slot means no neighbor on that side. "Enemy neighbors" are the enemy-row units at `n - 1`, `n` and `n + 1`. Static Field, Berserker's Call, Gust and arrows all read this aligned model.
+
+Commands:
+
+- `{"type": "play", "hand": i, "position": p}` plays a creep card. `p` is the index of an existing position whose own slot is empty, `-1` for a new position at the left end, or the current position count for a new position at the right end. An empty lane offers only `0`. `legal_actions` lists one action per choice.
+- `{"type": "hold"}` is legal in the shop when the player has at least 1 gold, the Secret Shop slot is not sold, and nothing has been held yet this phase.
+
+State:
+
+- `state.pending_creeps` holds this round's lane-creep lanes, as `[[lane, lane], [lane, lane]]`. It is public and is cleared after placement.
+- `players[p].held_secret` is the held Secret Shop card. It is hidden from the opponent.
+- `state.event_seq` counts every event ever emitted.
+
+Arrows are relative offsets. A new left-end position shifts both rows together, so no attacker changes target. Compaction removes only positions that are empty on both sides, so an attacker and its diagonal target stay adjacent.
+
+## Assumptions pending verification
+
+- **Compaction timing.** A position that is empty on both sides is removed as soon as units leave the lane. That covers death cleanup after spells, Static Field, Berserker's Call and combat, and a unit returned to the Fountain. Units killed together keep their positions until all of them are removed. No source states Classic's exact collapse timing.
+- **Random placement.** Summons, lane creeps and deployed heroes prefer a random empty own slot, and open a new position at a random end only when none exists. As a result, round 1 always starts with every lane fully blocked (two positions, 2 v 2).
+- **Fair reveal order.** Units placed at reveal (both players' heroes and creeps) are placed in one RNG-shuffled order. Classic's real interleaving is unknown.
+- **Forced targets.** Battlefield Control's chosen target is not reset when a unit is placed in front of the redirected unit. It is reset when the chosen unit leaves play, and it ends at the next deployment.
+- **Holding then buying.** Buying a held Secret Shop item in the same phase cancels the hold. The gold already paid is not refunded.
+- **Ancient overflow** and the **J'Muy cooldown** timing remain as previously documented.
 
 ## Explicitly missing
 

@@ -7,8 +7,8 @@ signal match_received(view: Dictionary, actions: Array)
 signal command_received(command: Dictionary, revision: int)
 
 const APP_ID = 480
-const GAME_TAG = "classic_revival_classic_v3"
-const PROTOCOL = 3
+const GAME_TAG = "classic_revival_classic_v4"
+const PROTOCOL = 4
 const CHANNEL = 71
 const RELIABLE = 8
 const MAX_PACKET_BYTES = 262144

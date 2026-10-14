@@ -22,7 +22,7 @@ Valve documents `480` as the [Spacewar example application's App ID](https://par
 3. Reopen **Steam**, then copy the lobby ID and share it with the other player. The host is player 1.
 4. Guest selects **Steam**, pastes the lobby ID and selects **Join lobby**. The guest is player 2.
 5. Host can also open **Invite Steam friends**. Joining through the overlay invitation is not wired into the game yet; use the lobby ID to complete the join.
-6. Host can choose both deck presets from **Decks**. Play a full match including shop and deployment, then save the replay on the host. This version uses the expanded Classic pack and protocol 3; both players need this updated build.
+6. Host can choose both deck presets from **Decks**. Play a full match including shop and deployment, then save the replay on the host. This version uses the expanded Classic pack and protocol 4; both players need this updated build.
 
 App ID 480 has many unrelated development lobbies. The adapter checks its own game tag and protocol before accepting a guest lobby.
 
