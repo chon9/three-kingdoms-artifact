@@ -120,31 +120,39 @@ Generated: 111 / 111. Reviewed and accepted: 111.
 
 ## Catalog
 
-Prompts: [ART_PROMPTS_CATALOG.md](ART_PROMPTS_CATALOG.md) / [art_prompts_catalog.csv](art_prompts_catalog.csv). Generated with the built-in image tool, using unchanged catalog prompts and the accepted Guan Yu PNG as the style anchor. Named signature portraits are attached for continuity.
+Prompts: [ART_PROMPTS_CATALOG.md](ART_PROMPTS_CATALOG.md) / [art_prompts_catalog.csv](art_prompts_catalog.csv). Generated with the built-in image tool, using the accepted Guan Yu PNG as the style anchor. Catalog prompts are preserved verbatim in the manifest; #157 uses the user-approved aftermath composition. Named signature portraits are attached for continuity.
 
-Generated: 149 / 219. Reviewed and accepted: 146.
+Generated: 219 / 219. Reviewed and accepted: 219.
 
-Batch 1: **complete**. Finished #112-155; 44 accepted, 10 revisions, optimized to 512x768; 44 full-resolution masters verified. Uncertain images: none.
+Batch 1: **complete**. Finished #112-155; 44 accepted, 10 revisions, runtime size 512x768; 44 full-resolution masters verified. Uncertain images: none.
 
-Batch 2: **complete; #157 uses user-approved aftermath**. Finished #156-197; 42 accepted, 7 revisions, optimized to 512x768; 42 full-resolution masters verified. Uncertain images: none.
+Batch 2: **complete; #157 uses user-approved aftermath**. Finished #156-197; 42 accepted, 7 revisions, runtime size 512x768; 42 full-resolution masters verified. Uncertain images: none.
 
-Batch 3: **complete**. Finished #198-239; 42 accepted, 9 revisions, optimized to 512x768; 42 full-resolution masters verified. Uncertain images: none.
+Batch 3: **complete**. Finished #198-239; 42 accepted, 9 revisions, runtime size 512x768; 42 full-resolution masters verified. Uncertain images: none.
 
-Batch 4: **partial; built-in image quota reached**. Finished #240-256 and 259 accepted; 257,258,260 generated with corrections pending; 18 accepted, 2 revisions, optimized to 512x768; 21 full-resolution masters verified. Uncertain images: 257, 258, 260.
+Batch 4: **complete**. Finished #240-282; 43 accepted, 12 revisions, runtime size 512x768; 43 full-resolution masters verified. Uncertain images: none.
 
-Composition exception #157: approved aftermath generated and visually accepted.
+Batch 5: **complete**. Finished #283-322; 40 accepted, 8 revisions, runtime size 512x768; 40 full-resolution masters verified. Uncertain images: none.
 
-Image generation is available again. Current checkpoint: 149 generated, 146 accepted; 70 entries remain. Pending corrections: #257, #258, #260.
+Batch 6: **complete**. Finished #323-327; 5 accepted, 0 revisions, runtime size 512x768; 5 full-resolution masters verified. Uncertain images: none.
+
+Batch Hero regenerate: **complete**. Finished #328-330; 3 accepted, 0 revisions, runtime size 1024x1536; 3 full-resolution masters verified. Uncertain images: none.
+
+Composition exception #157: complete and accepted using the user-approved aftermath composition.
+
+Catalog complete: all 219 images generated, visually accepted, saved and validated. No pending corrections.
+
+Portrait redos #328-330 overwrite the requested reserve PNGs. These three files are Git-ignored by the current repository rules and need force-adding when Claude Code commits. Original portrait revisions are preserved under .tools/art_masters_revisions/.
 
 | Batch | Numbers | Generated | Accepted |
 |---|---|---:|---:|
 | 1 | 112-155 | 44 | 44 |
 | 2 | 156-197 | 42 | 42 |
 | 3 | 198-239 | 42 | 42 |
-| 4 | 240-282 | 21 | 18 |
-| 5 | 283-322 | 0 | 0 |
-| 6 | 323-327 | 0 | 0 |
-| Hero regenerate | 328-330 | 0 | 0 |
+| 4 | 240-282 | 43 | 43 |
+| 5 | 283-322 | 40 | 40 |
+| 6 | 323-327 | 5 | 5 |
+| Hero regenerate | 328-330 | 3 | 3 |
 
 | # | Artwork | Requested file | Review |
 |---|---|---|---|
@@ -293,7 +301,77 @@ Image generation is available again. Current checkpoint: 149 generated, 146 acce
 | 254 | Let Them Plunder | assets/art/cards/collateral_damage.png | accepted |
 | 255 | Estrangement | assets/art/cards/winters_curse.png | accepted |
 | 256 | Blade of the Fire God | assets/art/cards/assassinate.png | accepted |
-| 257 | Seven Captures | assets/art/cards/chain_frost.png | revision required |
-| 258 | Silent Night Raid | assets/art/cards/the_cover_of_night.png | revision required |
+| 257 | Seven Captures | assets/art/cards/chain_frost.png | accepted |
+| 258 | Silent Night Raid | assets/art/cards/the_cover_of_night.png | accepted |
 | 259 | Young Knight-Errant | assets/art/cards/assassins_apprentice.png | accepted |
-| 260 | Stone Slingers | assets/art/cards/oglodi_catapult.png | revision required |
+| 260 | Stone Slingers | assets/art/cards/oglodi_catapult.png | accepted |
+| 261 | Taiping Preacher | assets/art/cards/disciple_of_nevermore.png | accepted |
+| 262 | Palace Eunuch | assets/art/cards/tyler_estate_censor.png | accepted |
+| 263 | Grieving Host | assets/art/cards/pit_fighter_of_quoidge.png | accepted |
+| 264 | White Wave Bandits | assets/art/cards/oglodi_vandal.png | accepted |
+| 265 | Starving Horde | assets/art/cards/ravenous_mass.png | accepted |
+| 266 | Zhao E the Avenger | assets/art/cards/sister_of_the_veil.png | accepted |
+| 267 | Black Mountain Raider | assets/art/cards/ravenhook.png | accepted |
+| 268 | Xu Gong's Avengers | assets/art/cards/assassins_shadow.png | accepted |
+| 269 | Battering Ram | assets/art/cards/trebuchets.png | accepted |
+| 270 | Retreat Is Best | assets/art/cards/escape_route.png | accepted |
+| 271 | Feud of the Yuans | assets/art/cards/bitter_enemies.png | accepted |
+| 272 | Sapper Tunnels | assets/art/cards/unsupervised_artillery.png | accepted |
+| 273 | Jade and Stone Burn | assets/art/cards/assured_destruction.png | accepted |
+| 274 | Way of Deception | assets/art/cards/path_of_the_cunning.png | accepted |
+| 275 | Mei Fortress | assets/art/cards/revtel_investments.png | accepted |
+| 276 | Offices for Sale | assets/art/cards/iron_fog_goldmine.png | accepted |
+| 277 | First into Luoyang | assets/art/cards/assault_ladders.png | accepted |
+| 278 | Blood Oath | assets/art/cards/the_oath.png | accepted |
+| 279 | Ten Attendants | assets/art/cards/the_tyler_estate.png | accepted |
+| 280 | Bed Crossbow | assets/art/cards/keenfolk_turret.png | accepted |
+| 281 | Yellow Heaven Rises | assets/art/cards/march_of_the_machines.png | accepted |
+| 282 | Siege Tower | assets/art/cards/steam_cannon.png | accepted |
+| 283 | Du Kang Wine | assets/art/cards/fountain_flask.png | accepted |
+| 284 | Jueying Steed | assets/art/cards/assassins_veil.png | accepted |
+| 285 | Iron Pardon Tablet | assets/art/cards/revtel_signet_ring.png | accepted |
+| 286 | War Drums | assets/art/cards/ristul_emblem.png | accepted |
+| 287 | Flying Lightning | assets/art/cards/phase_boots.png | accepted |
+| 288 | Ferghana Horse | assets/art/cards/stonehall_cloak.png | accepted |
+| 289 | Caltrop Mail | assets/art/cards/barbed_mail.png | accepted |
+| 290 | Meteor Hammer | assets/art/cards/demagicking_maul.png | accepted |
+| 291 | Hundred-Forged Blade | assets/art/cards/stonehall_pike.png | accepted |
+| 292 | Bright Light Armor | assets/art/cards/stonehall_plate.png | accepted |
+| 293 | Ganjiang and Moye | assets/art/cards/jasper_daggers.png | accepted |
+| 294 | Brocade Robe | assets/art/cards/fur_lined_mantle.png | accepted |
+| 295 | Fish-Scale Armor | assets/art/cards/chainmail.png | accepted |
+| 296 | Zhuge Crossbow | assets/art/cards/keenfolk_musket.png | accepted |
+| 297 | Yitian Sword | assets/art/cards/blink_dagger.png | accepted |
+| 298 | Guding Blade | assets/art/cards/blade_of_the_vigil.png | accepted |
+| 299 | Death-Sworn Armor | assets/art/cards/bracers_of_sacrifice.png | accepted |
+| 300 | Ring-Pommel Saber | assets/art/cards/poaching_knife.png | accepted |
+| 301 | Great Pavise | assets/art/cards/shield_of_basilius.png | accepted |
+| 302 | Sleeved Armor | assets/art/cards/keenfolk_plate.png | accepted |
+| 303 | Fire Oil | assets/art/cards/obliterating_orb.png | accepted |
+| 304 | Border Pass | assets/art/cards/golden_ticket.png | accepted |
+| 305 | Silver Lion Armor | assets/art/cards/rumusque_vestments.png | accepted |
+| 306 | Stone-Splitting Axe | assets/art/cards/red_mist_maul.png | accepted |
+| 307 | Way of Great Peace | assets/art/cards/ring_of_tarrasque.png | accepted |
+| 308 | Mengde's New Book | assets/art/cards/cloak_of_endless_carnage.png | accepted |
+| 309 | Soul-Calling Banner | assets/art/cards/book_of_the_dead.png | accepted |
+| 310 | Armillary Sphere | assets/art/cards/claszureme_hourglass.png | accepted |
+| 311 | Black Tortoise Shield | assets/art/cards/shield_of_aquila.png | accepted |
+| 312 | Red Hare | assets/art/cards/heros_cape.png | accepted |
+| 313 | Black Iron Armor | assets/art/cards/platemail.png | accepted |
+| 314 | Benevolent King Shield | assets/art/cards/seraphim_shield.png | accepted |
+| 315 | Lion Helm | assets/art/cards/shivas_guard.png | accepted |
+| 316 | Purple-Gold Crown | assets/art/cards/helm_of_the_dominator.png | accepted |
+| 317 | Dragon Robe | assets/art/cards/vesture_of_the_tyrant.png | accepted |
+| 318 | Serpent Spear | assets/art/cards/wingfall_hammer.png | accepted |
+| 319 | Imperial Jade Seal | assets/art/cards/shop_deed.png | accepted |
+| 320 | Tiger Tally | assets/art/cards/horn_of_the_alpha.png | accepted |
+| 321 | Eight-Gate Lock | assets/art/cards/nyctashas_guard.png | accepted |
+| 322 | Sky Piercer | assets/art/cards/apotheosis_blade.png | accepted |
+| 323 | Wooden Beast | assets/art/cards/loyal_beast.png | accepted |
+| 324 | Farm Soldier | assets/art/cards/plague_ward.png | accepted |
+| 325 | Spiked Barricade | assets/art/cards/roseleaf_wall.png | accepted |
+| 326 | Ghost Soldier | assets/art/cards/zombie.png | accepted |
+| 327 | Hungry Tiger | assets/art/cards/hound_of_war.png | accepted |
+| 328 | Sun Shangxiang | assets/art/heroes_reserve/sunshangxiang.png | accepted |
+| 329 | Chen Gong | assets/art/heroes_reserve/chengong.png | accepted |
+| 330 | Sun Jian | assets/art/heroes_reserve/sunjian.png | accepted |
