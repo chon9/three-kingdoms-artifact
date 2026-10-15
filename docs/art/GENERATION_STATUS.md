@@ -117,3 +117,182 @@ Generated: 111 / 111. Reviewed and accepted: 111.
 | 109 | Main menu key art - Red Cliffs | assets/art/ui/menu_key_art.png | accepted |
 | 110 | Victory splash background | assets/art/ui/splash_victory.png | accepted |
 | 111 | Defeat splash background | assets/art/ui/splash_defeat.png | accepted |
+
+## Catalog
+
+Prompts: [ART_PROMPTS_CATALOG.md](ART_PROMPTS_CATALOG.md) / [art_prompts_catalog.csv](art_prompts_catalog.csv). Generated with the built-in image tool, using unchanged catalog prompts and the accepted Guan Yu PNG as the style anchor. Named signature portraits are attached for continuity.
+
+Generated: 148 / 219. Reviewed and accepted: 145.
+
+Batch 1: **complete**. Finished #112-155; 44 accepted, 10 revisions, optimized to 512x768; 44 full-resolution masters verified. Uncertain images: none.
+
+Batch 2: **41 complete; 157 awaiting user-approved composition change**. Finished #156-197, except 157; 41 accepted, 7 revisions, optimized to 512x768; 41 full-resolution masters verified. Uncertain images: none.
+
+Batch 3: **complete**. Finished #198-239; 42 accepted, 9 revisions, optimized to 512x768; 42 full-resolution masters verified. Uncertain images: none.
+
+Batch 4: **partial; built-in image quota reached**. Finished #240-256 and 259 accepted; 257,258,260 generated with corrections pending; 18 accepted, 2 revisions, optimized to 512x768; 21 full-resolution masters verified. Uncertain images: 257, 258, 260.
+
+Composition exception #157: awaiting user choice for a safe aftermath composition.
+
+Image-tool limit checkpoint: 148 generated, 145 accepted. Tool-reported reset: 10/16/2026 1:00:12 AM (Malaysia time). Pending corrections: #257, #258, #260. Not generated: 71 entries; resume Qun at #261. #157 remains a separate composition-choice exception.
+
+| Batch | Numbers | Generated | Accepted |
+|---|---|---:|---:|
+| 1 | 112-155 | 44 | 44 |
+| 2 | 156-197 | 41 | 41 |
+| 3 | 198-239 | 42 | 42 |
+| 4 | 240-282 | 21 | 18 |
+| 5 | 283-322 | 0 | 0 |
+| 6 | 323-327 | 0 | 0 |
+| Hero regenerate | 328-330 | 0 | 0 |
+
+| # | Artwork | Requested file | Review |
+|---|---|---|---|
+| 112 | Leiyang Verdicts | assets/art/cards/kraken_shell.png | accepted |
+| 113 | Nine Northern Campaigns | assets/art/cards/double_edge.png | accepted |
+| 114 | Trailing-Blade Feint | assets/art/cards/poised_to_strike.png | accepted |
+| 115 | Zhang Song's Map | assets/art/cards/new_orders.png | accepted |
+| 116 | Fu Tong's Rearguard | assets/art/cards/fight_through_the_pain.png | accepted |
+| 117 | Seven Charges Through | assets/art/cards/whirling_death.png | accepted |
+| 118 | Liao Hua Leads | assets/art/cards/heroic_resolve.png | accepted |
+| 119 | Night Duel at Jiameng | assets/art/cards/duel.png | accepted |
+| 120 | Scolding Wang Lang | assets/art/cards/pick_a_fight.png | accepted |
+| 121 | Tiger's Cubs | assets/art/cards/rising_anger.png | accepted |
+| 122 | Taking Wakou Pass | assets/art/cards/smash_their_defenses.png | accepted |
+| 123 | Fa Zheng's Signal | assets/art/cards/spot_weakness.png | accepted |
+| 124 | Coiled Serpent Valley | assets/art/cards/rend_armor.png | accepted |
+| 125 | Hold Hanzhong | assets/art/cards/enrage.png | accepted |
+| 126 | Five Tiger Generals | assets/art/cards/clear_the_deck.png | accepted |
+| 127 | Turnback Spear | assets/art/cards/sucker_punch.png | accepted |
+| 128 | Restore the Han | assets/art/cards/tresdins_standards.png | accepted |
+| 129 | Fierce Bow | assets/art/cards/viscous_nasal_goo.png | accepted |
+| 130 | Win Their Hearts | assets/art/cards/crippling_blow.png | accepted |
+| 131 | Fire at Bowang | assets/art/cards/raze.png | accepted |
+| 132 | Ere the Wine Cools | assets/art/cards/enough_magic.png | accepted |
+| 133 | Chicken Rib | assets/art/cards/routed.png | accepted |
+| 134 | Lament of Idle Thighs | assets/art/cards/gods_strength.png | accepted |
+| 135 | Fire Beasts Break Ranks | assets/art/cards/primal_roar.png | accepted |
+| 136 | Flying Army Descends | assets/art/cards/spring_the_trap.png | accepted |
+| 137 | Peach Garden Oath | assets/art/cards/time_of_triumph.png | accepted |
+| 138 | Dongzhou Exiles | assets/art/cards/mercenary_exiles.png | accepted |
+| 139 | Snare-Rope Troops | assets/art/cards/hellbear_crippler.png | accepted |
+| 140 | Pu Yuan's Smiths | assets/art/cards/smeevil_armsmaster.png | accepted |
+| 141 | Zhuo Volunteers | assets/art/cards/rebel_instigator.png | accepted |
+| 142 | Yamen Standard Bearer | assets/art/cards/legion_standard_bearer.png | accepted |
+| 143 | Tiger-Step Elite | assets/art/cards/stonehall_elite.png | accepted |
+| 144 | Repeating Crossbowmen | assets/art/cards/ogre_corpse_tosser.png | accepted |
+| 145 | Lu River Veterans | assets/art/cards/cursed_satyr.png | accepted |
+| 146 | Xiliang Iron Cavalry | assets/art/cards/red_mist_pillager.png | accepted |
+| 147 | Wooden Ox | assets/art/cards/keenfolk_golem.png | accepted |
+| 148 | Banshun Shieldmen | assets/art/cards/marrowfell_brawler.png | accepted |
+| 149 | Logs and Boulders | assets/art/cards/burning_oil.png | accepted |
+| 150 | Road to Shu | assets/art/cards/path_of_the_bold.png | accepted |
+| 151 | Chengdu Arsenal | assets/art/cards/temple_of_war.png | accepted |
+| 152 | Clash of Champions | assets/art/cards/grand_melee.png | accepted |
+| 153 | Turn the Tables | assets/art/cards/nether_ward.png | accepted |
+| 154 | Lady Sun's Fort | assets/art/cards/steel_reinforcement.png | accepted |
+| 155 | Baidi Citadel | assets/art/cards/the_omexe_arena.png | accepted |
+| 156 | Tiger-Leopard Charge | assets/art/cards/strafing_run.png | accepted |
+| 158 | Provocation | assets/art/cards/ventriloquy.png | accepted |
+| 159 | Cut Beard, Shed Robe | assets/art/cards/cunning_plan.png | accepted |
+| 160 | Killing in My Dreams | assets/art/cards/whispers_of_madness.png | accepted |
+| 161 | Heroes Over Plum Wine | assets/art/cards/rolling_storm.png | accepted |
+| 162 | Eating His Own Eye | assets/art/cards/frostbite.png | accepted |
+| 163 | Thousand-Gold Bounty | assets/art/cards/wrath_of_gold.png | accepted |
+| 164 | Xu Huang's Relief | assets/art/cards/better_late_than_never.png | accepted |
+| 165 | Stalling Tactics | assets/art/cards/buying_time.png | accepted |
+| 166 | Lure the Tiger | assets/art/cards/compel.png | accepted |
+| 167 | Let Me Wrong the World | assets/art/cards/at_any_cost.png | accepted |
+| 168 | Garrison the Huai | assets/art/cards/sow_venom.png | accepted |
+| 169 | Split and Advance | assets/art/cards/divided_we_stand.png | accepted |
+| 170 | Copy the Wooden Ox | assets/art/cards/and_one_for_me.png | accepted |
+| 171 | Catch and Release | assets/art/cards/astral_imprisonment.png | accepted |
+| 172 | The Smudged Letter | assets/art/cards/self_sabotage.png | accepted |
+| 173 | Tiger Against Wolf | assets/art/cards/prey_on_the_weak.png | accepted |
+| 174 | Feint East, Strike West | assets/art/cards/arcane_assault.png | accepted |
+| 175 | Decoy Army | assets/art/cards/fog_of_war.png | accepted |
+| 176 | Ode to the Luo Goddess | assets/art/cards/eclipse.png | accepted |
+| 177 | Hail of Short Halberds | assets/art/cards/mystic_flare.png | accepted |
+| 178 | Thousand-Li Petition | assets/art/cards/lost_in_time.png | accepted |
+| 179 | Three-Day Forced March | assets/art/cards/call_the_reserves.png | accepted |
+| 180 | Two Tigers, One Prey | assets/art/cards/friendly_fire.png | accepted |
+| 181 | Ambush on Ten Sides | assets/art/cards/remote_detonation.png | accepted |
+| 182 | Liao Is Coming | assets/art/cards/echo_slam.png | accepted |
+| 183 | Burning of Wuchao | assets/art/cards/bolt_of_damocles.png | accepted |
+| 184 | Dare-to-Die Men | assets/art/cards/relentless_zombie.png | accepted |
+| 185 | Agrarian Colonel | assets/art/cards/satyr_magician.png | accepted |
+| 186 | Guan Lu the Diviner | assets/art/cards/troll_soothsayer.png | accepted |
+| 187 | Cao Zhi | assets/art/cards/incarnation_of_selemene.png | accepted |
+| 188 | Post Station | assets/art/cards/messenger_rookery.png | accepted |
+| 189 | Scout Camp | assets/art/cards/watchtower.png | accepted |
+| 190 | Walls and Bare Fields | assets/art/cards/fractured_timeline.png | accepted |
+| 191 | Imperial Academy | assets/art/cards/path_of_the_wise.png | accepted |
+| 192 | Ten Wins, Ten Losses | assets/art/cards/ignite.png | accepted |
+| 193 | Monthly Appraisals | assets/art/cards/howling_mind.png | accepted |
+| 194 | Bronze Sparrow Terrace | assets/art/cards/aghanims_sanctum.png | accepted |
+| 195 | Tiger Guard Camp | assets/art/cards/barracks.png | accepted |
+| 196 | Crossbow Battery | assets/art/cards/conflagration.png | accepted |
+| 197 | Horse Pitfalls | assets/art/cards/glyph_of_confusion.png | accepted |
+| 198 | Cicada Sheds Its Shell | assets/art/cards/juke.png | accepted |
+| 199 | Shield the Lord | assets/art/cards/aphotic_shield.png | accepted |
+| 200 | Shields Together | assets/art/cards/defend_the_weak.png | accepted |
+| 201 | Pounding Drums | assets/art/cards/bellow.png | accepted |
+| 202 | Mengchong Cover | assets/art/cards/iron_branch_protection.png | accepted |
+| 203 | Reward the Army | assets/art/cards/rumusque_blessing.png | accepted |
+| 204 | Fire Ship Feint | assets/art/cards/viper_strike.png | accepted |
+| 205 | Rousing Fervor | assets/art/cards/empower.png | accepted |
+| 206 | Duel at Shenting | assets/art/cards/ion_shell.png | accepted |
+| 207 | Fortify Ruxu | assets/art/cards/defensive_bloom.png | accepted |
+| 208 | Zither in Harmony | assets/art/cards/allseeing_ones_favor.png | accepted |
+| 209 | Raise Stone City | assets/art/cards/restoration_effort.png | accepted |
+| 210 | Rest and Recover | assets/art/cards/soul_of_spring.png | accepted |
+| 211 | River Purification | assets/art/cards/cleansing_rite.png | accepted |
+| 212 | Lull with Flattery | assets/art/cards/caught_unprepared.png | accepted |
+| 213 | Swap the Beams | assets/art/cards/steal_strength.png | accepted |
+| 214 | Southern Miasma | assets/art/cards/corrosive_mist.png | accepted |
+| 215 | The Yangtze Barrier | assets/art/cards/divine_intervention.png | accepted |
+| 216 | Phantom Ramparts | assets/art/cards/intimidation.png | accepted |
+| 217 | Ill-Suited to the South | assets/art/cards/curse_of_atrophy.png | accepted |
+| 218 | Granary Gift | assets/art/cards/hand_of_god.png | accepted |
+| 219 | Mandate of Heaven | assets/art/cards/divine_purpose.png | accepted |
+| 220 | Danyang Diehards | assets/art/cards/vhoul_martyr.png | accepted |
+| 221 | Zu Mao | assets/art/cards/rebel_decoy.png | accepted |
+| 222 | Wu-Yue Armorsmith | assets/art/cards/smeevil_blacksmith.png | accepted |
+| 223 | Wu Hook Duelist | assets/art/cards/satyr_duelist.png | accepted |
+| 224 | Shanyue Berserkers | assets/art/cards/rampaging_hellbear.png | accepted |
+| 225 | Lu Clan Retainers | assets/art/cards/roseleaf_druid.png | accepted |
+| 226 | Yue Shaman | assets/art/cards/selfish_cleric.png | accepted |
+| 227 | Grain Barge Fleet | assets/art/cards/revtel_convoy.png | accepted |
+| 228 | Wunan Guard | assets/art/cards/champion_of_the_ancient.png | accepted |
+| 229 | Apricot Grove Healer | assets/art/cards/roseleaf_rejuvenator.png | accepted |
+| 230 | Zhuge Jin | assets/art/cards/emissary_of_the_quorum.png | accepted |
+| 231 | Feiyun Flagship | assets/art/cards/thunderhide_alpha.png | accepted |
+| 232 | River Beacons | assets/art/cards/unearthed_secrets.png | accepted |
+| 233 | Land of Fish and Rice | assets/art/cards/path_of_the_dreamer.png | accepted |
+| 234 | Fleet Drills | assets/art/cards/mist_of_avernus.png | accepted |
+| 235 | Wait Out the Weary | assets/art/cards/homefield_advantage.png | accepted |
+| 236 | Capital at Jianye | assets/art/cards/selemenes_favor.png | accepted |
+| 237 | Field Infirmary | assets/art/cards/altar_of_the_mad_moon.png | accepted |
+| 238 | Heaven Protects | assets/art/cards/cheating_death.png | accepted |
+| 239 | Qiao Sisters' Manor | assets/art/cards/verdant_refuge.png | accepted |
+| 240 | Stray Arrow | assets/art/cards/grazing_shot.png | accepted |
+| 241 | Hunt the Fleeing | assets/art/cards/relentless_pursuit.png | accepted |
+| 242 | Toying with Cao Cao | assets/art/cards/mana_drain.png | accepted |
+| 243 | Spears Turned Inward | assets/art/cards/lodestone_demolition.png | accepted |
+| 244 | Torch the Works | assets/art/cards/dirty_deeds.png | accepted |
+| 245 | Debased Coinage | assets/art/cards/payday.png | accepted |
+| 246 | Proclamation Against Cao | assets/art/cards/track.png | accepted |
+| 247 | Raid on Xiaopei | assets/art/cards/ball_lightning.png | accepted |
+| 248 | Mafei Powder | assets/art/cards/heartstopper_aura.png | accepted |
+| 249 | Wine Pools, Meat Forests | assets/art/cards/blood_rage.png | accepted |
+| 250 | Cut the Supply Line | assets/art/cards/arcane_censure.png | accepted |
+| 251 | Ambush at Mount Xian | assets/art/cards/gank.png | accepted |
+| 252 | Belt Edict | assets/art/cards/murder_plot.png | accepted |
+| 253 | Eighteen Lords | assets/art/cards/coordinated_assault.png | accepted |
+| 254 | Let Them Plunder | assets/art/cards/collateral_damage.png | accepted |
+| 255 | Estrangement | assets/art/cards/winters_curse.png | accepted |
+| 256 | Blade of the Fire God | assets/art/cards/assassinate.png | accepted |
+| 257 | Seven Captures | assets/art/cards/chain_frost.png | revision required |
+| 258 | Silent Night Raid | assets/art/cards/the_cover_of_night.png | revision required |
+| 259 | Young Knight-Errant | assets/art/cards/assassins_apprentice.png | accepted |
+| 260 | Stone Slingers | assets/art/cards/oglodi_catapult.png | revision required |
