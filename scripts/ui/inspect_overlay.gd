@@ -9,6 +9,7 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Library = preload("res://scripts/core/card_library.gd")
 const CardView = preload("res://scripts/ui/card_view.gd")
 const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
+const EventText = preload("res://scripts/core/event_text.gd")
 const CARD_SIZE = Vector2(392, 571)
 
 var card: Control
@@ -120,7 +121,7 @@ func refresh_text() -> void:
 		if not signature.is_empty():
 			details.append(UiKit.t("CARD_SIGNATURE", {"card": Library.loc(signature)}))
 		var ability = Library.loc(card_id, "ability_name")
-		if not str(definition.get("ability", "")).is_empty():
+		if Library.has_active(card_id):
 			var cooldown = int(unit.get("cooldown", 0))
 			var line = UiKit.t("CARD_ABILITY_LINE", {"label": UiKit.t("CARD_ACTIVE_ABILITY"), "ability": ability})
 			if cooldown > 0:
@@ -135,6 +136,26 @@ func refresh_text() -> void:
 			details.append(UiKit.t("CARD_EQUIPPED", {"items": UiKit.t("LIST_SEPARATOR").join(items)}))
 		if unit.get("silenced", false):
 			details.append(UiKit.t("HUD_SILENCED"))
+		# Derived keywords and every modification with its source and
+		# duration (spec §8.8).
+		var keywords: Array = []
+		for keyword in live.get("keywords", {}):
+			var value = int(live.keywords[keyword])
+			var label = EventText.keyword_name(str(keyword))
+			keywords.append(label if keyword not in ["siege", "cleave", "retaliate", "regeneration", "bonus_hero", "bonus_tower"] else "%s %d" % [label, value])
+		if not keywords.is_empty():
+			details.append(UiKit.t("CARD_KEYWORDS", {"list": UiKit.t("LIST_SEPARATOR").join(keywords)}))
+		var effects: Array = []
+		for entry in live.get("mods", []):
+			var source = Library.loc(str(entry.get("src", ""))) if not str(entry.get("src", "")).is_empty() else EventText.t("EV_AN_EFFECT")
+			var changes = EventText.changes(entry)
+			if str(entry.get("k", "")) == "modify":
+				effects.append(UiKit.t("CARD_EFFECT_PERMANENT", {"card": source, "changes": changes}))
+			else:
+				effects.append(UiKit.t("CARD_EFFECT_TEMPORARY", {"card": source, "changes": changes,
+					"duration": EventText.t(EventText.DURATION_KEYS.get(str(entry.get("d", "round")), "EV_UNTIL_ROUND"))}))
+		if not effects.is_empty():
+			details.append(UiKit.t("CARD_EFFECTS", {"list": UiKit.t("LIST_SEPARATOR").join(effects)}))
 		if int(live.get("damage", 0)) > 0:
 			details.append(UiKit.t("HUD_INCOMING_DAMAGE", {"n": int(live.damage)}) + ("  " + UiKit.t("HUD_WILL_DIE") if live.get("dies", false) else ""))
 	detail_label.text = "\n".join(details)

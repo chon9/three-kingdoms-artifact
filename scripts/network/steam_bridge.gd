@@ -40,12 +40,15 @@ signal session_ended(code: String)
 ## Connection quality changed: see connection_info().
 signal connection_changed(info: Dictionary)
 
+const RulesVersion = preload("res://scripts/core/rules/rules_version.gd")
 const APP_ID = 480
 const GAME_TAG = "sanguo_classic_revival"
 ## 6: hello/welcome/reject handshake with content hash, ping/pong heartbeat,
 ## concede command, numbers normalized on receipt.
 ## 7: match format 6 (deploy re-plans, undeploy, the deployment_placed event).
-const PROTOCOL = 7
+## 8: match format 7 (the rules engine: hand state, modifier entries, item
+## instances, private event fields); the content hash covers RULES_VERSION.
+const PROTOCOL = 8
 const CHANNEL = 71
 # Steam Networking Messages send flags (k_nSteamNetworkingSend_*).
 const SEND_RELIABLE = 8
@@ -290,14 +293,17 @@ static func clean_name(text: String) -> String:
 static func same(value, expected) -> bool:
 	return typeof(value) == typeof(expected) and value == expected
 
-## Short hash of the rules-relevant data and the protocol. Line endings are
-## normalized so Windows (CRLF checkouts) and Linux builds agree.
-static func compute_content_hash(files: Array = CONTENT_FILES, protocol: int = PROTOCOL) -> String:
+## Short hash of the rules-relevant data, the protocol and the rules code
+## version (RULES_VERSION). Line endings are normalized so Windows (CRLF
+## checkouts) and Linux builds agree.
+static func compute_content_hash(files: Array = CONTENT_FILES, protocol: int = PROTOCOL,
+		rules: String = RulesVersion.RULES_VERSION) -> String:
 	var context = HashingContext.new()
 	context.start(HashingContext.HASH_SHA256)
 	for path in files:
 		context.update(FileAccess.get_file_as_string(path).replace("\r", "").to_utf8_buffer())
 	context.update(("protocol:%d" % protocol).to_utf8_buffer())
+	context.update(("rules:%s" % rules).to_utf8_buffer())
 	return context.finish().hex_encode().substr(0, 16)
 
 # --- Lobbies -------------------------------------------------------------------

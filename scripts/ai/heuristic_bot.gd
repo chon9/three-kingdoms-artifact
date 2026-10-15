@@ -41,22 +41,32 @@ func choose_action(engine, player: int) -> Dictionary:
 	for action in actions:
 		var simulation = engine.simulation_from_view(player)
 		simulation.apply_action(player, action)
-		var score = _evaluate(simulation, simulation.player_view(player), player) - baseline
+		# The simulation's state already is this player's view: refresh the
+		# own hand count instead of copying the whole state again.
+		var simulated: Dictionary = simulation.state
+		simulated.players[player]["hand_count"] = simulated.players[player].hand.size()
+		var score = _evaluate(simulation, simulated, player) - baseline
 		if action.type == "pass":
 			# Evaluate the CURRENT lane before a second pass moves the simulation
 			# into the next lane; this keeps the score comparable to card plays.
 			score = 0.1 if view.first_pass == -1 else 0.0
 		elif action.type == "ability":
-			score += 0.9 if view.players[player].deck_count > 0 else -1.0
+			# Static values of the compiled ability (spec §9.2): a draw
+			# ability is worth a card while the deck has one.
+			if _ability_draw(engine, int(action.unit)) > 0:
+				score += 0.9 if view.players[player].deck_count > 0 else -1.0
 		else:
-			var card = engine.library.cards[view.players[player].hand[int(action.hand)]]
+			var card_id = str(view.players[player].hand[int(action.hand)])
+			var card = engine.library.cards[card_id]
+			var value: Dictionary = engine.library.static_value(card_id)
 			score -= 0.7 + float(card.cost) * 0.12
-			if card.get("effect", "") == "draw":
+			if int(value.draw) > 0:
 				# Own deck order is hidden too. Estimate draw value from count,
 				# rather than copying live future draws into a search node.
-				score += mini(int(card.amount), int(view.players[player].deck_count)) * 0.9
-			if card.get("initiative", false):
+				score += mini(int(value.draw), int(view.players[player].deck_count)) * 0.9
+			if bool(value.initiative):
 				score += 0.35
+			score += float(value.bias)
 			if action.has("position"):
 				score += _position_bonus(engine, view, player, card, int(action.position))
 		if score > best_score:
@@ -64,13 +74,20 @@ func choose_action(engine, player: int) -> Dictionary:
 			best_action = action
 	return best_action
 
+## Cards a source's active ability draws for its owner (0 when it draws none).
+func _ability_draw(engine, source: int) -> int:
+	for entry in engine.abilities_of(source):
+		if int(entry.source) == source:
+			return int(engine.library.rules(str(entry.card)).get("ability_static", {}).get(str(entry.ability), {}).get("draw", 0))
+	return 0
+
 # Holding is rare: only when the Secret Shop item is just out of reach and
 # nothing else was affordable this phase.
 func _should_hold(engine, view: Dictionary, player: int) -> bool:
 	var secret = str(view.players[player].shop.get("secret", ""))
 	if secret.is_empty():
 		return false
-	var price = int(engine.library.cards[secret].price)
+	var price = int(engine.price_of(player, "secret", secret))
 	var gold = int(view.players[player].gold)
 	return price > gold and price <= gold + 3
 
@@ -115,7 +132,15 @@ func _deployment_lane(engine, view: Dictionary, player: int) -> int:
 			best_lane = lane_index
 	return best_lane
 
+## The evaluation only reads the engine, so it runs in one read frame
+## (derived stats are cached for its duration).
 func _evaluate(engine, view: Dictionary, player: int) -> float:
+	engine.frame_begin()
+	var score = _evaluate_view(engine, view, player)
+	engine.frame_end()
+	return score
+
+func _evaluate_view(engine, view: Dictionary, player: int) -> float:
 	if view.winner == player:
 		return 100000.0
 	if view.winner == 1 - player:

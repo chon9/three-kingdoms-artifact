@@ -535,8 +535,8 @@
 						"zh_CN": "万箭齐发"
 					},
 					"text": {
-						"en": "Deal {amount} damage to every enemy unit and the enemy tower.",
-						"zh_CN": "对每个敌方单位和敌方城楼造成{amount}点伤害。"
+						"en": "Deal {amount} damage to each enemy unit.",
+						"zh_CN": "对每个敌方单位造成{amount}点伤害。"
 					},
 					"faction": "wei"
 				},
@@ -557,8 +557,8 @@
 						"zh_CN": "威震逍遥津"
 					},
 					"text": {
-						"en": "Deal {amount} damage to every enemy unit and the enemy tower.",
-						"zh_CN": "对每个敌方单位和敌方城楼造成{amount}点伤害。"
+						"en": "Deal {amount} damage to each enemy unit.",
+						"zh_CN": "对每个敌方单位造成{amount}点伤害。"
 					},
 					"faction": "wei"
 				},
@@ -1005,7 +1005,7 @@
 						"en": "Tower Barrage"
 					},
 					"text": {
-						"en": "Deal {amount} damage to every enemy unit and the enemy tower."
+						"en": "Deal {amount} damage to each enemy unit."
 					}
 				},
 				"slay": {
@@ -1021,7 +1021,7 @@
 						"en": "Thunderstorm"
 					},
 					"text": {
-						"en": "Deal {amount} damage to every enemy unit and the enemy tower."
+						"en": "Deal {amount} damage to each enemy unit."
 					}
 				},
 				"forward_charge": {

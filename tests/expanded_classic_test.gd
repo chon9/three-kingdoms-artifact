@@ -4,6 +4,7 @@ const MatchEngine = preload("res://scripts/core/match_engine.gd")
 const Bot = preload("res://scripts/ai/heuristic_bot.gd")
 const EventFormatter = preload("res://scripts/core/event_text.gd")
 const Settings = preload("res://scripts/core/game_settings.gd")
+const Invariants = preload("res://tests/invariants.gd")
 var checks = 0
 var failures: Array = []
 
@@ -169,7 +170,7 @@ func _growth_siege_and_removal() -> void:
 	_unit(engine, "axe", 0)
 	var pa = _unit(engine, "phantom_assassin", 0)
 	_unit(engine, "melee_creep", 1)
-	_check(_play(engine, "forward_charge").ok and pa.temp_siege == 2 and engine.combat_preview(0).tower_damage[0] == 8, "Black Forward Charge grants siege and resets combat direction")
+	_check(_play(engine, "forward_charge").ok and engine.keyword_of(pa, "siege") == 2 and engine.combat_preview(0).tower_damage[0] == 8, "Black Forward Charge grants siege and resets combat direction")
 	engine = _empty()
 	_unit(engine, "phantom_assassin", 0)
 	var creep = _unit(engine, "melee_creep", 1)
@@ -192,10 +193,21 @@ func _consumables_and_shop() -> void:
 	hero.health = 2
 	_check(_play(engine, "healing_salve", hero.uid).ok and hero.health == 8, "Healing Salve heals six without mana")
 	_check(engine.state.lanes[0].mana[0] == 20, "Consumables cost no mana to play")
-	hero.silenced = true
-	hero.temp_attack = 5
-	_check(_play(engine, "town_portal_scroll", hero.uid).ok, "Town Portal Scroll returns an allied hero")
-	_check(hero.lane == -1 and hero.ready_round == 2 and hero.health == 10 and not hero.silenced and hero.temp_attack == 0, "Portal heals, clears temporary effects and prepares next deployment")
+	# Real temporary effects: +5 attack and a silence until the end of the
+	# round, and a permanent +1 armor that the Fountain keeps (spec §4.7).
+	var context = {"controller": 1, "card": ""}
+	MatchEngine.Kernel.give(engine, hero, {"attack": 5}, {"silence": 1}, "", "round", context)
+	MatchEngine.Kernel.modify(engine, hero, {"armor": 1}, {}, "", context)
+	MatchEngine.Stats.settle(engine)
+	var printed_attack = int(engine.library.definition("axe").attack)
+	_check(engine.attack_of(hero) == printed_attack + 5 and engine.has_flag(hero, "silence") and hero.silenced,
+		"The hero has +5 attack and is silenced this round before the Portal")
+	var silenced_cast = _play(engine, "town_portal_scroll", hero.uid)
+	_check(silenced_cast.ok, "Town Portal Scroll returns an allied hero")
+	_check(hero.lane == -1 and hero.ready_round == 2 and hero.health == 10, "Portal heals and prepares next deployment")
+	_check(engine.attack_of(hero) == printed_attack and not engine.has_flag(hero, "silence") and not hero.silenced
+		and hero.mods.all(func(entry): return str(entry.k) != "give"), "Portal clears temporary effects (give entries end in the Fountain)")
+	_check(engine.armor_of(hero) == int(engine.library.definition("axe").get("armor", 0)) + 1, "The Fountain keeps a permanent modification")
 	_check(engine.state.players[1].gold == 0, "Returning a living hero gives no death bounty")
 	_check(_play(engine, "potion_of_knowledge").ok and engine.state.players[0].hand.size() == 1, "Potion draws one card even without a matching-color hero")
 	engine = _empty()
@@ -283,7 +295,7 @@ func _matchup_matrix() -> void:
 				var engine = MatchEngine.new()
 				engine.start(seed_value, [first, second])
 				var steps = 0
-				var invariant = _aligned(engine)
+				var invariant = Invariants.aligned(engine)
 				var formatted = true
 				while engine.state.winner == -1 and steps < 1500:
 					var player = int(engine.state.active_player) if engine.state.phase == "action" else (1 if engine.state.players[0].finished else 0)
@@ -293,7 +305,7 @@ func _matchup_matrix() -> void:
 						break
 					var seen = int(engine.state.event_seq)
 					_check(engine.apply_action(player, command).ok, "Expansion bot action is legal")
-					invariant = invariant and _aligned(engine)
+					invariant = invariant and Invariants.aligned(engine)
 					var events = engine.state.events
 					for event in events.slice(events.size() - mini(int(engine.state.event_seq) - seen, events.size())):
 						var text = EventFormatter.format(event, engine.library)
@@ -305,12 +317,3 @@ func _matchup_matrix() -> void:
 				var restored = MatchEngine.new()
 				_check(restored.load_replay(JSON.parse_string(JSON.stringify(engine.replay_data()))).ok, "Expanded replay loads with deck IDs")
 				_check(restored.state_digest() == engine.state_digest(), "Expanded replay preserves every field and RNG")
-
-func _aligned(engine) -> bool:
-	for lane in engine.state.lanes:
-		if lane.units[0].size() != lane.units[1].size():
-			return false
-		for slot in range(lane.units[0].size()):
-			if lane.units[0][slot] == null and lane.units[1][slot] == null:
-				return false
-	return true

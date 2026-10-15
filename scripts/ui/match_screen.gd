@@ -296,7 +296,11 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 	board.display_engine.library = controller.engine.library
 	var seq = int(view.get("event_seq", 0))
 	var events = _new_events(view, seq)
-	if shown_view.is_empty() or seq < shown_seq or events.size() > 40:
+	# Long bursts (a big Wrath of Gold) are applied at once: only animated
+	# keys count, and events that rolled out of the window force a hard sync.
+	var animated = events.filter(func(event): return EventText.animated(event)).size()
+	var dropped = seq - shown_seq > view.get("events", []).size()
+	if shown_view.is_empty() or seq < shown_seq or animated > EventText.ANIMATED_LIMIT or dropped:
 		_hard_sync(view, new_actions, viewer)
 		return
 	if viewer != shown_viewer:
@@ -1070,25 +1074,31 @@ func _card_states(view: Dictionary, viewer: int, new_actions: Array) -> Array:
 			if action.get("type", "") == "play" and int(action.get("hand", -1)) == index:
 				playable = true
 				break
-		states.append({"playable": true} if playable else {"playable": false, "reason": _reason(str(hand_ids[index]), view, viewer)})
+		states.append({"playable": true} if playable else {"playable": false, "reason": _reason(str(hand_ids[index]), view, viewer, index)})
 	return states
 
-## Why a hand card cannot be played right now.
-func _reason(card_id: String, view: Dictionary, viewer: int) -> String:
+## Why a hand card cannot be played right now (the gates of spec §7.2).
+func _reason(card_id: String, view: Dictionary, viewer: int, index: int = -1) -> String:
 	if view.phase != "action":
 		return UiKit.t("REASON_NOT_ACTION_PHASE")
 	if int(view.active_player) != viewer:
 		return UiKit.t("REASON_OPPONENT_TURN")
+	var states: Array = view.players[viewer].get("hand_state", [])
+	if index >= 0 and index < states.size() and int(states[index].get("lock", 0)) > 0:
+		return UiKit.t("REASON_LOCKED")
 	var card = Library.raw_definition(card_id)
 	if int(card.get("cost", 0)) > int(view.lanes[int(view.lane)].mana[viewer]):
 		return UiKit.t("REASON_NEED_MANA", {"n": int(card.get("cost", 0))})
 	if str(card.get("color", "")) != "item":
 		var matching = false
 		for unit in view.lanes[int(view.lane)].units[viewer]:
-			if unit != null and unit.hero and unit.color == card.color and not unit.get("silenced", false):
+			if unit != null and unit.color == card.color and board.display_engine.can_cast_colour(unit):
 				matching = true
 		if not matching:
 			return UiKit.t("REASON_NEED_HERO", {"color": UiKit.t("COLOR_" + str(card.color).to_upper())})
+	for entry in board.display_engine.rules_of(viewer).forbid_play:
+		if str(card.get("kind", "")) in entry.kinds and int(entry.lane) == int(view.lane):
+			return UiKit.t("REASON_FORBIDDEN")
 	return UiKit.t("REASON_NO_TARGET")
 
 func _opponent_spent_text(view: Dictionary, viewer: int) -> String:

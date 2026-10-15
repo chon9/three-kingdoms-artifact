@@ -13,8 +13,6 @@ const Library = preload("res://scripts/core/card_library.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const CardArt = preload("res://scripts/ui/card_art.gd")
 const BASE = Vector2(180, 262)
-const ABILITY_FIELDS = ["neighbor_armor", "neighbor_attack", "siege", "combat_growth_attack",
-	"combat_growth_health", "global_attack", "static_field", "hero_bonus", "hero_tower_bonus", "rapid_deployment", "ability"]
 const SLOT_ICONS = {"weapon": "sword", "armor": "shield", "accessory": "suit_hearts"}
 const KIND_ICONS = {"hero": "crown_a", "creep": "character", "spell": "book_open", "improvement": "structure_wall"}
 ## Decorative emblem on card backs ("three": three kingdoms, three lanes).
@@ -84,11 +82,9 @@ func _layout() -> Dictionary:
 		"text": Rect2(4.0 * s, art_bottom, size.x - 8.0 * s, text_bottom - art_bottom),
 		"bar": Rect2(0, size.y - 40.0 * s, size.x, 40.0 * s)}
 
+## Creeps with an active or passive ability show their rules text.
 func _creep_has_text() -> bool:
-	for field in ABILITY_FIELDS:
-		if definition.has(field):
-			return true
-	return false
+	return Library.has_active(card_id) or Library.has_passive(card_id)
 
 func _draw() -> void:
 	var rect = Rect2(Vector2.ZERO, size)

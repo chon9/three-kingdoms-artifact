@@ -1,35 +1,253 @@
 class_name CardLibrary
 extends RefCounted
-## Data and effect implementations are separate. Unimplemented cards must never
-## silently enter a playable deck.
+## Card data and compiled rules. Unimplemented cards must never silently enter
+## a playable deck: a card with any rules error is unplayable and listed in
+## `errors`, and presets accept only verified, non-token cards (K13).
 ##
-## Rules data (data/*.json) is read for ids and numbers. Display text lives in
-## data/locale/cards.json per skin and locale: use the static loc() helpers.
+## Rules data (data/*.json, schema 4) is compiled once per pack by
+## scripts/core/rules/rules_db.gd. Display text lives in data/locale/cards.json
+## per skin and locale: use the static loc() helpers.
 
 const Settings = preload("res://scripts/core/game_settings.gd")
+const RulesDB = preload("res://scripts/core/rules/rules_db.gd")
 const PACKS = {
 	"artifact_classic_decks_v2": "res://data/classic_cards.json",
 	"original_training_fixtures": "res://data/training_cards.json"}
 const LOCALE_PATH = "res://data/locale/cards.json"
 const GLOSSARY_PATH = "res://data/locale/glossary.json"
 const FALLBACK_LOCALE = "en"
+const NO_RULES = {"abilities": [], "auras": [], "events": {}, "grant_events": {}, "grants": [], "active": -1,
+	"host": {}, "play": {}, "enter": [], "keywords": {}, "params": {}, "errors": [], "status": "",
+	"static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0}, "ability_static": {}}
 static var _locale_data: Dictionary = {}
 static var _glossary: Dictionary = {}
 static var _raw_definitions: Dictionary = {}
+## Parsed and compiled packs, shared by every library instance (card data is
+## read-only at runtime; the bot creates one engine per simulated action).
+static var _packs: Dictionary = {}
 var cards: Dictionary = {}
 var heroes: Array = []
 var content_pack: String
 var catalog: Dictionary
+## Card id -> compiled rules (rules_db.gd).
+var compiled: Dictionary = {}
+## "card_id.path: message" for every rules error and warning of the pack.
+var errors: Array = []
+var warnings: Array = []
+## Event -> {card_id: true} for cards whose abilities listen to it.
+var listening: Dictionary = {}
+## Event -> true when any card can grant a trigger that listens to it.
+var grant_listening: Dictionary = {}
+## Card ids with at least one aura (aura sources are scanned per stat read).
+var aura_cards: Dictionary = {}
+## "<target>:<field>" -> {card_id: true} for cards with an aura that changes
+## that field of that kind of object (for example "units:attack",
+## "towers:mana", "players:rules"), so a read scans only the sources that can
+## change it.
+var aura_fields: Dictionary = {}
+## Fields that some card's grants can give as an aura (granted text).
+var granted_aura_fields: Dictionary = {}
 
 func _init(pack: String = "artifact_classic_decks_v2") -> void:
 	assert(PACKS.has(pack), "Unsupported content pack")
 	content_pack = pack
+	var data = _pack(pack)
+	catalog = data.catalog
+	heroes = data.heroes
+	cards = data.cards
+	compiled = data.compiled
+	errors = data.errors
+	warnings = data.warnings
+	listening = data.listening
+	grant_listening = data.grant_listening
+	aura_cards = data.aura_cards
+	aura_fields = data.aura_fields
+	granted_aura_fields = data.granted_aura_fields
+
+static func _pack(pack: String) -> Dictionary:
+	if _packs.has(pack):
+		return _packs[pack]
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PACKS[pack]))
 	assert(parsed is Dictionary, "Invalid card catalog")
-	catalog = parsed
-	heroes = parsed.heroes
+	var data = {"catalog": parsed, "heroes": parsed.heroes, "cards": {}, "compiled": {}, "errors": [],
+		"warnings": [], "listening": {}, "grant_listening": {}, "aura_cards": {}, "aura_fields": {},
+		"granted_aura_fields": {}}
 	for card in parsed.cards:
-		cards[card.id] = card
+		data.cards[card.id] = card
+	var entries: Array = []
+	for hero in parsed.heroes:
+		var entry = hero.duplicate()
+		if not entry.has("kind"):
+			entry["kind"] = "hero"
+		entries.append(entry)
+	entries.append_array(parsed.cards)
+	for entry in entries:
+		_index(data, str(entry.id), RulesDB.compile(entry))
+	_check_links(data, entries)
+	_packs[pack] = data
+	return data
+
+## Adds one compiled card to a pack's indexes (`data` holds the same keys as
+## the library fields: compiled, errors, warnings, listening...).
+static func _index(data: Dictionary, id: String, rules: Dictionary) -> void:
+	data.compiled[id] = rules
+	data.errors.append_array(rules.errors)
+	data.warnings.append_array(rules.warnings)
+	for event in rules.events:
+		if not data.listening.has(event):
+			data.listening[event] = {}
+		data.listening[event][id] = true
+	for event in rules.grant_events:
+		data.grant_listening[event] = true
+	if not rules.auras.is_empty():
+		data.aura_cards[id] = true
+	for index in rules.auras:
+		for field in aura_grant_fields(rules.abilities[index]):
+			if not data.aura_fields.has(field):
+				data.aura_fields[field] = {}
+			data.aura_fields[field][id] = true
+	for granted in rules.grants:
+		if str(granted.get("kind", "")) == "aura":
+			for field in aura_grant_fields(granted):
+				data.granted_aura_fields[field] = true
+
+## Checks that need the whole pack (RulesDB sees one card at a time): every
+## summoned card is a unit of the pack and every signature is a card of the
+## pack (errors, so the card is unplayable), and every parameter is read by
+## the rules or by a locale {placeholder} (a warning that catches typos such
+## as "amout").
+static func _check_links(data: Dictionary, entries: Array) -> void:
+	var units: Dictionary = {"melee_creep": true}
+	for hero in data.heroes:
+		units[str(hero.id)] = true
+	for card_id in data.cards:
+		if str(data.cards[card_id].get("kind", "")) in ["hero", "creep"]:
+			units[str(card_id)] = true
+	for entry in entries:
+		var id = str(entry.get("id", ""))
+		var rules: Dictionary = data.compiled.get(id, {})
+		if rules.is_empty():
+			continue
+		var problems: Array = []
+		if entry.has("signature") and not data.cards.has(str(entry.signature)):
+			problems.append("%s.signature: signature %s is not a card of this pack" % [id, str(entry.signature)])
+		var summoned: Array = []
+		for block in [rules.get("play", {}), rules.get("enter", []), rules.get("abilities", []), rules.get("grants", [])]:
+			_summoned_cards(block, summoned)
+		for card_id in summoned:
+			if not units.has(card_id):
+				problems.append("%s.summon: %s is not a hero or creep of this pack" % [id, card_id])
+		rules.errors.append_array(problems)
+		data.errors.append_array(problems)
+		var read: Dictionary = {}
+		_params_read(entry, read)
+		for placeholder in _placeholders(id):
+			read[placeholder] = true
+		for param in rules.get("params", {}):
+			if not read.has(param) and param not in RulesDB.Vocab.CARD_FIELDS:
+				var message = "%s.%s: parameter %s is read by no rule and no card text (a typo?)" % [id, param, param]
+				rules.warnings.append(message)
+				data.warnings.append(message)
+
+static func _summoned_cards(value, out: Array) -> void:
+	if value is Dictionary:
+		if str(value.get("op", "")) == "summon" and value.has("card"):
+			out.append(str(value.card))
+		for key in value:
+			_summoned_cards(value[key], out)
+	elif value is Array:
+		for item in value:
+			_summoned_cards(item, out)
+
+static func _params_read(value, out: Dictionary) -> void:
+	if value is Dictionary:
+		if value.has("param"):
+			out[str(value.param)] = true
+		for key in value:
+			_params_read(value[key], out)
+	elif value is Array:
+		for item in value:
+			_params_read(item, out)
+
+## Every {placeholder} in any skin's and locale's text for a card.
+static func _placeholders(card_id: String) -> Array:
+	var out: Array = []
+	var pattern = RegEx.create_from_string("\\{([A-Za-z0-9_]+)\\}")
+	for skin in locale_data().get("skins", {}).values():
+		var entry = skin.get("cards", {}).get(card_id, {})
+		if not entry is Dictionary:
+			continue
+		for field in entry.values():
+			var texts: Array = field.values() if field is Dictionary else [field]
+			for text in texts:
+				for found in pattern.search_all(str(text)):
+					out.append(found.get_string(1))
+	return out
+
+## What an aura changes, as "<target>:<field>" keys (rules_db.gd).
+static func aura_grant_fields(aura: Dictionary) -> Array:
+	return aura.get("fields", [])
+
+## A library of `pack` plus extra card entries (test fixtures, spec M2's
+## rules_fixtures pack). The extra entries are compiled into private copies,
+## so the shared pack cache stays untouched.
+static func with_cards(pack: String, entries: Array):
+	var library = load("res://scripts/core/card_library.gd").new(pack)
+	library.cards = library.cards.duplicate()
+	library.compiled = library.compiled.duplicate()
+	library.errors = library.errors.duplicate()
+	library.warnings = library.warnings.duplicate()
+	library.listening = library.listening.duplicate(true)
+	library.grant_listening = library.grant_listening.duplicate()
+	library.aura_cards = library.aura_cards.duplicate()
+	library.aura_fields = library.aura_fields.duplicate(true)
+	library.granted_aura_fields = library.granted_aura_fields.duplicate()
+	var data = {"heroes": library.heroes, "cards": library.cards, "compiled": library.compiled,
+		"errors": library.errors, "warnings": library.warnings, "listening": library.listening,
+		"grant_listening": library.grant_listening, "aura_cards": library.aura_cards,
+		"aura_fields": library.aura_fields, "granted_aura_fields": library.granted_aura_fields}
+	for entry in entries:
+		var id = str(entry.get("id", ""))
+		library.cards[id] = entry
+		_index(data, id, RulesDB.compile(entry))
+	_check_links(data, entries)
+	return library
+
+## Compiled rules of a card, hero, token or item ({} shaped as NO_RULES when unknown).
+func rules(card_id: String) -> Dictionary:
+	return compiled.get(card_id, NO_RULES)
+
+## True when the card compiled without errors (K13).
+func playable(card_id: String) -> bool:
+	return compiled.has(card_id) and compiled[card_id].errors.is_empty()
+
+## Card ids whose abilities listen to `event`.
+func listeners(event: String) -> Array:
+	return listening.get(event, {}).keys()
+
+## The bot's static values of a card: draw, initiative, random, bias (spec §9.2).
+func static_value(card_id: String) -> Dictionary:
+	return rules(card_id).get("static", NO_RULES.static)
+
+## The rules of a card id in any pack, without a library instance.
+static func compiled_rules(card_id: String) -> Dictionary:
+	for pack in PACKS:
+		var data = _pack(pack)
+		if data.compiled.has(card_id):
+			return data.compiled[card_id]
+	return NO_RULES
+
+## The card has an active ability (shows an ability badge).
+static func has_active(card_id: String) -> bool:
+	return int(compiled_rules(card_id).get("active", -1)) >= 0
+
+## The card has a continuous or reactive ability, or printed keywords.
+static func has_passive(card_id: String) -> bool:
+	var rules = compiled_rules(card_id)
+	for ability in rules.get("abilities", []):
+		if str(ability.get("kind", "")) in ["aura", "trigger"]:
+			return true
+	return not rules.get("keywords", {}).is_empty()
 
 func get_card(card_id: String) -> Dictionary:
 	return cards.get(card_id, {})
@@ -81,7 +299,7 @@ func validate_preset(entry: Dictionary) -> Dictionary:
 	var seen: Array = []
 	for hero_id in entry.heroes:
 		var hero = definition(str(hero_id))
-		if hero.is_empty() or hero.get("kind", "") != "hero" or hero_id in seen:
+		if hero.is_empty() or hero.get("kind", "") != "hero" or hero_id in seen or not _deckable(str(hero_id)):
 			return {"ok": false, "code": "deck_hero_invalid", "args": {}, "error": "Heroes must be supported and unique."}
 		seen.append(hero_id)
 	if not entry.get("cards") is Dictionary or not entry.get("items") is Dictionary:
@@ -90,7 +308,7 @@ func validate_preset(entry: Dictionary) -> Dictionary:
 	for card_id in entry.cards:
 		var card = get_card(str(card_id))
 		var count = entry.cards[card_id]
-		if card.is_empty() or card.kind not in ["creep", "spell", "improvement"] or card_id == "melee_creep":
+		if card.is_empty() or card.kind not in ["creep", "spell", "improvement"] or not _deckable(str(card_id)):
 			return {"ok": false, "code": "deck_main_card", "args": {}, "error": "Unsupported main-deck card."}
 		if not (count is int or count is float) or float(count) != floor(float(count)) or count < 1 or count > 3:
 			return {"ok": false, "code": "deck_main_copies", "args": {}, "error": "Main cards need one to three whole copies."}
@@ -104,7 +322,7 @@ func validate_preset(entry: Dictionary) -> Dictionary:
 	for card_id in entry.items:
 		var card = get_card(str(card_id))
 		var count = entry.items[card_id]
-		if card.is_empty() or card.kind != "item" or card.get("consumable", false):
+		if card.is_empty() or card.kind != "item" or card.get("consumable", false) or not _deckable(str(card_id)):
 			return {"ok": false, "code": "deck_item_card", "args": {}, "error": "Item decks use supported equipment."}
 		if not (count is int or count is float) or float(count) != floor(float(count)) or count < 1:
 			return {"ok": false, "code": "deck_item_copies", "args": {}, "error": "Item counts must be positive whole numbers."}
@@ -112,6 +330,11 @@ func validate_preset(entry: Dictionary) -> Dictionary:
 	if item_count < 9:
 		return {"ok": false, "code": "deck_item_size", "args": {}, "error": "The item deck needs at least nine cards."}
 	return {"ok": true}
+
+## Verified, playable and not a token: the only cards a deck may hold (K13).
+func _deckable(card_id: String) -> bool:
+	var entry = rules(card_id)
+	return playable(card_id) and str(entry.get("status", "")) == "verified" and not bool(entry.get("token", false))
 
 func training_deck() -> Array:
 	# Forty cards; original test content, not a legal Classic constructed deck.

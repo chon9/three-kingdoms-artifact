@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "content_pack": "artifact_classic_decks_v2",
   "description": "Supported Artifact Classic catalog, three playable deck profiles, and item decks. Rules incorporate Classic balance patches.",
   "sources": [
@@ -23,7 +23,9 @@
       "attack": 6,
       "armor": 2,
       "health": 10,
-      "image_patch": "stats"
+      "image_patch": "stats",
+      "status": "verified",
+      "valve_text": ""
     },
     {
       "id": "jmuy",
@@ -35,13 +37,31 @@
       "image": "res://assets/classic_cards/4008_card.png",
       "artist": "Billy Christian",
       "text": "Wisdom of the Elders: draw a card. Active ability; cooldown 4.",
-      "ability": "draw",
       "ability_name": "Wisdom of the Elders",
       "ability_cooldown": 4,
       "signature": "battlefield_control",
       "attack": 3,
       "armor": 0,
-      "health": 8
+      "health": 8,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "wisdom_of_the_elders",
+          "kind": "active",
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "draw",
+              "player": "you",
+              "n": 1
+            }
+          ],
+          "valve": 4009
+        }
+      ],
+      "valve_text": "Wisdom of the Elders: Draw a card."
     },
     {
       "id": "farvhan",
@@ -57,7 +77,22 @@
       "signature": "prowler_vanguard",
       "attack": 4,
       "armor": 0,
-      "health": 10
+      "health": 10,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "pack_leadership",
+          "kind": "aura",
+          "affects": "allied_neighbors",
+          "grant": {
+            "armor": {
+              "param": "neighbor_armor"
+            }
+          },
+          "valve": 4001
+        }
+      ],
+      "valve_text": "Pack Leadership: Farvhan the Dreamer's allied neighbors have +1 Armor."
     },
     {
       "id": "keefe",
@@ -72,7 +107,9 @@
       "signature": "fighting_instinct",
       "attack": 6,
       "armor": 1,
-      "health": 11
+      "health": 11,
+      "status": "verified",
+      "valve_text": ""
     },
     {
       "id": "debbi",
@@ -88,7 +125,17 @@
       "signature": "no_accident",
       "attack": 7,
       "armor": 0,
-      "health": 5
+      "health": 5,
+      "status": "verified",
+      "keywords": {
+        "bonus_hero": {
+          "param": "hero_tower_bonus"
+        },
+        "bonus_tower": {
+          "param": "hero_tower_bonus"
+        }
+      },
+      "valve_text": "Meticulous Planner: Debbi the Cunning deals +2 damage when attacking a hero or tower."
     },
     {
       "id": "lycan",
@@ -104,7 +151,22 @@
       "text": "Feral Impulse: adjacent allies have +2 attack.",
       "attack": 4,
       "armor": 0,
-      "health": 10
+      "health": 10,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "feral_impulse",
+          "kind": "aura",
+          "affects": "allied_neighbors",
+          "grant": {
+            "attack": {
+              "param": "neighbor_attack"
+            }
+          },
+          "valve": 10494
+        }
+      ],
+      "valve_text": "Feral Impulse: Lycan's allied neighbors have +2 Attack."
     },
     {
       "id": "rix",
@@ -115,12 +177,16 @@
       "cost": 0,
       "image": "res://assets/classic_cards/10026_card.png",
       "artist": "Chris Rahn",
-      "rapid_deployment": true,
       "signature": "act_of_defiance",
       "text": "Rapid Deployment: Rix can redeploy in the round after dying.",
       "attack": 3,
       "armor": 0,
-      "health": 7
+      "health": 7,
+      "status": "verified",
+      "keywords": {
+        "rapid_deployment": 1
+      },
+      "valve_text": "Relentless Rebel: Rix has Rapid Deployment."
     },
     {
       "id": "drow",
@@ -136,7 +202,25 @@
       "text": "Precision Aura: every other ally in all lanes has +1 attack.",
       "attack": 4,
       "armor": 0,
-      "health": 7
+      "health": 7,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "precision_aura",
+          "kind": "aura",
+          "affects": {
+            "use": "other_allies",
+            "lane": "all"
+          },
+          "grant": {
+            "attack": {
+              "param": "global_attack"
+            }
+          },
+          "valve": 10504
+        }
+      ],
+      "valve_text": "Precision Aura: Other allies in all lanes have +1 Attack."
     },
     {
       "id": "phantom_assassin",
@@ -152,7 +236,14 @@
       "text": "Efficient Killer: deal +4 battle damage to heroes.",
       "attack": 6,
       "armor": 0,
-      "health": 8
+      "health": 8,
+      "status": "verified",
+      "keywords": {
+        "bonus_hero": {
+          "param": "hero_bonus"
+        }
+      },
+      "valve_text": "Efficient Killer: Phantom Assassin deals +4 damage when attacking a hero."
     },
     {
       "id": "zeus",
@@ -168,7 +259,32 @@
       "text": "Static Field: after a blue spell, deal 1 piercing damage to Zeus's enemy neighbors.",
       "attack": 3,
       "armor": 0,
-      "health": 7
+      "health": 7,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "static_field",
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "kind": "spell",
+            "color": "blue"
+          },
+          "ops": [
+            {
+              "op": "damage",
+              "to": "enemy_neighbors",
+              "amount": {
+                "param": "static_field"
+              },
+              "piercing": true
+            }
+          ],
+          "valve": 10519
+        }
+      ],
+      "valve_text": "Static Field: Deal 1 piercing damage to Zeus's enemy neighbors after you play a blue spell."
     }
   ],
   "cards": [
@@ -184,7 +300,10 @@
       "text": "Melee Creep: 2 attack, 0 armor, 4 health.",
       "attack": 2,
       "armor": 0,
-      "health": 4
+      "health": 4,
+      "status": "verified",
+      "token": true,
+      "valve_text": ""
     },
     {
       "id": "travelers_cloak",
@@ -195,12 +314,12 @@
       "cost": 0,
       "image": "res://assets/classic_cards/3000_card.png",
       "artist": "Julie Baroh",
-      "effect": "equip",
-      "target": "ally_hero",
       "slot": "accessory",
       "health": 4,
       "text": "Equipped hero gains +4 health.",
-      "price": 3
+      "price": 3,
+      "status": "verified",
+      "valve_text": "Equipped hero has +4 Health."
     },
     {
       "id": "leather_armor",
@@ -211,12 +330,12 @@
       "cost": 0,
       "image": "res://assets/classic_cards/3001_card.png",
       "artist": "Pauline Voss",
-      "effect": "equip",
-      "target": "ally_hero",
       "slot": "armor",
       "armor": 1,
       "text": "Equipped hero gains +1 armor.",
-      "price": 3
+      "price": 3,
+      "status": "verified",
+      "valve_text": "Equipped hero has +1 Armor."
     },
     {
       "id": "short_sword",
@@ -227,12 +346,12 @@
       "cost": 0,
       "image": "res://assets/classic_cards/3002_card.png",
       "artist": "Tommy Arnold",
-      "effect": "equip",
-      "target": "ally_hero",
       "slot": "weapon",
       "attack": 2,
       "text": "Equipped hero gains +2 attack.",
-      "price": 3
+      "price": 3,
+      "status": "verified",
+      "valve_text": "Equipped hero has +2 Attack."
     },
     {
       "id": "healing_salve",
@@ -243,12 +362,29 @@
       "cost": 0,
       "image": "res://assets/classic_cards/3003_card.png",
       "artist": "Julie Baroh",
-      "target": "unit",
-      "effect": "heal",
       "amount": 6,
       "consumable": true,
       "text": "Heal a unit for 6.",
-      "price": 3
+      "price": 3,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "heal",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Heal a unit 6."
     },
     {
       "id": "potion_of_knowledge",
@@ -259,12 +395,23 @@
       "cost": 0,
       "image": "res://assets/classic_cards/3005_card.png",
       "artist": "Magali Villeneuve",
-      "target": "none",
-      "effect": "draw",
       "amount": 1,
       "consumable": true,
       "text": "Draw a card.",
-      "price": 5
+      "price": 5,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "draw",
+            "player": "you",
+            "n": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Draw a card."
     },
     {
       "id": "town_portal_scroll",
@@ -275,11 +422,25 @@
       "cost": 0,
       "image": "res://assets/classic_cards/3006_card.png",
       "artist": "Pauline Voss",
-      "target": "ally_hero",
-      "effect": "return_hero",
       "consumable": true,
       "text": "Return an allied hero to the Fountain, fully healed and ready for the next deployment.",
-      "price": 3
+      "price": 3,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "allied_heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "to_fountain",
+            "unit": "$c.target"
+          }
+        ]
+      },
+      "valve_text": "Return an allied hero to the Fountain."
     },
     {
       "id": "prowler_vanguard",
@@ -294,7 +455,21 @@
       "text": "Adjacent allied units have +1 armor.",
       "attack": 0,
       "armor": 0,
-      "health": 6
+      "health": 6,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "vanguard",
+          "kind": "aura",
+          "affects": "allied_neighbors",
+          "grant": {
+            "armor": {
+              "param": "neighbor_armor"
+            }
+          }
+        }
+      ],
+      "valve_text": "Prowler Vanguard's allied neighbors have +1 Armor."
     },
     {
       "id": "fighting_instinct",
@@ -305,11 +480,37 @@
       "cost": 5,
       "image": "res://assets/classic_cards/4004_card.png",
       "artist": "Lius Lasahido",
-      "target": "red_hero",
-      "effect": "modify",
       "attack": 1,
       "armor": 1,
-      "text": "Permanently give a red hero +1 attack and +1 armor."
+      "text": "Permanently give a red hero +1 attack and +1 armor.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              },
+              "armor": {
+                "param": "armor"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a red hero with +1 Attack and +1 Armor."
     },
     {
       "id": "no_accident",
@@ -320,10 +521,27 @@
       "cost": 3,
       "image": "res://assets/classic_cards/4007_card.png",
       "artist": "Livia Prima",
-      "target": "unit",
-      "effect": "damage",
       "amount": 3,
-      "text": "Deal 3 damage to a unit."
+      "text": "Deal 3 damage to a unit.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "damage",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Deal 3 damage to a unit."
     },
     {
       "id": "battlefield_control",
@@ -334,9 +552,31 @@
       "cost": 1,
       "image": "res://assets/classic_cards/4010_card.png",
       "artist": "Billy Christian",
-      "target": "unit",
-      "effect": "redirect",
-      "text": "Choose a unit, then choose its combat target."
+      "text": "Choose a unit, then choose its combat target.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          },
+          {
+            "key": "destination",
+            "combat_target_of": "$c.target"
+          }
+        ],
+        "ops": [
+          {
+            "op": "retarget",
+            "unit": "$c.target",
+            "to": "$c.destination"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-19"
+      ],
+      "valve_text": "Choose a unit. Choose a combat target for it."
     },
     {
       "id": "centaur_hunter",
@@ -350,7 +590,12 @@
       "text": "Creep: 4 attack, 0 armor, 8 health.",
       "attack": 4,
       "armor": 0,
-      "health": 8
+      "health": 8,
+      "status": "verified",
+      "rq": [
+        "RQ-48"
+      ],
+      "valve_text": ""
     },
     {
       "id": "thunderhide_pack",
@@ -365,7 +610,14 @@
       "text": "Siege 6: when blocked during combat, also deal 6 tower damage.",
       "attack": 14,
       "armor": 0,
-      "health": 14
+      "health": 14,
+      "status": "verified",
+      "keywords": {
+        "siege": {
+          "param": "siege"
+        }
+      },
+      "valve_text": "Siege 6."
     },
     {
       "id": "bronze_legionnaire",
@@ -379,7 +631,9 @@
       "text": "Creep: 4 attack, 2 armor, 2 health.",
       "attack": 4,
       "armor": 2,
-      "health": 2
+      "health": 2,
+      "status": "verified",
+      "valve_text": ""
     },
     {
       "id": "savage_wolf",
@@ -395,7 +649,30 @@
       "text": "After combat, permanently gain +1 attack and +2 health.",
       "attack": 3,
       "armor": 0,
-      "health": 3
+      "health": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "growth",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "attack": {
+                  "param": "combat_growth_attack"
+                },
+                "max_health": {
+                  "param": "combat_growth_health"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Modify Savage Wolf with +1 Attack and +2 Health after the combat phase."
     },
     {
       "id": "ogre_conscript",
@@ -409,7 +686,9 @@
       "text": "Creep: 7 attack, 2 armor, 7 health.",
       "attack": 7,
       "armor": 2,
-      "health": 7
+      "health": 7,
+      "status": "verified",
+      "valve_text": ""
     },
     {
       "id": "untested_grunt",
@@ -423,7 +702,9 @@
       "text": "Creep: 4 attack, 0 armor, 2 health.",
       "attack": 4,
       "armor": 0,
-      "health": 2
+      "health": 2,
+      "status": "verified",
+      "valve_text": ""
     },
     {
       "id": "broadsword",
@@ -434,13 +715,13 @@
       "cost": 0,
       "image": "res://assets/classic_cards/10215_card.png",
       "artist": "Tommy Arnold",
-      "effect": "equip",
-      "target": "ally_hero",
       "slot": "weapon",
       "attack": 4,
       "text": "Equipped hero gains +4 attack.",
       "price": 6,
-      "image_patch": "price"
+      "image_patch": "price",
+      "status": "verified",
+      "valve_text": "Equipped hero has +4 Attack."
     },
     {
       "id": "claymore",
@@ -451,13 +732,13 @@
       "cost": 0,
       "image": "res://assets/classic_cards/10238_card.png",
       "artist": "Tommy Arnold",
-      "effect": "equip",
-      "target": "ally_hero",
       "slot": "weapon",
       "attack": 8,
       "text": "Equipped hero gains +8 attack.",
       "price": 14,
-      "image_patch": "price"
+      "image_patch": "price",
+      "status": "verified",
+      "valve_text": "Equipped hero has +8 Attack."
     },
     {
       "id": "hip_fire",
@@ -468,11 +749,28 @@
       "cost": 4,
       "image": "res://assets/classic_cards/10273_card.png",
       "artist": "Daarken",
-      "target": "unit",
-      "effect": "damage",
       "amount": 4,
-      "initiative": true,
-      "text": "Deal 4 damage to a unit. Get initiative."
+      "text": "Deal 4 damage to a unit. Get initiative.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "damage",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ],
+        "initiative": true
+      },
+      "valve_text": "Deal 4 damage to a unit. | Get initiative."
     },
     {
       "id": "thundergods_wrath",
@@ -483,11 +781,27 @@
       "cost": 7,
       "image": "res://assets/classic_cards/10278_card.png",
       "artist": "David Palumbo",
-      "target": "none",
-      "effect": "global_hero_damage",
       "amount": 4,
-      "piercing": true,
-      "text": "Deal 4 piercing damage to every enemy hero in all lanes."
+      "text": "Deal 4 piercing damage to every enemy hero in all lanes.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "damage",
+            "to": {
+              "s": "units",
+              "side": "enemy",
+              "kind": "hero",
+              "lane": "all"
+            },
+            "amount": {
+              "param": "amount"
+            },
+            "piercing": true
+          }
+        ]
+      },
+      "valve_text": "Deal 4 piercing damage to each enemy hero in all lanes."
     },
     {
       "id": "berserkers_call",
@@ -498,9 +812,34 @@
       "cost": 6,
       "image": "res://assets/classic_cards/10288_card.png",
       "artist": "Tyler Jacobson",
-      "target": "ally_red_hero",
-      "effect": "battle_neighbors",
-      "text": "An allied red hero battles its enemy neighbors."
+      "text": "An allied red hero battles its enemy neighbors.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "battle",
+            "a": "$c.target",
+            "b": {
+              "s": "units",
+              "rel": {
+                "enemy_neighbors": "$c.target"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Choose an allied red hero. It battles its enemy neighbors."
     },
     {
       "id": "defensive_stance",
@@ -511,10 +850,30 @@
       "cost": 2,
       "image": "res://assets/classic_cards/10297_card.png",
       "artist": "Bayard Wu",
-      "target": "hero",
-      "effect": "buff",
       "armor": 3,
-      "text": "Give a hero +3 armor for this round."
+      "text": "Give a hero +3 armor for this round.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "stats": {
+              "armor": {
+                "param": "armor"
+              }
+            },
+            "until": "round"
+          }
+        ]
+      },
+      "valve_text": "Give a hero +3 Armor this round."
     },
     {
       "id": "combat_training",
@@ -525,10 +884,29 @@
       "cost": 3,
       "image": "res://assets/classic_cards/10300_card.png",
       "artist": "Magali Villeneuve",
-      "target": "hero",
-      "effect": "modify",
       "attack": 2,
-      "text": "Permanently give a hero +2 attack."
+      "text": "Permanently give a hero +2 attack.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a hero with +2 Attack."
     },
     {
       "id": "foresight",
@@ -539,10 +917,21 @@
       "cost": 4,
       "image": "res://assets/classic_cards/10307_card.png",
       "artist": "Magali Villeneuve",
-      "target": "none",
-      "effect": "draw",
       "amount": 2,
-      "text": "Draw two cards."
+      "text": "Draw two cards.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "draw",
+            "player": "you",
+            "n": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Draw 2 cards."
     },
     {
       "id": "coup_de_grace",
@@ -553,10 +942,32 @@
       "cost": 6,
       "image": "res://assets/classic_cards/10308_card.png",
       "artist": "Greg Opalinski",
-      "target": "hero",
-      "effect": "condemn",
-      "discard_random": true,
-      "text": "Discard a random card from your hand, then condemn a hero."
+      "text": "Discard a random card from your hand, then condemn a hero.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "discard",
+            "cards": {
+              "use": "your_hand",
+              "pick": {
+                "random": 1
+              }
+            }
+          },
+          {
+            "op": "condemn",
+            "to": "$c.target"
+          }
+        ]
+      },
+      "valve_text": "Discard a random card. Condemn a hero."
     },
     {
       "id": "arm_the_rebellion",
@@ -567,11 +978,27 @@
       "cost": 4,
       "image": "res://assets/classic_cards/10311_card.png",
       "artist": "Robert Simon",
-      "target": "none",
-      "effect": "modify_creeps",
       "attack": 2,
       "armor": 1,
-      "text": "Permanently give allied creeps +2 attack and +1 armor."
+      "text": "Permanently give allied creeps +2 attack and +1 armor.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "modify",
+            "to": "allied_creeps",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              },
+              "armor": {
+                "param": "armor"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify allied creeps with +2 Attack and +1 Armor."
     },
     {
       "id": "annihilation",
@@ -582,9 +1009,21 @@
       "cost": 6,
       "image": "res://assets/classic_cards/10315_card.png",
       "artist": "Titus Lunter",
-      "target": "none",
-      "effect": "condemn_lane",
-      "text": "Condemn every unit in this lane."
+      "text": "Condemn every unit in this lane.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "condemn",
+            "to": "units"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-02",
+        "RQ-04"
+      ],
+      "valve_text": "Condemn all units."
     },
     {
       "id": "stars_align",
@@ -595,10 +1034,24 @@
       "cost": 1,
       "image": "res://assets/classic_cards/10334_card.png",
       "artist": "John Stanko",
-      "target": "none",
-      "effect": "mana",
       "amount": 3,
-      "text": "Your tower gains 3 mana for this round."
+      "text": "Your tower gains 3 mana for this round.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "give",
+            "to": "your_tower",
+            "stats": {
+              "mana": {
+                "param": "amount"
+              }
+            },
+            "until": "round"
+          }
+        ]
+      },
+      "valve_text": "Give your tower +3 Mana this round."
     },
     {
       "id": "gust",
@@ -609,11 +1062,36 @@
       "cost": 4,
       "image": "res://assets/classic_cards/10339_card.png",
       "artist": "Livia Prima",
-      "target": "enemy_hero",
-      "effect": "silence",
-      "neighbors": true,
       "image_patch": "effect",
-      "text": "Silence an enemy hero and its adjacent allies for this round."
+      "text": "Silence an enemy hero and its adjacent allies for this round.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "enemy_heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": [
+              "$c.target",
+              {
+                "s": "units",
+                "rel": {
+                  "allied_neighbors": "$c.target"
+                }
+              }
+            ],
+            "keywords": {
+              "silence": 1
+            },
+            "until": "round"
+          }
+        ]
+      },
+      "valve_text": "Silence an enemy hero and its allied neighbors this round."
     },
     {
       "id": "lightning_strike",
@@ -624,10 +1102,21 @@
       "cost": 2,
       "image": "res://assets/classic_cards/10352_card.png",
       "artist": "Daniel Romanovsky",
-      "target": "none",
-      "effect": "tower_damage",
       "amount": 6,
-      "text": "Deal 6 damage to the enemy tower."
+      "text": "Deal 6 damage to the enemy tower.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "tower_damage",
+            "to": "enemy_tower",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Deal 6 damage to the enemy tower."
     },
     {
       "id": "pick_off",
@@ -638,11 +1127,31 @@
       "cost": 4,
       "image": "res://assets/classic_cards/10354_card.png",
       "artist": "Randy Vargas",
-      "target": "unit",
-      "effect": "damage",
       "amount": 4,
       "cross_lane": true,
-      "text": "Deal 4 damage to a unit in any lane. Pay mana and use a black hero in the active lane."
+      "text": "Deal 4 damage to a unit in any lane. Pay mana and use a black hero in the active lane.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "lane": "all"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "damage",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Deal 4 damage to a unit in any lane."
     },
     {
       "id": "dimensional_portal",
@@ -653,10 +1162,21 @@
       "cost": 4,
       "image": "res://assets/classic_cards/10355_card.png",
       "artist": "Svetlin Velinov",
-      "target": "none",
-      "effect": "summon",
       "amount": 3,
-      "text": "Summon three Melee Creeps."
+      "text": "Summon three Melee Creeps.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "summon",
+            "card": "melee_creep",
+            "count": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Summon three Melee Creeps."
     },
     {
       "id": "avernus_blessing",
@@ -667,10 +1187,29 @@
       "cost": 3,
       "image": "res://assets/classic_cards/10368_card.png",
       "artist": "Livia Prima",
-      "target": "unit",
-      "effect": "modify",
       "attack": 2,
-      "text": "Permanently give a unit +2 attack."
+      "text": "Permanently give a unit +2 attack.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a unit with +2 Attack."
     },
     {
       "id": "tower_barrage",
@@ -681,11 +1220,24 @@
       "cost": 3,
       "image": "res://assets/classic_cards/10402_card.png",
       "artist": "JiHun Lee",
-      "target": "none",
-      "effect": "area_damage",
       "amount": 2,
-      "include_tower": true,
-      "text": "Deal 2 damage to every enemy unit and the enemy tower."
+      "text": "Deal 2 damage to each enemy unit.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "damage",
+            "to": "enemies",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-01"
+      ],
+      "valve_text": "Deal 2 damage to each enemy."
     },
     {
       "id": "slay",
@@ -696,9 +1248,23 @@
       "cost": 3,
       "image": "res://assets/classic_cards/10410_card.png",
       "artist": "Jana Schirmer",
-      "target": "creep",
-      "effect": "condemn",
-      "text": "Condemn a creep."
+      "text": "Condemn a creep.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "creeps"
+          }
+        ],
+        "ops": [
+          {
+            "op": "condemn",
+            "to": "$c.target"
+          }
+        ]
+      },
+      "valve_text": "Condemn a creep."
     },
     {
       "id": "thunderstorm",
@@ -709,11 +1275,24 @@
       "cost": 6,
       "image": "res://assets/classic_cards/10412_card.png",
       "artist": "James Paick",
-      "target": "none",
-      "effect": "area_damage",
       "amount": 4,
-      "include_tower": true,
-      "text": "Deal 4 damage to every enemy unit and the enemy tower."
+      "text": "Deal 4 damage to each enemy unit.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "damage",
+            "to": "enemies",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-01"
+      ],
+      "valve_text": "Deal 4 damage to each enemy."
     },
     {
       "id": "forward_charge",
@@ -724,10 +1303,29 @@
       "cost": 3,
       "image": "res://assets/classic_cards/10413_card.png",
       "artist": "Darek Zabrocki",
-      "target": "none",
-      "effect": "siege_buff",
       "siege": 2,
-      "text": "Allies gain +2 siege this round and attack straight ahead."
+      "text": "Allies gain +2 siege this round and attack straight ahead.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "give",
+            "to": "allies",
+            "keywords": {
+              "siege": {
+                "param": "siege"
+              }
+            },
+            "until": "round"
+          },
+          {
+            "op": "retarget",
+            "unit": "allies",
+            "to": "across"
+          }
+        ]
+      },
+      "valve_text": "Give allies +2 Siege this round. Allies change their combat target to the unit or tower across from them."
     },
     {
       "id": "act_of_defiance",
@@ -738,9 +1336,27 @@
       "cost": 5,
       "image": "res://assets/classic_cards/10420_card.png",
       "artist": "Chris Rahn",
-      "target": "unit",
-      "effect": "silence",
-      "text": "Silence a unit for this round."
+      "text": "Silence a unit for this round.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "keywords": {
+              "silence": 1
+            },
+            "until": "round"
+          }
+        ]
+      },
+      "valve_text": "Silence a unit this round."
     }
   ],
   "deck": {

@@ -5,6 +5,7 @@ const BotClass = preload("res://scripts/ai/heuristic_bot.gd")
 const EventFormatter = preload("res://scripts/core/event_text.gd")
 const BridgeClass = preload("res://scripts/network/steam_bridge.gd")
 const Settings = preload("res://scripts/core/game_settings.gd")
+const Invariants = preload("res://tests/invariants.gd")
 var checks = 0
 var failures: Array = []
 
@@ -263,7 +264,7 @@ func _test_replays_and_bot_matches() -> void:
 	for seed_value in range(1, 25):
 		var engine = _new(seed_value)
 		var steps = 0
-		var aligned = _board_invariants(engine)
+		var aligned = Invariants.board(engine)
 		var events_ok = _format_new_events(engine, 0, emitted)
 		while engine.state.winner == -1 and steps < 1200:
 			var player = int(engine.state.active_player) if engine.state.phase == "action" else (1 if engine.state.players[0].finished else 0)
@@ -273,7 +274,7 @@ func _test_replays_and_bot_matches() -> void:
 				break
 			var seen = int(engine.state.event_seq)
 			_check(engine.apply_action(player, action).ok, "Bot action stays legal in seed %d" % seed_value)
-			aligned = aligned and _board_invariants(engine)
+			aligned = aligned and Invariants.board(engine)
 			events_ok = _format_new_events(engine, seen, emitted) and events_ok
 			steps += 1
 		_check(engine.state.winner != -1, "Bot match terminates in seed %d" % seed_value)
@@ -289,37 +290,12 @@ func _test_replays_and_bot_matches() -> void:
 		_check(emitted.has(key), "Bot matches emit and format event key " + key)
 	_check(emitted.has("win") or emitted.has("draw"), "Bot matches emit a result event")
 	var replay = _new().replay_data()
-	_check(int(replay.protocol) == 6, "Replay format version is 6")
+	_check(int(replay.protocol) == 7, "Replay format version is 7")
 	replay.actions.append({"player": 0, "command": {"type": "play", "hand": -1}})
 	_check(not EngineClass.new().load_replay(replay).ok, "Corrupt replay action rejected")
 	var legacy = _new().replay_data()
 	legacy.protocol = 3
 	_check(not EngineClass.new().load_replay(legacy).ok, "Protocol 3 replays are rejected clearly")
-
-# Board invariants that must hold after every completed command: both rows
-# have equal length, no position is empty on both sides, every unit knows its
-# lane and owner, and a diagonal arrow only exists while the unit is unblocked
-# and a unit stands on that diagonal.
-func _board_invariants(engine) -> bool:
-	for lane_index in range(3):
-		var rows = engine.state.lanes[lane_index].units
-		if rows[0].size() != rows[1].size():
-			return false
-		for slot in range(rows[0].size()):
-			if rows[0][slot] == null and rows[1][slot] == null:
-				return false
-			for side in range(2):
-				var unit = rows[side][slot]
-				if unit == null:
-					continue
-				if int(unit.owner) != side or int(unit.lane) != lane_index:
-					return false
-				if int(unit.arrow) != 0 and int(unit.combat_target) < 0:
-					var enemies = rows[1 - side]
-					var diagonal = slot + int(unit.arrow)
-					if enemies[slot] != null or diagonal < 0 or diagonal >= enemies.size() or enemies[diagonal] == null:
-						return false
-	return true
 
 func _format_new_events(engine, seen: int, emitted: Dictionary) -> bool:
 	var events = engine.state.events
@@ -366,7 +342,7 @@ func _test_creep_positions() -> void:
 	engine.state.players[0].hand = ["red_guard"]
 	_check(engine.apply_action(0, {"type": "play", "hand": 0, "position": 3}).ok, "Creep can open a new right-end position")
 	_check(lane.units[0][3].card == "red_guard" and lane.units[1][3] == null, "Right-end insertion appends to both rows")
-	_check(_board_invariants(engine), "Creep insertions keep the board aligned")
+	_check(Invariants.board(engine), "Creep insertions keep the board aligned")
 	engine.state.lanes[1].units = [[], []]
 	_check(engine.creep_positions(1, 0) == [0], "An empty lane offers exactly one new position")
 
@@ -393,7 +369,7 @@ func _test_no_lane_reroll() -> void:
 		for unit in watched:
 			after.append([int(unit.arrow), int(engine.combat_target_of(unit).get("uid", 0))])
 		_check(after == before, "Playing a creep never rerolls or retargets other arrows (play %d)" % attempt)
-	_check(_board_invariants(engine), "Repeated end insertions keep arrows consistent")
+	_check(Invariants.board(engine), "Repeated end insertions keep arrows consistent")
 
 func _test_arrow_resets() -> void:
 	var engine = _duel()
@@ -468,7 +444,7 @@ func _test_deployment_creeps_visible() -> void:
 			matched = matched and after[side][lane_index] - before[side][lane_index] == pending[side].count(lane_index)
 	_check(matched, "Revealed creeps enter exactly the announced lanes")
 	_check(engine.state.pending_creeps == [[], []], "Pending creeps clear after placement")
-	_check(_board_invariants(engine), "Deployment placement keeps lanes aligned and arrows consistent")
+	_check(Invariants.board(engine), "Deployment placement keeps lanes aligned and arrows consistent")
 
 ## Passes through round 1 and the shop into round-two deployment.
 func _to_deployment(seed_value: int):
@@ -615,7 +591,36 @@ func _test_event_formatter_keys() -> void:
 		"deployment": {"round": 2, "creeps": [[0, 2], [1, 1]]},
 		"deployment_placed": {"units": [{"uid": 4, "p": 0, "card": "axe", "hero": true, "lane": 1, "slot": 0},
 			{"uid": 9, "p": 1, "card": "melee_creep", "hero": false, "lane": 2, "slot": 1}]},
-		"deployment_revealed": {}}
+		"deployment_revealed": {},
+		"trigger": {"src": "u7", "card": "zeus", "ability": "static_field", "p": 0},
+		"damage": {"src": "zeus", "p": 0, "hits": [[4, 1], [5, 1]], "pierce": true},
+		"tower_damage": {"src": "lightning_strike", "p": 0, "hits": [[1, 1, 6]]},
+		"heal": {"src": "healing_salve", "p": 1, "hits": [[4, 6]]},
+		"mod": {"id": 4, "card": "axe", "st": {"attack": 1, "armor": 1}, "kw": {}, "perm": true, "src": "fighting_instinct"},
+		"status": {"id": 4, "card": "axe", "st": {}, "kw": {"silence": 1}, "until": "round", "src": "gust"},
+		"purge": {"id": "u4", "card": "axe", "n": 2},
+		"condemn": {"id": 4, "card": "axe"},
+		"summon": {"uid": 30, "card": "melee_creep", "p": 0, "lane": 1, "slot": 2},
+		"move": {"uid": 4, "card": "axe", "from": 0, "to": 2, "slot": 1},
+		"swap": {"a": 4, "b": 5},
+		"retarget": {"uid": 4, "card": "axe", "target": 0},
+		"control": {"uid": 9, "card": "melee_creep", "from": 1, "to": 0},
+		"fountain": {"uid": 4, "card": "axe", "p": 0},
+		"battle": {"a": 4, "card": "axe", "p": 0, "bs": [8, 9], "hits": [[4, 8, 6, "attack"]]},
+		"shield": {"uid": 4, "card": "axe"},
+		"charges": {"id": 1000040, "card": "foresight", "n": 2},
+		"gold": {"p": 0, "n": -3},
+		"mana": {"lane": 0, "p": 1, "n": 2},
+		"draw_cards": {"p": 1, "n": 2},
+		"discard": {"p": 0, "n": 1},
+		"lock": {"p": 1, "n": 2},
+		"gain_card": {"p": 0},
+		"charged": {"p": 0, "n": 3},
+		"hack": {"p": 1, "n": 2},
+		"improvement": {"oid": 1000041, "card": "foresight", "p": 0, "lane": 2},
+		"improvement_gone": {"oid": 1000041, "card": "foresight"},
+		"item_gone": {"uid": 4, "slot": "weapon", "card": "short_sword"},
+		"pulse": {}, "rules_overflow": {}}
 	_check(samples.size() == EventFormatter.KEYS.size(), "Every documented event key has a formatter sample")
 	for key in EventFormatter.KEYS:
 		var event = {"k": key}
@@ -624,6 +629,17 @@ func _test_event_formatter_keys() -> void:
 		_check(not text.is_empty() and text != "?", "Formatter covers event key " + key)
 	_check(EventFormatter.format({"k": "play", "p": 0, "card": "foresight", "target_card": "axe"}, library) == "Player 1 plays Foresight on Axe.", "Formatter names cards from the library")
 	_check(EventFormatter.format({"k": "nonsense"}, library) == "?", "Unknown event keys are visible as ?")
+	# Rules engine events (spec §6.5) name their source card and sum their hits.
+	var keyed = func(key: String) -> Dictionary:
+		var event = {"k": key}
+		event.merge(samples[key])
+		return event
+	_check(EventFormatter.format(keyed.call("damage")) == "Zeus deals 2 piercing damage.", "Damage events sum their hits: " + EventFormatter.format(keyed.call("damage")))
+	_check(EventFormatter.format(keyed.call("status")) == "Gust gives Axe Silence this round.", "Status events list the change and its duration: " + EventFormatter.format(keyed.call("status")))
+	_check(EventFormatter.format(keyed.call("mod")) == "Fighting Instinct permanently gives Axe +1 Attack, +1 Armor.", "Modify events list the permanent stat changes: " + EventFormatter.format(keyed.call("mod")))
+	_check(EventFormatter.format(keyed.call("gold")) == "Player 1 loses 3 gold." and EventFormatter.format({"k": "draw_cards", "p": 0, "n": 1}) == "Player 1 draws a card.",
+		"Gold and draw events read naturally")
+	_check(EventFormatter.format({"k": "ability", "p": 1, "uid": 4, "card": "jmuy", "ability": "wisdom_of_the_elders"}) == "J'Muy the Wise uses Wisdom of the Elders.", "Ability events name the ability")
 	var placed = {"k": "deployment_placed", "units": [{"uid": 4, "p": 0, "card": "axe", "hero": true, "lane": 1, "slot": 0},
 		{"uid": 5, "p": 0, "card": "keefe", "hero": true, "lane": 0, "slot": 2}, {"uid": 9, "p": 1, "card": "melee_creep", "hero": false, "lane": 2, "slot": 0}]}
 	_check(EventFormatter.format(placed, library) == "Heroes deploy: Player 1: Axe (Middle lane), Keefe the Bold (Left lane)",
@@ -666,7 +682,7 @@ func _test_language_neutral_state() -> void:
 	replay.protocol = 4
 	var stale = EngineClass.new().load_replay(replay)
 	_check(stale.get("code") == "replay_version", "Protocol 4 replays are rejected with replay_version")
-	_check(EngineClass.PROTOCOL_VERSION == 6 and BridgeClass.PROTOCOL == 7, "Replay format 6; Steam network protocol 7 (tests/steam_test.gd covers the boundary)")
+	_check(EngineClass.PROTOCOL_VERSION == 7 and BridgeClass.PROTOCOL == 8, "Replay format 7; Steam network protocol 8 (tests/steam_test.gd covers the boundary)")
 	_check(EventFormatter.error_text(illegal) == "That action is not legal in the current state.", "Error codes translate to English")
 	Settings.set_locale("zh_CN", false)
 	_check(EventFormatter.error_text(illegal) == "当前局面下不能执行该操作。", "Error codes translate to Chinese")

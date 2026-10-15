@@ -235,7 +235,8 @@ func sync(new_view: Dictionary, new_viewer: int, new_actions: Array, spent_text:
 			if _last_drop.has(uid):
 				arrivals.append([card, _last_drop[uid]])
 				_last_drop.erase(uid)
-		card.setup(str(hero.card), {"items": hero.get("items", {}), "health": int(hero.health), "max_health": int(hero.max_health)})
+		var max_health = board.display_engine.max_health_of(hero) if board != null else int(hero.max_health)
+		card.setup(str(hero.card), {"items": hero.get("items", {}), "health": int(hero.health), "max_health": max_health})
 		card.set_size_keep(CARD_SIZE)
 		card.playable = enabled
 		kept.append(card)
@@ -303,7 +304,7 @@ func _creep_unit(player: int) -> Dictionary:
 	var health = int(definition.get("health", 4))
 	return {"uid": -2, "card": "melee_creep", "owner": player, "hero": false, "color": str(definition.get("color", "neutral")),
 		"attack": int(definition.get("attack", 2)), "armor": int(definition.get("armor", 0)), "max_health": health,
-		"health": health, "temp_attack": 0, "temp_armor": 0, "items": {}, "lane": -1}
+		"health": health, "items": {}, "lane": -1}
 
 ## The opponent's ready heroes, face up (public); a check under each once
 ## the opponent has confirmed.

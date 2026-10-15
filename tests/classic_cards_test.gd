@@ -168,12 +168,21 @@ func _targeting() -> void:
 	var jmuy = engine.state.lanes[0].units[0][0]
 	var enemy = engine.state.lanes[0].units[1][0]
 	_check(not _play(engine, "battlefield_control", jmuy.uid, 0).ok, "A unit blocked in all three positions across cannot be redirected to the tower")
-	# Open a right-hand position: an empty enemy slot across lets J'Muy pick the tower.
+	# An empty diagonal is not enough while a unit stands directly across (RQ-19, FX-2).
 	var ally = engine._make_unit(engine.library.cards.melee_creep, 0, false)
 	ally.lane = 0
 	engine.state.lanes[0].units[0].append(ally)
 	engine.state.lanes[0].units[1].append(null)
-	_check(_play(engine, "battlefield_control", jmuy.uid, 0).ok, "Battlefield Control can choose the tower through an empty position across")
+	_check(not _play(engine, "battlefield_control", jmuy.uid, 0).ok, "An empty diagonal does not open the tower while a unit stands directly across (RQ-19)")
+	# Open the position directly across: J'Muy, attacking a diagonal enemy, may pick the tower.
+	engine = _fixture(1)
+	jmuy = engine.state.lanes[0].units[0][0]
+	enemy = engine.state.lanes[0].units[1][0]
+	engine.state.lanes[0].units[0] = [jmuy, null]
+	engine.state.lanes[0].units[1] = [null, enemy]
+	jmuy.arrow = 1
+	_check(engine.combat_preview(0).tower_damage[0] == 0, "J'Muy attacks the diagonal enemy before the redirect")
+	_check(_play(engine, "battlefield_control", jmuy.uid, 0).ok, "Battlefield Control can choose the tower when the position directly across is empty")
 	_check(engine.combat_preview(0).tower_damage[0] >= 3, "Chosen tower target changes the combat forecast")
 	# A far enemy beyond the three positions across is never a legal destination.
 	engine = _fixture(1)
@@ -207,7 +216,7 @@ func _spells() -> void:
 	engine.state.lanes[0].units[1].append(creep)
 	_check(_play(engine, "tower_barrage").ok, "Tower Barrage plays")
 	_check(enemy.health == 10, "Tower Barrage respects two armor")
-	_check(creep.lane == -1 and engine.state.lanes[0].structures[1].health == 38, "Tower Barrage hits enemy creeps and the enemy tower")
+	_check(creep.lane == -1 and engine.state.lanes[0].structures[1].health == 40, "Tower Barrage hits each enemy unit but not the enemy tower (RQ-01, FX-1)")
 	engine = _fixture(1)
 	_check(_play(engine, "dimensional_portal").ok, "Dimensional Portal plays")
 	_check(engine.state.lanes[0].units[0].size() == 4, "Portal summons three real Melee Creeps")

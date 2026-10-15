@@ -15,6 +15,28 @@ const BAR_H = 20.0
 const STATS_TOP = 132.0
 const SLOT_ICONS = {"weapon": "sword", "armor": "shield", "accessory": "suit_hearts"}
 const DAMAGED = Color("ff8a7a")
+const MAX_BADGES = 4
+## Badge kind -> [fill, rim, icon, glyph] (spec §8.5); numbers are drawn for
+## NUMBER_BADGES, otherwise the icon, otherwise the glyph.
+const BADGE_STYLES = {
+	"stun": [Color(0.3, 0.24, 0.05), Color(1.0, 0.85, 0.3), "", "晕"],
+	"silence": [Color(0.2, 0.08, 0.25), Color(0.75, 0.5, 0.95), "lock_closed", ""],
+	"disarm": [Color(0.25, 0.1, 0.1), Color(0.85, 0.45, 0.45), "sword", ""],
+	"death_shield": [Color(0.12, 0.2, 0.24), Color(0.6, 0.9, 1.0), "", "护"],
+	"damage_immunity": [Color(0.12, 0.18, 0.28), Color(0.7, 0.85, 1.0), "shield", ""],
+	"pierce": [Color(0.22, 0.16, 0.06), Color(UiKit.GOLD_BRIGHT), "sword", ""],
+	"lethal": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3), "skull", ""],
+	"lethal_heroes": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3), "skull", ""],
+	"lethal_creeps": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3), "skull", ""],
+	"siege": [Color(0.25, 0.1, 0.06), Color(UiKit.GOLD), "", ""],
+	"cleave": [Color(0.22, 0.08, 0.08), Color(0.95, 0.55, 0.4), "", ""],
+	"retaliate": [Color(0.2, 0.14, 0.08), Color(0.9, 0.7, 0.4), "", ""],
+	"regeneration": [Color(0.06, 0.2, 0.1), Color(0.45, 0.9, 0.55), "", ""],
+	"bounty": [Color(0.24, 0.2, 0.06), Color(UiKit.GOLD_BRIGHT), "", ""],
+	"rapid_deployment": [Color(0.08, 0.18, 0.12), Color(0.5, 0.9, 0.6), "", "速"],
+	"soulbound": [Color(0.16, 0.08, 0.22), Color(0.8, 0.6, 1.0), "", "同"],
+}
+const NUMBER_BADGES = ["siege", "cleave", "retaliate", "regeneration", "bounty"]
 const GREY_SHADER = """
 shader_type canvas_item;
 uniform float amount = 1.0;
@@ -26,8 +48,9 @@ void fragment() {
 """
 
 ## Display model from the board: unit, own, attack, armor, health,
-## max_health, base_attack, base_armor, arrow, tower, damage, dies,
-## ability_ready, cooldown, passive, preview_hidden.
+## max_health, base_attack, base_armor, arrow, tower, damage, heal, dies,
+## badges, keywords, abilities, mods, has_active, ability_ready, cooldown,
+## passive, preview_hidden.
 var model: Dictionary = {}
 var uid: int = -1
 var card_id: String = ""
@@ -86,7 +109,7 @@ func hides_preview() -> bool:
 
 ## Local rectangle of the active-ability badge (empty when there is none).
 func ability_rect() -> Rect2:
-	if str(model.get("unit", {}).get("ability", "")).is_empty():
+	if not model.get("has_active", false):
 		return Rect2()
 	return Rect2(Vector2(3, BAR_H + 4), Vector2(26, 26))
 
@@ -242,10 +265,10 @@ func _draw_stats(rect: Rect2, alpha: float) -> void:
 
 func _draw_badges(unit: Dictionary, alpha: float) -> void:
 	var y = BAR_H + 17.0
-	if not str(unit.get("ability", "")).is_empty():
+	if model.get("has_active", false):
 		var center = Vector2(16, y)
 		var ready = model.get("ability_ready", false)
-		var cooldown = int(unit.get("cooldown", 0))
+		var cooldown = int(model.get("cooldown", unit.get("cooldown", 0)))
 		if ready:
 			draw_circle(center, 16.0 + 2.0 * sin(_pulse), Color(UiKit.PLAYABLE, 0.35))
 		UiKit.draw_disc(self, center, 12.0, Color(0.1, 0.16, 0.22, alpha) if cooldown == 0 else Color(0.12, 0.12, 0.12, alpha),
@@ -258,15 +281,32 @@ func _draw_badges(unit: Dictionary, alpha: float) -> void:
 		var center = Vector2(16, y)
 		UiKit.draw_disc(self, center, 10.0, Color(0.16, 0.13, 0.08, alpha), Color(UiKit.GOLD, alpha), 1.5)
 		UiKit.draw_icon(self, "flag_triangle", Rect2(center - Vector2(6, 6), Vector2(12, 12)), Color(UiKit.GOLD_BRIGHT, alpha))
-		y += 24.0
-	if unit.get("silenced", false):
-		var center = Vector2(16, y)
-		UiKit.draw_disc(self, center, 10.0, Color(0.2, 0.08, 0.25, alpha), Color(0.75, 0.5, 0.95, alpha), 1.5)
-		UiKit.draw_icon(self, "lock_closed", Rect2(center - Vector2(6, 6), Vector2(12, 12)), Color(1, 1, 1, alpha))
-	if int(unit.get("siege", 0)) + int(unit.get("temp_siege", 0)) > 0:
-		var center = Vector2(SIZE.x - 16, BAR_H + 17.0)
-		UiKit.draw_disc(self, center, 11.0, Color(0.25, 0.1, 0.06, alpha), Color(UiKit.GOLD, alpha), 1.5)
-		UiKit.draw_text(self, UiKit.bold_font(), str(int(unit.get("siege", 0)) + int(unit.get("temp_siege", 0))), center, 13, Color(UiKit.PAPER, alpha), -1.0, 2)
+	# Statuses, flags and keywords on the right edge: up to four, then +n.
+	var badges: Array = model.get("badges", [])
+	var shown = badges.size() if badges.size() <= MAX_BADGES else MAX_BADGES - 1
+	for index in range(shown):
+		_draw_badge(badges[index], Vector2(SIZE.x - 16, BAR_H + 17.0 + index * 23.0), alpha)
+	if badges.size() > shown:
+		var center = Vector2(SIZE.x - 16, BAR_H + 17.0 + shown * 23.0)
+		UiKit.draw_disc(self, center, 10.0, Color(0.12, 0.12, 0.13, alpha), Color(0.7, 0.7, 0.7, alpha), 1.5)
+		UiKit.draw_text(self, UiKit.bold_font(), "+%d" % (badges.size() - shown), center, 11, Color(UiKit.PAPER, alpha), -1.0, 2)
+
+## One badge disc: an icon, a glyph or a number on the badge's colour.
+func _draw_badge(badge: Dictionary, center: Vector2, alpha: float) -> void:
+	var kind = str(badge.get("k", ""))
+	var style: Array = BADGE_STYLES.get(kind, [Color(0.15, 0.15, 0.16), Color(0.7, 0.7, 0.7), "", ""])
+	UiKit.draw_disc(self, center, 10.0, Color(style[0], alpha), Color(style[1], alpha), 1.5)
+	var value = int(badge.get("v", 1))
+	if kind in NUMBER_BADGES:
+		UiKit.draw_text(self, UiKit.bold_font(), str(value), center, 13, Color(UiKit.PAPER, alpha), -1.0, 2)
+	elif not str(style[2]).is_empty():
+		UiKit.draw_icon(self, str(style[2]), Rect2(center - Vector2(6, 6), Vector2(12, 12)), Color(1, 1, 1, alpha))
+	else:
+		UiKit.draw_text(self, UiKit.bold_font(), str(style[3]), center, 11, Color(UiKit.PAPER, alpha), -1.0, 2)
+
+## Badge tooltip text (BADGE_* in ui.csv), for hover and inspect.
+static func badge_text(badge: Dictionary) -> String:
+	return UiKit.t("BADGE_" + str(badge.get("k", "")).to_upper(), {"n": int(badge.get("v", 1))})
 
 ## Combat arrow on the river-facing edge: a short arrow pointing straight
 ## ahead or diagonally at the target; gold-red when it will hit the tower.

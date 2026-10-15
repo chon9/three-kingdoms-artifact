@@ -15,8 +15,6 @@ const LaneView = preload("res://scripts/ui/lane_view.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Library = preload("res://scripts/core/card_library.gd")
 const MatchEngine = preload("res://scripts/core/match_engine.gd")
-const PASSIVE_FIELDS = ["neighbor_armor", "neighbor_attack", "global_attack", "hero_bonus", "static_field",
-	"hero_tower_bonus", "rapid_deployment", "combat_growth_attack", "combat_growth_health"]
 
 var lanes: Array = []
 var focus: float = 0.0
@@ -145,6 +143,8 @@ func sync_lane(index: int, new_view: Dictionary, new_viewer: int, actions: Array
 	display_engine.state = new_view
 	return _sync_lane_models(index, _ability_ready(actions))
 
+## Ability sources (unit uids, item and improvement oids) with a legal
+## ability action right now.
 func _ability_ready(actions: Array) -> Dictionary:
 	var ready: Dictionary = {}
 	for action in actions:
@@ -160,11 +160,16 @@ func _sync_lane_models(index: int, ability_ready: Dictionary) -> Dictionary:
 
 ## Display models for lane `lane_index` of the current view. While heroes are
 ## being planned, the previous round's arrows are rerolled at the reveal, so
-## no damage, death or tower-damage preview is shown.
+## no damage, death or tower-damage preview is shown. Everything is derived in
+## one read frame (EFFECT_SYSTEM_SPEC.md §8.1).
 func build_models(lane_index: int, ability_ready: Dictionary = {}) -> Dictionary:
 	var lane = view.lanes[lane_index]
+	display_engine.frame_begin()
 	var preview = display_engine.combat_preview(lane_index)
 	var planning = str(view.get("phase", "")) == "deployment"
+	var dying: Dictionary = {}
+	for uid in preview.get("dies", []):
+		dying[int(uid)] = true
 	var models: Dictionary = {}
 	for side in range(2):
 		for unit in lane.units[side]:
@@ -176,33 +181,70 @@ func build_models(lane_index: int, ability_ready: Dictionary = {}) -> Dictionary
 			var arrow = 0
 			if not target.is_empty():
 				arrow = signi(display_engine.slot_of(target) - display_engine.slot_of(unit))
-			var definition = Library.raw_definition(str(unit.card))
-			var passive = false
-			for field in PASSIVE_FIELDS:
-				if unit.get(field, 0):
-					passive = true
+			var card_id = str(unit.card)
+			var definition = Library.raw_definition(card_id)
 			models[uid] = {"unit": unit, "own": side == viewer,
 				"attack": display_engine.attack_of(unit), "armor": display_engine.armor_of(unit),
 				"health": int(unit.health), "max_health": display_engine.max_health_of(unit),
 				"base_attack": int(definition.get("attack", unit.attack)), "base_armor": int(definition.get("armor", unit.armor)),
 				"arrow": arrow, "tower": target.is_empty(), "damage": damage,
-				"dies": damage > 0 and damage >= int(unit.health),
-				"ability_ready": ability_ready.has(uid), "passive": passive, "preview_hidden": planning}
+				"heal": 0 if planning else int(preview.get("heal", {}).get(str(uid), 0)),
+				"dies": not planning and dying.has(uid),
+				"badges": display_engine.badges(unit), "keywords": _keywords(unit),
+				"abilities": _abilities(unit, ability_ready), "mods": _mod_summary(unit),
+				"has_active": Library.has_active(card_id), "cooldown": int(unit.get("cooldown", 0)),
+				"ability_ready": ability_ready.has(uid), "passive": Library.has_passive(card_id), "preview_hidden": planning}
 	if planning:
 		models["tower_damage"] = [0, 0]
 	else:
 		models["tower_damage"] = [int(preview.tower_damage[1 - viewer]), int(preview.tower_damage[viewer])]
+	display_engine.frame_end()
 	return models
+
+## Non-zero derived keywords of a unit: {keyword: value}.
+func _keywords(unit: Dictionary) -> Dictionary:
+	var out: Dictionary = {}
+	for keyword in ["siege", "cleave", "retaliate", "regeneration", "bonus_hero", "bonus_tower", "pierce", "lethal",
+			"lethal_creeps", "lethal_heroes", "damage_immunity", "rapid_deployment", "soulbound"]:
+		var value = display_engine.keyword_of(unit, keyword)
+		if value != 0:
+			out[keyword] = value
+	return out
+
+## The active abilities of a unit and its items, each ready when its action
+## is legal for the viewer now.
+func _abilities(unit: Dictionary, ability_ready: Dictionary) -> Array:
+	var out: Array = []
+	var sources: Array = [[int(unit.uid), str(unit.card), int(unit.get("cooldown", 0))]]
+	for slot in ["weapon", "armor", "accessory"]:
+		if unit.get("items", {}).has(slot):
+			var instance: Dictionary = unit.get("item_state", {}).get(slot, {})
+			sources.append([int(instance.get("oid", 0)), str(unit.items[slot]), int(instance.get("cd", 0))])
+	for source in sources:
+		if Library.has_active(str(source[1])):
+			out.append({"source": source[0], "card": source[1], "cd": source[2], "ready": ability_ready.has(source[0])})
+	return out
+
+## Modifier entries for the inspect panel: [{src, k, d, st, kw}].
+func _mod_summary(unit: Dictionary) -> Array:
+	var out: Array = []
+	for entry in unit.get("mods", []):
+		out.append({"src": str(entry.get("src", "")), "k": str(entry.get("k", "")), "d": str(entry.get("d", "")),
+			"st": entry.get("st", {}), "kw": entry.get("kw", {})})
+	return out
 
 ## Display model for a unit that is not on the board yet (a staged creep or
 ## hero): its own stats with items, at full health, without combat preview.
 func staged_model(unit: Dictionary, own: bool) -> Dictionary:
 	var health = display_engine.max_health_of(unit)
-	var definition = Library.raw_definition(str(unit.get("card", "")))
+	var card_id = str(unit.get("card", ""))
+	var definition = Library.raw_definition(card_id)
 	return {"unit": unit, "own": own, "attack": display_engine.attack_of(unit), "armor": display_engine.armor_of(unit),
 		"health": health, "max_health": health, "base_attack": int(definition.get("attack", unit.get("attack", 0))),
 		"base_armor": int(definition.get("armor", unit.get("armor", 0))), "arrow": 0, "tower": false, "damage": 0,
-		"dies": false, "ability_ready": false, "passive": false, "preview_hidden": true}
+		"heal": 0, "dies": false, "badges": [], "keywords": {}, "abilities": [], "mods": [],
+		"has_active": Library.has_active(card_id), "cooldown": int(unit.get("cooldown", 0)),
+		"ability_ready": false, "passive": false, "preview_hidden": true}
 
 func model(uid: int) -> Dictionary:
 	for models in lane_models:

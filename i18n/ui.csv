@@ -337,6 +337,7 @@ ERR_DECK_SELECTION,Choose one deck for each player.,请为双方各选择一套�
 ERR_BAD_INDEX,Command indexes must be whole numbers.,指令序号必须为整数。
 ERR_ILLEGAL_ACTION,That action is not legal in the current state.,当前局面下不能执行该操作。
 ERR_REPLAY_VERSION,Replay version or card pack does not match.,回放版本或卡牌包不匹配。
+ERR_REPLAY_RULES,"Replay was recorded with other card rules ({replay}, this build {engine}).",回放录制时的卡牌规则不同（{replay}，当前版本 {engine}）。
 ERR_REPLAY_SEED,Replay has no valid seed.,回放缺少有效的随机种子。
 ERR_REPLAY_ACTIONS,Invalid replay actions.,回放操作记录无效。
 ERR_REPLAY_DECKS,Replay has no valid deck selection.,回放缺少有效的牌组选择。
@@ -359,7 +360,7 @@ EV_LANE_OPEN,{lane} opens. {player} has initiative.,{lane}开战，{player}持�
 EV_SHOP_OPEN,"Shopping. Spend kill gold on equipment, or keep it for later.",军市开张。可用斩获的金购置装备，也可留待日后。
 EV_PLAY,{player} plays {card}.,{player}打出{card}。
 EV_PLAY_TARGET,{player} plays {card} on {target}.,{player}对{target}打出{card}。
-EV_ABILITY,{card} uses {ability}: draw a card.,{card}发动{ability}：摸一张牌。
+EV_ABILITY,{card} uses {ability}.,{card}发动{ability}。
 EV_ITS_ABILITY,its ability,技能
 EV_BUY,{player} spends {gold} gold in the shop.,{player}在军市花费{gold}金。
 EV_HOLD,{player} pays {gold} gold to hold the Secret Shop item.,{player}支付{gold}金，保留黑市军备。
@@ -438,3 +439,89 @@ TERM_ACTIVE_LANE,Active lane,当前路
 TERM_NEUTRAL,Neutral,中立
 TERM_ATTACK_STRAIGHT_AHEAD,Attack straight ahead,攻击正前方
 TERM_DEPLOYMENT,Deployment,部署
+EV_HERO_LANE,the hero's lane,武将所在路
+EV_AN_EFFECT,An effect,某效果
+EV_TRIGGER,{card}: {ability} takes effect.,{card}的{ability}生效。
+EV_DAMAGE,{card} deals {n} damage.,{card}造成{n}点伤害。
+EV_DAMAGE_PIERCING,{card} deals {n} piercing damage.,{card}造成{n}点穿透伤害。
+EV_TOWER_DAMAGE,{card} deals {n} damage to {player}'s tower.,{card}对{player}的城楼造成{n}点伤害。
+EV_HEAL,{card} restores {n} health.,{card}恢复{n}点体力。
+EV_MOD,{card} permanently gives {target} {changes}.,{card}使{target}永久获得{changes}。
+EV_STATUS,{card} gives {target} {changes} {duration}.,{card}使{target}{duration}获得{changes}。
+EV_UNTIL_ROUND,this round,本回合内
+EV_UNTIL_NEXT_COMBAT,until its next combat,直至下次交战
+EV_UNTIL_DEATH,until it dies,直至阵亡
+EV_UNTIL_EQUIP,until it equips an item,直至装备军备
+EV_UNTIL_USED,until it is used,直至生效
+EV_CHANGE_STAT,{sign}{n} {stat},{stat}{sign}{n}
+EV_CHANGE_LOSE,no {keyword},失去{keyword}
+EV_TOWER_OF,{player}'s tower ({lane}),{player}的城楼（{lane}）
+EV_PURGE,{n} effects on {target} are purged.,{target}的{n}个效果被驱散。
+EV_CONDEMN,{card} is condemned.,{card}被处斩。
+EV_SUMMON,{player} summons {card} in {lane}.,{player}在{lane}召唤{card}。
+EV_MOVE,{card} moves to {lane}.,{card}移动至{lane}。
+EV_SWAP,Two units swap places.,两个单位交换位置。
+EV_RETARGET,{card} changes its combat target.,{card}改变交战目标。
+EV_CONTROL,{player} takes control of {card}.,{player}夺取{card}的控制权。
+EV_FOUNTAIN,{card} returns to the Fountain.,{card}返回大营。
+EV_BATTLE,{card} battles {n} units.,{card}与{n}个单位交锋。
+EV_SHIELD,{card}'s Death Shield saves it.,{card}的免死护盾使其幸存。
+EV_CHARGES,{card} now has {n} charges.,{card}现有{n}层充能。
+EV_GOLD,{player} gains {n} gold.,{player}获得{n}金。
+EV_GOLD_LOSE,{player} loses {n} gold.,{player}失去{n}金。
+EV_MANA,{player} restores {n} mana in {lane}.,{player}在{lane}恢复{n}点军令。
+EV_DRAW_CARDS,{player} draws {n} cards.,{player}摸{n}张牌。
+EV_DRAW_ONE,{player} draws a card.,{player}摸一张牌。
+EV_DISCARD,{player} discards {n} cards.,{player}弃置{n}张牌。
+EV_DISCARD_ONE,{player} discards a card.,{player}弃置一张牌。
+EV_LOCK,{n} cards in {player}'s hand are locked.,{player}有{n}张手牌被锁定。
+EV_GAIN_CARD,{player} gets a card.,{player}获得一张牌。
+EV_CHARGED,{n} of {player}'s cards gain charges.,{player}有{n}张牌获得充能。
+EV_HACK,{n} cards in {player}'s hand are changed.,{player}有{n}张手牌被篡改。
+EV_IMPROVEMENT,{player} builds {card} in {lane}.,{player}在{lane}营建{card}。
+EV_IMPROVEMENT_GONE,{card} is destroyed.,{card}被摧毁。
+EV_ITEM_GONE,{card} is destroyed.,{card}被摧毁。
+EV_PULSE,Effects resolve.,效果结算。
+EV_RULES_OVERFLOW,The rules stopped an endless loop.,规则中止了无限循环。
+KEYWORD_SIEGE,Siege,攻城
+KEYWORD_CLEAVE,Cleave,横扫
+KEYWORD_RETALIATE,Retaliate,反击
+KEYWORD_REGENERATION,Regeneration,再生
+KEYWORD_BOUNTY,Bounty,赏金
+KEYWORD_BONUS_HERO,Bonus against heroes,对武将加伤
+KEYWORD_BONUS_TOWER,Bonus against towers,对城楼加伤
+KEYWORD_PIERCE,Pierce,穿透
+KEYWORD_LETHAL,Lethal,致命
+KEYWORD_LETHAL_CREEPS,Lethal to creeps,对兵卒致命
+KEYWORD_LETHAL_HEROES,Lethal to heroes,对武将致命
+KEYWORD_DAMAGE_IMMUNITY,Damage Immunity,伤害免疫
+KEYWORD_RAPID_DEPLOYMENT,Rapid Deployment,急速出阵
+KEYWORD_SOULBOUND,Soulbound,同命
+KEYWORD_DEATH_SHIELD,Death Shield,免死护盾
+KEYWORD_STUN,Stun,眩晕
+KEYWORD_SILENCE,Silence,沉默
+KEYWORD_DISARM,Disarm,缴械
+BADGE_STUN,"Stunned: no attacks, no abilities and no casting colour.",眩晕：无法攻击、发动技能或提供颜色。
+BADGE_SILENCE,Silenced: no active abilities and no casting colour.,沉默：无法发动主动技能或提供颜色。
+BADGE_DISARM,Disarmed: does not attack.,缴械：不进行攻击。
+BADGE_DAMAGE_IMMUNITY,Damage Immunity: takes no damage.,伤害免疫：不受任何伤害。
+BADGE_DEATH_SHIELD,Death Shield: survives the next death at 1 health.,免死护盾：下次阵亡时以1点体力幸存。
+BADGE_PIERCE,Pierce: its battle damage ignores armor.,穿透：交锋伤害无视护甲。
+BADGE_LETHAL,Lethal: condemns every unit it deals battle damage to.,致命：处斩受其交锋伤害的单位。
+BADGE_LETHAL_HEROES,Lethal to heroes.,对武将致命。
+BADGE_LETHAL_CREEPS,Lethal to creeps.,对兵卒致命。
+BADGE_SIEGE,"Siege {n}: when blocked, also damages the enemy tower.",攻城{n}：被阻挡时同时伤害敌方城楼。
+BADGE_CLEAVE,"Cleave {n}: when blocked, also damages the blocker's neighbors.",横扫{n}：被阻挡时同时伤害阻挡者的相邻单位。
+BADGE_RETALIATE,Retaliate {n}: damages each unit that attacks it.,反击{n}：伤害每个攻击它的单位。
+BADGE_REGENERATION,Regeneration {n}: heals in the combat phase.,再生{n}：交战阶段恢复体力。
+BADGE_BOUNTY,Bounty {n}: gold for the opponent when it dies.,赏金{n}：阵亡时敌方获得的金。
+BADGE_RAPID_DEPLOYMENT,Rapid Deployment: ready again the round after it dies.,急速出阵：阵亡后下回合即可出阵。
+BADGE_SOULBOUND,Soulbound: allied units of this card die together.,同命：同名友方单位同生共死。
+REASON_LOCKED,Locked,已锁定
+REASON_FORBIDDEN,Forbidden in this lane,此路不可打出
+HINT_SELECT_LANE,Choose a highlighted lane.,请选择高亮的路。
+HINT_SELECT_IMPROVEMENT,Choose a highlighted improvement.,请选择高亮的营建。
+CARD_KEYWORDS,Keywords: {list},关键词：{list}
+CARD_EFFECTS,Effects: {list},效果：{list}
+CARD_EFFECT_PERMANENT,{card} (permanent: {changes}),{card}（永久：{changes}）
+CARD_EFFECT_TEMPORARY,"{card} ({changes}, {duration})",{card}（{changes}，{duration}）

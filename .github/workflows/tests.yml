@@ -34,3 +34,13 @@ jobs:
         run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/classic_cards_test.gd
       - name: Expanded card effects and deck matchup matrix
         run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/expanded_classic_test.gd
+      - name: Card rules schema, lint, RULES_VERSION and Valve parity
+        run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/rules_schema_test.gd
+      - name: Rules kernel (triggers, Pulse, modifiers, targeting equivalence, purity, privacy)
+        run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/rules_kernel_test.gd
+      - name: Golden bot matches (state_digest after every command; re-record with tools/record_goldens.gd)
+        run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/golden_test.gd
+      - name: Differential test against the frozen pre-migration engine
+        run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/differential_test.gd
+      - name: Performance budgets (normalized by the legacy engine's speed)
+        run: .tools/godot/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/perf_test.gd

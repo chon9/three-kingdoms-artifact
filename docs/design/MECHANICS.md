@@ -31,91 +31,91 @@ Coverage = (full + 0.5 x partial) / required mechanics, measured against the gen
 | `target:all_allies` | 13 |
 | `verb:grant_text` | 13 |
 | `verb:stun` | 8 |
-| `verb:retaliate` | 7 |
-| `verb:regeneration` | 7 |
 | `target:allied_unit` | 7 |
-| `verb:cleave` | 7 |
 | `trigger:play_effect` | 7 |
+| `verb:cleave` | 7 |
+| `verb:regeneration` | 7 |
+| `verb:retaliate` | 7 |
 | `verb:charges` | 6 |
-| `verb:full_heal` | 5 |
-| `verb:disarm` | 5 |
-| `verb:damage_immunity` | 5 |
-| `verb:random_chance` | 5 |
 | `target:trigger_subject` | 5 |
+| `verb:damage_immunity` | 5 |
+| `verb:disarm` | 5 |
+| `verb:full_heal` | 5 |
 | `verb:mana_restore` | 5 |
-| `trigger:deployment_phase` | 4 |
+| `verb:random_chance` | 5 |
+| `target:opponent_hand_random` | 4 |
 | `target:other_lane` | 4 |
 | `target:random_enemy` | 4 |
-| `trigger:battle_damage_dealt` | 4 |
-| `verb:swap` | 4 |
-| `trigger:ally_death` | 4 |
-| `target:opponent_hand_random` | 4 |
-| `verb:lock` | 4 |
 | `target:random_other_lane` | 4 |
-| `trigger:blocker_death` | 3 |
-| `target:random_allied_hero` | 3 |
-| `target:count_enemies` | 3 |
-| `target:all_heroes` | 3 |
-| `verb:activation_condition` | 3 |
-| `verb:purge` | 3 |
-| `target:all_enemy_improvements` | 3 |
+| `trigger:ally_death` | 4 |
+| `trigger:battle_damage_dealt` | 4 |
+| `trigger:deployment_phase` | 4 |
+| `verb:lock` | 4 |
+| `verb:swap` | 4 |
 | `duration:until_next_combat` | 3 |
 | `target:all_allied_heroes` | 3 |
-| `target:enemy_creep` | 2 |
-| `verb:steal_control` | 2 |
-| `target:attackers` | 2 |
+| `target:all_enemy_improvements` | 3 |
+| `target:all_heroes` | 3 |
+| `target:count_enemies` | 3 |
+| `target:random_allied_hero` | 3 |
+| `trigger:blocker_death` | 3 |
+| `verb:activation_condition` | 3 |
+| `verb:purge` | 3 |
+| `duration:until_death` | 2 |
 | `target:allied_melee_creeps` | 2 |
-| `verb:copy_card` | 2 |
+| `target:attackers` | 2 |
+| `target:both_towers` | 2 |
+| `target:enemy_creep` | 2 |
+| `target:improvement` | 2 |
+| `target:random_ally` | 2 |
 | `target:random_enemy_improvement` | 2 |
+| `target:random_equipped_item` | 2 |
 | `trigger:enemy_death` | 2 |
+| `trigger:round_draw` | 2 |
+| `verb:copy_card` | 2 |
 | `verb:death_shield` | 2 |
 | `verb:gold_spend` | 2 |
-| `target:random_equipped_item` | 2 |
-| `verb:tower_heal` | 2 |
-| `trigger:round_draw` | 2 |
-| `target:random_ally` | 2 |
-| `target:both_towers` | 2 |
-| `target:improvement` | 2 |
 | `verb:pierce` | 2 |
-| `duration:until_death` | 2 |
+| `verb:steal_control` | 2 |
 | `verb:taunt` | 2 |
-| `target:random_enemy_neighbor` | 1 |
-| `verb:soulbound` | 1 |
-| `target:own_hand_and_deck` | 1 |
-| `trigger:battle_damage_taken` | 1 |
-| `verb:deploy_redirect` | 1 |
-| `target:played_card` | 1 |
-| `verb:quicken` | 1 |
-| `verb:damage_split` | 1 |
-| `verb:discard_hand` | 1 |
-| `trigger:self_death` | 1 |
-| `target:all_equipped_items` | 1 |
-| `trigger:after_opponent_plays` | 1 |
-| `verb:play_restriction` | 1 |
-| `trigger:hero_death` | 1 |
-| `trigger:unit_enters_lane` | 1 |
-| `target:fountain_heroes` | 1 |
-| `trigger:improvement_enters_lane` | 1 |
-| `target:all_towers` | 1 |
-| `trigger:opponent_draws` | 1 |
-| `target:drawn_card` | 1 |
-| `trigger:shop_phase` | 1 |
-| `verb:cost_reduction` | 1 |
-| `trigger:equip_effect` | 1 |
-| `target:battle_victims` | 1 |
-| `target:equipped_items_of` | 1 |
-| `verb:lethal` | 1 |
-| `trigger:hacked_card_played` | 1 |
-| `target:random_allied_tower` | 1 |
-| `verb:hack_hand_card` | 1 |
-| `target:all_enemy_creeps` | 1 |
-| `target:random_adjacent_unit` | 1 |
-| `verb:gold_double` | 1 |
-| `target:count_damaged_units` | 1 |
-| `verb:end_action_phase` | 1 |
-| `target:random_unit` | 1 |
-| `target:enemies_across_empty` | 1 |
+| `verb:tower_heal` | 2 |
 | `duration:until_equip` | 1 |
+| `target:all_enemy_creeps` | 1 |
+| `target:all_equipped_items` | 1 |
+| `target:all_towers` | 1 |
+| `target:battle_victims` | 1 |
+| `target:count_damaged_units` | 1 |
+| `target:drawn_card` | 1 |
+| `target:enemies_across_empty` | 1 |
+| `target:equipped_items_of` | 1 |
+| `target:fountain_heroes` | 1 |
+| `target:own_hand_and_deck` | 1 |
+| `target:played_card` | 1 |
+| `target:random_adjacent_unit` | 1 |
+| `target:random_allied_tower` | 1 |
+| `target:random_enemy_neighbor` | 1 |
+| `target:random_unit` | 1 |
+| `trigger:after_opponent_plays` | 1 |
+| `trigger:battle_damage_taken` | 1 |
+| `trigger:equip_effect` | 1 |
+| `trigger:hacked_card_played` | 1 |
+| `trigger:hero_death` | 1 |
+| `trigger:improvement_enters_lane` | 1 |
+| `trigger:opponent_draws` | 1 |
+| `trigger:self_death` | 1 |
+| `trigger:shop_phase` | 1 |
+| `trigger:unit_enters_lane` | 1 |
+| `verb:cost_reduction` | 1 |
+| `verb:damage_split` | 1 |
+| `verb:deploy_redirect` | 1 |
+| `verb:discard_hand` | 1 |
+| `verb:end_action_phase` | 1 |
+| `verb:gold_double` | 1 |
+| `verb:hack_hand_card` | 1 |
+| `verb:lethal` | 1 |
+| `verb:play_restriction` | 1 |
+| `verb:quicken` | 1 |
+| `verb:soulbound` | 1 |
 
 ## Frequency tables
 
@@ -304,43 +304,43 @@ Counts are cards (not clauses) among the 303 counted cards. 'Engine' is the curr
 | Active | 46 | J'Muy the Wise, Meepo, Winter Wyvern, Abaddon ... |
 | Random | 32 | Plague Ward, Luna, Eclipse, Bounty Hunter ... |
 | Allied Neighbors | 25 | Farvhan the Dreamer, Prowler Vanguard, Winter's Curse, Lycan ... |
-| Summon | 17 | Venomancer, Sow Venom, Divided We Stand, Beastmaster ... |
 | Piercing | 17 | Plague Ward, Luna, Eclipse, Lion ... |
+| Summon | 17 | Venomancer, Sow Venom, Divided We Stand, Beastmaster ... |
 | Condemn | 15 | Lich, Pugna, Ravenhook, Ravenous Mass ... |
-| Before the action phase | 14 | Plague Ward, Luna, Bounty Hunter, Fractured Timeline ... |
 | After the combat phase | 14 | Rebel Instigator, Satyr Duelist, Savage Wolf, Rampaging Hellbear ... |
+| Before the action phase | 14 | Plague Ward, Luna, Bounty Hunter, Fractured Timeline ... |
 | Granted text | 14 | Routed, Stonehall Cloak, Stonehall Pike, Stonehall Plate ... |
 | Enemy Neighbors | 11 | Plague Ward, Meepo, Tidehunter, Earthshaker ... |
 | Siege | 10 | Assassin's Shadow, Thunderhide Pack, Assured Destruction, Path of the Cunning ... |
 | Pulse | 8 | Meepo, Eclipse, Winter's Curse, Self Sabotage ... |
 | Stun | 8 | Tidehunter, Earthshaker, Glyph of Confusion, Astral Imprisonment ... |
-| Retaliate | 7 | Centaur Warrunner, Legion Commander, Burning Oil, Barbed Mail ... |
 | Battle Damage | 7 | Viper, Ursa, Rebel Instigator, Hellbear Crippler ... |
-| Regeneration | 7 | Enchantress, Path of the Dreamer, Altar of the Mad Moon, Ring of Tarrasque ... |
 | Cleave | 7 | Sven, Champion of the Ancient, Grand Melee, Blade of the Vigil ... |
 | Play Effect | 7 | Smeevil Armsmaster, Smeevil Blacksmith, Relentless Zombie, Oglodi Vandal ... |
+| Regeneration | 7 | Enchantress, Path of the Dreamer, Altar of the Mad Moon, Ring of Tarrasque ... |
+| Retaliate | 7 | Centaur Warrunner, Legion Commander, Burning Oil, Barbed Mail ... |
 | Charges | 6 | Luna, Eclipse, Bitter Enemies, Revtel Investments ... |
 | Battle | 5 | Winter's Curse, Berserker's Call, Gank, Duel ... |
-| Disarm | 5 | Winter's Curse, Tinker, Homefield Advantage, Frostbite ... |
 | Damage Immunity | 5 | Abaddon, Astral Imprisonment, Divine Intervention, Hand of God ... |
+| Disarm | 5 | Winter's Curse, Tinker, Homefield Advantage, Frostbite ... |
 | Get Initiative | 5 | Hip Fire, Kraken Shell, Chain Frost, Fight Through the Pain ... |
+| Combat phase | 4 | Iron Branch Protection, Enough Magic!, The Cover of Night, Storm Spirit |
 | Deployment phase | 4 | Venomancer, Kanna, Prellex, Barracks |
 | Lock | 4 | Fractured Timeline, Claszureme Hourglass, Lost in Time, Buying Time |
-| Combat phase | 4 | Iron Branch Protection, Enough Magic!, The Cover of Night, Storm Spirit |
 | Fountain | 3 | Town Portal Scroll, Escape Route, Routed |
 | Purge | 3 | Jasper Daggers, Aphotic Shield, Cleansing Rite |
 | Silence | 3 | Blood Rage, Gust, Act of Defiance |
-| Rapid Deployment | 2 | Rix, Vesture of the Tyrant |
-| Death Shield | 2 | Relentless Zombie, Cheating Death |
-| Unblocked | 2 | Unsupervised Artillery, Demagicking Maul |
 | Bounty | 2 | Revtel Signet Ring, Track |
+| Death Shield | 2 | Relentless Zombie, Cheating Death |
 | Pierce | 2 | Jasper Daggers, Spot Weakness |
+| Rapid Deployment | 2 | Rix, Vesture of the Tyrant |
 | Taunt | 2 | Pick a Fight, Ventriloquy |
-| Soulbound | 1 | Meepo |
-| Quicken | 1 | Lion |
+| Unblocked | 2 | Unsupervised Artillery, Demagicking Maul |
 | Death Effect | 1 | Vhoul Martyr |
 | Equip Effect | 1 | Jasper Daggers |
 | Lethal | 1 | Apotheosis Blade |
+| Quicken | 1 | Lion |
+| Soulbound | 1 | Meepo |
 
 ### Trigger filters
 
