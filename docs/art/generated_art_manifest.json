@@ -3869,6 +3869,79 @@
       "validation": "decoded; master SHA-256 matches final generated source"
     },
     {
+      "number": 157,
+      "batch": "2",
+      "name": "Hair for a Head",
+      "zh": "割发代首",
+      "id": "10319",
+      "file": "assets/art/cards/diabolic_revelation.png",
+      "size": "1024x1536",
+      "transparent": false,
+      "source": "K:\\CodexCache\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-5760e371-4edb-493a-9108-60e6b2472af0.png",
+      "initial_source": "K:\\CodexCache\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-5760e371-4edb-493a-9108-60e6b2472af0.png",
+      "source_storage": "K:\\CodexCache\\generated_images\\01a13a19-21b6-7490-b2a1-44dc495c494b\\exec-5760e371-4edb-493a-9108-60e6b2472af0.png",
+      "prompt": "Cao Cao, a stern Wei lord in dark armour, slicing off his own topknot with a sword before kneeling ranks of soldiers in a trampled wheat field under a grey sky. The soldiers in every row flinch as if each one felt the cut himself. Vertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
+      "submitted_prompt": "Reference roles: Image 1 is the accepted Guan Yu STYLE ANCHOR ONLY: borrow its painting treatment, brushwork, ink-wash textures and gold accents, applying Wei's indigo palette below. Do not copy Guan Yu's face, beard, green head wrap, weapon or pose. Image 2 is Cao Cao's IDENTITY REFERENCE: match Cao Cao's face, beard and dark Wei armor; do not copy his scroll or the reference composition. Rebuild the approved scene from scratch.\n\nUser-approved aftermath composition (replaces the original catalog scene for #157):\nCao Cao stands at the edge of a trampled wheat field beside his rearing horse, holding up a severed lock of his own hair tied with red cord on the flat of his sword blade, while officers and soldiers kneel in shock. No blade near his head or neck.\n\nStaging: the hair is already detached and tied with red cord. Cao Cao presents it on the sword held horizontally in front of him at waist-to-lower-chest height. No cutting action, blood or wound. Keep his head and neck far from the blade. Show the rearing horse's complete head and raised forelegs inside the frame, with the kneeling ranks visible behind and beside the pair.\n\nVertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
+      "reference_instructions": "Reference roles: Image 1 is the accepted Guan Yu STYLE ANCHOR ONLY: borrow its painting treatment, brushwork, ink-wash textures and gold accents, applying Wei's indigo palette below. Do not copy Guan Yu's face, beard, green head wrap, weapon or pose. Image 2 is Cao Cao's IDENTITY REFERENCE: match Cao Cao's face, beard and dark Wei armor; do not copy his scroll or the reference composition. Rebuild the approved scene from scratch.",
+      "reference_note_authorized": true,
+      "prompt_source": "docs/art/art_prompts_catalog.csv",
+      "prompt_exact": false,
+      "catalog_prompt_preserved_verbatim": true,
+      "composition_override_authorized": true,
+      "approved_composition": "Cao Cao stands at the edge of a trampled wheat field beside his rearing horse, holding up a severed lock of his own hair tied with red cord on the flat of his sword blade, while officers and soldiers kneel in shock. No blade near his head or neck.",
+      "composition_change_reason": "User explicitly chose the aftermath scene after the original composition was rejected by the image tool.",
+      "references": [
+        "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\keefe.png",
+        "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\jmuy.png"
+      ],
+      "reference_roles": [
+        {
+          "file": "assets/art/cards/keefe.png",
+          "role": "accepted Guan Yu style anchor only"
+        },
+        {
+          "file": "assets/art/cards/jmuy.png",
+          "role": "Cao Cao identity continuity"
+        }
+      ],
+      "note": "Attach the Cao Cao card art (jmuy).",
+      "master_file": ".tools/art_masters/assets/art/cards/diabolic_revelation.png",
+      "review": "accepted",
+      "review_notes": "Cao Cao identity matches; tied lock of hair rests on a horizontal sword below his chest, well away from head and neck; complete rearing horse and kneeling ranks are visible; no writing or frames.",
+      "prior_attempts": [
+        {
+          "prompt": "Cao Cao, a stern Wei lord in dark armour, slicing off his own topknot with a sword before kneeling ranks of soldiers in a trampled wheat field under a grey sky. The soldiers in every row flinch as if each one felt the cut himself. Vertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
+          "result": "Image tool rejected the symbolic haircut as self-harm; no image generated.",
+          "request_id": "6dac6b35-72f2-4ba0-b795-a7a7ed350763"
+        },
+        {
+          "prompt": "Cao Cao, a stern Wei lord in dark armour, slicing off his own topknot with a sword before kneeling ranks of soldiers in a trampled wheat field under a grey sky. The soldiers in every row flinch as if each one felt the cut himself. Vertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
+          "submitted_prompt": "Reference roles: Image 1 is the accepted Guan Yu STYLE ANCHOR ONLY. Match its rendering style, palette and brushwork, applying the faction palette written below. Do NOT copy Guan Yu's face, green head wrap, costume, weapon, pose or background into another subject. Only show Guan Yu when the catalog prompt actually calls for him. Additional reference images, if any, show the named hero or object for continuity: 2. Cao Cao. Use those identities or object designs only where the catalog prompt describes them. Rebuild the requested scene from scratch.\n\nCatalog prompt (verbatim):\nScene clarification: this is a harmless ceremonial HAIRCUT. A topknot is a tuft of tied hair above the scalp. Only loose hair held away from the scalp is trimmed; Cao Cao's skin, head and neck are untouched and uninjured. The sword edge stays well away from his body. The soldiers react to his symbolic sacrifice of hair; nobody is physically hurt. Depict no blood or wound. This clarifies the intended meaning of the unchanged catalog prompt below.\n\nCao Cao, a stern Wei lord in dark armour, slicing off his own topknot with a sword before kneeling ranks of soldiers in a trampled wheat field under a grey sky. The soldiers in every row flinch as if each one felt the cut himself. Vertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
+          "references": [
+            "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\keefe.png",
+            "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\jmuy.png"
+          ],
+          "result": "Image tool again rejected the symbolic haircut as self-harm; no image generated.",
+          "request_id": "6c72e81e-7a92-4b32-a9aa-e449a07fde86"
+        },
+        {
+          "composition": "user-approved aftermath",
+          "submitted_prompt": "Reference roles: Image 1 is the accepted Guan Yu STYLE ANCHOR ONLY: borrow its painting treatment, brushwork, ink-wash textures and gold accents, applying Wei's indigo palette below. Do not copy Guan Yu's face, beard, green head wrap, weapon or pose. Image 2 is Cao Cao's IDENTITY REFERENCE: match Cao Cao's face, beard and dark Wei armor; do not copy his scroll or the reference composition. Rebuild the approved scene from scratch.\n\nUser-approved aftermath composition (replaces the original catalog scene for #157):\nCao Cao stands at the edge of a trampled wheat field beside his rearing horse, holding up a severed lock of his own hair tied with red cord on the flat of his sword blade, while officers and soldiers kneel in shock. No blade near his head or neck.\n\nStaging: the hair is already detached and tied with red cord. Cao Cao presents it on the sword held horizontally in front of him at waist-to-lower-chest height. No cutting action, blood or wound. Keep his head and neck far from the blade. Show the rearing horse's complete head and raised forelegs inside the frame, with the kneeling ranks visible behind and beside the pair.\n\nVertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
+          "references": [
+            "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\keefe.png",
+            "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\jmuy.png"
+          ],
+          "result": "usage_limit_reached; no image generated",
+          "reset_at_utc": "2026-10-15T17:00:12Z",
+          "reset_at_malaysia": "2026-10-16T01:00:12+08:00"
+        }
+      ],
+      "runtime_file": "assets/art/cards/diabolic_revelation.jpg",
+      "runtime_size": "512x768",
+      "native_size": "1024x1536",
+      "validation": "decoded; master SHA-256 matches final generated source"
+    },
+    {
       "number": 158,
       "batch": "2",
       "name": "Provocation",
@@ -7866,12 +7939,12 @@
     "promptSource": "docs/art/art_prompts_catalog.csv",
     "generator": "OpenAI built-in image generation",
     "total": 219,
-    "generated": 148,
+    "generated": 149,
     "order": "Batches 1-6, then portrait redos, following user instruction",
     "stateFile": ".tools/art_catalog_state.json",
     "imageCacheRoot": "K:\\CodexCache\\generated_images",
     "imageCacheJunction": "C:\\Users\\AlexChon9\\.codex\\generated_images",
-    "promptHandling": "prompt field is verbatim CSV; submitted_prompt records the user-approved reference-role preface from entry 124 onward",
+    "promptHandling": "prompt field preserves verbatim CSV; submitted_prompt records the approved reference-role preface from 124 onward. Entry 157 uses an explicitly approved aftermath composition and prompt_exact=false.",
     "batchReports": [
       {
         "batch": 1,
@@ -7889,21 +7962,19 @@
       },
       {
         "batch": 2,
-        "numbers": "156-197, except 157",
-        "generated": 41,
-        "accepted": 41,
+        "numbers": "156-197",
+        "generated": 42,
+        "accepted": 42,
         "revisions": 7,
         "optimizer": "python tools/optimize_art.py",
         "runtime_size": "512x768",
-        "runtime_bytes": 5256081.0,
+        "runtime_bytes": 5388654.0,
         "master_size": "1024x1536",
-        "masters_verified": 41,
-        "godot_imports_verified": 41,
+        "masters_verified": 42,
+        "godot_imports_verified": 42,
         "uncertain_images": [],
-        "pending_images": [
-          157
-        ],
-        "status": "41 complete; 157 awaiting user-approved composition change"
+        "pending_images": [],
+        "status": "complete; #157 uses user-approved aftermath"
       },
       {
         "batch": 3,
@@ -7967,7 +8038,7 @@
     "compositionExceptions": [
       {
         "number": 157,
-        "status": "awaiting user choice for a safe aftermath composition",
+        "status": "approved aftermath generated and visually accepted",
         "attempts": [
           {
             "prompt": "Cao Cao, a stern Wei lord in dark armour, slicing off his own topknot with a sword before kneeling ranks of soldiers in a trampled wheat field under a grey sky. The soldiers in every row flinch as if each one felt the cut himself. Vertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
@@ -7983,23 +8054,40 @@
             ],
             "result": "Image tool again rejected the symbolic haircut as self-harm; no image generated.",
             "request_id": "6c72e81e-7a92-4b32-a9aa-e449a07fde86"
+          },
+          {
+            "composition": "user-approved aftermath",
+            "submitted_prompt": "Reference roles: Image 1 is the accepted Guan Yu STYLE ANCHOR ONLY: borrow its painting treatment, brushwork, ink-wash textures and gold accents, applying Wei's indigo palette below. Do not copy Guan Yu's face, beard, green head wrap, weapon or pose. Image 2 is Cao Cao's IDENTITY REFERENCE: match Cao Cao's face, beard and dark Wei armor; do not copy his scroll or the reference composition. Rebuild the approved scene from scratch.\n\nUser-approved aftermath composition (replaces the original catalog scene for #157):\nCao Cao stands at the edge of a trampled wheat field beside his rearing horse, holding up a severed lock of his own hair tied with red cord on the flat of his sword blade, while officers and soldiers kneel in shock. No blade near his head or neck.\n\nStaging: the hair is already detached and tied with red cord. Cao Cao presents it on the sword held horizontally in front of him at waist-to-lower-chest height. No cutting action, blood or wound. Keep his head and neck far from the blade. Show the rearing horse's complete head and raised forelegs inside the frame, with the kneeling ranks visible behind and beside the pair.\n\nVertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
+            "references": [
+              "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\keefe.png",
+              "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\jmuy.png"
+            ],
+            "result": "usage_limit_reached; no image generated",
+            "reset_at_utc": "2026-10-15T17:00:12Z",
+            "reset_at_malaysia": "2026-10-16T01:00:12+08:00"
           }
-        ]
+        ],
+        "user_approved_composition": "Cao Cao stands at the edge of a trampled wheat field beside his rearing horse, holding up a severed lock of his own hair tied with red cord on the flat of his sword blade, while officers and soldiers kneel in shock. No blade near his head or neck.",
+        "submitted_prompt": "Reference roles: Image 1 is the accepted Guan Yu STYLE ANCHOR ONLY: borrow its painting treatment, brushwork, ink-wash textures and gold accents, applying Wei's indigo palette below. Do not copy Guan Yu's face, beard, green head wrap, weapon or pose. Image 2 is Cao Cao's IDENTITY REFERENCE: match Cao Cao's face, beard and dark Wei armor; do not copy his scroll or the reference composition. Rebuild the approved scene from scratch.\n\nUser-approved aftermath composition (replaces the original catalog scene for #157):\nCao Cao stands at the edge of a trampled wheat field beside his rearing horse, holding up a severed lock of his own hair tied with red cord on the flat of his sword blade, while officers and soldiers kneel in shock. No blade near his head or neck.\n\nStaging: the hair is already detached and tied with red cord. Cao Cao presents it on the sword held horizontally in front of him at waist-to-lower-chest height. No cutting action, blood or wound. Keep his head and neck far from the blade. Show the rearing horse's complete head and raised forelegs inside the frame, with the kneeling ranks visible behind and beside the pair.\n\nVertical composition showing a dramatic moment, with the main action (fire, arrows, flood, ambush) concentrated in the upper 60% of the frame. Figures can be small within the scene. The bottom third fades into dark ink wash or mist because a text box covers it. A clear focal point, with nothing important at the edges. Faction palette: deep indigo and steel blue, dark iron lamellar armour, cold moonlight, disciplined ranks and frost-grey sky, a mood of imperial authority and calculation. Painterly illustration with anime influence: clean expressive faces, confident linework and soft cel-shaded figures. The figures sit on a traditional Chinese ink-wash (shuimo) background of layered grey-black washes, dry-brush mountains and drifting mist on warm aged rice paper. Small gold-leaf accents on armour edges, embroidery and sparks. Dramatic cinematic rim light against deep shadow, a restrained earthy palette lifted by one strong faction colour, Eastern Han dynasty historical detail. Rendered as polished trading card game art in a single consistent style. Do not include any text, letters, numbers, Chinese characters, calligraphy, seals, stamps, signatures, watermarks, logos, card frames, borders or UI elements. No modern objects. Do not imitate any specific video game, anime franchise or living artist's style. No extra fingers, no duplicated faces, no cropped heads. 1024x1536 portrait.",
+        "references": [
+          "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\keefe.png",
+          "K:\\Project\\Mini2\\.tools\\art_masters\\assets\\art\\cards\\jmuy.png"
+        ],
+        "composition_override_authorized": true
       }
     ],
     "checkpoint": {
-      "reason": "built-in image tool usage_limit_reached (HTTP 429), still present after user reported a reset and one retry",
+      "reason": "Image generation restored after user-reported Pro upgrade; #157 successfully generated.",
       "reset_at_utc": "2026-10-15T17:00:12Z",
       "reset_at_malaysia": "2026-10-16T01:00:12+08:00",
-      "generated": 148,
-      "accepted": 145,
+      "generated": 149,
+      "accepted": 146,
       "pending_revisions": [
         257,
         258,
         260
       ],
       "not_generated": [
-        157,
         261,
         262,
         263,
@@ -8073,7 +8161,7 @@
       ],
       "next_batch": 4,
       "next_generation_numbers": "261-282",
-      "remaining_batches": "Finish Qun 261-282, Items 283-322, Tokens 323-327, portrait redos 328-330; #157 remains a separate user-choice exception",
+      "remaining_batches": "Finish Qun 261-282 and corrections 257,258,260; then Items 283-322, Tokens 323-327, portrait redos 328-330.",
       "fallback": "Do not switch to CLI/API unless user explicitly requests it; requires OPENAI_API_KEY",
       "attempted_generations": [
         {
@@ -8107,7 +8195,9 @@
           "reset_at_utc": "2026-10-15T17:00:12Z"
         }
       ],
-      "recovery": "Review saved masters before edits; apply pending_revision prompts for 257,258,260, then generate 261 onward using unchanged CSV prompts plus authorized reference-role instructions."
+      "recovery": "Entry 157 is complete using the user-approved aftermath. Apply the pending_revision prompts for 257,258,260, then resume Qun at 261.",
+      "priority_retry": null,
+      "quota_status": "available"
     }
   }
 }

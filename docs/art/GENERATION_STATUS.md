@@ -122,24 +122,24 @@ Generated: 111 / 111. Reviewed and accepted: 111.
 
 Prompts: [ART_PROMPTS_CATALOG.md](ART_PROMPTS_CATALOG.md) / [art_prompts_catalog.csv](art_prompts_catalog.csv). Generated with the built-in image tool, using unchanged catalog prompts and the accepted Guan Yu PNG as the style anchor. Named signature portraits are attached for continuity.
 
-Generated: 148 / 219. Reviewed and accepted: 145.
+Generated: 149 / 219. Reviewed and accepted: 146.
 
 Batch 1: **complete**. Finished #112-155; 44 accepted, 10 revisions, optimized to 512x768; 44 full-resolution masters verified. Uncertain images: none.
 
-Batch 2: **41 complete; 157 awaiting user-approved composition change**. Finished #156-197, except 157; 41 accepted, 7 revisions, optimized to 512x768; 41 full-resolution masters verified. Uncertain images: none.
+Batch 2: **complete; #157 uses user-approved aftermath**. Finished #156-197; 42 accepted, 7 revisions, optimized to 512x768; 42 full-resolution masters verified. Uncertain images: none.
 
 Batch 3: **complete**. Finished #198-239; 42 accepted, 9 revisions, optimized to 512x768; 42 full-resolution masters verified. Uncertain images: none.
 
 Batch 4: **partial; built-in image quota reached**. Finished #240-256 and 259 accepted; 257,258,260 generated with corrections pending; 18 accepted, 2 revisions, optimized to 512x768; 21 full-resolution masters verified. Uncertain images: 257, 258, 260.
 
-Composition exception #157: awaiting user choice for a safe aftermath composition.
+Composition exception #157: approved aftermath generated and visually accepted.
 
-Image-tool limit checkpoint: 148 generated, 145 accepted. Tool-reported reset: 10/16/2026 1:00:12 AM (Malaysia time). Pending corrections: #257, #258, #260. Not generated: 71 entries; resume Qun at #261. #157 remains a separate composition-choice exception.
+Image generation is available again. Current checkpoint: 149 generated, 146 accepted; 70 entries remain. Pending corrections: #257, #258, #260.
 
 | Batch | Numbers | Generated | Accepted |
 |---|---|---:|---:|
 | 1 | 112-155 | 44 | 44 |
-| 2 | 156-197 | 41 | 41 |
+| 2 | 156-197 | 42 | 42 |
 | 3 | 198-239 | 42 | 42 |
 | 4 | 240-282 | 21 | 18 |
 | 5 | 283-322 | 0 | 0 |
@@ -193,6 +193,7 @@ Image-tool limit checkpoint: 148 generated, 145 accepted. Tool-reported reset: 1
 | 154 | Lady Sun's Fort | assets/art/cards/steel_reinforcement.png | accepted |
 | 155 | Baidi Citadel | assets/art/cards/the_omexe_arena.png | accepted |
 | 156 | Tiger-Leopard Charge | assets/art/cards/strafing_run.png | accepted |
+| 157 | Hair for a Head | assets/art/cards/diabolic_revelation.png | accepted |
 | 158 | Provocation | assets/art/cards/ventriloquy.png | accepted |
 | 159 | Cut Beard, Shed Robe | assets/art/cards/cunning_plan.png | accepted |
 | 160 | Killing in My Dreams | assets/art/cards/whispers_of_madness.png | accepted |

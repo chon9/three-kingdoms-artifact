@@ -2385,6 +2385,22 @@
     "catalog_prompt_verbatim": true
   },
   {
+    "number": 157,
+    "batch": "2",
+    "file": "assets/art/cards/diabolic_revelation.png",
+    "runtime_file": "assets/art/cards/diabolic_revelation.jpg",
+    "requested_size": "1024x1536",
+    "runtime_size": "512x768",
+    "master_file": ".tools/art_masters/assets/art/cards/diabolic_revelation.png",
+    "master_size": "1024x1536",
+    "requires_transparency": false,
+    "master_sha256": "C12069F07E953DF4F7C31AAF1C67A1BFC09837B6F4B3ED9A6D88B6A94B3E6FF2",
+    "master_matches_generated_source": true,
+    "review": "accepted",
+    "prompt_source": "docs/art/art_prompts_catalog.csv",
+    "catalog_prompt_verbatim": true
+  },
+  {
     "number": 158,
     "batch": "2",
     "file": "assets/art/cards/ventriloquy.png",
