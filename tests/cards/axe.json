@@ -1,0 +1,8 @@
+{
+"card": "axe",
+"source_id": 10020,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "axe fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["axe#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.health": 10, "u.attack": 6, "u.armor": 2, "e.in_play": false}}
+]}

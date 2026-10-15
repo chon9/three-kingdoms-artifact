@@ -9,7 +9,12 @@ extends SceneTree
 ## locale switching and both card skins, plus regressions found in review:
 ## drags surviving a state update, edge lane switching only for cross-lane
 ## cards, a readable and clickable 14-card hand, tooltips rebuilt on a
-## language switch, and dialogs centred on their real size.
+## language switch, and dialogs centred on their real size. On the rules
+## fixture pack (EFFECT_SYSTEM_SPEC.md M2): status and keyword icons, tower
+## badges, lock badges on an own card and an enemy card back, the
+## lane-then-position stepper, an improvement choice, an improvement chip
+## click and an item ability click (with its lane step), and every event
+## animation played in real time (sped up) without a script error.
 ## Every check exits with code 1 on failure; a watchdog also exits with code 1
 ## if a script error stops the coroutine before it can finish.
 
@@ -22,6 +27,9 @@ const EventText = preload("res://scripts/core/event_text.gd")
 const UnitCard = preload("res://scripts/ui/unit_card.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Bot = preload("res://scripts/ai/heuristic_bot.gd")
+const Kernel = preload("res://scripts/core/rules/kernel.gd")
+const Zones = preload("res://scripts/core/rules/zones.gd")
+const FIXTURES = "res://tests/fixtures/rules_fixtures.json"
 const WATCHDOG_SECONDS = 240.0
 var app
 var screen
@@ -427,7 +435,7 @@ func _run() -> void:
 	app.controller.refresh()
 	await _settle()
 	app.set_locale("en")
-	if not _require(screen.hand.cards[0].tooltip_text == EventText.t("REASON_NEED_MANA", {"n": 4}), "Hand tooltips are rebuilt in the new language (%s)" % screen.hand.cards[0].tooltip_text):
+	if not _require(screen.hand.note_text(0) == EventText.t("REASON_NEED_MANA", {"n": 4}), "Hand notes are rebuilt in the new language (%s)" % screen.hand.note_text(0)):
 		return
 	app.inspect("foresight")
 	if not _require(app.inspect_title() == "Guo Jia's Legacy" and screen.coin.caption != "按兵不动", "Switching to English re-renders text live"):
@@ -590,17 +598,353 @@ func _run() -> void:
 	# --- Deployment against the AI: fountain HUD, commit lock, reveal skip ----------
 	if not await _check_ai_deployment():
 		return
+	if not await _check_m2_ui():
+		return
 	app.show_main_menu()
 	if not _require(app.menu.visible and app.menu.buttons.resume.visible, "The main menu offers to resume the match"):
 		return
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn and replay restoration." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time)." % checks)
 	app.queue_free()
 	await process_frame
 	_restore_settings()
 	quit(0)
+
+# --- M2: statuses, hand marks, the target stepper and ability buttons ------------
+
+## Sets `player`'s hand to `cards` with aligned hand states (fresh iids plus
+## the given fields per card).
+func _give_hand(player: int, cards: Array, fields: Array = []) -> void:
+	var engine = _engine()
+	var states: Array = []
+	for index in range(cards.size()):
+		var entry = {"iid": Kernel.next_oid(engine)}
+		if index < fields.size():
+			entry.merge(fields[index])
+		states.append(entry)
+	engine.state.players[player].hand = cards.duplicate()
+	engine.state.players[player].hand_state = states
+
+## Player 0 acts in lane 0 with mana to spare and `cards` in hand.
+func _act_in_lane_zero(cards: Array, fields: Array = []) -> void:
+	var engine = _engine()
+	engine.state.phase = "action"
+	engine.state.lane = 0
+	engine.state.active_player = 0
+	engine.state.first_pass = -1
+	engine.state.lanes[0].mana[0] = 10
+	_give_hand(0, cards, fields)
+	app.controller.refresh()
+
+## The M2 UI on the rules fixture pack (spec §12 M2, UI acceptance).
+func _check_m2_ui() -> bool:
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_LOCAL)
+	await _settle()
+	var engine = _engine()
+	var fixtures = Library.from_file(FIXTURES, "rules_fixtures")
+	if not _require(fixtures != null and fixtures.cards.has("fx_move_any"), "The rules fixture pack loads"):
+		return false
+	engine.library = fixtures
+	# Heroes of every colour in lane 0 for player 0: red, blue, green, black.
+	var roster: Array = engine.state.players[0].roster
+	for index in [0, 1, 2, 4]:
+		_place_in_lane(roster[index], 10)
+	var enemy = engine._make_unit(fixtures.get_card("fx_retaliate_2"), 1, false)
+	engine._spawn(enemy, 0)
+	Kernel.give(engine, enemy, {}, {"stun": 1}, "", "round", {"controller": 0, "card": "fx_stun_spell"})
+	Zones.add_improvement(engine, "fx_tower_guard", 0, 0)
+	# Status icons, tower badges and lock badges (own card, enemy card back).
+	_give_hand(1, ["fx_swap", "fx_raze", "fx_swap"], [{}, {"lock": 1}, {}])
+	_act_in_lane_zero(["fx_stun_spell", "fx_counter_spell", "fx_swap"], [{"lock": 2}, {}, {"hacks": ["fx_hack_spell#0"]}])
+	await _settle()
+	var enemy_card = screen.board.unit_card(int(enemy.uid))
+	if not _require(enemy_card != null and enemy_card.badge_kinds().has("stun") and enemy_card.badge_kinds().has("retaliate"),
+			"Status and keyword icons show on the unit (%s)" % str(enemy_card.badge_kinds() if enemy_card != null else [])):
+		return false
+	if not _require(screen.board.tower(0, true).badge_kinds() == ["armor", "retaliate", "regeneration"],
+			"Tower badges show its derived armor, retaliate and regeneration (%s)" % str(screen.board.tower(0, true).badge_kinds())):
+		return false
+	var marks: Array = []
+	for card in screen.hand.cards:
+		marks.append(card.badges)
+	if not _require(marks[0] == [{"k": "lock", "v": 2}] and screen.hand.cards[0].dimmed and marks[1] == [{"k": "charges", "v": 1}]
+			and marks[2] == [{"k": "hacked", "v": 1}], "Hand cards show lock, charges and hacked badges (%s)" % [marks]):
+		return false
+	if not _require(screen.enemy_hand.locks == [0, 1, 0], "The opponent's locked card back shows its lock (%s)" % [screen.enemy_hand.locks]):
+		return false
+	if not _require(screen.inspect.granted_text("fx_hack_spell#0") == Library.loc("fx_hack_spell", "grant_0") and not Library.loc("fx_hack_spell", "grant_0").is_empty(),
+			"Granted text reads from the card's grant text"):
+		return false
+	# The lane-then-position stepper: Redeploy (unit, lane, position).
+	var mover = engine._make_unit(fixtures.get_card("fx_regen_2"), 0, false)
+	engine._spawn(mover, 0)
+	_act_in_lane_zero(["fx_move_any"])
+	await _settle()
+	var revision_before = int(engine.state.revision)
+	if not _require(screen.select_card(0) and screen.current_step_type() == "unit", "Redeploy asks for a unit first"):
+		return false
+	screen.target_unit(int(mover.uid))
+	if not _require(screen.current_step_type() == "lane" and screen.board.overview and screen.board.lanes[1].drop_state == 1,
+			"The lane step opens the overview and lights the lanes"):
+		return false
+	_click(screen.lane_point(1))
+	var ghosts: Array = screen.board.lanes[1].ghost_slots
+	if not _require(screen.current_step_type() == "position" and not screen.board.overview and screen.board.focus_lane == 1 and not ghosts.is_empty(),
+			"After the lane, ghost positions show in the chosen lane"):
+		return false
+	_click(screen.slot_point(int(ghosts[0].position)))
+	await _settle()
+	if not _require(int(engine.state.revision) == revision_before + 1 and int(engine.find_unit(int(mover.uid)).get("lane", -1)) == 1,
+			"Choosing a position moves the unit to that lane"):
+		return false
+	# An improvement choice: Raze on the enemy's improvement.
+	var target = Zones.add_improvement(engine, "fx_improvement_ping", 1, 0)
+	_act_in_lane_zero(["fx_raze"])
+	await _settle()
+	screen.view_lane(0)
+	if not _require(screen.select_card(0) and screen.current_step_type() == "improvement", "Raze asks for an improvement"):
+		return false
+	var chip = screen.board.improvement_chip(int(target.oid))
+	if not _require(chip != null and chip.target_state == 1, "Candidate improvement chips light up"):
+		return false
+	_click(screen.improvement_point(int(target.oid)))
+	await _settle()
+	if not _require(engine.find_object(int(target.oid)).is_empty() and screen.board.improvement_chip(int(target.oid)) == null,
+			"Clicking the chip condemns that improvement and its chip leaves"):
+		return false
+	# An improvement chip click: your Arrow Tower's Volley.
+	var tower_piece = Zones.add_improvement(engine, "fx_improvement_ping", 0, 0)
+	_act_in_lane_zero([])
+	await _settle()
+	chip = screen.board.improvement_chip(int(tower_piece.oid))
+	if not _require(chip != null and chip.usable, "An own improvement with a ready ability glows"):
+		return false
+	revision_before = int(engine.state.revision)
+	_click(screen.improvement_point(int(tower_piece.oid)))
+	await _settle()
+	if not _require(int(engine.state.revision) == revision_before + 1 and int(engine.find_object(int(tower_piece.oid)).object.cd) > 0,
+			"Clicking the chip uses its ability"):
+		return false
+	# An item ability click: Swift Boots move their hero to a chosen lane.
+	var hero: Dictionary = roster[1]
+	Zones.equip(engine, hero, "fx_blink_item")
+	_act_in_lane_zero([])
+	await _settle()
+	var point = screen.item_ability_point(int(hero.uid), "accessory")
+	var hero_card = screen.board.unit_card(int(hero.uid))
+	if not _require(point != Vector2.ZERO and hero_card.item_ability("accessory").get("ready", false), "An equipped item with a ready ability is a button"):
+		return false
+	_click(point)
+	if not _require(screen.current_step_type() == "lane", "Clicking the item asks for its lane choice"):
+		return false
+	screen.choose_lane(2)
+	await _settle()
+	if not _require(int(hero.lane) == 2 and int(hero.item_state.accessory.cd) > 0, "The item ability moves its hero and starts its cooldown"):
+		return false
+	if not await _check_m2_animations():
+		return false
+	return await _check_m2_review()
+
+## Regressions for the M2 UI review: the "+n" chip opens its lane's rows
+## (click or hover) and glows for a ready hidden chip; hidden chips have no
+## point; marks draw above every chip; hand notes (no repeated lock reason,
+## singulars) show beside the lifted card; the lane-step hint stays clear of
+## the units; a health status is not floated twice.
+func _check_m2_review() -> bool:
+	var engine = _engine()
+	var roster: Array = engine.state.players[0].roster
+	for index in [0, 1, 2, 4]:
+		_place_in_lane(roster[index], 10)
+	var added: Array = []
+	for card_id in ["fx_countdown", "fx_library", "fx_glyph", "fx_library"]:
+		added.append(Zones.add_improvement(engine, card_id, 0, 0))
+	var hidden_ping = Zones.add_improvement(engine, "fx_improvement_ping", 0, 0)
+	added.append(hidden_ping)
+	var hand_cards = ["fx_stun_spell", "fx_counter_spell", "fx_swap", "fx_raze"]
+	var hand_fields = [{"lock": 2}, {}, {"hacks": ["fx_hack_spell#0"]}, {"lock": 1}]
+	_act_in_lane_zero(hand_cards, hand_fields)
+	await _settle()
+	screen.view_lane(0)
+	await _settle()
+	var lane = screen.board.lanes[0]
+	var more: Control = lane.more_chips[1]
+	if not _require(engine.state.lanes[0].improvements[0].size() > 6 and more.visible and more.count > 0 and more.usable,
+			"The \"+n\" chip shows and glows while a hidden own chip is ready (count %d, usable %s)" % [more.count, more.usable]):
+		return false
+	if not _require(screen.improvement_point(int(hidden_ping.oid)) == Vector2.ZERO, "A hidden chip has no point (Vector2.ZERO)"):
+		return false
+	_mouse(Vector2(8, 8))
+	_click(screen.more_chip_point(0, true))
+	if not _require(screen.open_chip_lane() == 0 and lane.chip_expand and screen.improvement_point(int(hidden_ping.oid)) != Vector2.ZERO,
+			"Clicking \"+n\" opens the lane's rows and shows the hidden chips"):
+		return false
+	var marks_index = lane.get_children().find(lane._chip_marks)
+	if not _require(lane.improvement_rows[1].all(func(chip): return lane.get_children().find(chip) < marks_index),
+			"Chip marks draw in a pass above every chip"):
+		return false
+	_mouse(screen.improvement_point(int(hidden_ping.oid)))
+	if not _require(lane.hovered_chip == screen.board.improvement_chip(int(hidden_ping.oid)) and lane.improvement_at(screen.improvement_point(int(hidden_ping.oid))) == lane.hovered_chip,
+			"The hovered chip of an open row is drawn in front and takes the click"):
+		return false
+	_click(screen.improvement_point(int(hidden_ping.oid)), MOUSE_BUTTON_RIGHT)
+	if not _require(screen.inspect.visible, "A chip the \"+n\" chip hid can be inspected"):
+		return false
+	screen.inspect.close()
+	var revision_before = int(engine.state.revision)
+	_click(screen.improvement_point(int(hidden_ping.oid)))
+	await _settle()
+	if not _require(int(engine.state.revision) == revision_before + 1 and int(engine.find_object(int(hidden_ping.oid)).object.cd) > 0,
+			"A chip the \"+n\" chip hid can be used"):
+		return false
+	_act_in_lane_zero(hand_cards, hand_fields)
+	await _settle()
+	screen.view_lane(0)
+	await _settle()
+	if not _require(screen.open_chip_lane() == 0 and lane.chip_expand, "The rows stay open while the pointer is on them"):
+		return false
+	_mouse(screen.lane_point(0))
+	if not _require(screen.open_chip_lane() == -1 and not lane.chip_expand, "Leaving the open rows closes them"):
+		return false
+	_mouse(screen.more_chip_point(0, true))
+	if not _require(screen.open_chip_lane() == 0 and lane.chip_expand, "Hovering \"+n\" opens the rows too"):
+		return false
+	_mouse(screen.lane_point(0))
+	if not _require(screen.open_chip_lane() == -1, "and they close again"):
+		return false
+	# Hand notes: no repeated lock reason, singulars, beside the lifted card.
+	var notes = [screen.hand.note_text(0), screen.hand.note_text(1), screen.hand.note_text(3)]
+	if not _require(notes[0] == UiKit.t_n("BADGE_LOCK", 2) and notes[1].ends_with(EventText.t("BADGE_CHARGES_ONE")) and notes[2] == EventText.t("BADGE_LOCK_ONE"),
+			"Hand notes skip the repeated lock reason and use singulars (%s)" % [notes]):
+		return false
+	if not _require(EventText.t("BADGE_LOCK_ONE") != "BADGE_LOCK_ONE" and UiKit.t_n("BADGE_CHARGES", 2) == EventText.t("BADGE_CHARGES", {"n": 2}),
+			"Singular and plural mark strings exist"):
+		return false
+	AnimationQueue.instant = false
+	_mouse(screen.hand_card_point(2))
+	await create_timer(0.9).timeout
+	var card_rect: Rect2 = screen.hand.cards[2].get_global_rect()
+	var note_rect: Rect2 = screen.hand._note.get_global_rect()
+	AnimationQueue.instant = true
+	if not _require(screen.hand.shown_note() == screen.hand.note_text(2) and not screen.hand.note_text(2).is_empty() and not note_rect.intersects(card_rect),
+			"The hovered card's note shows beside it, not over its text (%s vs %s)" % [note_rect, card_rect]):
+		return false
+	_mouse(screen.lane_point(0))
+	await _settle()
+	# The lane-step hint sits below the lane panels in the overview.
+	var mover = engine._make_unit(engine.library.get_card("fx_regen_2"), 0, false)
+	engine._spawn(mover, 0)
+	_act_in_lane_zero(["fx_move_any"])
+	await _settle()
+	screen.view_lane(0)
+	if not _require(screen.select_card(0) and screen.target_unit(int(mover.uid)) and screen.current_step_type() == "lane" and screen.board.overview,
+			"Redeploy reaches its lane step"):
+		return false
+	_mouse(screen.lane_point(1))
+	await _settle()
+	var hint: Rect2 = screen.hint_label.get_global_rect()
+	var covered: Array = []
+	for each_lane in screen.board.lanes:
+		for uid in each_lane.cards:
+			if each_lane.cards[uid].get_global_rect().intersects(hint):
+				covered.append(uid)
+	if not _require(screen.hint_label.visible and covered.is_empty(), "The lane-step hint covers no unit (%s, %s)" % [hint, covered]):
+		return false
+	_click(Vector2(8, 8), MOUSE_BUTTON_RIGHT)
+	await _settle()
+	# A health status floats once: its unit is marked as animated for the sync.
+	var context = {"hit": {}}
+	var target = engine.state.lanes[0].units[0].filter(func(unit): return unit != null)[0]
+	await screen._anim_status({"k": "status", "id": int(target.uid), "card": str(target.card), "st": {"max_health": 1}, "kw": {}, "until": "round"}, 0, context)
+	if not _require(context.hit.has(int(target.uid)), "A health status marks its unit so the sync does not float it again"):
+		return false
+	return true
+
+## Waits in real time (up to `limit` seconds) for the presentation queue,
+## confirming hot-seat hand-overs.
+func _settle_real(limit: float = 15.0) -> void:
+	var deadline = Time.get_ticks_msec() + int(limit * 1000.0)
+	while Time.get_ticks_msec() < deadline:
+		if screen.pass_screen.visible:
+			screen.pass_screen.confirm()
+		if not screen.queue.busy and not screen.pass_screen.visible:
+			return
+		await process_frame
+
+## Player 0 acts and keeps the initiative (a test shortcut, so every event
+## animates from player 0's side); the board then catches up in real time.
+func _act_as_zero(command: Dictionary) -> bool:
+	var engine = _engine()
+	var result: Dictionary = engine.apply_action(0, command)
+	if engine.state.phase == "action" and int(engine.state.winner) == -1:
+		engine.state.active_player = 0
+		engine.state.first_pass = -1
+	app.controller.refresh()
+	await _settle_real()
+	return result.get("ok", false)
+
+## Every M2 event animation (spec §8.7) plays in real time, sped up, without a
+## script error: statuses, locks, hacks, charges, an improvement's ability and
+## damage, condemn and an improvement leaving, a cross-lane move with the
+## camera following, a swap, a control change, a summon, Pulses, gold, and a
+## combat with cleave and retaliation followed by the next lane's triggers.
+func _check_m2_animations() -> bool:
+	var engine = _engine()
+	var fixtures = engine.library
+	var roster: Array = engine.state.players[0].roster
+	for index in [0, 1, 2, 4]:
+		_place_in_lane(roster[index], 10)
+	for card_id in ["fx_cleave_3", "fx_quick_creep", "fx_soulbound_creep"]:
+		engine._spawn(engine._make_unit(fixtures.get_card(card_id), 0, false), 0)
+	for card_id in ["fx_retaliate_2", "fx_regen_2", "fx_bounty_creep"]:
+		engine._spawn(engine._make_unit(fixtures.get_card(card_id), 1, false), 0)
+	Zones.add_improvement(engine, "fx_improvement_ping", 1, 0)
+	Zones.add_improvement(engine, "fx_glyph", 1, 1)
+	var own_ping = Zones.add_improvement(engine, "fx_improvement_ping", 0, 0)
+	Zones.add_improvement(engine, "fx_improvement_ping", 0, 1)
+	_give_hand(1, ["fx_swap", "fx_raze", "fx_swap", "fx_stun_spell"])
+	var plays = ["fx_stun_spell", "fx_lock_spell", "fx_hack_spell", "fx_counter_spell", "fx_charge_spell", "fx_raze", "fx_move_any",
+		"fx_swap", "fx_control", "fx_summon_hero", "fx_shield_spell", "fx_purge_spell", "fx_curse_spell", "fx_next_combat_spell"]
+	_act_in_lane_zero(plays + ["fx_counter_spell"])
+	engine.state.lanes[0].mana[0] = 99
+	AnimationQueue.instant = false
+	AnimationQueue.speed = 6.0
+	await _settle_real()
+	var played = 0
+	for card_id in plays:
+		var index = engine.state.players[0].hand.find(card_id)
+		var command: Dictionary = {}
+		for action in engine.legal_actions(0):
+			if action.get("type", "") == "play" and int(action.get("hand", -1)) == index:
+				command = action
+				break
+		if not command.is_empty() and await _act_as_zero(command):
+			played += 1
+	var quick: Array = engine.state.lanes[0].units[0].filter(func(unit): return unit != null and str(unit.card) == "fx_quick_creep")
+	for source in [int(own_ping.oid), int(roster[1].uid), int(quick[0].uid) if not quick.is_empty() else -1]:
+		if {"type": "ability", "unit": source} in engine.legal_actions(0):
+			await _act_as_zero({"type": "ability", "unit": source})
+	# Both players pass: combat in lane 0, then lane 1 opens with its triggers.
+	for turn in range(2):
+		if engine.state.phase == "action":
+			app.act({"type": "pass"})
+			await _settle_real()
+	AnimationQueue.speed = 1.0
+	AnimationQueue.instant = true
+	await _settle()
+	if not _require(played >= 10, "The fixture cards play through the board (%d of %d)" % [played, plays.size()]):
+		return false
+	var kinds: Dictionary = {}
+	for event in engine.state.events:
+		kinds[str(event.get("k", ""))] = true
+	for kind in ["status", "lock", "hack", "charged", "damage", "condemn", "improvement_gone", "move", "swap", "control",
+			"summon", "pulse", "combat", "lane_open", "gold"]:
+		if not _require(kinds.has(kind), "The animated sequence produced a %s event" % kind):
+			return false
+	return _require(screen.shown_seq == int(engine.state.event_seq) and not screen.queue.busy,
+		"The board caught up with every animated event")
 
 # --- Deployment staging, re-planning and the reveal -------------------------------
 

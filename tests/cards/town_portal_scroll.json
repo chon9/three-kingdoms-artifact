@@ -1,0 +1,9 @@
+{
+"card": "town_portal_scroll",
+"source_id": 3006,
+"text": "Return an allied hero to the Fountain.",
+"covers": ["play", "return_to_fountain", "allied_hero", "fountain"],
+"cases": [
+ {"name": "Return an allied hero to the Fountain", "clause": 0, "tags": ["play", "return_to_fountain", "allied_hero", "fountain"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=4", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}}}, "do": [{"play": "town_portal_scroll", "target": "k"}], "expect": {"k.in_play": false, "k.health": 11, "k.ready_round": 3, "p1.gold": 0, "events": {"has": ["fountain"]}}},
+ {"name": "an enemy hero or a creep is not a target", "clause": 0, "tags": ["negative", "allied_hero"], "board": "@0", "do": [], "expect_illegal": [{"play": "town_portal_scroll", "target": "e"}, {"play": "town_portal_scroll", "target": "m"}]}
+]}

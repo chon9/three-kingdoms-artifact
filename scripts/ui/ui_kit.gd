@@ -50,6 +50,34 @@ const UI_ART_DIR = "res://assets/art/ui/"
 const ART_EXTENSIONS = ["png", "jpg", "webp"]
 ## Faction emblems by faction id (Three Kingdoms skin).
 const EMBLEMS = {"shu": "emblem_shu", "wei": "emblem_wei", "wu": "emblem_wu", "qun": "emblem_qun"}
+## Badge kind -> [fill, rim] for statuses, flags and keywords on units
+## (EFFECT_SYSTEM_SPEC.md §8.5), tower values and hand-card marks (§8.6).
+const BADGE_STYLES = {
+	"stun": [Color(0.3, 0.24, 0.05), Color(1.0, 0.85, 0.3)],
+	"silence": [Color(0.2, 0.08, 0.25), Color(0.75, 0.5, 0.95)],
+	"disarm": [Color(0.25, 0.1, 0.1), Color(0.85, 0.45, 0.45)],
+	"death_shield": [Color(0.12, 0.2, 0.24), Color(0.6, 0.9, 1.0)],
+	"damage_immunity": [Color(0.12, 0.18, 0.28), Color(0.7, 0.85, 1.0)],
+	"pierce": [Color(0.22, 0.16, 0.06), Color("f3d48f")],
+	"lethal": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3)],
+	"lethal_heroes": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3)],
+	"lethal_creeps": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3)],
+	"siege": [Color(0.25, 0.1, 0.06), Color("d8b06a")],
+	"cleave": [Color(0.22, 0.08, 0.08), Color(0.95, 0.55, 0.4)],
+	"retaliate": [Color(0.2, 0.14, 0.08), Color(0.9, 0.7, 0.4)],
+	"regeneration": [Color(0.06, 0.2, 0.1), Color(0.45, 0.9, 0.55)],
+	"bounty": [Color(0.24, 0.2, 0.06), Color("f3d48f")],
+	"rapid_deployment": [Color(0.08, 0.18, 0.12), Color(0.5, 0.9, 0.6)],
+	"soulbound": [Color(0.16, 0.08, 0.22), Color(0.8, 0.6, 1.0)],
+	"armor": [Color(0.14, 0.15, 0.17), Color(0.82, 0.8, 0.74)],
+	"lock": [Color(0.17, 0.09, 0.25), Color(0.8, 0.62, 1.0)],
+	"charges": [Color(0.07, 0.15, 0.26), Color(0.55, 0.82, 1.0)],
+	"hacked": [Color(0.25, 0.1, 0.07), Color(1.0, 0.62, 0.45)],
+}
+## Badges that show their value, with a faint icon behind the number (a lock
+## shows its icon with the rounds in a small corner disc instead).
+const NUMBER_BADGES = {"siege": "structure_tower", "cleave": "", "retaliate": "shield", "regeneration": "",
+	"bounty": "pouch", "armor": "shield", "charges": ""}
 
 static var _textures: Dictionary = {}
 static var _ornate: Dictionary = {}
@@ -185,6 +213,15 @@ static func _font(path: String) -> Font:
 ## Translated UI string with {named} placeholders.
 static func t(key: String, args: Dictionary = {}) -> String:
 	return EventText.t(key, args)
+
+## A count string: `key`_ONE (the singular, when ui.csv has it) for n == 1,
+## else `key`; {n} is filled in either way.
+static func t_n(key: String, n: int, args: Dictionary = {}) -> String:
+	var all = args.duplicate()
+	all["n"] = n
+	if n == 1 and TranslationServer.translate(key + "_ONE") != key + "_ONE":
+		return t(key + "_ONE", all)
+	return t(key, all)
 
 static func is_zh() -> bool:
 	return Library.current_locale() == "zh_CN"
@@ -531,6 +568,116 @@ static func draw_seal(canvas: CanvasItem, center: Vector2, size: float, characte
 	draw_round_rect(canvas, rect, color, size * 0.12)
 	draw_round_rect(canvas, rect.grow(-size * 0.09), Color.TRANSPARENT, size * 0.08, Color(PAPER, 0.75), maxf(1.0, size * 0.05))
 	draw_text(canvas, kai_font(), character, center, int(size * 0.62), PAPER)
+
+## A badge disc of `radius` (EFFECT_SYSTEM_SPEC.md §8.5, §8.6): statuses
+## and flags show a glyph, numeric keywords, tower values and hand marks
+## show `value` over a faint icon. `alpha` fades the whole badge.
+static func draw_badge(canvas: CanvasItem, kind: String, value: int, center: Vector2, radius: float, alpha: float = 1.0) -> void:
+	var style: Array = BADGE_STYLES.get(kind, [Color(0.15, 0.15, 0.16), Color(0.7, 0.7, 0.7)])
+	var rim = Color(style[1], alpha)
+	draw_disc(canvas, center, radius, Color(style[0], alpha), rim, maxf(1.2, radius * 0.14))
+	if kind == "lock":
+		draw_icon(canvas, "lock_closed", Rect2(center - Vector2(radius, radius) * 0.72, Vector2(radius, radius) * 1.44),
+			Color(Color(style[1]).lightened(0.35), alpha))
+		var corner = center + Vector2(radius, radius) * 0.68
+		draw_disc(canvas, corner, radius * 0.56, Color(0.07, 0.04, 0.1, alpha), rim, maxf(1.0, radius * 0.08))
+		draw_text(canvas, bold_font(), str(value), corner, int(radius * 0.8), Color(PAPER, alpha), -1.0, 1)
+		return
+	if NUMBER_BADGES.has(kind):
+		_badge_backdrop(canvas, kind, center, radius, Color(style[1], 0.38 * alpha))
+		var text = str(value) if kind != "bounty" or value < 0 else "+%d" % value
+		var font_size = int(radius * (1.28 if text.length() <= 1 else (1.08 if text.length() == 2 else 0.9)))
+		draw_text(canvas, bold_font(), text, center + Vector2(0, radius * 0.02), font_size, Color(PAPER, alpha), -1.0,
+			maxi(1, int(radius * 0.22)), Color(0, 0, 0, 0.85 * alpha))
+	elif not draw_badge_glyph(canvas, kind, center, radius * 0.84, Color(Color(style[1]).lightened(0.2), alpha)):
+		draw_text(canvas, bold_font(), "?", center, int(radius * 1.2), Color(PAPER, alpha))
+
+## A status or flag glyph drawn in a circle of `radius` around `center`:
+## dizzy stars (stun), a lock (silence), a broken sword (disarm), a shield
+## with a star (damage immunity), an ankh (death shield), an arrow (pierce),
+## a skull (lethal), chevrons (rapid deployment), linked rings (soulbound), a
+## page with a scribble (a hacked card). False for kinds without a glyph.
+static func draw_badge_glyph(canvas: CanvasItem, kind: String, center: Vector2, radius: float, color: Color) -> bool:
+	var r = radius
+	var width = maxf(1.4, r * 0.2)
+	match kind:
+		"stun":
+			for index in range(3):
+				var angle = -PI * 0.5 + TAU * index / 3.0
+				_star(canvas, center + Vector2(cos(angle), sin(angle)) * r * 0.46, r * 0.44, color)
+		"silence":
+			draw_icon(canvas, "lock_closed", Rect2(center - Vector2(r, r) * 0.78, Vector2(r, r) * 1.56), color)
+		"disarm":
+			draw_icon(canvas, "sword", Rect2(center - Vector2(r, r) * 0.8, Vector2(r, r) * 1.6), color)
+			# The break across the blade, with the tip knocked aside.
+			var fill = Color(0.25, 0.1, 0.1, color.a)
+			canvas.draw_line(center + Vector2(-r * 0.05, -r * 0.6), center + Vector2(r * 0.6, r * 0.05), fill, maxf(2.0, r * 0.3), true)
+			canvas.draw_line(center + Vector2(-r * 0.55, r * 0.55), center + Vector2(r * 0.55, -r * 0.55), Color(0.95, 0.3, 0.25, color.a),
+				maxf(1.2, r * 0.14), true)
+		"damage_immunity":
+			draw_icon(canvas, "shield", Rect2(center - Vector2(r, r) * 0.84, Vector2(r, r) * 1.68), color)
+			_star(canvas, center + Vector2(0, -r * 0.06), r * 0.42, Color(0.13, 0.18, 0.32, color.a))
+		"death_shield":
+			canvas.draw_arc(center + Vector2(0, -r * 0.4), r * 0.3, 0.0, TAU, 16, color, width, true)
+			canvas.draw_line(center + Vector2(0, -r * 0.1), center + Vector2(0, r * 0.82), color, width, true)
+			canvas.draw_line(center + Vector2(-r * 0.56, r * 0.1), center + Vector2(r * 0.56, r * 0.1), color, width, true)
+		"pierce":
+			var tail = center + Vector2(-r * 0.62, r * 0.62)
+			var tip = center + Vector2(r * 0.7, -r * 0.7)
+			canvas.draw_line(tail, tip - Vector2(r * 0.2, -r * 0.2), color, width, true)
+			canvas.draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-r * 0.62, r * 0.08), tip + Vector2(-r * 0.08, r * 0.62)]), color)
+			canvas.draw_line(tail, tail + Vector2(-r * 0.05, -r * 0.35), color, width * 0.8, true)
+			canvas.draw_line(tail, tail + Vector2(r * 0.35, r * 0.05), color, width * 0.8, true)
+		"lethal", "lethal_heroes", "lethal_creeps":
+			draw_icon(canvas, "skull", Rect2(center - Vector2(r, r) * 0.8, Vector2(r, r) * 1.6), color)
+		"rapid_deployment":
+			for offset in [-0.3, 0.26]:
+				var x = center.x + r * offset
+				canvas.draw_polyline(PackedVector2Array([Vector2(x - r * 0.26, center.y - r * 0.52), Vector2(x + r * 0.24, center.y),
+					Vector2(x - r * 0.26, center.y + r * 0.52)]), color, width, true)
+		"soulbound":
+			canvas.draw_arc(center + Vector2(-r * 0.28, 0), r * 0.44, 0.0, TAU, 16, color, width * 0.85, true)
+			canvas.draw_arc(center + Vector2(r * 0.28, 0), r * 0.44, 0.0, TAU, 16, color, width * 0.85, true)
+		"hacked":
+			var page = Rect2(center - Vector2(r * 0.52, r * 0.68), Vector2(r * 1.04, r * 1.36))
+			canvas.draw_colored_polygon(round_rect_points(page, r * 0.12), Color(PAPER, 0.9 * color.a))
+			var scribble = PackedVector2Array()
+			for step in range(7):
+				scribble.append(Vector2(page.position.x + page.size.x * (0.14 + 0.72 * step / 6.0),
+					center.y + (r * 0.2 if step % 2 == 0 else -r * 0.2)))
+			canvas.draw_polyline(scribble, Color(0.85, 0.2, 0.15, color.a), maxf(1.2, r * 0.16), true)
+		_:
+			return false
+	return true
+
+## The faint art behind a numeric badge's value.
+static func _badge_backdrop(canvas: CanvasItem, kind: String, center: Vector2, r: float, color: Color) -> void:
+	var icon_name = str(NUMBER_BADGES.get(kind, ""))
+	if not icon_name.is_empty():
+		draw_icon(canvas, icon_name, Rect2(center - Vector2(r, r) * 0.78, Vector2(r, r) * 1.56), color)
+	match kind:
+		"retaliate":
+			# Spikes around the rim.
+			for index in range(10):
+				var direction = Vector2.from_angle(TAU * index / 10.0)
+				canvas.draw_line(center + direction * r * 0.92, center + direction * r * 1.14, Color(color, 1.0), maxf(1.0, r * 0.14), true)
+		"regeneration":
+			canvas.draw_rect(Rect2(center - Vector2(r * 0.2, r * 0.66), Vector2(r * 0.4, r * 1.32)), color)
+			canvas.draw_rect(Rect2(center - Vector2(r * 0.66, r * 0.2), Vector2(r * 1.32, r * 0.4)), color)
+		"cleave":
+			canvas.draw_arc(center + Vector2(-r * 0.3, 0), r * 0.62, -PI * 0.5, PI * 0.5, 10, color, maxf(1.0, r * 0.18), true)
+			canvas.draw_arc(center + Vector2(r * 0.3, 0), r * 0.62, PI * 0.5, PI * 1.5, 10, color, maxf(1.0, r * 0.18), true)
+		"charges":
+			for index in range(8):
+				canvas.draw_circle(center + Vector2.from_angle(TAU * index / 8.0) * r * 0.72, maxf(0.8, r * 0.09), color)
+
+static func _star(canvas: CanvasItem, center: Vector2, radius: float, color: Color) -> void:
+	var points = PackedVector2Array()
+	for index in range(10):
+		var angle = -PI * 0.5 + PI * index / 5.0
+		var reach = radius if index % 2 == 0 else radius * 0.45
+		points.append(center + Vector2(cos(angle), sin(angle)) * reach)
+	canvas.draw_colored_polygon(points, color)
 
 ## A gold-rimmed disc used for cost gems, price coins and stat badges.
 static func draw_disc(canvas: CanvasItem, center: Vector2, radius: float, fill: Color, rim: Color = GOLD, rim_width: float = 2.0) -> void:

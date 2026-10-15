@@ -1,0 +1,8 @@
+{
+"card": "melee_creep",
+"source_id": 1006,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "melee_creep fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["melee_creep#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.health": 2, "e.health": 2, "u.attack": 2}}
+]}

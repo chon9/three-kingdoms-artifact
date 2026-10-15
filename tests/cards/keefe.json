@@ -1,0 +1,8 @@
+{
+"card": "keefe",
+"source_id": 4003,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "keefe fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["keefe#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.health": 10, "u.attack": 6, "u.armor": 1, "e.in_play": false}}
+]}

@@ -64,11 +64,14 @@ const KEYS = ["match_start", "pass", "lane_open", "shop_open", "play", "ability"
 	"swap", "retarget", "control", "fountain", "battle", "shield", "charges", "gold", "mana", "draw_cards",
 	"discard", "lock", "gain_card", "charged", "hack", "improvement", "improvement_gone", "item_gone",
 	"pulse", "rules_overflow"]
-## Keys the board animates (the rest only reach the log); a burst with more
-## than ANIMATED_LIMIT of them is applied without animation.
+## Keys the board animates (the rest only reach the log, EFFECT_SYSTEM_SPEC.md
+## §8.7); in a burst, animated events past ANIMATED_LIMIT apply without
+## animation.
 const ANIMATED = ["play", "ability", "combat", "death", "tower_fall", "ancient_fall", "lane_open", "shop_open",
 	"deployment", "deployment_placed", "deployment_revealed", "win", "draw", "pass", "trigger", "damage",
-	"tower_damage", "heal", "summon", "move", "swap", "control", "fountain", "battle", "condemn"]
+	"tower_damage", "heal", "summon", "move", "swap", "control", "fountain", "battle", "condemn", "status", "mod",
+	"purge", "shield", "retarget", "improvement", "improvement_gone", "lock", "hack", "charged", "gold", "mana",
+	"pulse"]
 const ANIMATED_LIMIT = 60
 const LANE_KEYS = ["LANE_LEFT", "LANE_MIDDLE", "LANE_RIGHT"]
 const ANCIENT_HEALTH = 80

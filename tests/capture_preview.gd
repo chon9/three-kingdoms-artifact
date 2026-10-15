@@ -9,6 +9,15 @@ extends SceneTree
 ## drag_targeting, inspect, overview, hand_full (13 cards), combat
 ## (mid-animation), shop, shop_zh, deployment (a tray hero mid-drag),
 ## game_over, game_over_zh, hud_fountain (five heroes per fountain).
+## On the rules fixture pack (EFFECT_SYSTEM_SPEC.md M2): m2_board (status and
+## keyword icons, tower badges, both improvement rows, item ability buttons,
+## hand marks and locked card backs), m2_board_zh, m2_overview (count chips),
+## m2_stepper_lane, m2_stepper_position, m2_stepper_improvement,
+## m2_item_ability (an item's lane step), m2_inspect, and two event
+## animations mid-flight: m2_anim_status (a stun landing) and m2_anim_combat
+## (combat strikes with cleave and retaliation); m2_chip_rows (the "+n" chip
+## hovered open, a cooling chip in front), m2_hand_note and m2_hand_note_zh
+## (a locked card's note beside the lifted card).
 ## Pass --size=1280x720 to check the smaller window.
 
 const MainScene = preload("res://scenes/main.tscn")
@@ -16,6 +25,13 @@ const Settings = preload("res://scripts/core/game_settings.gd")
 const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
 const MatchController = preload("res://scripts/game/match_controller.gd")
 const Bot = preload("res://scripts/ai/heuristic_bot.gd")
+const Library = preload("res://scripts/core/card_library.gd")
+const Kernel = preload("res://scripts/core/rules/kernel.gd")
+const Zones = preload("res://scripts/core/rules/zones.gd")
+const FIXTURES = "res://tests/fixtures/rules_fixtures.json"
+const M2_SHOTS = ["m2_board", "m2_board_zh", "m2_overview", "m2_stepper_lane", "m2_stepper_position",
+	"m2_stepper_improvement", "m2_item_ability", "m2_inspect", "m2_anim_status", "m2_anim_combat", "m2_chip_rows",
+	"m2_hand_note", "m2_hand_note_zh"]
 const OUT = "res://.tools/shots/"
 const SEED = 20482
 
@@ -175,6 +191,7 @@ func _run() -> void:
 	await _capture_shop_and_deployment()
 	await _capture_game_over()
 	await _capture_hud_fountain()
+	await _capture_m2()
 	print("Shots: ", ", ".join(saved))
 	app.queue_free()
 	await process_frame
@@ -391,3 +408,216 @@ func _capture_hud_fountain() -> void:
 	_mouse(app.screen.size * 0.5)
 	await _wait(0.8)
 	await _shot("hud_fountain")
+
+# --- M2 pieces on the rules fixture pack ------------------------------------------
+
+## A unit of fixture card `card_id` for `player`, spawned in lane 0.
+func _fixture_unit(card_id: String, player: int) -> Dictionary:
+	var engine = app.controller.engine
+	var unit = engine._make_unit(engine.library.get_card(card_id), player, false)
+	engine._spawn(unit, 0)
+	return unit
+
+## Lane 0 rebuilt on the fixture pack: units with statuses, flags and
+## keywords on both sides, items with ready and cooling abilities, both
+## improvement rows (with charges, cooldowns and a "+n" chip), tower badges,
+## marked cards in hand and locked card backs.
+func _m2_board() -> Dictionary:
+	var engine = app.controller.engine
+	engine.library = Library.from_file(FIXTURES, "rules_fixtures")
+	engine.state.phase = "action"
+	engine.state.lane = 0
+	engine.state.active_player = 0
+	engine.state.first_pass = -1
+	for player in range(2):
+		for unit in engine.state.lanes[0].units[player].duplicate():
+			if unit != null:
+				engine._remove_from_lane(unit)
+				if bool(unit.get("hero", false)):
+					unit.lane = -1
+	var own: Array = engine.state.players[0].roster
+	var enemy: Array = engine.state.players[1].roster
+	var ctx_own = {"controller": 0, "card": "fx_grant_spell"}
+	var ctx_enemy = {"controller": 1, "card": "fx_stun_spell"}
+	# Your side: heroes with items, creeps with keywords and statuses.
+	var axe: Dictionary = own[0]
+	var jmuy: Dictionary = own[1]
+	for hero in [axe, jmuy, own[4]]:
+		engine._remove_from_lane(hero)
+		hero.health = int(hero.max_health)
+		engine._spawn(hero, 0)
+	Zones.equip(engine, jmuy, "fx_blink_item")
+	var banner = Zones.equip(engine, axe, "fx_charge_item")
+	banner.cd = 2
+	Zones.equip(engine, axe, "fx_regen_armor")
+	Kernel.modify(engine, jmuy, {}, {}, "fx_grant_spell#0", ctx_own)
+	Kernel.give(engine, jmuy, {}, {"death_shield": 1}, "", "used", {"controller": 0, "card": "fx_shield_spell"})
+	var cleaver = _fixture_unit("fx_cleave_3", 0)
+	Kernel.give(engine, cleaver, {"attack": 2}, {"damage_immunity": 1}, "", "round", {"controller": 0, "card": "fx_immunity_spell"})
+	var sieger = _fixture_unit("fx_siege_3", 0)
+	Kernel.modify(engine, sieger, {}, {"rapid_deployment": 1, "pierce": 1}, "", ctx_own)
+	_fixture_unit("fx_soulbound_creep", 0)
+	_fixture_unit("fx_soulbound_creep", 0)
+	# The enemy: a stunned hero, a silenced and disarmed hero, keyword creeps.
+	for hero in [enemy[0], enemy[1]]:
+		engine._remove_from_lane(hero)
+		hero.health = int(hero.max_health)
+		engine._spawn(hero, 0)
+	Kernel.give(engine, enemy[0], {}, {"stun": 1}, "", "round", ctx_enemy)
+	Kernel.give(engine, enemy[1], {}, {"silence": 1, "disarm": 1}, "", "round", ctx_enemy)
+	var spiked = _fixture_unit("fx_retaliate_2", 1)
+	Kernel.modify(engine, spiked, {}, {"regeneration": 2}, "", ctx_enemy)
+	_fixture_unit("fx_lethal_creep", 1)
+	_fixture_unit("fx_bounty_creep", 1)
+	var mender = _fixture_unit("fx_regen_2", 1)
+	mender.health = 2
+	for player in range(2):
+		for unit in engine.state.lanes[0].units[player]:
+			if unit != null:
+				engine._roll_arrow(unit)
+	# Improvements: eight of yours (five shown, then "+3"), three of theirs.
+	var ids = ["fx_tower_guard", "fx_improvement_ping", "fx_countdown", "fx_library", "fx_glyph", "fx_improvement_ping",
+		"fx_oath", "fx_countdown"]
+	var placed: Array = []
+	for card_id in ids:
+		placed.append(Zones.add_improvement(engine, card_id, 0, 0))
+	placed[5].cd = 1
+	for card_id in ["fx_countdown", "fx_glyph", "fx_improvement_ping"]:
+		Zones.add_improvement(engine, card_id, 1, 0).cd = 1 if card_id == "fx_improvement_ping" else 0
+	# Hands: lock, charges and hacked marks; locked enemy card backs.
+	var hand = ["fx_stun_spell", "fx_counter_spell", "fx_swap", "fx_move_any", "fx_raze", "fx_shield_spell"]
+	var marks = [{"lock": 2}, {"charges": 3}, {"hacks": ["fx_hack_spell#0"]}, {}, {}, {}]
+	for player in range(2):
+		var states: Array = []
+		for index in range(hand.size()):
+			var entry = {"iid": Kernel.next_oid(engine)}
+			if player == 0:
+				entry.merge(marks[index])
+			elif index in [1, 3]:
+				entry["lock"] = 1 if index == 1 else 2
+			states.append(entry)
+		engine.state.players[player].hand = hand.duplicate()
+		engine.state.players[player].hand_state = states
+	engine.state.lanes[0].mana[0] = 10
+	engine.state.lanes[0].max_mana[0] = 10
+	return {"jmuy": jmuy, "axe": axe, "mover": cleaver, "blink": int(jmuy.item_state.accessory.oid), "hidden": int(placed[5].oid)}
+
+func _capture_m2() -> void:
+	if not M2_SHOTS.any(func(shot): return _wanted(shot)):
+		return
+	var screen = app.screen
+	app.controller.current_seed = SEED + 11
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	AnimationQueue.instant = true
+	_advance(func(state): return state.phase == "action" and int(state.active_player) == 0)
+	var found = _m2_board()
+	_publish()
+	await _idle()
+	screen.view_lane(0)
+	AnimationQueue.instant = false
+	_mouse(screen.size * 0.5 + Vector2(0, 40))
+	await _wait(0.7)
+	await _shot("m2_board")
+	if _wanted("m2_board_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.3)
+		await _shot("m2_board_zh")
+		app.set_locale("en")
+		await _wait(0.2)
+	if _wanted("m2_overview"):
+		screen.toggle_overview()
+		await _wait(0.7)
+		await _shot("m2_overview")
+		screen.toggle_overview()
+		await _wait(0.6)
+	if _wanted("m2_inspect"):
+		screen.inspect_unit(int(found.jmuy.uid))
+		await _wait(0.4)
+		await _shot("m2_inspect")
+		screen.inspect.close()
+		await _wait(0.2)
+	if _wanted("m2_chip_rows"):
+		_mouse(screen.more_chip_point(0, true))
+		await _wait(0.3)
+		_mouse(screen.improvement_point(int(found.hidden)))
+		await _wait(0.9)
+		await _shot("m2_chip_rows")
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.3)
+	if _wanted("m2_hand_note") or _wanted("m2_hand_note_zh"):
+		_mouse(screen.hand_card_point(0))
+		await _wait(0.9)
+		await _shot("m2_hand_note")
+		if _wanted("m2_hand_note_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.3)
+			await _shot("m2_hand_note_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.4)
+	# The stepper: Redeploy's unit, then lane (overview), then position.
+	var move_index = app.engine.state.players[0].hand.find("fx_move_any")
+	if screen.select_card(move_index):
+		screen.target_unit(int(found.mover.uid))
+		await _wait(0.5)
+		_mouse(screen.lane_point(1))
+		await _wait(0.4)
+		await _shot("m2_stepper_lane")
+		screen.choose_lane(1)
+		await _wait(0.6)
+		var ghosts: Array = screen.board.lanes[1].ghost_slots
+		if not ghosts.is_empty():
+			_mouse(screen.slot_point(int(ghosts[0].position)))
+		await _wait(0.3)
+		await _shot("m2_stepper_position")
+		_mouse(screen.size * 0.5, MOUSE_BUTTON_RIGHT, true)
+		await _wait(0.2)
+		screen.view_lane(0)
+		await _wait(0.6)
+	var raze_index = app.engine.state.players[0].hand.find("fx_raze")
+	if screen.select_card(raze_index):
+		var target = app.engine.state.lanes[0].improvements[1][0]
+		_mouse(screen.improvement_point(int(target.oid)))
+		await _wait(0.4)
+		await _shot("m2_stepper_improvement")
+		_mouse(screen.size * 0.5, MOUSE_BUTTON_RIGHT, true)
+		await _wait(0.3)
+	if screen.use_ability(int(found.blink)):
+		await _wait(0.5)
+		_mouse(screen.lane_point(2))
+		await _wait(0.4)
+		await _shot("m2_item_ability")
+		_mouse(screen.size * 0.5, MOUSE_BUTTON_RIGHT, true)
+		await _wait(0.3)
+	await _capture_m2_animations()
+
+## Two event animations mid-flight: a stun landing on an enemy, then combat.
+func _capture_m2_animations() -> void:
+	if not (_wanted("m2_anim_status") or _wanted("m2_anim_combat")):
+		return
+	var engine = app.controller.engine
+	var screen = app.screen
+	await _idle()
+	var stun_index = engine.state.players[0].hand.find("fx_stun_spell")
+	engine.state.players[0].hand_state[stun_index].erase("lock")
+	var enemy_uid = -1
+	for unit in engine.state.lanes[0].units[1]:
+		if unit != null and not bool(unit.get("hero", false)):
+			enemy_uid = int(unit.uid)
+	var command = {"type": "play", "hand": stun_index, "target": enemy_uid}
+	if engine.apply_action(0, command).get("ok", false):
+		engine.state.active_player = 0
+		engine.state.first_pass = -1
+		_publish()
+		await _wait(1.05)
+		await _shot("m2_anim_status")
+		await _idle()
+	if _wanted("m2_anim_combat"):
+		engine.apply_action(0, {"type": "pass"})
+		engine.apply_action(1, {"type": "pass"})
+		_publish()
+		await _wait(0.95)
+		await _shot("m2_anim_combat")
+		await _idle()

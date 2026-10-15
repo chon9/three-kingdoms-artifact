@@ -1,0 +1,9 @@
+{
+"card": "foresight",
+"source_id": 10307,
+"text": "Draw 2 cards.",
+"covers": ["play", "draw"],
+"cases": [
+ {"name": "Draw 2 cards", "clause": 0, "tags": ["play", "draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}, "deck": {"p0": ["slay", "hip_fire", "gust"]}}, "do": [{"play": "foresight"}], "expect": {"p0.hand": ["gust", "hip_fire"]}},
+ {"name": "with one card left it draws one", "clause": 0, "tags": ["edge", "draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}, "deck": {"p0": ["slay"]}}, "do": [{"play": "foresight"}], "expect": {"p0.hand": ["slay"]}}
+]}

@@ -7,9 +7,13 @@ extends Control
 ##
 ## Playing a card: drag it out of the hand. Untargeted cards drop anywhere on
 ## the board; targeted cards draw a target arrow and drop on a highlighted
-## unit; creeps drop into a highlighted combat position; Battlefield Control
-## picks a unit, then that unit's new combat target. A plain click on a card
-## holds it the same way (click the target next). Right-click or Esc cancels.
+## unit; creeps drop into a highlighted combat position. A card or ability
+## with several choices asks for them one step at a time (the generic target
+## stepper of EFFECT_SYSTEM_SPEC.md §8.2): a unit, a unit's combat target, a
+## lane (the overview opens), a position in the chosen lane, or an
+## improvement chip. A plain click on a card holds it the same way (click the
+## target next). Right-click or Esc cancels. Abilities are used from the unit
+## badge, an item slot or an improvement chip (§8.3).
 
 signal menu_requested
 signal game_over_action(action: String)
@@ -36,6 +40,12 @@ const ReconnectOverlay = preload("res://scripts/ui/reconnect_overlay.gd")
 const PassDeviceScreen = preload("res://scripts/ui/pass_device_screen.gd")
 const LogPanel = preload("res://scripts/ui/log_panel.gd")
 const UnitCard = preload("res://scripts/ui/unit_card.gd")
+const MatchEngine = preload("res://scripts/core/match_engine.gd")
+## Hint per choice step type ("" for a play without choices).
+const HINT_KEYS = {"": "HINT_DROP_TO_CAST", "unit": "HINT_SELECT_TARGET", "combat_target": "HINT_SELECT_DESTINATION",
+	"lane": "HINT_SELECT_LANE", "position": "HINT_SELECT_POSITION", "improvement": "HINT_SELECT_IMPROVEMENT"}
+## Statuses that make a status event read as harmful (red).
+const HARMFUL_KEYWORDS = ["stun", "silence", "disarm"]
 const HAND_ZONE = 176.0
 const DRAG_THRESHOLD = 10.0
 const LONG_PRESS = 0.55
@@ -68,8 +78,13 @@ var shown_view: Dictionary = {}
 var shown_viewer: int = -1
 var shown_seq: int = 0
 var actions: Array = []
-## The card being played: index, plays, kind (untargeted, target, creep,
-## redirect), mode (pending, drag, click), press point, source, candidate.
+## The card or ability being played (spec §8.2): {source ({"hand": i} or
+## {"unit": id}), steps (the engine's choice steps), step (the current one),
+## picked (choice key -> value so far), plays (the source's legal commands),
+## card (the held hand card or null), mode (pending, drag, click), press,
+## cross_lane, index (hand index or -1), zoomed (a lane step opened the
+## overview)}. At step k the candidates are the distinct values of
+## plays[*][steps[k].key] among the plays that agree with `picked`.
 var hold: Dictionary = {}
 var _mouse: Vector2 = Vector2.ZERO
 var _hint_time: float = 0.0
@@ -79,6 +94,11 @@ var _edge_armed: bool = true
 var _press_time: float = 0.0
 ## Press-and-hold on a board unit inspects it: {"uid", "point", "time"}.
 var _unit_press: Dictionary = {}
+## The lane whose improvement rows the "+n" chip opened (-1 for none), and
+## a click guard on the "+n" spot right after a hover opened them (a chip now
+## sits there; the click meant to open, not to use it).
+var _chip_lane: int = -1
+var _chip_guard: Dictionary = {}
 var _game_over_shown: bool = false
 var _pending_origin: Vector2 = Vector2(-1, -1)
 var _hand_origin: Vector2 = Vector2(-1, -1)
@@ -224,9 +244,15 @@ func _layout() -> void:
 	board.apply_camera()
 
 func _place_hint() -> void:
-	# Centred on the river of the lane view, clear of both unit rows.
+	# Centred on the river of the lane view, clear of both unit rows; in the
+	# action phase's overview (a lane step) in the empty band below the lane
+	# panels, clear of every unit.
 	hint_label.size = hint_label.get_minimum_size()
-	hint_label.position = Vector2((size.x - hint_label.size.x) * 0.5, size.y * 0.456 - hint_label.size.y * 0.5)
+	var y = size.y * 0.456 - hint_label.size.y * 0.5
+	if board != null and board.overview and str(shown_view.get("phase", "")) == "action":
+		var below = (get_global_transform().affine_inverse() * board.get_global_transform() * Vector2(0, board.overview_bottom)).y
+		y = minf(below + 8.0, size.y - HandView.VISIBLE - hint_label.size.y - 4.0)
+	hint_label.position = Vector2((size.x - hint_label.size.x) * 0.5, y)
 
 func bind(match_controller: Node) -> void:
 	controller = match_controller
@@ -263,6 +289,8 @@ func refresh_text() -> void:
 		lane.queue_redraw()
 		for uid in lane.cards:
 			lane.cards[uid].refresh()
+		for oid in lane.chips:
+			lane.chips[oid].refresh()
 		for card in lane.staged_cards():
 			card.refresh()
 	shop.refresh_text()
@@ -278,7 +306,7 @@ func refresh_text() -> void:
 		# opponent's spending at deployment) are rebuilt in the new language.
 		var states = _card_states(shown_view, shown_viewer, actions)
 		for index in range(mini(hand.cards.size(), states.size())):
-			hand.cards[index].tooltip_text = states[index].get("reason", "")
+			hand.set_note(index, states[index].get("tooltip", states[index].get("reason", "")))
 		if not queue.busy:
 			_ensure_phase_ui(shown_view, shown_viewer, actions)
 	_refresh_controls()
@@ -296,11 +324,11 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 	board.display_engine.library = controller.engine.library
 	var seq = int(view.get("event_seq", 0))
 	var events = _new_events(view, seq)
-	# Long bursts (a big Wrath of Gold) are applied at once: only animated
-	# keys count, and events that rolled out of the window force a hard sync.
-	var animated = events.filter(func(event): return EventText.animated(event)).size()
+	# Events that rolled out of the window force a hard sync. A long burst
+	# (a big Wrath of Gold) animates its first ANIMATED_LIMIT animated events
+	# and applies the rest at once (spec §8.7).
 	var dropped = seq - shown_seq > view.get("events", []).size()
-	if shown_view.is_empty() or seq < shown_seq or animated > EventText.ANIMATED_LIMIT or dropped:
+	if shown_view.is_empty() or seq < shown_seq or dropped:
 		_hard_sync(view, new_actions, viewer)
 		return
 	if viewer != shown_viewer:
@@ -316,32 +344,39 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 		shown_viewer = viewer
 		_free_removed(board.sync(shown_view, viewer, []))
 		hand.sync(view.players[viewer].get("hand", []), [], own_deck.origin(), false)
-	var context = {"dead": {}, "combat_lanes": {}, "lane": int(shown_view.get("lane", 0))}
-	for event in events:
-		if str(event.get("k", "")) == "death":
-			context.dead[int(event.get("uid", -1))] = true
-	for event in events:
-		match str(event.get("k", "")):
-			"play":
-				await _anim_play(event, viewer)
-			"ability":
-				await _anim_ability(event, viewer)
-			"combat":
-				context.combat_lanes[int(event.lane)] = true
-				context.lane = int(event.lane)
-				await _anim_combat(event, viewer)
-			"pass":
-				_anim_pass(event, viewer)
-			"deployment_placed":
-				# Before the sync below: the staged cards fly into place.
-				await _anim_deployment_reveal(event, view, viewer)
+	var context = {"dead": {}, "combat_lanes": {}, "lane": int(shown_view.get("lane", 0)), "budget": EventText.ANIMATED_LIMIT,
+		"hit": {}, "towers": {}, "summoned": {}, "moved": {}, "marks": []}
+	var last_open = -1
+	for index in range(events.size()):
+		match str(events[index].get("k", "")):
+			"death":
+				context.dead[int(events[index].get("uid", -1))] = true
+			"lane_open":
+				last_open = index
+	# Events after the last lane_open (the before-action triggers of the new
+	# lane) play once the camera has moved there; the sync leaves their
+	# numbers to them.
+	var later: Array = [] if last_open == -1 else events.slice(last_open + 1)
+	for event in later:
+		_note_hits(event, viewer, context)
+	for index in range(events.size() if last_open == -1 else last_open):
+		await _animate_event(events[index], view, viewer, context)
 	await _sync_all(view, new_actions, viewer, context, true)
-	for event in events:
+	await _follow_moves(context)
+	await _anim_hand_marks(context.marks, viewer)
+	context.marks = []
+	for index in range(events.size()):
+		var event: Dictionary = events[index]
 		match str(event.get("k", "")):
 			"tower_fall", "ancient_fall":
 				await _anim_structure_fall(event, viewer, int(context.lane))
 			"lane_open":
 				await _anim_lane_open(event)
+				if index == last_open:
+					context.lane = int(event.get("lane", context.lane))
+					for after in later:
+						await _animate_event(after, view, viewer, context, true)
+					await _anim_hand_marks(context.marks, viewer)
 			"shop_open":
 				await _enter_shop(view, viewer, new_actions)
 			"deployment":
@@ -354,6 +389,77 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 	_hand_origin = Vector2(-1, -1)
 	_ensure_phase_ui(view, viewer, new_actions)
 	_refresh_controls()
+
+## Plays one event's animation (spec §8.7) and records what the sync must
+## know. Past ANIMATED_LIMIT animated events in one burst the rest apply
+## without animation. `settled`: the board already shows the new state (the
+## events after the camera moved to a newly opened lane).
+func _animate_event(event: Dictionary, view: Dictionary, viewer: int, context: Dictionary, settled: bool = false) -> void:
+	var key = str(event.get("k", ""))
+	if key == "deployment_placed":
+		# Before the sync: the staged cards fly into place.
+		await _anim_deployment_reveal(event, view, viewer)
+		return
+	if key == "combat":
+		context.combat_lanes[int(event.get("lane", 0))] = true
+		context.lane = int(event.get("lane", 0))
+	if EventText.animated(event):
+		context.budget -= 1
+		if context.budget < 0:
+			return
+	match key:
+		"play":
+			await _anim_play(event, viewer)
+		"ability", "trigger":
+			await _anim_ability(event, viewer)
+		"combat":
+			await _anim_combat(event, viewer)
+		"pass":
+			_anim_pass(event, viewer)
+		"damage":
+			await _anim_damage(event, context)
+		"tower_damage":
+			await _anim_tower_damage(event, viewer, context)
+		"heal":
+			await _anim_heal(event, viewer, context)
+		"status", "mod":
+			await _anim_status(event, viewer, context)
+		"purge", "shield", "retarget":
+			_anim_unit_note(event)
+		"battle":
+			await _anim_battle(event, context)
+		"condemn":
+			await _anim_condemn(event)
+		"summon":
+			context.summoned[int(event.get("uid", -1))] = true
+		"move":
+			if int(event.get("from", -1)) != int(event.get("to", -1)):
+				context.moved[int(event.get("uid", -1))] = int(event.get("to", 0))
+		"improvement_gone":
+			_anim_chip_gone(event)
+		"gold":
+			_anim_gold(event, viewer)
+		"mana":
+			_anim_mana(event, viewer)
+		"lock", "hack", "charged":
+			context.marks.append(event)
+		"pulse":
+			await queue.wait(0.12)
+	if settled and key in ["damage", "heal", "tower_damage"]:
+		await queue.wait(0.05)
+
+## Units and towers whose numbers an event animates, so the sync does not
+## float their health change again.
+func _note_hits(event: Dictionary, viewer: int, context: Dictionary) -> void:
+	match str(event.get("k", "")):
+		"damage", "heal":
+			for hit in event.get("hits", []):
+				context.hit[int(hit[0])] = true
+			for hit in event.get("towers", []):
+				context.towers["%d_%d" % [int(hit[0]), 1 if int(hit[1]) == viewer else 0]] = true
+		"tower_damage":
+			for hit in event.get("hits", []):
+				context.towers["%d_%d" % [int(hit[0]), 1 if int(hit[1]) == viewer else 0]] = true
 
 func _new_events(view: Dictionary, seq: int) -> Array:
 	var count = seq - shown_seq
@@ -399,14 +505,19 @@ func _free_removed(changes: Array) -> void:
 		for card in change.removed:
 			UiKit.discard(card)
 
-## Syncs every view to `view`, animating unit arrivals, departures, moves,
-## health changes and the hand.
+## Syncs every view to `view`, animating unit arrivals (summons from the lane
+## edge, units that changed lanes from where they stood), departures, moves,
+## health changes (except those an event already showed) and the hand.
 func _sync_all(view: Dictionary, new_actions: Array, viewer: int, context: Dictionary, animate: bool) -> void:
 	var old_health: Dictionary = {}
 	for models in board.lane_models:
 		for uid in models:
 			if uid is int:
 				old_health[uid] = int(models[uid].health)
+	var old_points: Dictionary = {}
+	for lane in board.lanes:
+		for uid in lane.cards:
+			old_points[uid] = lane.cards[uid].get_global_rect().get_center()
 	var old_towers: Array = []
 	for lane_index in range(3):
 		var lane = shown_view.lanes[lane_index]
@@ -414,17 +525,32 @@ func _sync_all(view: Dictionary, new_actions: Array, viewer: int, context: Dicti
 	if str(view.phase) != "deployment" and deployment.visible:
 		deployment.close()
 	var changes = board.sync(view, viewer, new_actions)
+	var arrived: Dictionary = {}
+	for change in changes:
+		for card in change.added:
+			arrived[card.uid] = true
+	var hit: Dictionary = context.get("hit", {})
+	var hit_towers: Dictionary = context.get("towers", {})
 	var animated = false
 	var stagger = 0
 	for lane_index in range(3):
 		var change: Dictionary = changes[lane_index]
 		var lane = board.lanes[lane_index]
 		for card in change.added:
-			_animate_enter(card, lane, stagger)
-			stagger += 1
+			if context.get("summoned", {}).has(card.uid):
+				_animate_summon(card, lane)
+			elif old_points.has(card.uid):
+				_animate_arrive(card, lane, old_points[card.uid])
+			else:
+				_animate_enter(card, lane, stagger)
+				stagger += 1
 			animated = true
 		for card in change.removed:
-			_animate_exit(card, context.dead.has(card.uid))
+			if arrived.has(card.uid):
+				# It moved to another lane, where its new card arrives.
+				UiKit.discard(card)
+			else:
+				_animate_exit(card, context.dead.has(card.uid))
 			animated = true
 		for card in change.moved:
 			_animate_move(card, change.moved[card])
@@ -432,7 +558,7 @@ func _sync_all(view: Dictionary, new_actions: Array, viewer: int, context: Dicti
 			continue
 		var models: Dictionary = board.lane_models[lane_index]
 		for uid in models:
-			if not uid is int or not old_health.has(uid):
+			if not uid is int or not old_health.has(uid) or hit.has(uid):
 				continue
 			var delta = int(models[uid].health) - int(old_health[uid])
 			var card = lane.cards.get(uid)
@@ -441,6 +567,8 @@ func _sync_all(view: Dictionary, new_actions: Array, viewer: int, context: Dicti
 				_flash(card)
 				animated = true
 		for side in range(2):
+			if hit_towers.has("%d_%d" % [lane_index, side]):
+				continue
 			var before: Dictionary = old_towers[lane_index][side]
 			var after: Dictionary = view.lanes[lane_index].structures[viewer if side == 1 else 1 - viewer]
 			var delta = int(after.health) - int(before.health)
@@ -509,10 +637,44 @@ func _animate_move(card: Control, from: Vector2) -> void:
 	card.position = from
 	card.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT).tween_property(card, "position", rest, AnimationQueue.duration(0.3))
 
+## A unit that changed lanes slides in from where it stood.
+func _animate_arrive(card: Control, lane: Control, from_global: Vector2) -> void:
+	if AnimationQueue.instant:
+		return
+	var rest = card.position
+	card.position = lane.get_global_transform().affine_inverse() * from_global - UnitCard.SIZE * 0.5
+	var tween = card.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(card, "position", rest, AnimationQueue.duration(0.45))
+	tween.tween_callback(func(): fx.burst(card.get_global_rect().get_center(), "cast", 0.45 * card.scale.x))
+
+## A summoned unit enters from the nearer edge of its lane.
+func _animate_summon(card: Control, lane: Control) -> void:
+	if AnimationQueue.instant:
+		return
+	var rest = card.position
+	var table: Rect2 = lane.table_rect()
+	var right = rest.x + UnitCard.SIZE.x * 0.5 > table.get_center().x
+	card.position = Vector2((table.end.x - 20.0 if right else table.position.x + 20.0) - UnitCard.SIZE.x * 0.5, rest.y)
+	card.modulate.a = 0.0
+	var tween = card.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(card, "modulate:a", 1.0, AnimationQueue.duration(0.15))
+	tween.parallel().tween_property(card, "position", rest, AnimationQueue.duration(0.45))
+	tween.tween_callback(func(): fx.burst(card.get_global_rect().get_center(), "cast", 0.5 * card.scale.x))
+
 func _flash(card: Control) -> void:
 	if AnimationQueue.instant:
 		return
 	card.create_tween().tween_method(func(value): card.flash = value; card.queue_redraw(), 1.0, 0.0, AnimationQueue.duration(0.35))
+
+func _flash_chip(chip: Control) -> void:
+	if AnimationQueue.instant or chip == null:
+		return
+	chip.create_tween().tween_method(func(value): chip.flash = value; chip.queue_redraw(), 1.0, 0.0, AnimationQueue.duration(0.4))
+
+func _flash_tower(tower: Control) -> void:
+	if AnimationQueue.instant:
+		return
+	tower.create_tween().tween_method(func(value): tower.flash = value; tower.queue_redraw(), 0.8, 0.0, AnimationQueue.duration(0.4))
 
 ## Shop, deployment, hand and overview state that must match the phase.
 func _ensure_phase_ui(view: Dictionary, viewer: int, new_actions: Array) -> void:
@@ -560,16 +722,258 @@ func _anim_play(event: Dictionary, viewer: int) -> void:
 	await queue.wait(0.45 if own else 0.85)
 	arrow.hide_arrow()
 
+## An activated ability or a reactive trigger: its source (a unit card, an
+## item slot or an improvement chip) flashes and the ability's name (or the
+## card's) floats above it. A hack has no board source: its name floats where
+## played cards show.
 func _anim_ability(event: Dictionary, viewer: int) -> void:
-	var card: Control = board.unit_card(int(event.get("uid", -1)))
+	var activated = str(event.get("k", "")) == "ability"
+	if activated:
+		await _focus_lane(int(shown_view.get("lane", 0)))
+	var spot = _source_spot(int(event.get("uid", -1))) if activated else _trigger_spot(str(event.get("src", "")), viewer)
+	var card_id = str(event.get("card", ""))
+	var label = Library.loc(card_id, "ability_name")
+	if label.is_empty():
+		label = Library.loc(card_id)
+	if spot.is_empty():
+		if str(event.get("ability", "")) == "hack":
+			fx.float_text(Vector2(size.x - 205, size.y * 0.42), label, UiKit.DAMAGE, 24, 50)
+			await queue.wait(0.4)
+		return
+	var center: Vector2 = spot.point
+	fx.burst(center, "cast", 1.2 if activated else 0.8)
+	fx.float_text(center + Vector2(0, -40), label, UiKit.PLAYABLE, 24 if activated else 20, 50)
+	if spot.has("card"):
+		_flash(spot.card)
+	if spot.has("chip"):
+		_flash_chip(spot.chip)
+	await queue.wait(0.7 if activated else 0.4)
+
+## Where an ability source is on the board: {"point", "card" | "chip"} for a
+## unit uid, an item oid (its slot on the hero) or an improvement oid; {}
+## when it is not shown.
+func _source_spot(id: int) -> Dictionary:
+	if id < MatchEngine.OID_START:
+		var card: Control = board.unit_card(id)
+		return {} if card == null else {"point": card.get_global_rect().get_center(), "card": card}
+	var holder: Array = board.item_holder(id)
+	if not holder.is_empty():
+		var host: Control = holder[0]
+		return {"point": host.get_global_transform() * host.item_rect(holder[1]).get_center(), "card": host}
+	var chip: Control = board.improvement_chip(id)
+	if chip != null:
+		return {"point": chip.get_global_rect().get_center(), "chip": chip}
+	return {}
+
+## The board spot of a trigger's source key ("u<uid>", "o<oid>", "t<lane>_<p>").
+func _trigger_spot(source: String, viewer: int) -> Dictionary:
+	if source.begins_with("u") or source.begins_with("o"):
+		return _source_spot(int(source.substr(1)))
+	if source.begins_with("t"):
+		var parts = source.substr(1).split("_")
+		if parts.size() == 2:
+			return {"point": board.tower(clampi(int(parts[0]), 0, 2), int(parts[1]) == viewer).emblem_center()}
+	return {}
+
+## The unit card an event id names: a uid, or a key "u<uid>".
+func _event_card(id) -> Control:
+	if id is String:
+		return board.unit_card(int(id.substr(1))) if id.begins_with("u") else null
+	return board.unit_card(int(id))
+
+## Spell and ability damage: red numbers and a hit burst on every unit hit.
+func _anim_damage(event: Dictionary, context: Dictionary) -> void:
+	var shown = false
+	for hit in event.get("hits", []):
+		var card: Control = board.unit_card(int(hit[0]))
+		if card == null:
+			continue
+		context.hit[card.uid] = true
+		var center = card.get_global_rect().get_center()
+		var amount = int(hit[1])
+		if amount > 0:
+			fx.float_text(center, "-%d" % amount, UiKit.DAMAGE, 30)
+			fx.burst(center, "hit", card.scale.x)
+			_flash(card)
+		else:
+			fx.float_text(center, "0", UiKit.PAPER_DIM, 26)
+		shown = true
+	if shown:
+		await queue.wait(0.3)
+
+func _anim_tower_damage(event: Dictionary, viewer: int, context: Dictionary) -> void:
+	for hit in event.get("hits", []):
+		var lane_index = clampi(int(hit[0]), 0, 2)
+		var own = int(hit[1]) == viewer
+		var amount = int(hit[2])
+		context.towers["%d_%d" % [lane_index, 1 if own else 0]] = true
+		var tower: Control = board.tower(lane_index, own)
+		var beside = tower.get_global_rect()
+		fx.float_text(Vector2(beside.end.x + 50.0 * tower.scale.x, beside.get_center().y), "-%d" % amount, UiKit.DAMAGE, 44, 70)
+		fx.burst(tower.emblem_center(), "tower" if amount >= 6 else "hit", 1.1)
+		fx.shake(tower, 9.0, 0.3)
+	await queue.wait(0.35)
+
+## Healing: green numbers and a heal burst on units and towers.
+func _anim_heal(event: Dictionary, viewer: int, context: Dictionary) -> void:
+	for hit in event.get("hits", []):
+		var card: Control = board.unit_card(int(hit[0]))
+		if card == null or int(hit[1]) <= 0:
+			continue
+		context.hit[card.uid] = true
+		var center = card.get_global_rect().get_center()
+		fx.float_text(center, "+%d" % int(hit[1]), UiKit.HEAL, 30)
+		fx.burst(center, "heal", card.scale.x)
+	for hit in event.get("towers", []):
+		var lane_index = clampi(int(hit[0]), 0, 2)
+		var own = int(hit[1]) == viewer
+		context.towers["%d_%d" % [lane_index, 1 if own else 0]] = true
+		var tower: Control = board.tower(lane_index, own)
+		var beside = tower.get_global_rect()
+		fx.float_text(Vector2(beside.end.x + 50.0 * tower.scale.x, beside.get_center().y), "+%d" % int(hit[2]), UiKit.HEAL, 40, 70)
+		fx.burst(tower.emblem_center(), "heal", 1.0)
+	await queue.wait(0.3)
+
+## A status or a modification: the change floats up in green (helpful) or
+## red (harmful) and the unit's badges pop; a tower flashes.
+func _anim_status(event: Dictionary, viewer: int, context: Dictionary) -> void:
+	var text = EventText.changes(event)
+	var color = UiKit.DAMAGE if _harmful(event) else UiKit.BUFF
+	if event.has("tower"):
+		var spot: Array = event.tower
+		var tower: Control = board.tower(clampi(int(spot[0]), 0, 2), int(spot[1]) == viewer)
+		fx.float_text(tower.emblem_center() + Vector2(0, -36), text, color, 20, 40)
+		_flash_tower(tower)
+		await queue.wait(0.25)
+		return
+	var card: Control = board.unit_card(int(event.get("id", -1)))
+	if card == null:
+		return
+	var stats: Dictionary = event.get("st", {})
+	if stats.has("health") or stats.has("max_health"):
+		# Its float already shows the health change: the sync does not repeat it.
+		context.hit[card.uid] = true
+	fx.float_text(card.get_global_rect().get_center() + Vector2(0, -30), text, color, 20, 40)
+	_flash(card)
+	if not AnimationQueue.instant:
+		card.create_tween().tween_method(Callable(card, "set_badge_pop"), 1.0, 0.0, AnimationQueue.duration(0.45))
+	await queue.wait(0.25)
+
+## True when a status or modification event hurts its target overall.
+static func _harmful(event: Dictionary) -> bool:
+	var score = 0
+	var stats: Dictionary = event.get("st", {})
+	for stat in stats:
+		score += int(stats[stat])
+	var keywords: Dictionary = event.get("kw", {})
+	for keyword in keywords:
+		score += int(keywords[keyword]) * (-3 if str(keyword) in HARMFUL_KEYWORDS else 1)
+	return score < 0
+
+## Purge, a Death Shield saving its unit, a new combat target: the unit
+## flashes (with a word for the shield).
+func _anim_unit_note(event: Dictionary) -> void:
+	var card: Control = _event_card(event.get("id", event.get("uid", -1)))
 	if card == null:
 		return
 	var center = card.get_global_rect().get_center()
-	fx.burst(center, "cast", 1.2)
-	var ability = Library.loc(str(event.get("card", "")), "ability_name")
-	fx.float_text(center + Vector2(0, -40), ability, UiKit.PLAYABLE, 24, 50)
+	match str(event.get("k", "")):
+		"shield":
+			fx.float_text(center + Vector2(0, -30), EventText.keyword_name("death_shield"), Color(0.6, 0.9, 1.0), 20, 40)
+			fx.burst(center, "heal", card.scale.x)
+		"purge":
+			fx.burst(center, "cast", card.scale.x)
 	_flash(card)
-	await queue.wait(0.7)
+
+## A battle outside combat (Gank, Friendly Fire): the attacker lunges at each
+## defender, then its strikes' numbers pop.
+func _anim_battle(event: Dictionary, context: Dictionary) -> void:
+	var attacker: Control = board.unit_card(int(event.get("a", -1)))
+	for defender_uid in event.get("bs", []):
+		var defender: Control = board.unit_card(int(defender_uid))
+		if attacker != null and defender != null:
+			_lunge(attacker, defender.get_global_rect().get_center())
+	await queue.wait(0.16)
+	for uid in _strike_numbers(event.get("hits", []), ["attack", "retaliate", "cleave"]):
+		context.hit[uid] = true
+	await queue.wait(0.45)
+
+## Condemn: a purple mark across the unit (it dies at the sync), or a flash
+## on an improvement chip (it fades out at the sync).
+func _anim_condemn(event: Dictionary) -> void:
+	var id = int(event.get("id", -1))
+	var card: Control = board.unit_card(id) if id < MatchEngine.OID_START else null
+	if card != null:
+		if not AnimationQueue.instant:
+			card.create_tween().tween_method(Callable(card, "set_condemn_mark"), 0.0, 1.0, AnimationQueue.duration(0.25))
+		fx.burst(card.get_global_rect().get_center(), "death", card.scale.x * 0.6)
+		await queue.wait(0.35)
+		return
+	var chip: Control = board.improvement_chip(id)
+	if chip != null:
+		_flash_chip(chip)
+		await queue.wait(0.2)
+
+## An improvement leaving play bursts on its chip (the chip fades at the sync).
+func _anim_chip_gone(event: Dictionary) -> void:
+	var chip: Control = board.improvement_chip(int(event.get("oid", -1)))
+	if chip != null:
+		fx.burst(chip.get_global_rect().get_center(), "death", 0.6)
+
+## Gold gained or lost: a burst at that player's panel.
+func _anim_gold(event: Dictionary, viewer: int) -> void:
+	var panel: Control = own_panel if int(event.get("p", 0)) == viewer else enemy_panel
+	var point = panel.get_global_rect().get_center()
+	var amount = int(event.get("n", 0))
+	fx.burst(point, "gold", 0.9)
+	fx.float_text(point + Vector2(0, -24 if panel == own_panel else 24), "%+d" % amount, UiKit.GOLD_BRIGHT, 26, 40)
+
+## Mana restored: its number pulses beside the tower's mana gem.
+func _anim_mana(event: Dictionary, viewer: int) -> void:
+	var tower: Control = board.tower(clampi(int(event.get("lane", 0)), 0, 2), int(event.get("p", 0)) == viewer)
+	var gem = tower.get_global_transform() * Vector2(45, 37)
+	fx.float_text(gem, "%+d" % int(event.get("n", 0)), Color("8fd3ff"), 28, 40)
+	_flash_tower(tower)
+
+## Lock, hack and charge events: the marked cards of your hand shake and pop
+## their badge; the opponent's hand shakes (spec §8.7).
+func _anim_hand_marks(marks: Array, viewer: int) -> void:
+	if marks.is_empty() or AnimationQueue.instant:
+		return
+	await queue.wait(0.25)
+	for event in marks:
+		if int(event.get("p", -1)) != viewer:
+			fx.shake(enemy_hand, 5.0, 0.3)
+			continue
+		var indices: Array = event.get("idx", [])
+		if str(event.get("k", "")) == "charged":
+			indices = []
+			for index in range(hand.cards.size()):
+				if hand.cards[index].badges.any(func(badge): return str(badge.get("k", "")) == "charges"):
+					indices.append(index)
+		for index in indices:
+			if int(index) >= 0 and int(index) < hand.cards.size():
+				var card: Control = hand.cards[int(index)]
+				fx.shake(card, 6.0, 0.3)
+				card.create_tween().tween_property(card, "badge_pop", 0.0, AnimationQueue.duration(0.45)).from(1.0)
+	await queue.wait(0.35)
+
+## A unit moved to another lane: the camera follows it there, then returns.
+func _follow_moves(context: Dictionary) -> void:
+	if context.moved.is_empty() or AnimationQueue.instant or str(shown_view.get("phase", "")) != "action":
+		return
+	var uid = int(context.moved.keys()[0])
+	var to = int(context.moved[uid])
+	var home = board.focus_lane
+	if to == home:
+		return
+	await _focus_lane(to)
+	var card: Control = board.unit_card(uid)
+	if card != null:
+		fx.burst(card.get_global_rect().get_center(), "cast", card.scale.x)
+		_flash(card)
+	await queue.wait(0.45)
+	await _focus_lane(home)
 
 func _anim_pass(event: Dictionary, viewer: int) -> void:
 	var own = int(event.get("p", 0)) == viewer
@@ -579,6 +983,10 @@ func _anim_pass(event: Dictionary, viewer: int) -> void:
 	if sfx != null:
 		sfx.play("click-b")
 
+## Combat in a lane, from the event's strikes (spec §8.7): attackers lunge,
+## damage numbers pop on their targets, cleave hits fan out to the
+## neighbours, retaliation returns to the attackers, regeneration heals and
+## the towers take their damage.
 func _anim_combat(event: Dictionary, viewer: int) -> void:
 	var lane_index = int(event.get("lane", 0))
 	await _focus_lane(lane_index)
@@ -588,34 +996,37 @@ func _anim_combat(event: Dictionary, viewer: int) -> void:
 	fx.banner(UiKit.t("PHASE_COMBAT"), UiKit.GOLD_BRIGHT, 0.6, 46, _river_y())
 	await queue.wait(0.55)
 	var lane = board.lanes[lane_index]
-	var models: Dictionary = board.lane_models[lane_index]
-	for side in range(2):
-		for column in range(lane.columns[side].size()):
-			var uid = int(lane.columns[side][column])
-			if uid == -1 or not lane.cards.has(uid) or not models.has(uid):
-				continue
-			var card: Control = lane.cards[uid]
-			var model: Dictionary = models[uid]
-			var target_point: Vector2
-			if model.get("tower", false):
-				target_point = lane.towers[0 if side == 1 else 1].emblem_center()
-			else:
-				var target_column = column + int(model.get("arrow", 0))
-				var target_uid = int(lane.columns[1 - side][target_column]) if target_column >= 0 and target_column < lane.columns[1 - side].size() else -1
-				target_point = lane.cards[target_uid].get_global_rect().get_center() if lane.cards.has(target_uid) else card.get_global_rect().get_center()
-			_lunge(card, target_point)
+	var strikes: Array = event.get("strikes", [])
+	var lunged: Dictionary = {}
+	for strike in strikes:
+		if str(strike[3]) != "attack" or strike[0] is String or lunged.has(int(strike[0])):
+			continue
+		var card: Control = lane.cards.get(int(strike[0]))
+		if card != null:
+			lunged[card.uid] = true
+			_lunge(card, _strike_point(lane, strike[1], viewer, card))
 	if sfx != null:
 		sfx.play("click-a")
 	await queue.wait(0.16)
+	_strike_numbers(strikes, ["attack"])
+	if strikes.any(func(strike): return str(strike[3]) == "cleave"):
+		await queue.wait(0.14)
+		_strike_numbers(strikes, ["cleave"], 0.8)
+	if strikes.any(func(strike): return str(strike[3]) == "retaliate"):
+		await queue.wait(0.18)
+		for strike in strikes:
+			if str(strike[3]) == "retaliate" and not strike[0] is String:
+				var card: Control = lane.cards.get(int(strike[0]))
+				if card != null:
+					_lunge(card, _strike_point(lane, strike[1], viewer, card), 0.5)
+		_strike_numbers(strikes, ["retaliate"])
+	# Regeneration: what the forecast restores (the same plan resolve applied).
+	var models: Dictionary = board.lane_models[lane_index]
 	for uid in models:
-		if not uid is int or not lane.cards.has(uid):
-			continue
-		var damage = int(models[uid].get("damage", 0))
-		if damage > 0:
+		if uid is int and int(models[uid].get("heal", 0)) > 0 and lane.cards.has(uid):
 			var center = lane.cards[uid].get_global_rect().get_center()
-			fx.float_text(center, "-%d" % damage, UiKit.DAMAGE, 34)
-			fx.burst(center, "hit", lane.cards[uid].scale.x)
-			_flash(lane.cards[uid])
+			fx.float_text(center + Vector2(0, 28), "+%d" % int(models[uid].heal), UiKit.HEAL, 26)
+			fx.burst(center, "heal", lane.cards[uid].scale.x)
 	var dealt: Array = event.get("damage", [0, 0])
 	for side in range(2):
 		var amount = int(dealt[viewer]) if side == 0 else int(dealt[1 - viewer])
@@ -629,13 +1040,42 @@ func _anim_combat(event: Dictionary, viewer: int) -> void:
 	await queue.wait(0.8)
 	hud.combat_lane = -1
 
-func _lunge(card: Control, target_point: Vector2) -> void:
+## Damage numbers of the strikes of `parts` ([src, dst, n, part]), summed per
+## unit target, with hit bursts. Returns the uids shown.
+func _strike_numbers(strikes: Array, parts: Array, size_scale: float = 1.0) -> Array:
+	var totals: Dictionary = {}
+	for strike in strikes:
+		if str(strike[3]) in parts and not strike[1] is String:
+			totals[int(strike[1])] = int(totals.get(int(strike[1]), 0)) + int(strike[2])
+	for uid in totals:
+		var card: Control = board.unit_card(uid)
+		if card == null:
+			continue
+		var center = card.get_global_rect().get_center()
+		if int(totals[uid]) > 0:
+			fx.float_text(center, "-%d" % int(totals[uid]), UiKit.DAMAGE, int(34 * size_scale))
+			fx.burst(center, "hit", card.scale.x * size_scale)
+			_flash(card)
+		else:
+			fx.float_text(center, "0", UiKit.PAPER_DIM, int(28 * size_scale))
+	return totals.keys()
+
+## Where a strike lands: a unit card, or a tower ("t<lane>_<p>").
+func _strike_point(lane: Control, target, viewer: int, fallback: Control) -> Vector2:
+	if target is String:
+		var parts = str(target).substr(1).split("_")
+		var player = int(parts[1]) if parts.size() == 2 else 1 - viewer
+		return lane.towers[1 if player == viewer else 0].emblem_center()
+	var card: Control = lane.cards.get(int(target))
+	return (card if card != null else fallback).get_global_rect().get_center()
+
+func _lunge(card: Control, target_point: Vector2, strength: float = 1.0) -> void:
 	if AnimationQueue.instant:
 		return
 	var rest = card.position
 	var center = card.get_global_rect().get_center()
 	var direction = (target_point - center)
-	var reach = minf(54.0, direction.length() * 0.4) * card.scale.x
+	var reach = minf(54.0, direction.length() * 0.4) * card.scale.x * strength
 	var offset = direction.normalized() * reach if direction.length() > 1.0 else Vector2.ZERO
 	var tween = card.create_tween()
 	tween.tween_property(card, "position", rest + offset, AnimationQueue.duration(0.16)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -1051,7 +1491,7 @@ func _refresh_controls() -> void:
 	enemy_panel.set_connection(controller.steam_bridge.connection_info() if online else {})
 	own_deck.set_count(int(players[viewer].get("deck_count", 0)), UiKit.t("TERM_DECK"))
 	enemy_deck.set_count(int(players[1 - viewer].get("deck_count", 0)))
-	enemy_hand.set_count(int(players[1 - viewer].get("hand_count", 0)))
+	enemy_hand.set_count(int(players[1 - viewer].get("hand_count", 0)), "", _locks(players[1 - viewer].get("hand_public", [])))
 	hud.sync(view, viewer, board.lane_models, board.focus_lane)
 
 func _player_names(viewer: int) -> Array:
@@ -1068,14 +1508,46 @@ func _player_names(viewer: int) -> Array:
 func _card_states(view: Dictionary, viewer: int, new_actions: Array) -> Array:
 	var states: Array = []
 	var hand_ids: Array = view.players[viewer].get("hand", [])
+	var hand_states: Array = view.players[viewer].get("hand_state", [])
 	for index in range(hand_ids.size()):
 		var playable = false
 		for action in new_actions:
 			if action.get("type", "") == "play" and int(action.get("hand", -1)) == index:
 				playable = true
 				break
-		states.append({"playable": true} if playable else {"playable": false, "reason": _reason(str(hand_ids[index]), view, viewer, index)})
+		var state = {"playable": true} if playable else {"playable": false, "reason": _reason(str(hand_ids[index]), view, viewer, index)}
+		var entry = hand_states[index] if index < hand_states.size() and hand_states[index] is Dictionary else {}
+		state["badges"] = _hand_badges(str(hand_ids[index]), entry)
+		# The tooltip: why it cannot be played, then what its marks mean (a
+		# lock mark already says it is locked).
+		var notes: Array = []
+		if state.has("reason") and not (state.reason == UiKit.t("REASON_LOCKED") and int(entry.get("lock", 0)) > 0):
+			notes.append(state.reason)
+		for badge in state.badges:
+			notes.append(UnitCard.badge_text(badge))
+		state["tooltip"] = "\n".join(notes)
+		states.append(state)
 	return states
+
+## The marks of a card in hand (spec §8.6): its lock, its charges (stored, or
+## printed when nothing is stored) and whether a hack changed it.
+static func _hand_badges(card_id: String, entry: Dictionary) -> Array:
+	var out: Array = []
+	if int(entry.get("lock", 0)) > 0:
+		out.append({"k": "lock", "v": int(entry.lock)})
+	var printed = Library.raw_definition(card_id).get("charges")
+	if entry.has("charges") or printed != null:
+		out.append({"k": "charges", "v": int(entry.get("charges", printed if printed != null else 0))})
+	if not entry.get("hacks", []).is_empty():
+		out.append({"k": "hacked", "v": entry.hacks.size()})
+	return out
+
+## Lock rounds per card of the opponent's hand (public, spec §10.4).
+static func _locks(hand_public: Array) -> Array:
+	var out: Array = []
+	for entry in hand_public:
+		out.append(int(entry.get("lock", 0)) if entry is Dictionary else 0)
+	return out
 
 ## Why a hand card cannot be played right now (the gates of spec §7.2).
 func _reason(card_id: String, view: Dictionary, viewer: int, index: int = -1) -> String:
@@ -1190,6 +1662,8 @@ func _input(event: InputEvent) -> void:
 			var released = event is InputEventMouseButton and not event.pressed
 			if released or _mouse.distance_to(_unit_press.point) > DRAG_THRESHOLD:
 				_unit_press = {}
+		if event is InputEventMouseMotion:
+			_update_chip_hover(_mouse)
 	if event is InputEventKey and event.pressed and not event.echo:
 		if _handle_key(event):
 			get_viewport().set_input_as_handled()
@@ -1260,6 +1734,42 @@ func _handle_key(event: InputEventKey) -> bool:
 			return true
 	return false
 
+## Hovering a "+n" chip opens its lane's improvement rows; leaving them
+## closes them again. The chip under the pointer is drawn in front.
+func _update_chip_hover(point: Vector2) -> void:
+	if hold.is_empty():
+		if _chip_lane == -1:
+			var lane_index = board.more_chip_lane_at(point)
+			if lane_index != -1:
+				_open_chip_rows(lane_index, true)
+		elif not board.lanes[_chip_lane].visible or not board.lanes[_chip_lane].chip_rows_contain(point, 12.0):
+			_close_chip_rows()
+	var hovered: Control = board.improvement_at(point)
+	for lane in board.lanes:
+		lane.hovered_chip = hovered if hovered != null and lane.chips.values().has(hovered) else null
+
+## Shows every improvement chip of lane `lane_index` (both walls).
+func _open_chip_rows(lane_index: int, by_hover: bool) -> void:
+	if _chip_lane == lane_index:
+		return
+	_close_chip_rows()
+	var guard = Rect2()
+	for more in board.lanes[lane_index].more_chips:
+		if more.visible and more.count > 0 and not more.summary:
+			guard = more.get_global_rect() if guard.size == Vector2.ZERO else guard.merge(more.get_global_rect())
+	_chip_lane = lane_index
+	board.lanes[lane_index].chip_expand = true
+	_chip_guard = {"rect": guard, "until": Time.get_ticks_msec() + 400} if by_hover else {}
+
+func _close_chip_rows() -> void:
+	if _chip_lane == -1:
+		return
+	# The improvement step keeps every row open until it ends.
+	if str(_current_step().get("type", "")) != "improvement":
+		board.lanes[_chip_lane].chip_expand = false
+	_chip_lane = -1
+	_chip_guard = {}
+
 func _over_chevron(point: Vector2) -> bool:
 	for chevron in board.chevrons:
 		if chevron.visible and chevron.get_global_rect().has_point(point):
@@ -1279,14 +1789,14 @@ func _on_hand_pressed(index: int, button: int) -> void:
 	if not hold.is_empty():
 		_cancel_hold()
 	if not can_play():
-		show_hint(_reason(str(hand.ids[index]), shown_view, shown_viewer) if not queue.busy else "", 2.5)
+		show_hint(_reason(str(hand.ids[index]), shown_view, shown_viewer, index) if not queue.busy else "", 2.5)
 		return
 	var plays = _plays_for(index)
 	if plays.is_empty():
-		show_hint(_reason(str(hand.ids[index]), shown_view, shown_viewer), 2.5)
+		show_hint(_reason(str(hand.ids[index]), shown_view, shown_viewer, index), 2.5)
 		fx.shake(hand.cards[index], 5.0, 0.2)
 		return
-	_begin_hold(index, plays, _mouse if _mouse != Vector2.ZERO else press_point)
+	_begin_hold({"hand": index}, plays, _mouse if _mouse != Vector2.ZERO else press_point)
 
 func _plays_for(index: int) -> Array:
 	var plays: Array = []
@@ -1295,30 +1805,84 @@ func _plays_for(index: int) -> Array:
 			plays.append(action)
 	return plays
 
-func _begin_hold(index: int, plays: Array, press_point: Vector2) -> void:
-	var kind = "untargeted"
-	if plays[0].has("position"):
-		kind = "creep"
-	elif plays[0].has("destination"):
-		kind = "redirect"
-	elif plays[0].has("target"):
-		kind = "target"
-	hold = {"index": index, "plays": plays, "kind": kind, "mode": "pending", "press": press_point,
-		"source": -1, "card": hand.cards[index],
-		"cross_lane": bool(Library.raw_definition(str(hand.ids[index])).get("cross_lane", false))}
+## Picks up a hand card ({"hand": i}) or an ability ({"unit": id}) and asks
+## for its choices step by step (spec §8.2).
+func _begin_hold(source: Dictionary, plays: Array, press_point: Vector2) -> void:
+	var index = int(source.get("hand", -1))
+	var card: Control = hand.cards[index] if index >= 0 else null
+	var card_id = str(hand.ids[index]) if index >= 0 else _ability_card(int(source.get("unit", -1)))
+	hold = {"source": source, "steps": board.display_engine.choice_steps(source), "step": 0, "picked": {}, "plays": plays,
+		"card": card, "mode": "pending" if card != null else "click", "press": press_point, "index": index,
+		"cross_lane": bool(Library.raw_definition(card_id).get("cross_lane", false))}
 	_edge_armed = not (_mouse.x < EDGE or _mouse.x > size.x - EDGE)
 	_press_time = 0.0
 	if sfx != null:
 		sfx.play("tap-a")
-	hand.stop_tween(hand.cards[index])
-	hand.held = index
-	hand.hovered = -1
-	hand.cards[index].hovered = false
-	hand.cards[index].selected = true
-	hand.layout(true)
+	if card != null:
+		hand.stop_tween(card)
+		hand.held = index
+		hand.hovered = -1
+		card.hovered = false
+		card.selected = true
+		hand.layout(true)
 	_focus_now(int(shown_view.lane))
 	_setup_targets()
 	_update_hold(press_point)
+
+## The card id of an ability source in the shown state.
+func _ability_card(id: int) -> String:
+	var found: Dictionary = board.display_engine.find_object(id)
+	return str(found.get("card", ""))
+
+## The current choice step of the hold ({} once every choice is made).
+func _current_step() -> Dictionary:
+	if hold.is_empty() or int(hold.step) >= hold.steps.size():
+		return {}
+	return hold.steps[int(hold.step)]
+
+## The held source's legal commands that agree with every choice so far.
+func _matching_plays() -> Array:
+	var out: Array = []
+	for play in hold.get("plays", []):
+		var agrees = true
+		for key in hold.picked:
+			if not play.has(key) or int(play[key]) != int(hold.picked[key]):
+				agrees = false
+				break
+		if agrees:
+			out.append(play)
+	return out
+
+## The current step's candidates: the distinct values of its key among the
+## agreeing commands, in their order.
+func _candidates() -> Array:
+	var step = _current_step()
+	var out: Array = []
+	if step.is_empty():
+		return out
+	for play in _matching_plays():
+		var value = int(play.get(str(step.key), -999))
+		if not out.has(value):
+			out.append(value)
+	return out
+
+## The lane of a position step: an earlier lane choice, or the step's lane.
+func _step_lane(step: Dictionary) -> int:
+	if step.has("lane_key"):
+		return clampi(int(hold.picked.get(str(step.lane_key), shown_view.get("lane", 0))), 0, 2)
+	return clampi(int(step.get("lane", shown_view.get("lane", 0))), 0, 2)
+
+## The unit whose combat target the current step chooses: the unit picked
+## just before it (Battlefield Control's target), or the ability's own unit.
+func _step_source() -> int:
+	var step = _current_step()
+	if str(step.get("type", "")) != "combat_target":
+		return -1
+	if int(hold.step) > 0:
+		var previous: Dictionary = hold.steps[int(hold.step) - 1]
+		return int(hold.picked.get(str(previous.key), -1))
+	var unit = int(hold.source.get("unit", -1))
+	return unit if unit >= 0 and unit < MatchEngine.OID_START else -1
 
 ## Moves the camera to the active lane immediately (input feedback).
 func _focus_now(lane_index: int) -> void:
@@ -1327,40 +1891,57 @@ func _focus_now(lane_index: int) -> void:
 	if board.focus_lane != lane_index:
 		board.slide_to(lane_index, AnimationQueue.duration(0.3))
 
+## Lights up the current step's candidates (spec §8.2): unit cards, the
+## combat-target source and its targets, lanes in the overview, ghost
+## positions in the chosen lane, or improvement chips.
 func _setup_targets() -> void:
 	_clear_targets()
-	var lane = board.lanes[int(shown_view.lane)]
-	match hold.kind:
-		"creep":
-			var positions: Array = []
-			for play in hold.plays:
-				positions.append(int(play.position))
-			lane.set_ghost_slots(positions)
-		"target", "redirect":
-			if hold.source == -1:
-				for play in hold.plays:
-					var card = board.unit_card(int(play.target))
+	var step = _current_step()
+	var candidates = _candidates()
+	match str(step.get("type", "")):
+		"unit":
+			for uid in candidates:
+				var card = board.unit_card(uid)
+				if card != null:
+					card.target_state = 1
+		"combat_target":
+			var source: Control = board.unit_card(_step_source())
+			if source != null:
+				source.target_state = 3
+			for value in candidates:
+				if value == 0:
+					var tower = _redirect_tower()
+					if tower != null:
+						tower.target_state = 1
+				else:
+					var card = board.unit_card(value)
 					if card != null:
 						card.target_state = 1
-			else:
-				var source: Control = board.unit_card(int(hold.source))
-				if source != null:
-					source.target_state = 3
-				for play in hold.plays:
-					if int(play.target) != int(hold.source):
-						continue
-					var destination = int(play.destination)
-					if destination == 0:
-						var tower = _redirect_tower()
-						if tower != null:
-							tower.target_state = 1
-					else:
-						var card = board.unit_card(destination)
-						if card != null:
-							card.target_state = 1
+		"lane":
+			if not board.overview:
+				board.set_overview(true, AnimationQueue.duration(0.3))
+				hold.zoomed = true
+			for lane_index in candidates:
+				if lane_index >= 0 and lane_index < 3:
+					board.lanes[lane_index].drop_state = 1
+					board.lanes[lane_index].queue_redraw()
+		"position":
+			var lane_index = _step_lane(step)
+			if board.overview:
+				board.set_overview(false, AnimationQueue.duration(0.3))
+			if board.focus_lane != lane_index:
+				board.slide_to(lane_index, AnimationQueue.duration(0.3))
+			board.lanes[lane_index].set_ghost_slots(candidates)
+		"improvement":
+			for lane in board.lanes:
+				lane.chip_expand = true
+			for oid in candidates:
+				var chip = board.improvement_chip(oid)
+				if chip != null:
+					chip.set_target_state(1)
 
 func _redirect_tower() -> Control:
-	var source: Control = board.unit_card(int(hold.get("source", -1)))
+	var source: Control = board.unit_card(_step_source())
 	if source == null:
 		return null
 	return board.tower(board.lane_of_uid(source.uid), not source.own)
@@ -1375,53 +1956,60 @@ func _clear_targets() -> void:
 			tower.queue_redraw()
 		if not lane.ghost_slots.is_empty():
 			lane.set_ghost_slots([])
+		if lane.drop_state != 0 and not deployment.visible:
+			lane.drop_state = 0
+			lane.queue_redraw()
+		lane.chip_expand = false
+		for oid in lane.chips:
+			lane.chips[oid].set_target_state(0)
+	_chip_lane = -1
+	_chip_guard = {}
 
-## The play that would happen if the held card were released at `point`.
+## What a release or a click at `point` chooses for the current step:
+## {"value", plus "uid" | "slot" | "lane" | "oid" for the hover cue}, or
+## {"action"} for a play without choices dropped on the board.
 func _candidate_at(point: Vector2) -> Dictionary:
 	if hold.is_empty():
 		return {}
-	match hold.kind:
-		"untargeted":
-			if point.y < size.y - HAND_ZONE and board.lane_at(point) != -1:
-				return {"action": hold.plays[0]}
-		"creep":
-			var position = board.lanes[int(shown_view.lane)].slot_at(point)
-			for play in hold.plays:
-				if int(play.position) == position:
-					return {"action": play, "slot": position}
-		"target":
+	var step = _current_step()
+	if step.is_empty():
+		if hold.steps.is_empty() and not hold.plays.is_empty() and point.y < size.y - HAND_ZONE and board.lane_at(point) != -1:
+			return {"action": hold.plays[0]}
+		return {}
+	var candidates = _candidates()
+	match str(step.type):
+		"unit", "combat_target":
 			var card = board.unit_at(point)
-			if card != null:
-				for play in hold.plays:
-					if int(play.target) == card.uid:
-						return {"action": play, "uid": card.uid}
-		"redirect":
-			if hold.source == -1:
-				var card = board.unit_at(point)
-				if card != null:
-					for play in hold.plays:
-						if int(play.target) == card.uid:
-							return {"source": card.uid}
-			else:
-				var card = board.unit_at(point)
-				var destination = card.uid if card != null else -1
-				var tower = _redirect_tower()
-				if card == null and tower != null and tower.get_global_rect().has_point(point):
-					destination = 0
-				for play in hold.plays:
-					if int(play.target) == int(hold.source) and int(play.destination) == destination:
-						return {"action": play, "uid": destination}
+			if card != null and candidates.has(card.uid):
+				return {"value": card.uid, "uid": card.uid}
+			var tower = _redirect_tower() if str(step.type) == "combat_target" else null
+			if card == null and tower != null and candidates.has(0) and tower.get_global_rect().has_point(point):
+				return {"value": 0, "uid": 0}
+		"lane":
+			var lane_index = board.lane_at(point)
+			if lane_index != -1 and candidates.has(lane_index):
+				return {"value": lane_index, "lane": lane_index}
+		"position":
+			var position = board.lanes[_step_lane(step)].slot_at(point)
+			if position != -999 and candidates.has(position):
+				return {"value": position, "slot": position}
+		"improvement":
+			var chip = board.improvement_at(point)
+			if chip != null and candidates.has(chip.oid):
+				return {"value": chip.oid, "oid": chip.oid}
 	return {}
 
 func _update_hold(point: Vector2) -> void:
 	if hold.is_empty():
 		return
-	var candidate = _candidate_at(point)
 	var card: Control = hold.card
-	if not is_instance_valid(card):
+	if int(hold.index) >= 0 and not is_instance_valid(card):
 		_cancel_hold()
 		return
-	var follow = hold.mode == "drag" and hold.kind in ["untargeted", "creep"]
+	var candidate = _candidate_at(point)
+	var step_type = str(_current_step().get("type", ""))
+	# A card without choices, or one choosing a position, follows the pointer.
+	var follow = card != null and hold.mode == "drag" and step_type in ["", "position"]
 	if follow:
 		hold.lifted = false
 		if hold.get("lift_tween") != null and hold.lift_tween.is_valid():
@@ -1431,7 +2019,7 @@ func _update_hold(point: Vector2) -> void:
 		card.position = hand.get_global_transform().affine_inverse() * point - Vector2(card.size.x * 0.5, card.size.y * 1.08)
 		arrow.hide_arrow()
 	else:
-		if not hold.get("lifted", false):
+		if card != null and not hold.get("lifted", false):
 			hold.lifted = true
 			# Aim from beside the own tower so the card never hides it.
 			var lifted = Vector2(hand.size.x * 0.5 - 300.0 - card.size.x, hand.size.y - card.size.y * 0.86 - 52.0)
@@ -1445,14 +2033,9 @@ func _update_hold(point: Vector2) -> void:
 				tween.tween_property(card, "rotation", 0.0, AnimationQueue.duration(0.16))
 				tween.tween_property(card, "scale", Vector2(0.86, 0.86), AnimationQueue.duration(0.16))
 				hold.lift_tween = tween
-		var source_point = card.get_global_transform() * Vector2(card.size.x * 0.5, 8.0)
-		if hold.kind == "redirect" and hold.source != -1:
-			var source_card: Control = board.unit_card(int(hold.source))
-			if source_card != null:
-				source_point = source_card.front_point()
-		arrow.show_arrow(source_point, point, not candidate.is_empty(), UiKit.TARGET)
+		arrow.show_arrow(_hold_source_point(), point, not candidate.is_empty(), UiKit.TARGET)
 	# Hover feedback on the candidate.
-	var hovered_uid = int(candidate.get("uid", candidate.get("source", -999)))
+	var hovered_uid = int(candidate.get("uid", -999))
 	for lane in board.lanes:
 		for uid in lane.cards:
 			var unit_card: Control = lane.cards[uid]
@@ -1461,32 +2044,61 @@ func _update_hold(point: Vector2) -> void:
 		if not lane.ghost_slots.is_empty():
 			lane.hovered_slot = int(candidate.get("slot", -999))
 			lane.queue_redraw()
-	var tower = _redirect_tower() if hold.kind == "redirect" and hold.source != -1 else null
-	if tower != null:
+		if step_type == "lane" and lane.drop_state != 0:
+			var state = 2 if int(candidate.get("lane", -1)) == lane.lane_index else 1
+			if lane.drop_state != state:
+				lane.drop_state = state
+				lane.queue_redraw()
+		for oid in lane.chips:
+			var chip: Control = lane.chips[oid]
+			if chip.target_state != 0:
+				chip.set_target_state(2 if int(candidate.get("oid", -1)) == oid else 1)
+	var tower = _redirect_tower() if step_type == "combat_target" else null
+	if tower != null and tower.target_state != 0:
 		tower.target_state = 2 if hovered_uid == 0 else 1
-	var keys = {"untargeted": "HINT_DROP_TO_CAST", "creep": "HINT_SELECT_POSITION", "target": "HINT_SELECT_TARGET",
-		"redirect": "HINT_SELECT_TARGET" if hold.source == -1 else "HINT_SELECT_DESTINATION"}
-	show_hint(UiKit.t(keys[hold.kind]) + "   " + UiKit.t("HINT_RIGHT_CLICK_CANCEL"), 0.5)
+	show_hint(UiKit.t(HINT_KEYS.get(step_type, "HINT_SELECT_TARGET")) + "   " + UiKit.t("HINT_RIGHT_CLICK_CANCEL"), 0.5)
 
+## Where the target arrow starts: the unit whose combat target is chosen, the
+## held card, or the ability's source (unit, item slot or chip).
+func _hold_source_point() -> Vector2:
+	var source_card: Control = board.unit_card(_step_source())
+	if source_card != null:
+		return source_card.front_point()
+	var card: Control = hold.card
+	if card != null and is_instance_valid(card):
+		return card.get_global_transform() * Vector2(card.size.x * 0.5, 8.0)
+	var spot = _source_spot(int(hold.source.get("unit", -1)))
+	return spot.point if not spot.is_empty() else _mouse
+
+## Takes the candidate at `point` for the current step; the last choice (or
+## a play without choices) sends the command. Nothing there cancels.
 func _commit(point: Vector2) -> void:
 	var candidate = _candidate_at(point)
 	if candidate.is_empty():
 		_cancel_hold()
 		return
-	if candidate.has("source"):
-		hold.source = int(candidate.source)
-		hold.mode = "click"
-		_setup_targets()
-		_update_hold(point)
-		return
+	var action: Dictionary = candidate.get("action", {})
+	if action.is_empty():
+		var step = _current_step()
+		hold.picked[str(step.key)] = int(candidate.value)
+		hold.step = int(hold.step) + 1
+		if int(hold.step) < hold.steps.size():
+			hold.mode = "click"
+			_setup_targets()
+			_update_hold(point)
+			return
+		var matching = _matching_plays()
+		if matching.is_empty():
+			_cancel_hold()
+			return
+		action = matching[0]
 	var card: Control = hold.card
-	_pending_origin = card.get_global_rect().get_center() if is_instance_valid(card) else point
-	if is_instance_valid(card):
+	_pending_origin = card.get_global_rect().get_center() if card != null and is_instance_valid(card) else Vector2(-1, -1)
+	if card != null and is_instance_valid(card):
 		card.visible = false
-	var action: Dictionary = candidate.action
 	_cancel_hold()
 	var result = controller.act(action)
-	if not result.get("ok", false) and is_instance_valid(card):
+	if not result.get("ok", false) and card != null and is_instance_valid(card):
 		card.visible = true
 		_pending_origin = Vector2(-1, -1)
 
@@ -1494,15 +2106,19 @@ func _cancel_hold() -> void:
 	if hold.is_empty():
 		return
 	var card: Control = hold.get("card")
-	if is_instance_valid(card):
+	if card != null and is_instance_valid(card):
 		card.selected = false
 		card.queue_redraw()
+	var zoomed = hold.get("zoomed", false)
 	hold = {}
 	arrow.hide_arrow()
 	_clear_targets()
 	hand.held = -1
 	hand.layout(true)
 	hint_label.visible = false
+	# The overview a lane step opened closes again.
+	if zoomed and board.overview and str(shown_view.get("phase", "")) == "action":
+		board.set_overview(false, AnimationQueue.duration(0.3))
 
 func _on_board_pressed(point: Vector2, button: int, double_click: bool) -> void:
 	if not hold.is_empty():
@@ -1512,16 +2128,40 @@ func _on_board_pressed(point: Vector2, button: int, double_click: bool) -> void:
 	if phase == "deployment" and deployment.visible and deployment.handle_board_press(point, button):
 		return
 	var card: Control = board.unit_at(point)
+	var slot = card.item_hit(point) if card != null else ""
+	var chip: Control = board.improvement_at(point) if card == null else null
+	# A "+n" chip opens its lane's improvement rows; a press elsewhere closes
+	# them. Right after a hover opened them, a press on the "+n" spot only
+	# opens (a chip moved under the pointer).
+	if card == null and board.more_chip_lane_at(point) != -1:
+		_open_chip_rows(board.more_chip_lane_at(point), false)
+		return
+	if not _chip_guard.is_empty() and Time.get_ticks_msec() < int(_chip_guard.until) and _chip_guard.rect.has_point(point):
+		_chip_guard = {}
+		return
+	if _chip_lane != -1 and (chip == null or board.lane_of_chip(chip.oid) != _chip_lane):
+		_close_chip_rows()
 	if button == MOUSE_BUTTON_RIGHT:
-		if card != null:
+		if not slot.is_empty():
+			inspect_item(card.uid, slot)
+		elif card != null:
 			inspect_unit(card.uid)
+		elif chip != null:
+			inspect_improvement(chip.oid)
 		return
 	if button != MOUSE_BUTTON_LEFT:
 		return
 	if phase == "deployment" and deployment.handle_board_click(point):
 		return
+	# Ability buttons: an own item slot, the unit's badge, an own chip (§8.3).
+	if not slot.is_empty() and card.own:
+		use_ability(card.item_oid(slot))
+		return
 	if card != null and card.ability_hit(point):
 		use_ability(card.uid)
+		return
+	if chip != null and chip.own and chip.has_active:
+		use_ability(chip.oid)
 		return
 	if card != null:
 		_unit_press = {"uid": card.uid, "point": point, "time": 0.0}
@@ -1601,13 +2241,24 @@ func undeploy_hero(uid: int) -> void:
 			sfx.play("click-b")
 		controller.act(command)
 
-func use_ability(uid: int) -> bool:
-	var command = {"type": "ability", "unit": uid}
-	if command in actions and can_play():
-		controller.act(command)
+## Uses the active ability of `id` (a unit uid, an item or an improvement
+## oid): at once when it has no choices, otherwise through the target stepper
+## with source {"unit": id} (spec §8.3).
+func use_ability(id: int) -> bool:
+	var plays: Array = []
+	for action in actions:
+		if action.get("type", "") == "ability" and int(action.get("unit", -1)) == id:
+			plays.append(action)
+	if plays.is_empty() or not can_play():
+		show_hint(UiKit.t("HINT_ABILITY_UNAVAILABLE"), 2.0)
+		return false
+	_cancel_hold()
+	if board.display_engine.choice_steps({"unit": id}).is_empty():
+		controller.act(plays[0])
 		return true
-	show_hint(UiKit.t("HINT_ABILITY_UNAVAILABLE"), 2.0)
-	return false
+	var spot = _source_spot(id)
+	_begin_hold({"unit": id}, plays, spot.point if not spot.is_empty() else _mouse)
+	return true
 
 func view_lane(index: int) -> void:
 	index = clampi(index, 0, 2)
@@ -1633,6 +2284,22 @@ func inspect_unit(uid: int) -> void:
 	if not model.is_empty():
 		inspect.show_card(str(model.unit.card), model)
 
+## Inspects the item in `slot` of unit `uid`, with its live cooldown and charges.
+func inspect_item(uid: int, slot: String) -> void:
+	var card: Control = board.unit_card(uid)
+	if card == null:
+		return
+	var unit: Dictionary = card.model.get("unit", {})
+	var item_id = str(unit.get("items", {}).get(slot, ""))
+	if not item_id.is_empty():
+		inspect.show_card(item_id, {"object": unit.get("item_state", {}).get(slot, {}), "kind": "item"})
+
+## Inspects the improvement `oid` on the board.
+func inspect_improvement(oid: int) -> void:
+	var found: Dictionary = board.display_engine.find_object(oid)
+	if str(found.get("kind", "")) == "improvement":
+		inspect.show_card(str(found.card), {"object": found.object, "kind": "improvement"})
+
 ## Click-mode play: pick up hand card `index` (returns false if unplayable).
 func select_card(index: int) -> bool:
 	_on_hand_pressed(index, MOUSE_BUTTON_LEFT)
@@ -1644,12 +2311,18 @@ func select_card(index: int) -> bool:
 func selected_hand() -> int:
 	return int(hold.get("index", -1))
 
+## The unit whose combat target is being chosen (Battlefield Control's second
+## step), or -1.
 func selected_source() -> int:
-	return int(hold.get("source", -1))
+	return _step_source() if not hold.is_empty() else -1
 
-## Completes a click-mode play on unit `uid` (first or second stage).
+## The type of the hold's current choice step ("" without one).
+func current_step_type() -> String:
+	return str(_current_step().get("type", "")) if not hold.is_empty() else ""
+
+## Chooses unit `uid` for the current unit or combat-target step.
 func target_unit(uid: int) -> bool:
-	if hold.is_empty():
+	if current_step_type() not in ["unit", "combat_target"]:
 		return false
 	var card = board.unit_card(uid)
 	if card == null:
@@ -1658,14 +2331,15 @@ func target_unit(uid: int) -> bool:
 	return true
 
 func choose_position(position: int) -> bool:
-	if hold.is_empty() or hold.kind != "creep":
+	var step = _current_step()
+	if hold.is_empty() or str(step.get("type", "")) != "position":
 		return false
-	_commit(board.lanes[int(shown_view.lane)].slot_global_center(position))
+	_commit(board.lanes[_step_lane(step)].slot_global_center(position))
 	return true
 
-## Second stage of Battlefield Control: a unit uid, or 0 for the tower.
+## Battlefield Control's second step: a unit uid, or 0 for the tower.
 func choose_destination(uid: int) -> bool:
-	if hold.is_empty() or hold.kind != "redirect" or hold.source == -1:
+	if current_step_type() != "combat_target":
 		return false
 	if uid == 0:
 		var tower = _redirect_tower()
@@ -1675,6 +2349,21 @@ func choose_destination(uid: int) -> bool:
 		return true
 	return target_unit(uid)
 
+## Chooses lane `index` for the current lane step.
+func choose_lane(index: int) -> bool:
+	if current_step_type() != "lane":
+		return false
+	_commit(lane_point(index))
+	return true
+
+## Chooses the improvement `oid` for the current improvement step.
+func choose_improvement(oid: int) -> bool:
+	var chip: Control = board.improvement_chip(oid)
+	if current_step_type() != "improvement" or chip == null:
+		return false
+	_commit(chip.get_global_rect().get_center())
+	return true
+
 func hand_card_point(index: int) -> Vector2:
 	return hand.card_center(index)
 
@@ -1682,8 +2371,11 @@ func unit_point(uid: int) -> Vector2:
 	var card = board.unit_card(uid)
 	return card.get_global_rect().get_center() if card != null else Vector2.ZERO
 
+## Global centre of ghost position `position` (in the current step's lane).
 func slot_point(position: int) -> Vector2:
-	return board.lanes[int(shown_view.lane)].slot_global_center(position)
+	var step = _current_step()
+	var lane_index = _step_lane(step) if str(step.get("type", "")) == "position" else int(shown_view.lane)
+	return board.lanes[lane_index].slot_global_center(position)
 
 func tower_point(lane_index: int, own: bool) -> Vector2:
 	return board.tower(lane_index, own).get_global_rect().get_center()
@@ -1700,6 +2392,28 @@ func ability_point(uid: int) -> Vector2:
 	if card == null or card.ability_rect().size == Vector2.ZERO:
 		return Vector2.ZERO
 	return card.get_global_transform() * card.ability_rect().get_center()
+
+## Global centre of the item slot `slot` on unit `uid` (Vector2.ZERO if none).
+func item_ability_point(uid: int, slot: String) -> Vector2:
+	var card = board.unit_card(uid)
+	if card == null or card.item_rect(slot).size == Vector2.ZERO:
+		return Vector2.ZERO
+	return card.get_global_transform() * card.item_rect(slot).get_center()
+
+## Global centre of the improvement chip `oid` (Vector2.ZERO if not shown).
+func improvement_point(oid: int) -> Vector2:
+	var chip: Control = board.improvement_chip(oid)
+	return chip.get_global_rect().get_center() if chip != null and chip.is_visible_in_tree() else Vector2.ZERO
+
+## Global centre of the "+n" chip on a wall of lane `lane_index` (Vector2.ZERO
+## when that wall shows every chip).
+func more_chip_point(lane_index: int, own: bool) -> Vector2:
+	var chip: Control = board.lanes[lane_index].more_chips[1 if own else 0]
+	return chip.get_global_rect().get_center() if chip.is_visible_in_tree() and chip.count > 0 and not chip.summary else Vector2.ZERO
+
+## The lane whose improvement rows the "+n" chip opened (-1 for none).
+func open_chip_lane() -> int:
+	return _chip_lane
 
 ## Full-screen catcher shown while the deployment reveal plays: any click
 ## skips to the end. It says so at the bottom centre.

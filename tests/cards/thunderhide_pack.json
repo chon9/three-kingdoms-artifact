@@ -1,0 +1,9 @@
+{
+"card": "thunderhide_pack",
+"source_id": 10102,
+"text": "Siege 6.",
+"covers": ["continuous", "siege"],
+"cases": [
+ {"name": "Siege 6: a blocked Pack also hits the tower", "clause": 0, "tags": ["continuous", "siege"], "board": {"lanes": {"0": {"p0": ["thunderhide_pack#t"], "p1": ["centaur_hunter#c"]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 34}},
+ {"name": "an unblocked Pack attacks the tower without siege", "clause": 0, "tags": ["negative", "siege"], "board": {"lanes": {"0": {"p0": ["thunderhide_pack#t"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 26}}
+]}

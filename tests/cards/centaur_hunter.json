@@ -1,0 +1,8 @@
+{
+"card": "centaur_hunter",
+"source_id": 10082,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "centaur_hunter fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["centaur_hunter#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.health": 6, "u.attack": 4, "e.in_play": false}}
+]}

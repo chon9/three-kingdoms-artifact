@@ -11,9 +11,15 @@ extends Control
 ## They never take a combat position; the rows shift right to make room.
 ## The reveal draws the candidate slots, the deciding highlight and the
 ## pathing slabs here; match_screen.gd drives its timeline.
+##
+## Improvements (EFFECT_SYSTEM_SPEC.md §8.4) sit as chips on each wall to the
+## right of the tower: up to six, then a "+n" chip (all of them while the
+## target stepper asks for an improvement); the overview collapses each row
+## to one count chip. New chips scale in, removed ones fade out.
 
 const UnitCard = preload("res://scripts/ui/unit_card.gd")
 const TowerView = preload("res://scripts/ui/tower_view.gd")
+const ImprovementChip = preload("res://scripts/ui/improvement_chip.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Library = preload("res://scripts/core/card_library.gd")
 const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
@@ -34,6 +40,10 @@ const LIFT = 8.0
 const HOVER_SCALE = 1.12
 const HOVER_LIFT = 8.0
 const ENEMY_ARROW_TINT = Color("c9d36a")
+## Improvement chips: shown per wall in lane view, spacing, gap after the tower.
+const CHIPS_SHOWN = 6
+const CHIP_STEP = 50.0
+const CHIP_GAP = 26.0
 
 var lane_index: int = 0
 var zoom: float = 0.0
@@ -48,6 +58,27 @@ var columns: Array = [[], []]
 var ghost_slots: Array = []
 var hovered_slot: int = -999
 var towers: Array = []
+## Improvement chips per wall [enemy, own] in play order, and by oid.
+var improvement_rows: Array = [[], []]
+var chips: Dictionary = {}
+## Per wall: the "+n" chip in lane view, the count chip in the overview.
+var more_chips: Array = []
+## Shows every chip of both walls (the stepper is choosing an improvement).
+var chip_expand: bool = false:
+	set(value):
+		if chip_expand != value:
+			chip_expand = value
+			layout()
+var _synced: bool = false
+## Draws every chip's marks after all chips (_draw_chip_marks).
+var _chip_marks: Control
+## The chip under the pointer, drawn in front of its neighbours (an open
+## row overlaps them).
+var hovered_chip: Control = null:
+	set(value):
+		if hovered_chip != value:
+			hovered_chip = value
+			_restack_chips()
 ## 0..1: how much of the staging strip is reserved (tweened as the strip
 ## opens, and to 0 when the reveal settles this lane).
 var staging: float = 0.0
@@ -106,6 +137,15 @@ func _init() -> void:
 		tower.own = side == 1
 		add_child(tower)
 		towers.append(tower)
+	for side in range(2):
+		var more = ImprovementChip.new()
+		more.visible = false
+		add_child(more)
+		more_chips.append(more)
+	_chip_marks = Control.new()
+	_chip_marks.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chip_marks.draw.connect(_draw_chip_marks)
+	add_child(_chip_marks)
 
 # --- Geometry ----------------------------------------------------------------
 
@@ -224,8 +264,67 @@ func layout() -> void:
 			var uid = int(columns[side][column])
 			if uid != -1 and cards.has(uid) and not flying.has(uid):
 				_place_card(cards[uid], slot_center(column, side == 1))
+	_layout_chips()
 	_layout_staged()
 	queue_redraw()
+
+## Places the improvement chips of both walls for the current zoom: lane view
+## shows up to CHIPS_SHOWN per wall (all while `chip_expand`) and a "+n"
+## chip, the overview one count chip per wall; the two cross-fade.
+func _layout_chips() -> void:
+	var detail = clampf(1.0 - zoom * 2.5, 0.0, 1.0)
+	var collapsed = clampf(zoom * 2.5 - 1.5, 0.0, 1.0)
+	var chip_scale = lerpf(1.0, 0.7, zoom)
+	for side in range(2):
+		var own = side == 1
+		var row: Array = improvement_rows[side]
+		var tower_right = tower_center(own).x + TowerView.SIZE.x * 0.5 * tower_scale()
+		var first = tower_right + CHIP_GAP * lerpf(1.0, 0.5, zoom) + ImprovementChip.SIZE.x * 0.5 * chip_scale
+		var y = tower_center(own).y
+		var shown = row.size() if chip_expand or row.size() <= CHIPS_SHOWN else CHIPS_SHOWN - 1
+		var step = CHIP_STEP * chip_scale
+		if chip_expand and row.size() > CHIPS_SHOWN:
+			# Every chip in the usual six-chip span (they overlap), clear of
+			# the screen's corner controls.
+			step = step * (CHIPS_SHOWN - 1) / (row.size() - 1)
+		for index in range(row.size()):
+			var chip_node: Control = row[index]
+			var visible_now = index < shown and detail > 0.0
+			chip_node.visible = visible_now
+			if not visible_now:
+				continue
+			chip_node.position = Vector2(first + step * index, y) - ImprovementChip.SIZE * 0.5
+			chip_node.scale = Vector2.ONE * chip_scale * (0.25 + 0.75 * float(chip_node.get_meta("pop", 1.0)))
+			chip_node.modulate.a = detail
+		var more: Control = more_chips[side]
+		var hidden = row.size() - shown
+		# The "+n" chip glows while an own chip it hides can be used now.
+		var hidden_ready = false
+		for index in range(shown, row.size()):
+			hidden_ready = hidden_ready or bool(row[index].usable)
+		if collapsed > 0.0 and not row.is_empty():
+			more.apply_count(row.size(), own, true)
+			more.position = Vector2(first, y) - ImprovementChip.SIZE * 0.5
+			more.scale = Vector2.ONE * chip_scale
+			more.modulate.a = collapsed
+			more.visible = true
+		elif hidden > 0 and detail > 0.0:
+			more.apply_count(hidden, own, false, hidden_ready)
+			more.position = Vector2(first + step * shown, y) - ImprovementChip.SIZE * 0.5
+			more.scale = Vector2.ONE * chip_scale
+			more.modulate.a = detail
+			more.visible = true
+		else:
+			more.visible = false
+	_chip_marks.queue_redraw()
+
+## Second pass over the chips: their book marks, charges and cooldown numbers
+## drawn above every chip, so overlapping chips (an open row) never hide them.
+func _draw_chip_marks() -> void:
+	for side in range(2):
+		for chip_node in improvement_rows[side]:
+			if chip_node.visible and not chip_node.gone:
+				chip_node.draw_marks(_chip_marks, chip_node.modulate.a)
 
 func _place_card(card: Control, center: Vector2) -> void:
 	if not card.scale.is_equal_approx(Vector2.ONE * _scale):
@@ -299,17 +398,136 @@ func sync(lane: Dictionary, viewer: int, models: Dictionary) -> Dictionary:
 			flying.erase(uid)
 	var structures = lane.structures
 	var damage = models.get("tower_damage", [0, 0])
-	towers[0].apply(structures[1 - viewer], int(lane.mana[1 - viewer]), int(lane.max_mana[1 - viewer]), int(damage[1]))
-	towers[1].apply(structures[viewer], int(lane.mana[viewer]), int(lane.max_mana[viewer]), int(damage[0]))
+	var stats: Array = models.get("tower_stats", [{}, {}])
+	towers[0].apply(structures[1 - viewer], int(lane.mana[1 - viewer]), int(lane.max_mana[1 - viewer]), int(damage[1]), stats[0])
+	towers[1].apply(structures[viewer], int(lane.mana[viewer]), int(lane.max_mana[viewer]), int(damage[0]), stats[1])
 	for card in towers:
 		move_child(card, 0)
+	_sync_chips(models.get("improvements", [[], []]))
 	if not result.added.is_empty():
 		_restack_staged()
 	layout()
 	for uid in cards:
 		if old_positions.has(uid) and old_positions[uid] != cards[uid].position:
 			result.moved[cards[uid]] = old_positions[uid]
+	_synced = true
 	return result
+
+## Rebuilds both walls' chips from the board's improvement models
+## ([enemy, own] lists of {oid, card, charges, cd, has_active, ready}),
+## keeping chips by oid: new ones scale in (after the first sync), removed
+## ones fade out.
+func _sync_chips(rows: Array) -> void:
+	var seen: Dictionary = {}
+	for side in range(2):
+		var fresh: Array = []
+		var models: Array = rows[side] if side < rows.size() else []
+		for model in models:
+			var oid = int(model.get("oid", -1))
+			seen[oid] = true
+			var chip_node: Control = chips.get(oid)
+			if chip_node == null:
+				chip_node = ImprovementChip.new()
+				add_child(chip_node)
+				move_child(chip_node, towers.size())
+				chip_node.changed.connect(_chip_marks.queue_redraw)
+				chips[oid] = chip_node
+				if _synced and not AnimationQueue.instant and is_inside_tree():
+					chip_node.set_meta("pop", 0.0)
+					var tween = chip_node.create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+					tween.tween_method(_set_chip_pop.bind(chip_node), 0.0, 1.0, AnimationQueue.duration(0.35))
+			chip_node.apply(model, side == 1)
+			fresh.append(chip_node)
+		improvement_rows[side] = fresh
+	for oid in chips.keys():
+		if not seen.has(oid):
+			_remove_chip(chips[oid])
+			chips.erase(oid)
+	_restack_chips()
+
+## Chips in row order behind the hovered one, which is drawn last of them;
+## their marks pass stays above every chip.
+func _restack_chips() -> void:
+	var index = towers.size()
+	for side in range(2):
+		for chip_node in improvement_rows[side]:
+			if chip_node != hovered_chip:
+				move_child(chip_node, index)
+				index += 1
+	if is_instance_valid(hovered_chip) and hovered_chip.get_parent() == self:
+		move_child(hovered_chip, index)
+		index += 1
+	for more in more_chips:
+		move_child(more, index)
+		index += 1
+	move_child(_chip_marks, index)
+	_chip_marks.queue_redraw()
+
+func _set_chip_pop(value: float, chip_node: Control) -> void:
+	if is_instance_valid(chip_node):
+		chip_node.set_meta("pop", value)
+		_layout_chips()
+
+func _remove_chip(chip_node: Control) -> void:
+	chip_node.gone = true
+	if hovered_chip == chip_node:
+		hovered_chip = null
+	_chip_marks.queue_redraw()
+	chip_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip_node.set_target_state(0)
+	if AnimationQueue.instant or not is_inside_tree() or not chip_node.visible:
+		UiKit.discard(chip_node)
+		return
+	var tween = chip_node.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(chip_node, "modulate:a", 0.0, AnimationQueue.duration(0.35))
+	tween.tween_property(chip_node, "scale", chip_node.scale * 1.45, AnimationQueue.duration(0.35))
+	tween.chain().tween_callback(chip_node.queue_free)
+
+## The improvement chip `oid` shown in this lane (null when there is none).
+func chip(oid: int) -> Control:
+	return chips.get(oid)
+
+## The improvement chip under `global_point` (visible, staying), or null.
+## Overlapping chips (an open row) prefer the hovered one, then the nearest.
+func improvement_at(global_point: Vector2) -> Control:
+	if is_instance_valid(hovered_chip) and _chip_hit(hovered_chip, global_point) >= 0.0:
+		return hovered_chip
+	var best: Control = null
+	var best_distance = INF
+	for side in range(2):
+		for chip_node in improvement_rows[side]:
+			var distance = _chip_hit(chip_node, global_point)
+			if distance >= 0.0 and distance < best_distance:
+				best = chip_node
+				best_distance = distance
+	return best
+
+## Distance from a shown chip's centre to `global_point` (local units) when
+## the point is on it, else -1.
+func _chip_hit(chip_node: Control, global_point: Vector2) -> float:
+	if not chip_node.visible or chip_node.gone or chip_node.modulate.a < 0.5:
+		return -1.0
+	var local = chip_node.get_global_transform().affine_inverse() * global_point
+	var distance = local.distance_to(ImprovementChip.SIZE * 0.5)
+	return distance if distance <= ImprovementChip.RADIUS + 3.0 else -1.0
+
+## True when `global_point` is on a wall's "+n" chip (lane view, not the
+## overview's count chip).
+func more_at(global_point: Vector2) -> bool:
+	for more in more_chips:
+		if more.visible and more.count > 0 and not more.summary and more.modulate.a >= 0.5:
+			var local = more.get_global_transform().affine_inverse() * global_point
+			if local.distance_to(ImprovementChip.SIZE * 0.5) <= ImprovementChip.RADIUS + 3.0:
+				return true
+	return false
+
+## True when `global_point` is on, or within `margin` of, a shown chip.
+func chip_rows_contain(global_point: Vector2, margin: float) -> bool:
+	for side in range(2):
+		for chip_node in improvement_rows[side]:
+			if chip_node.visible and not chip_node.gone and chip_node.get_global_rect().grow(margin).has_point(global_point):
+				return true
+	return false
 
 func set_ghost_slots(positions: Array) -> void:
 	ghost_slots = []

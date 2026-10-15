@@ -23,8 +23,10 @@ const PACKET_LIMIT = 200000
 ## I1 + I2 + part of I3: both rows of every lane have equal length, no
 ## position is empty on both sides, every unit knows its lane and owner, a
 ## diagonal arrow only exists while the unit is unblocked and a unit stands on
-## that diagonal (unless a forced combat target overrides the arrow), and a
-## forced tower target only exists while the position across is empty (RQ-19).
+## that diagonal (unless a forced combat target overrides the arrow), a forced
+## tower target only exists while the position across is empty (RQ-19), and a
+## forced unit target is an enemy within one position (no stale forced target
+## after a move, swap or change of control, spec M2).
 static func board(engine) -> bool:
 	for lane_index in range(3):
 		var rows = engine.state.lanes[lane_index].units
@@ -42,6 +44,17 @@ static func board(engine) -> bool:
 				var enemies = rows[1 - side]
 				if int(unit.get("combat_target", -1)) == 0 and enemies[slot] != null:
 					return false
+				# No stale forced target: a forced unit target is an enemy in
+				# this lane within one position.
+				var forced = int(unit.get("combat_target", -1))
+				if forced > 0:
+					var near = false
+					for offset in [-1, 0, 1]:
+						var index = slot + offset
+						if index >= 0 and index < enemies.size() and enemies[index] != null and int(enemies[index].uid) == forced:
+							near = true
+					if not near:
+						return false
 				if int(unit.arrow) != 0 and int(unit.combat_target) < 0:
 					var diagonal = slot + int(unit.arrow)
 					if enemies[slot] != null or diagonal < 0 or diagonal >= enemies.size() or enemies[diagonal] == null:

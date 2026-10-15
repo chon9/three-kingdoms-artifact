@@ -157,6 +157,142 @@ static func roll_arrow(e, unit: Dictionary) -> void:
 
 # --- Units entering and leaving ------------------------------------------------------
 
+## Forced combat targets that no longer hold after units moved in `lane_index`
+## (a move, a swap or a change of control) end: a forced unit target must be an
+## enemy in this lane within one position (its arrow follows its offset), and a
+## forced tower target needs the position directly across to be empty (RQ-19).
+## Only these zone changes call it; deaths and placements keep their own rules.
+static func clear_stale_targets(e, lane_index: int) -> void:
+	var rows = e.state.lanes[lane_index].units
+	for side in range(2):
+		var enemies: Array = rows[1 - side]
+		for slot in range(rows[side].size()):
+			var unit = rows[side][slot]
+			if unit == null:
+				continue
+			var forced = int(unit.get("combat_target", -1))
+			if forced == 0:
+				if slot < enemies.size() and enemies[slot] != null:
+					unit.combat_target = -1
+					unit.arrow = 0
+			elif forced > 0:
+				var target_slot = -1
+				for index in range(enemies.size()):
+					if enemies[index] != null and int(enemies[index].uid) == forced:
+						target_slot = index
+				if target_slot == -1 or absi(target_slot - slot) > 1:
+					unit.combat_target = -1
+					unit.arrow = 0
+				else:
+					unit.arrow = target_slot - slot
+
+## True when `position` (creep_positions encoding) is free for `owner` in
+## `lane_index`: a new end position, or an existing position whose own slot is
+## empty. A position chosen before earlier ops filled it is stale.
+static func position_open(e, lane_index: int, owner: int, position: int) -> bool:
+	var row: Array = e.state.lanes[lane_index].units[owner]
+	if position < 0 or position >= row.size():
+		return true
+	return row[position] == null
+
+## Moves `unit` (spec §3.7, CF-1). Across lanes it leaves its position
+## (attackers released, the lane compacted) and enters `to_lane` at `position`,
+## or at a random position through spawn() when `position` is null, then rolls
+## its arrow. Inside its own lane the slot is emptied without compacting, the
+## unit is placed at `position` (computed with the mover still in place), stale
+## forced targets end, then the lane compacts. A same-lane move without a
+## position, or onto a position that is no longer free, does nothing.
+## Returns true when the unit moved.
+static func move(e, unit: Dictionary, to_lane: int, position) -> bool:
+	var from_lane = int(unit.get("lane", -1))
+	var slot = slot_of(e, unit)
+	if slot == -1 or to_lane < 0 or to_lane > 2:
+		return false
+	var owner = int(unit.owner)
+	if position != null and not position_open(e, to_lane, owner, int(position)):
+		return false
+	if to_lane == from_lane:
+		if position == null:
+			return false
+		e.state.lanes[from_lane].units[owner][slot] = null
+		place(e, unit, to_lane, int(position))
+		clear_stale_targets(e, to_lane)
+		compact(e, to_lane)
+		if not e._deploying:
+			roll_arrow(e, unit)
+		normalize_arrows(e, to_lane)
+	else:
+		release_attackers(e, from_lane, unit, slot)
+		e.state.lanes[from_lane].units[owner][slot] = null
+		compact(e, from_lane)
+		normalize_arrows(e, from_lane)
+		unit.combat_target = -1
+		unit.arrow = 0
+		if position == null:
+			spawn(e, unit, to_lane)
+		else:
+			place(e, unit, to_lane, int(position))
+		if not e._deploying:
+			roll_arrow(e, unit)
+		clear_stale_targets(e, to_lane)
+		normalize_arrows(e, to_lane)
+	e._event("move", {"uid": int(unit.uid), "card": str(unit.card), "p": owner, "from": from_lane, "to": to_lane,
+		"slot": slot_of(e, unit)})
+	if to_lane != from_lane:
+		Kernel.emit(e, "unit_entered", {"unit": int(unit.uid), "lane": to_lane, "how": "move"})
+	return true
+
+## Exchanges two units of the same row (spec §3.7). Arrows stay with the
+## positions (RQ-30); a forced combat target that is no longer in range ends.
+## Swaps are not entering a lane (RQ-21). Returns true when they swapped.
+static func swap(e, a: Dictionary, b: Dictionary) -> bool:
+	var lane_index = int(a.get("lane", -1))
+	if lane_index < 0 or int(b.get("lane", -1)) != lane_index or int(a.owner) != int(b.owner) or int(a.uid) == int(b.uid):
+		return false
+	var slot_a = slot_of(e, a)
+	var slot_b = slot_of(e, b)
+	if slot_a == -1 or slot_b == -1:
+		return false
+	var row: Array = e.state.lanes[lane_index].units[int(a.owner)]
+	row[slot_a] = b
+	row[slot_b] = a
+	var arrow_a = int(a.arrow)
+	a.arrow = int(b.arrow)
+	b.arrow = arrow_a
+	clear_stale_targets(e, lane_index)
+	normalize_arrows(e, lane_index)
+	e._event("swap", {"a": int(a.uid), "b": int(b.uid), "card": str(a.card), "other": str(b.card), "p": int(a.owner),
+		"lane": lane_index})
+	return true
+
+## Gives control of `unit` to `new_owner` (spec §3.7, RQ-17): its attackers
+## are released and it leaves its row, then enters the new owner's row in the
+## same lane at a random empty position (otherwise a new end) and rolls its
+## arrow. Its modifications keep their original player (Purge provenance).
+## Roster heroes never change sides (no Classic card does that). Returns true
+## when control changed.
+static func control(e, unit: Dictionary, new_owner: int) -> bool:
+	var lane_index = int(unit.get("lane", -1))
+	var slot = slot_of(e, unit)
+	var old_owner = int(unit.owner)
+	if slot == -1 or old_owner == new_owner or bool(unit.get("roster", false)):
+		return false
+	release_attackers(e, lane_index, unit, slot)
+	e.state.lanes[lane_index].units[old_owner][slot] = null
+	compact(e, lane_index)
+	unit.owner = new_owner
+	unit.combat_target = -1
+	unit.arrow = 0
+	spawn(e, unit, lane_index)
+	if not e._deploying:
+		roll_arrow(e, unit)
+	clear_stale_targets(e, lane_index)
+	normalize_arrows(e, lane_index)
+	e._event("control", {"uid": int(unit.uid), "card": str(unit.card), "from": old_owner, "to": new_owner,
+		"lane": lane_index, "slot": slot_of(e, unit)})
+	Kernel.emit(e, "unit_entered", {"unit": int(unit.uid), "lane": lane_index, "how": "control"})
+	return true
+
 ## Summons a fresh unit of `card_id` for `owner` into `lane_index`: a random
 ## empty own slot, otherwise a random end; then its arrow (deferred to the
 ## deployment roll while deploying). Summoned heroes are not roster heroes.
@@ -296,16 +432,133 @@ static func discard(e, cards: Array) -> void:
 	for player in range(2):
 		if by_player[player].is_empty():
 			continue
+		# Handles are found by iid: indexes shift as cards leave the hand.
 		var indices: Array = []
 		var ids: Array = []
 		for card in by_player[player]:
-			indices.append(int(card.index))
-			ids.append(str(card.card))
+			var index = hand_index(e, card)
+			if index != -1 and not indices.has(index):
+				indices.append(index)
+				ids.append(str(e.state.players[player].hand[index]))
+		if indices.is_empty():
+			continue
 		indices.sort()
 		indices.reverse()
 		for index in indices:
 			take_from_hand(e, player, index)
 		e._event("discard", {"p": player, "n": indices.size()}, {str(player): {"cards": ids}})
+
+## The hidden state entry of a card handle ({cardref, p, zone, index, iid}),
+## found by its iid in the hand (indexes shift when cards leave) or by its
+## index in the deck; {} when the card is no longer there. A deck entry is
+## materialized (deck_state padded with {}) when `create` is set.
+static func card_entry(e, card, create: bool = false) -> Dictionary:
+	if not card is Dictionary or not card.has("cardref"):
+		return {}
+	var owner: Dictionary = e.state.players[int(card.p)]
+	if str(card.zone) == "hand":
+		var states: Array = owner.get("hand_state", [])
+		for index in range(states.size()):
+			if states[index] is Dictionary and int(states[index].get("iid", -1)) == int(card.get("iid", -2)):
+				return states[index]
+		return {}
+	var deck: Array = owner.get("deck", [])
+	var index = int(card.index)
+	if index < 0 or index >= deck.size() or str(deck[index]) != str(card.card):
+		return {}
+	if not owner.has("deck_state"):
+		owner["deck_state"] = []
+	var deck_states: Array = owner.deck_state
+	if deck_states.is_empty():
+		if not create:
+			return {}
+		for count in range(deck.size()):
+			deck_states.append({})
+	if not deck_states[index] is Dictionary:
+		deck_states[index] = {}
+	return deck_states[index]
+
+## The hand index of a card handle now (by iid), or -1.
+static func hand_index(e, card) -> int:
+	if not card is Dictionary or not card.has("cardref") or str(card.get("zone", "")) != "hand":
+		return -1
+	var states: Array = e.state.players[int(card.p)].get("hand_state", [])
+	for index in range(states.size()):
+		if states[index] is Dictionary and int(states[index].get("iid", -1)) == int(card.get("iid", -2)):
+			return index
+	return -1
+
+## Adds `n` locks to each card in hand (RQ-14: locks stack; each locked card
+## loses one lock per round). The holder learns which cards; the log only the count.
+static func lock(e, cards: Array, n: int) -> void:
+	if n <= 0:
+		return
+	var locked = [[], []]
+	for card in cards:
+		var index = hand_index(e, card)
+		if index == -1:
+			continue
+		var entry: Dictionary = e.state.players[int(card.p)].hand_state[index]
+		entry["lock"] = int(entry.get("lock", 0)) + n
+		locked[int(card.p)].append(index)
+	for player in range(2):
+		if not locked[player].is_empty():
+			e._event("lock", {"p": player, "n": locked[player].size()}, {str(player): {"idx": locked[player]}})
+
+## Appends `card_id` to `player`'s hand with a fresh iid. A base copy is
+## marked base and starts without locks, charges or hacks (RQ-36). The
+## receiver learns the card; the log only that a card was gained.
+static func add_card(e, player: int, card_id: String, base: bool) -> void:
+	var owner: Dictionary = e.state.players[player]
+	var entry: Dictionary = {"iid": Kernel.next_oid(e)}
+	if base:
+		entry["base"] = true
+	owner.hand.append(card_id)
+	if not owner.has("hand_state"):
+		owner["hand_state"] = []
+	owner.hand_state.append(entry)
+	e._event("gain_card", {"p": player}, {str(player): {"card": card_id}})
+
+## Adds `amount` to a counter of cards in hand or deck, starting from the
+## card's printed value when nothing is stored (CF-2). Hidden: the log shows
+## how many cards of a player changed.
+static func add_card_counter(e, cards: Array, counter: String, amount: int) -> void:
+	var changed = [0, 0]
+	for card in cards:
+		if not card is Dictionary or not card.has("cardref"):
+			continue
+		var present = hand_index(e, card) != -1 if str(card.zone) == "hand" else _deck_card_present(e, card)
+		if not present:
+			continue
+		var stored: Dictionary = card_entry(e, card, true)
+		if not stored.has(counter):
+			stored[counter] = int(e.library.get_card(str(card.card)).get(counter, 0))
+		stored[counter] = int(stored[counter]) + amount
+		changed[int(card.p)] += 1
+	for player in range(2):
+		if changed[player] > 0:
+			e._event("charged", {"p": player, "n": changed[player]})
+
+static func _deck_card_present(e, card: Dictionary) -> bool:
+	var deck: Array = e.state.players[int(card.p)].get("deck", [])
+	return int(card.index) >= 0 and int(card.index) < deck.size() and str(deck[int(card.index)]) == str(card.card)
+
+## Appends the hack `ability` ("<card>#<grant index>") to cards in hand
+## (spec §3.12). The holder learns which cards; the caster only how many.
+static func hack(e, cards: Array, ability: String) -> void:
+	var hacked = [[], []]
+	for card in cards:
+		var index = hand_index(e, card)
+		if index == -1:
+			continue
+		var entry: Dictionary = e.state.players[int(card.p)].hand_state[index]
+		if not entry.has("hacks"):
+			entry["hacks"] = []
+		entry.hacks.append(ability)
+		hacked[int(card.p)].append(index)
+	for player in range(2):
+		if not hacked[player].is_empty():
+			e._event("hack", {"p": player, "n": hacked[player].size()}, {str(player): {"idx": hacked[player]}})
 
 ## A card instance's counter: its stored value, else the card's printed
 ## charges (CF-2). Reads `$played` ({card, state}) or a card handle.
@@ -318,9 +571,12 @@ static func card_counter(e, value) -> int:
 		entry = value.state if value.state is Dictionary else {}
 	elif value.has("cardref"):
 		var owner = e.state.players[int(value.p)]
-		var states: Array = owner.get("hand_state" if str(value.zone) == "hand" else "deck_state", [])
-		if int(value.index) < states.size() and states[int(value.index)] is Dictionary:
-			entry = states[int(value.index)]
+		var hand = str(value.zone) == "hand"
+		var states: Array = owner.get("hand_state" if hand else "deck_state", [])
+		# A hand handle is found by iid (indexes shift as cards leave the hand).
+		var index = hand_index(e, value) if hand else int(value.index)
+		if index >= 0 and index < states.size() and states[index] is Dictionary:
+			entry = states[index]
 	if entry.has("charges"):
 		return int(entry.charges)
 	return int(e.library.get_card(card_id).get("charges", 0))

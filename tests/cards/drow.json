@@ -1,0 +1,11 @@
+{
+"card": "drow",
+"source_id": 10032,
+"text": "Precision Aura: Other allies in all lanes have +1 Attack.",
+"covers": ["continuous", "stat_attack", "all_allies"],
+"cases": [
+ {"name": "Precision Aura: other allies in all lanes have +1 Attack", "clause": 0, "tags": ["continuous", "stat_attack", "all_allies"], "board": {"lanes": {"0": {"p0": ["drow#d"], "p1": ["melee_creep#e"]}, "1": {"p0": ["melee_creep#a"], "p1": ["melee_creep#f"]}}}, "do": [], "expect": {"a.attack": 3, "d.attack": 4}},
+ {"name": "Drow herself and the enemies get nothing", "clause": 0, "tags": ["negative", "all_allies"], "board": "@0", "do": [], "expect": {"d.attack": 4, "e.attack": 2, "f.attack": 2}},
+ {"name": "a silenced Drow keeps the aura; a dead one does not", "clause": 0, "tags": ["edge", "continuous"], "board": {"base": "@0", "give": {"d": ["silence"]}}, "do": [{"kill": ["d"]}], "expect": {"a.attack": 2}},
+ {"name": "silence does not stop the aura", "clause": 0, "tags": ["edge", "stat_attack"], "board": {"base": "@0", "give": {"d": ["silence"]}}, "do": [], "expect": {"a.attack": 3}}
+]}

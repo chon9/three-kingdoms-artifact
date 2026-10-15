@@ -1,0 +1,9 @@
+{
+"card": "phantom_assassin",
+"source_id": 10047,
+"text": "Efficient Killer: Phantom Assassin deals +4 damage when attacking a hero.",
+"covers": ["continuous", "damage_bonus", "self"],
+"cases": [
+ {"name": "Efficient Killer: +4 damage when attacking a hero", "clause": 0, "tags": ["continuous", "damage_bonus", "self"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#p"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"k.health": 2}},
+ {"name": "no bonus against a tower", "clause": 0, "tags": ["negative", "damage_bonus"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#p"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 34}}
+]}

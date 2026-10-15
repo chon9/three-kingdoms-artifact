@@ -1,0 +1,11 @@
+{
+"card": "savage_wolf",
+"source_id": 10112,
+"text": "Modify Savage Wolf with +1 Attack and +2 Health after the combat phase.",
+"covers": ["after_combat", "modify", "stat_attack", "stat_health", "self", "permanent"],
+"cases": [
+ {"name": "Modify Savage Wolf with +1 Attack and +2 Health after the combat phase", "clause": 0, "tags": ["after_combat", "modify", "stat_attack", "stat_health", "self", "permanent"], "board": {"lanes": {"0": {"p0": ["savage_wolf#w"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"w.attack": 4, "w.max_health": 5, "w.health": 5}},
+ {"name": "a wolf that dies in the combat does not grow", "clause": 0, "tags": ["negative", "after_combat"], "board": {"lanes": {"0": {"p0": ["savage_wolf#w"], "p1": ["centaur_hunter#c"]}}}, "do": [{"combat": true}], "expect": {"w.in_play": false}},
+ {"name": "another lane's combat does not grow it", "clause": 0, "tags": ["edge", "self"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": [null]}, "1": {"p0": ["savage_wolf#w"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"w.attack": 3, "w.max_health": 3}},
+ {"name": "the growth is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"combat": true}, {"end_round": true}], "expect": {"w.attack": 4}}
+]}

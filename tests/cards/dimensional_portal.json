@@ -1,0 +1,9 @@
+{
+"card": "dimensional_portal",
+"source_id": 10355,
+"text": "Summon three Melee Creeps.",
+"covers": ["play", "summon", "permanent"],
+"cases": [
+ {"name": "Summon three Melee Creeps", "clause": 0, "tags": ["play", "summon", "permanent"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "dimensional_portal"}], "expect": {"events": {"has": ["summon"]}, "j.in_play": true}},
+ {"name": "the summons join the active lane only", "clause": 0, "tags": ["edge", "summon"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [{"play": "dimensional_portal"}], "expect": {"o.slot": 0}}
+]}

@@ -1,0 +1,8 @@
+{
+"card": "bronze_legionnaire",
+"source_id": 10104,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "bronze_legionnaire fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["bronze_legionnaire#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.health": 2, "u.armor": 2, "u.attack": 4, "e.in_play": false}}
+]}

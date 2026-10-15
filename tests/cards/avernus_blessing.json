@@ -1,0 +1,11 @@
+{
+"card": "avernus_blessing",
+"source_id": 10368,
+"text": "Modify a unit with +2 Attack.",
+"covers": ["play", "modify", "stat_attack", "unit", "permanent"],
+"cases": [
+ {"name": "Modify a unit with +2 Attack", "clause": 0, "tags": ["play", "modify", "stat_attack", "unit", "permanent"], "board": {"lanes": {"0": {"p0": ["farvhan#f"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "avernus_blessing", "target": "f"}], "expect": {"f.attack": 6}},
+ {"name": "an enemy unit can be the target", "clause": 0, "tags": ["edge", "unit"], "board": "@0", "do": [{"play": "avernus_blessing", "target": "c"}], "expect": {"c.attack": 4}},
+ {"name": "the modification is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "avernus_blessing", "target": "f"}, {"end_round": true}], "expect": {"f.attack": 6}},
+ {"name": "a unit in another lane is not a target", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["farvhan#f"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [], "expect_illegal": [{"play": "avernus_blessing", "target": "o"}]}
+]}

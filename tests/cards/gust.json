@@ -1,0 +1,10 @@
+{
+"card": "gust",
+"source_id": 10339,
+"text": "Silence an enemy hero and its allied neighbors this round.",
+"covers": ["play", "silence", "allied_neighbors", "enemy_hero", "this_round"],
+"cases": [
+ {"name": "Silence an enemy hero and its allied neighbors this round", "clause": 0, "tags": ["play", "silence", "allied_neighbors", "enemy_hero", "this_round"], "board": {"lanes": {"0": {"p0": ["farvhan#f", null, null], "p1": ["melee_creep#a", "keefe#k", "melee_creep#b"]}}}, "do": [{"play": "gust", "target": "k"}], "expect": {"k.silenced": true, "a.silenced": true, "b.silenced": true, "f.silenced": false}},
+ {"name": "units that are not its neighbors stay unsilenced", "clause": 0, "tags": ["negative", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["farvhan#f", "melee_creep#m", null], "p1": ["keefe#k", null, "melee_creep#b"]}}}, "do": [{"play": "gust", "target": "k"}], "expect": {"b.silenced": false}},
+ {"name": "the silence ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "gust", "target": "k"}, {"end_round": true}], "expect": {"k.silenced": false}}
+]}

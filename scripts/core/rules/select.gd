@@ -426,7 +426,7 @@ static func related(e, relation: String, subject) -> Array:
 		"attackers":
 			for index in range(enemy.size()):
 				var attacker = enemy[index]
-				if attacker == null or Stats.status(e, attacker, "disarm"):
+				if attacker == null or Stats.flag(e, attacker, "disarm"):
 					continue
 				var target = Combat.combat_target(e, attacker, lane, index)
 				if not target.is_empty() and int(target.uid) == int(subject.uid):

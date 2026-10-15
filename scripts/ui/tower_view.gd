@@ -8,6 +8,8 @@ extends Control
 ## burning below half health. The enemy's buildings are mirrored and drawn a
 ## little darker. Mana sits on the command gem. Without the art in
 ## assets/art/ui/ a calligraphy medallion and plain boxes are drawn instead.
+## Derived armor, retaliate and regeneration (EFFECT_SYSTEM_SPEC.md §8.4)
+## show as small badges under the health plate.
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const SIZE = Vector2(250, 74)
@@ -33,6 +35,8 @@ var mana: int = 3
 var max_mana: int = 3
 var pending: int = 0
 var will_fall: bool = false
+## Derived tower values: {armor, retaliate, regeneration} (zeros are hidden).
+var stats: Dictionary = {}
 ## 0 none, 1 legal target, 2 hovered target.
 var target_state: int = 0
 ## Hides the pending-damage tag and the fall cross (the deployment reveal).
@@ -49,7 +53,8 @@ func _init() -> void:
 	pivot_offset = SIZE * 0.5
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-func apply(structure: Dictionary, lane_mana: int, lane_max_mana: int, damage: int) -> void:
+func apply(structure: Dictionary, lane_mana: int, lane_max_mana: int, damage: int, tower_stats: Dictionary = {}) -> void:
+	stats = tower_stats
 	health = int(structure.get("health", 40))
 	ancient = structure.get("ancient", false)
 	destroyed = structure.get("destroyed", false)
@@ -95,6 +100,7 @@ func _draw() -> void:
 	_panel(health_rect, Color(UiKit.GOLD, 0.9) if ancient else Color(0.55, 0.52, 0.47))
 	var health_color = UiKit.PAPER if not destroyed else UiKit.MUTED
 	UiKit.draw_text(self, UiKit.bold_font(), str(health), health_rect.get_center(), 30, health_color, health_rect.size.x - 6, 3)
+	_draw_badges(health_rect)
 	if will_fall and not preview_hidden:
 		draw_line(mark_center + Vector2(-22, -22), mark_center + Vector2(22, 22), Color("d42a22"), 6.0, true)
 		draw_line(mark_center + Vector2(22, -22), mark_center + Vector2(-22, 22), Color("d42a22"), 6.0, true)
@@ -161,6 +167,24 @@ func _draw_mana(rect: Rect2) -> void:
 	var plate = Rect2(Vector2(rect.get_center().x - 17, art_rect.end.y - 4), Vector2(34, 18))
 	UiKit.draw_round_rect(self, plate, Color(0.06, 0.07, 0.1, 0.92), 8.0, Color(0.55, 0.62, 0.8, 0.7), 1.0)
 	UiKit.draw_text(self, UiKit.bold_font(), "/%d" % max_mana, plate.get_center(), 14, Color("cfe9ff"))
+
+## Armor, retaliate and regeneration badges in a row under the health plate.
+func _draw_badges(health_rect: Rect2) -> void:
+	var x = health_rect.position.x + 10.0
+	for kind in ["armor", "retaliate", "regeneration"]:
+		var value = int(stats.get(kind, 0))
+		if value == 0:
+			continue
+		UiKit.draw_badge(self, kind, value, Vector2(x, health_rect.end.y + 13.0), 11.5)
+		x += 26.0
+
+## The badges drawn under the health plate, in order.
+func badge_kinds() -> Array:
+	var out: Array = []
+	for kind in ["armor", "retaliate", "regeneration"]:
+		if int(stats.get(kind, 0)) != 0:
+			out.append(kind)
+	return out
 
 func _panel(rect: Rect2, rim: Color = Color(0.55, 0.52, 0.47)) -> void:
 	draw_colored_polygon(UiKit.round_rect_points(Rect2(rect.position + Vector2(0, 3), rect.size), 7.0), Color(0, 0, 0, 0.45))

@@ -285,6 +285,16 @@ func choose_position(position: int) -> bool:
 func choose_destination(uid: int) -> bool:
 	return screen.choose_destination(uid)
 
+func choose_lane(index: int) -> bool:
+	return screen.choose_lane(index)
+
+func choose_improvement(oid: int) -> bool:
+	return screen.choose_improvement(oid)
+
+## Uses the active ability of a unit uid, or an item or improvement oid.
+func use_ability(id: int) -> bool:
+	return screen.use_ability(id)
+
 func pass_turn() -> void:
 	screen.press_coin()
 

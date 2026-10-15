@@ -1,0 +1,11 @@
+{
+"card": "coup_de_grace",
+"source_id": 10308,
+"text": "Discard a random card. Condemn a hero.",
+"covers": ["play", "condemn", "discard", "hero", "own_hand_random"],
+"cases": [
+ {"name": "Discard a random card", "clause": 0, "tags": ["play", "discard", "own_hand_random"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["keefe#k"]}}, "hand": {"p0": ["foresight", "slay"]}}, "do": [{"play": "coup_de_grace", "target": "k"}], "expect": {"p0.hand": 1, "events": {"has": ["discard"]}}},
+ {"name": "with an empty hand nothing is discarded", "clause": 0, "tags": ["edge", "discard"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["keefe#k"]}}}, "do": [{"play": "coup_de_grace", "target": "k"}], "expect": {"p0.hand": [], "events": {"not": ["discard"]}}},
+ {"name": "Condemn a hero", "clause": 1, "tags": ["condemn", "hero"], "board": "@1", "do": [{"play": "coup_de_grace", "target": "k"}], "expect": {"k.in_play": false, "p0.gold": 5}},
+ {"name": "a creep is not a target", "clause": 1, "tags": ["negative", "hero"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["centaur_hunter#c"]}}}, "do": [], "expect_illegal": [{"play": "coup_de_grace", "target": "c"}]}
+]}

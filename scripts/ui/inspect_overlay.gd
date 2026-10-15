@@ -1,7 +1,10 @@
 extends Control
 ## Right-click (or press and hold) on any card or unit: a large card face
 ## with its full localized text and, for units on the board, the live stats,
-## equipment, status and ability cooldown. Any click or Esc closes it.
+## equipment, statuses with their durations, keywords, modifications with
+## their sources, granted text and every ability with its cooldown
+## (EFFECT_SYSTEM_SPEC.md §8.8). Items and improvements on the board show
+## their ability, cooldown and charges. Any click or Esc closes it.
 
 signal closed
 
@@ -11,6 +14,7 @@ const CardView = preload("res://scripts/ui/card_view.gd")
 const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
 const EventText = preload("res://scripts/core/event_text.gd")
 const CARD_SIZE = Vector2(392, 571)
+const STATUSES = ["stun", "silence", "disarm", "death_shield"]
 
 var card: Control
 var panel: PanelContainer
@@ -65,7 +69,9 @@ func _place() -> void:
 	panel.position = Vector2(left + CARD_SIZE.x + 40.0, card.position.y + 30.0)
 	panel.size = Vector2(470, 0)
 
-## Shows `id`; `unit_model` is the board's display model for live units.
+## Shows `id`; `unit_model` is the board's display model for live units, or
+## {"object": instance, "kind": "item" | "improvement"} for an item or an
+## improvement on the board.
 func show_card(id: String, unit_model: Dictionary = {}) -> void:
 	card_id = id
 	live = unit_model
@@ -125,8 +131,16 @@ func refresh_text() -> void:
 			var cooldown = int(unit.get("cooldown", 0))
 			var line = UiKit.t("CARD_ABILITY_LINE", {"label": UiKit.t("CARD_ACTIVE_ABILITY"), "ability": ability})
 			if cooldown > 0:
-				line += "  ·  " + UiKit.t("HUD_COOLDOWN", {"n": cooldown})
+				line += "  ·  " + UiKit.t_n("HUD_COOLDOWN", cooldown)
 			details.append(line)
+	var object: Dictionary = live.get("object", {})
+	if not object.is_empty():
+		# An item or improvement on the board: its ability, cooldown and charges.
+		if Library.has_active(card_id):
+			details.append(_ability_line(card_id, UiKit.t("CARD_ACTIVE_ABILITY"), int(object.get("cd", 0))))
+		if int(object.get("charges", 0)) > 0 or definition.has("charges"):
+			details.append(UiKit.t("CARD_CHARGES", {"n": int(object.get("charges", 0))}))
+		_append_granted(details, object.get("mods", []))
 	if not unit.is_empty():
 		var items: Array = []
 		for slot in ["weapon", "armor", "accessory"]:
@@ -134,10 +148,17 @@ func refresh_text() -> void:
 				items.append(Library.loc(str(unit.items[slot])))
 		if not items.is_empty():
 			details.append(UiKit.t("CARD_EQUIPPED", {"items": UiKit.t("LIST_SEPARATOR").join(items)}))
-		if unit.get("silenced", false):
-			details.append(UiKit.t("HUD_SILENCED"))
-		# Derived keywords and every modification with its source and
-		# duration (spec §8.8).
+		# Statuses with their durations, derived keywords, and every
+		# modification with its source and duration (spec §8.8).
+		var statuses: Array = []
+		for badge in live.get("badges", []):
+			if str(badge.get("k", "")) in STATUSES:
+				var label = EventText.keyword_name(str(badge.k))
+				var until = str(badge.get("until", ""))
+				statuses.append(label if until.is_empty() else UiKit.t("CARD_STATUS_LINE", {"status": label,
+					"duration": EventText.t(EventText.DURATION_KEYS.get(until, "EV_UNTIL_ROUND"))}))
+		if not statuses.is_empty():
+			details.append(UiKit.t("CARD_STATUSES", {"list": UiKit.t("LIST_SEPARATOR").join(statuses)}))
 		var keywords: Array = []
 		for keyword in live.get("keywords", {}):
 			var value = int(live.keywords[keyword])
@@ -147,6 +168,8 @@ func refresh_text() -> void:
 			details.append(UiKit.t("CARD_KEYWORDS", {"list": UiKit.t("LIST_SEPARATOR").join(keywords)}))
 		var effects: Array = []
 		for entry in live.get("mods", []):
+			if not str(entry.get("ab", "")).is_empty() and entry.get("st", {}).is_empty() and entry.get("kw", {}).is_empty():
+				continue  # Only a granted ability: listed under "Granted".
 			var source = Library.loc(str(entry.get("src", ""))) if not str(entry.get("src", "")).is_empty() else EventText.t("EV_AN_EFFECT")
 			var changes = EventText.changes(entry)
 			if str(entry.get("k", "")) == "modify":
@@ -156,11 +179,42 @@ func refresh_text() -> void:
 					"duration": EventText.t(EventText.DURATION_KEYS.get(str(entry.get("d", "round")), "EV_UNTIL_ROUND"))}))
 		if not effects.is_empty():
 			details.append(UiKit.t("CARD_EFFECTS", {"list": UiKit.t("LIST_SEPARATOR").join(effects)}))
+		_append_granted(details, live.get("mods", []))
+		# The abilities of its items.
+		for entry in live.get("abilities", []):
+			if int(entry.get("source", -1)) != int(unit.get("uid", -2)):
+				details.append(_ability_line(str(entry.card), Library.loc(str(entry.card)), int(entry.get("cd", 0))))
+		# What each badge on the card means (BADGE_* in ui.csv).
+		for badge in live.get("badges", []):
+			details.append(UiKit.t_n("BADGE_" + str(badge.get("k", "")).to_upper(), int(badge.get("v", 1))))
 		if int(live.get("damage", 0)) > 0:
 			details.append(UiKit.t("HUD_INCOMING_DAMAGE", {"n": int(live.damage)}) + ("  " + UiKit.t("HUD_WILL_DIE") if live.get("dies", false) else ""))
 	detail_label.text = "\n".join(details)
 	detail_label.visible = not details.is_empty()
 	hint_label.text = UiKit.t("HINT_CLOSE_INSPECT")
+
+## "<label>: <ability name>  ·  Ready" (or the rounds left).
+func _ability_line(source_card: String, label: String, cooldown: int) -> String:
+	var line = UiKit.t("CARD_ABILITY_LINE", {"label": label, "ability": EventText.ability_name(source_card)})
+	return line + "  ·  " + (UiKit.t_n("HUD_COOLDOWN", cooldown) if cooldown > 0 else UiKit.t("HUD_READY"))
+
+## Granted abilities ("<card>#<index>" in modification entries) with their text.
+func _append_granted(details: Array, mods: Array) -> void:
+	var granted: Array = []
+	for entry in mods:
+		var ability = str(entry.get("ab", ""))
+		if not ability.is_empty():
+			granted.append(granted_text(ability))
+	if not granted.is_empty():
+		details.append(UiKit.t("CARD_GRANTED", {"list": "\n".join(granted)}))
+
+## The text of granted ability "<card>#<index>" (Library.loc(card, "grant_<index>")),
+## or the granting card's name when it has none.
+static func granted_text(ability: String) -> String:
+	var parts = ability.split("#")
+	var card_id = parts[0]
+	var text = Library.loc(card_id, "grant_%d" % (int(parts[1]) if parts.size() > 1 else 0))
+	return text if not text.is_empty() else Library.loc(card_id)
 
 func close() -> void:
 	if visible:

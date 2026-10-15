@@ -1,0 +1,9 @@
+{
+"card": "thundergods_wrath",
+"source_id": 10278,
+"text": "Deal 4 piercing damage to each enemy hero in all lanes.",
+"covers": ["play", "piercing_damage", "all_enemy_heroes"],
+"cases": [
+ {"name": "4 piercing damage to each enemy hero in all lanes", "clause": 0, "tags": ["play", "piercing_damage", "all_enemy_heroes"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["keefe#k"]}, "2": {"p0": ["melee_creep#m"], "p1": ["axe#a"]}}}, "do": [{"play": "thundergods_wrath"}], "expect": {"k.health": 7, "a.health": 6}},
+ {"name": "enemy creeps and allied heroes are spared", "clause": 0, "tags": ["negative", "all_enemy_heroes"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["centaur_hunter#c"]}, "1": {"p0": ["keefe#k"], "p1": ["melee_creep#m"]}}}, "do": [{"play": "thundergods_wrath"}], "expect": {"c.health": 8, "k.health": 11, "j.health": 8}}
+]}

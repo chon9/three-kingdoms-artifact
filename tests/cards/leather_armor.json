@@ -1,0 +1,10 @@
+{
+"card": "leather_armor",
+"source_id": 3001,
+"text": "Equipped hero has +1 Armor.",
+"covers": ["equip", "stat_armor", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +1 armor", "clause": 0, "tags": ["equip", "stat_armor", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "leather_armor", "target": "k"}], "expect": {"k.armor": 2, "k.items": {"armor": "leather_armor"}}},
+ {"name": "a creep or an enemy hero cannot be equipped", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "leather_armor", "target": "m"}, {"play": "leather_armor", "target": "e"}]},
+ {"name": "the bonus stays with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": "@0", "do": [{"play": "leather_armor", "target": "k"}, {"kill": ["k"]}], "expect": {"k.armor": 2, "k.in_play": false}}
+]}

@@ -128,6 +128,19 @@ func _card_text() -> void:
 			_check(value is Dictionary and not str(value.get("en", "")).is_empty() and not str(value.get("zh_CN", "")).is_empty(), "%s has en and zh_CN %s" % [card_id, field])
 			if value is Dictionary:
 				_check(_placeholders(str(value.get("en", ""))) == _placeholders(str(value.get("zh_CN", ""))), "%s %s placeholders match across locales" % [card_id, field])
+		# Granted text (EFFECT_SYSTEM_SPEC.md §8.8): both locales, same placeholders.
+		var grants = entry.get("grants", [])
+		for index in range(grants.size() if grants is Array else 0):
+			var grant = grants[index]
+			_check(grant is Dictionary and not str(grant.get("en", "")).is_empty() and not str(grant.get("zh_CN", "")).is_empty(),
+				"%s granted text %d has en and zh_CN" % [card_id, index])
+			if grant is Dictionary:
+				_check(_placeholders(str(grant.get("en", ""))) == _placeholders(str(grant.get("zh_CN", ""))),
+					"%s granted text %d placeholders match across locales" % [card_id, index])
+				for locale in LOCALES:
+					var text = Library.loc(card_id, "grant_%d" % index, locale)
+					used_text.append(text)
+					_check(not text.is_empty() and text.find("{") == -1, "%s granted text %d fills in %s" % [card_id, index, locale])
 		_check(classic.has(card_id) and not str(classic[card_id].get("name", {}).get("en", "")).is_empty(), "%s has a classic name" % card_id)
 		_check(str(entry.get("faction", "")) in factions, "%s has a faction" % card_id)
 		if definition.get("kind", "") == "hero" and definition.text.find(":") != -1:

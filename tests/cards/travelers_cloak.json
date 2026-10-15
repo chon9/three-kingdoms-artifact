@@ -1,0 +1,10 @@
+{
+"card": "travelers_cloak",
+"source_id": 3000,
+"text": "Equipped hero has +4 Health.",
+"covers": ["equip", "stat_health", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +4 max_health", "clause": 0, "tags": ["equip", "stat_health", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "travelers_cloak", "target": "k"}], "expect": {"k.max_health": 15, "k.items": {"accessory": "travelers_cloak"}, "k.health": 15}},
+ {"name": "a creep or an enemy hero cannot be equipped", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "travelers_cloak", "target": "m"}, {"play": "travelers_cloak", "target": "e"}]},
+ {"name": "the bonus stays with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": "@0", "do": [{"play": "travelers_cloak", "target": "k"}, {"kill": ["k"]}], "expect": {"k.max_health": 15, "k.in_play": false}}
+]}

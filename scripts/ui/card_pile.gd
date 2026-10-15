@@ -1,6 +1,8 @@
 extends Control
 ## Face-down cards on the table: a deck stack with its count (DECK) or the
-## opponent's hand as a fan of card backs along the top edge (HAND).
+## opponent's hand as a fan of card backs along the top edge (HAND). Locked
+## cards in the opponent's hand show their lock on the back (public, from
+## `hand_public`; EFFECT_SYSTEM_SPEC.md §8.6).
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const CardView = preload("res://scripts/ui/card_view.gd")
@@ -10,14 +12,29 @@ const HAND = 1
 var mode: int = DECK
 var count: int = 0
 var label: String = ""
+## HAND: the lock rounds of each card back (0 for none).
+var locks: Array = []
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-func set_count(value: int, label_text: String = "") -> void:
+func set_count(value: int, label_text: String = "", lock_values: Array = []) -> void:
 	count = value
 	label = label_text
+	locks = lock_values
 	queue_redraw()
+
+## Global centre of card back `index` in the HAND fan.
+func card_point(index: int) -> Vector2:
+	return get_global_transform() * _back_center(index)
+
+func _back_center(index: int) -> Vector2:
+	var card_size = Vector2(58, 84)
+	var spacing = minf(40.0, (size.x - card_size.x) / maxf(1.0, count - 1))
+	var width = card_size.x + spacing * (count - 1)
+	var left = (size.x - width) * 0.5
+	var offset = index - (count - 1) * 0.5
+	return Vector2(left + card_size.x * 0.5 + index * spacing, card_size.y * 0.5 - 26 + absf(offset) * 1.5)
 
 ## Global point where cards leave or enter this pile.
 func origin() -> Vector2:
@@ -50,12 +67,14 @@ func _draw_hand() -> void:
 	if count <= 0:
 		return
 	var card_size = Vector2(58, 84)
-	var spacing = minf(40.0, (size.x - card_size.x) / maxf(1.0, count - 1))
-	var width = card_size.x + spacing * (count - 1)
-	var left = (size.x - width) * 0.5
 	for index in range(count):
 		var offset = index - (count - 1) * 0.5
-		var center = Vector2(left + card_size.x * 0.5 + index * spacing, card_size.y * 0.5 - 26 + absf(offset) * 1.5)
+		var center = _back_center(index)
 		draw_set_transform(center, deg_to_rad(-offset * 2.5), Vector2.ONE)
 		CardView.draw_card_back(self, Rect2(-card_size * 0.5, card_size))
 		draw_set_transform(Vector2.ZERO)
+	# Locks sit on the visible lower part of each back, above the fan edge.
+	for index in range(mini(count, locks.size())):
+		var lock = int(locks[index])
+		if lock > 0:
+			UiKit.draw_badge(self, "lock", lock, _back_center(index) + Vector2(-2, 24), 12.0)

@@ -1,8 +1,10 @@
 extends Control
 ## The viewer's hand: an overlapping fan of full card faces along the bottom
 ## edge. Hovering lifts and enlarges a card; playable cards glow and the
-## others are dimmed with a tooltip reason. Play logic lives in the match
-## screen: the hand reports presses and exposes card geometry.
+## others are dimmed. A card's note (why it cannot be played, what its marks
+## mean) shows in a panel beside the lifted card, never over its rules text.
+## Play logic lives in the match screen: the hand reports presses and
+## exposes card geometry.
 
 signal card_pressed(index: int, button: int)
 signal card_hovered(index: int)
@@ -17,6 +19,9 @@ const HOVER_SCALE = 1.34
 ## Deepest the fan's outer cards sink below the middle ones, so every card
 ## keeps a readable spine (VISIBLE minus this, minus the tilt).
 const MAX_ARC_DROP = 36.0
+## Seconds a card is hovered before its note shows, and the note's gap.
+const NOTE_DELAY = 0.35
+const NOTE_GAP = 10.0
 
 var cards: Array = []
 var ids: Array = []
@@ -30,17 +35,34 @@ var interactive: bool = true
 var fan_left: float = -1.0
 var fan_right: float = -1.0
 var _tweens: Dictionary = {}
+var _note: PanelContainer
+var _note_label: Label
+var _note_timer: Timer
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_note = PanelContainer.new()
+	_note.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_note.visible = false
+	_note.add_theme_stylebox_override("panel", UiKit.box(Color(0.06, 0.06, 0.07, 0.96), UiKit.GOLD_DARK, 4, 1, 8.0))
+	_note_label = Label.new()
+	_note_label.add_theme_color_override("font_color", UiKit.PAPER)
+	_note_label.add_theme_font_size_override("font_size", 15)
+	_note.add_child(_note_label)
+	add_child(_note)
+	_note_timer = Timer.new()
+	_note_timer.one_shot = true
+	_note_timer.timeout.connect(_show_note)
+	add_child(_note_timer)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
 		layout(false)
 
 ## Rebuilds the hand from card ids, reusing faces for unchanged cards.
-## `states[index]` is {"playable": bool, "reason": String}. New cards fly in
-## from `origin` (global) when `animate` is true.
+## `states[index]` is {"playable": bool, "reason": String, "badges": Array
+## (lock, charges and hacked marks), "tooltip": String}. New cards fly in from
+## `origin` (global) when `animate` is true.
 func sync(hand: Array, states: Array, origin: Vector2, animate: bool) -> void:
 	var old_cards = cards.duplicate()
 	var old_ids = ids.duplicate()
@@ -66,12 +88,15 @@ func sync(hand: Array, states: Array, origin: Vector2, animate: bool) -> void:
 	ids = hand.duplicate()
 	hovered = -1
 	held = -1
+	_note.visible = false
+	_note_timer.stop()
 	for index in range(cards.size()):
 		var card: Control = cards[index]
 		var state: Dictionary = states[index] if index < states.size() else {}
 		card.playable = state.get("playable", false) and interactive
 		card.dimmed = not state.get("playable", false) and state.has("reason")
-		card.tooltip_text = state.get("reason", "")
+		card.set_meta("note", state.get("tooltip", state.get("reason", "")))
+		card.badges = state.get("badges", [])
 		card.hovered = false
 		card.selected = false
 		card.visible = true
@@ -82,6 +107,41 @@ func sync(hand: Array, states: Array, origin: Vector2, animate: bool) -> void:
 			card.scale = Vector2(0.45, 0.45)
 			card.rotation = 0.0
 	layout(animate)
+
+## The note of card `index` ("" for none).
+func note_text(index: int) -> String:
+	return str(cards[index].get_meta("note", "")) if index >= 0 and index < cards.size() else ""
+
+func set_note(index: int, text: String) -> void:
+	if index >= 0 and index < cards.size():
+		cards[index].set_meta("note", text)
+		if index == hovered and _note.visible:
+			_show_note()
+
+## The shown note's text ("" while hidden), for tests.
+func shown_note() -> String:
+	return _note_label.text if _note.visible else ""
+
+## Shows the hovered card's note beside its lifted face (right, or left when
+## the screen edge is near), level with its art: over the wall band, clear of
+## the unit rows above and the card's own rules text.
+func _show_note() -> void:
+	var text = note_text(hovered)
+	if hovered == -1 or hovered == held or lowered or text.is_empty():
+		_note.visible = false
+		return
+	_note_label.text = text
+	_note.reset_size()
+	var target = slot(hovered)
+	var left = _slot_point(target, Vector2.ZERO)
+	var right = _slot_point(target, Vector2(CARD_SIZE.x, 0))
+	var x = right.x + NOTE_GAP
+	if x + _note.size.x > size.x - 8.0:
+		x = left.x - NOTE_GAP - _note.size.x
+	var level = _slot_point(target, Vector2(0, CARD_SIZE.y * 0.42)).y - _note.size.y * 0.5
+	_note.position = Vector2(clampf(x, 8.0, maxf(8.0, size.x - _note.size.x - 8.0)), maxf(8.0, level))
+	_note.visible = true
+	move_child(_note, -1)
 
 func _make_card(card_id: String) -> Control:
 	var card = CardView.new()
@@ -152,6 +212,9 @@ func _restack() -> void:
 		move_child(cards[hovered], -1)
 	if held >= 0 and held < cards.size():
 		move_child(cards[held], -1)
+	if hovered == -1 or held != -1 or lowered:
+		_note.visible = false
+	move_child(_note, -1)
 
 func stop_tween(card: Control) -> void:
 	var key = card.get_instance_id()
@@ -162,6 +225,7 @@ func stop_tween(card: Control) -> void:
 func set_lowered(value: bool) -> void:
 	if lowered != value:
 		lowered = value
+		_note.visible = false
 		layout(true)
 
 func card_index(card: Control) -> int:
@@ -207,6 +271,10 @@ func set_hovered(index: int) -> void:
 	if index >= 0 and index < cards.size():
 		cards[index].hovered = true
 		cards[index].queue_redraw()
+	_note.visible = false
+	_note_timer.stop()
+	if index != -1 and not note_text(index).is_empty() and is_inside_tree():
+		_note_timer.start(NOTE_DELAY)
 	layout(true)
 	card_hovered.emit(index)
 

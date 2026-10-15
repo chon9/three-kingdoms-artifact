@@ -74,11 +74,18 @@ static func _op(e, op: Dictionary, ctx: Dictionary) -> void:
 			for keyword in op.keywords:
 				keywords[keyword] = expr(e, op.keywords[keyword], ctx)
 			var grant = "" if int(op.get("grant", -1)) < 0 else "%s#%d" % [str(ctx.get("card", "")), int(op.grant)]
+			var cards: Array = []
 			for target in Select.resolve_set(e, op.to, ctx):
-				if str(op.op) == "modify":
+				if Select.kind_of(target) == "card":
+					# Cards in hand only take hacks (spec §3.12); the validator
+					# allows nothing else on them.
+					cards.append(target)
+				elif str(op.op) == "modify":
 					Kernel.modify(e, target, stats, keywords, grant, ctx)
 				else:
 					Kernel.give(e, target, stats, keywords, grant, str(op.until), ctx)
+			if not cards.is_empty() and str(op.op) == "modify" and not grant.is_empty():
+				Zones.hack(e, cards, grant)
 		"purge":
 			for target in Select.resolve_set(e, op.to, ctx):
 				Kernel.purge(e, target, str(op.get("from", "opponent")), ctx)
@@ -114,6 +121,52 @@ static func _op(e, op: Dictionary, ctx: Dictionary) -> void:
 					defenders.append(unit)
 			if not defenders.is_empty():
 				Combat.battle(e, attacker, defenders, ctx)
+		"move":
+			# A set moves one unit at a time in canonical order, captured once;
+			# each "random_other" unit gets its own lane roll (CF-1).
+			for unit in _units_in_play(e, op.unit, ctx):
+				if not Select.in_play(e, unit):
+					continue
+				var lane = int(unit.lane)
+				if op.has("lane"):
+					if str(op.lane) == "random_other":
+						var others: Array = [0, 1, 2].filter(func(index): return index != int(unit.lane))
+						lane = others[Kernel.rand_index(e, others.size())]
+					else:
+						lane = _lane_value(e, op.lane, ctx)
+				var position = null
+				if op.has("position"):
+					position = _position_value(e, op.position, ctx)
+					if position == null:
+						continue
+				Zones.move(e, unit, lane, position)
+		"swap":
+			var a = Select.one(e, op.a, ctx)
+			var b = Select.one(e, op.b, ctx)
+			if a != null and b != null and Select.kind_of(a) == "unit" and Select.kind_of(b) == "unit" \
+					and Select.in_play(e, a) and Select.in_play(e, b):
+				Zones.swap(e, a, b)
+		"control":
+			var new_owner = int(ctx.get("controller", 0))
+			for unit in _units_in_play(e, op.unit, ctx):
+				if Select.in_play(e, unit):
+					Zones.control(e, unit, new_owner)
+		"lock":
+			Zones.lock(e, Select.resolve_set(e, op.cards, ctx), expr(e, op.get("n", 1), ctx))
+		"add_card":
+			var player = int(ctx.get("controller", 0)) if str(op.get("player", "you")) == "you" else 1 - int(ctx.get("controller", 0))
+			var card_id = ""
+			if op.has("from_pool"):
+				var pool: Array = e.library.catalog.get("secret_shop", [])
+				if not pool.is_empty():
+					card_id = str(pool[Kernel.rand_index(e, pool.size())])
+			elif op.has("card"):
+				card_id = _card_id_value(e, op.card, ctx)
+			if not card_id.is_empty() and not e.library.get_card(card_id).is_empty():
+				Zones.add_card(e, player, card_id, bool(op.get("base", false)))
+		"card_counter":
+			Zones.add_card_counter(e, Select.resolve_set(e, op.cards, ctx), str(op.get("counter", "charges")),
+				expr(e, op.get("add", 1), ctx))
 		"to_fountain":
 			for unit in _units_in_play(e, op.unit, ctx):
 				if bool(unit.get("hero", false)):
@@ -190,11 +243,6 @@ static func _op(e, op: Dictionary, ctx: Dictionary) -> void:
 			ctx["break"] = true
 		"native":
 			Natives.run(e, str(op.fn), ctx, op.get("args", {}))
-		_:
-			# Vocabulary reserved for milestone M2 (move, swap, control, lock,
-			# add_card, card_counter): the validator keeps it out of verified
-			# cards, so only draft fixtures reach here; they do nothing.
-			pass
 
 static func _players(word: String, controller: int) -> Array:
 	match word:
@@ -229,6 +277,32 @@ static func _lane_value(e, value, ctx: Dictionary) -> int:
 	if resolved is int:
 		return int(resolved)
 	return Select.lane_of(e, resolved) if resolved != null else -1
+
+## A position (creep_positions encoding) from an int or a choice ref; null
+## when it cannot be read (the move then fizzles).
+static func _position_value(e, value, ctx: Dictionary):
+	if value is int:
+		return int(value)
+	var resolved = ref(e, str(value), ctx) if value is String else Select.one(e, value, ctx)
+	if resolved is Array:
+		resolved = resolved[0] if resolved.size() == 1 else null
+	return int(resolved) if resolved is int else null
+
+## The card id add_card names: an id, "$e.card" (a played card's id or a
+## drawn card instance), or {"card_of": Sel} (the card of one object, such as
+## an item instance); "" when there is none.
+static func _card_id_value(e, value, ctx: Dictionary) -> String:
+	if value is Dictionary and value.has("card_of"):
+		var item = Select.one(e, value.card_of, ctx)
+		return str(item.get("card", "")) if item is Dictionary else ""
+	if value is String and str(value).begins_with("$"):
+		var resolved = ref(e, str(value), ctx)
+		if resolved is Array:
+			resolved = resolved[0] if resolved.size() == 1 else null
+		if resolved is Dictionary:
+			return str(resolved.get("card", ""))
+		return str(resolved) if resolved is String else ""
+	return str(value)
 
 # --- Values ----------------------------------------------------------------------
 

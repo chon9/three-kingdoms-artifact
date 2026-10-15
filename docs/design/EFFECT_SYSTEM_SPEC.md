@@ -617,7 +617,7 @@ Lock is card state, not a keyword. Taunt is an op.
 |---|---|
 | (modify) `perm` | Purge from the opposing side only. Survives the Fountain (RQ-13). |
 | `round` | `Kernel.end_of_round`. Also removed in the Fountain. |
-| `next_combat` | The end of the next combat phase of the lane the unit is in when that combat happens, before after-combat triggers. Also removed in the Fountain. |
+| `next_combat` | The end of the next combat phase of the lane the unit is in when that combat happens, before after-combat triggers. An entry given during that lane's combat itself (stamped with its `combat_seq`) lasts until the lane's following combat. Also removed in the Fountain. |
 | `death` | Death, or entering the Fountain (Viper Strike, Track). |
 | `equip` | When that hero equips any item, or enters the Fountain (Caught Unprepared, RQ-35). |
 | `used` | Consumption only (Relentless Zombie's Death Shield). A shield given with `round` (Cheating Death) ends when it is consumed or at round end, whichever comes first. |
@@ -825,13 +825,14 @@ After that:
 - Every affected lane is compacted, then `Zones.normalize_arrows` runs.
 
 **Death Shield** (`_consume_death_shields`):
-- A dying unit with `death_shield` loses one `give` entry that carries it (the first in order).
+- A dying unit with `death_shield` loses one shield: from the first `give` entry that carries it (the rest of that entry stays; an entry left empty is dropped), otherwise from its own keywords (a printed shield, or a Modify and its provenance entry).
 - It is set to `health = 1` and `condemned = false`, and it stays.
 - The shield saves from condemn, Lethal and Soulbound alike (RQ-10, RQ-11, RQ-39).
 
-**Soulbound** (`_close_soulbound`):
-- If a dying unit has `soulbound`, every other allied unit with the same `card` in any lane gets `condemned = true` and joins this Pulse.
-- Shields are applied after this closure, so a shielded partner survives.
+**Soulbound** (`_close_soulbound`, ordered by `_resolve_dying`):
+- Shields are applied first, to the units that are dying. A unit its shield saves did not die.
+- Then, if a unit that actually dies has `soulbound`, every other allied unit with the same `card` in any lane gets `condemned = true` and joins this Pulse.
+- Shields are applied again to the units the closure added: a partner with an unused shield survives; a partner whose shield already saved it in this Pulse dies with its twin.
 
 ### 4.4 Continuous effects
 
@@ -2134,6 +2135,20 @@ This milestone builds and tests every generic mechanic before any new card ships
   - a lock badge on an own card and on an enemy card back.
 - **Fuzz:** 50 seeds over the fixture pack, with no `rules_overflow`.
 - **Perf budgets met.**
+
+#### M2 as built: deviations from this plan
+
+Where the acceptance lives: the keyword matrix, durations, Purge, the Fountain, hand state, hacks, zones, objects, the rules layer, the RQ cases and `preview_equals_combat` (2,000 boards) are in `tests/mechanics_test.gd`; zone invariants after summon, move, swap and control are also fuzzed there; privacy (hacks, counters, locks, deck charges, the hidden swap) is in `tests/fuzz_test.gd` (50 seeds by default, `--nightly` for 2,000); the bot in `tests/bot_test.gd`; the per-card runner in `tests/card_specs_test.gd` with the 49 specs in `tests/cards/`; meta tests 5 to 7 and the coverage gate in `tests/rules_schema_test.gd`; the UI additions in `tests/ui_smoke.gd`. Deviations:
+
+- **Bot.** The prefilter starts above 100 candidates, not 60, and keeps `pass`, every ability and the best 3 combinations per hand card up to 40: at 60 it changed the bot's choices in three golden games (the most legal actions in any golden step is 81). Siege is left out of the `0.3 ×` keyword term: siege already counts through the preview's tower damage, and the term changed two golden games. `bot_budget` runs on the M2 fixture dense board (3 lanes × 8 positions, 6 items, 16 improvements per side, a 10-card hand) and is normalized by the machine's speed (the legacy full match divided by `perf_baseline.json`'s).
+- **Preview.** `heal` is what regeneration actually restores after the combat's damage (up to the maximum), and `dies` includes the lane-local Soulbound closure (shields still save), so it equals what `Combat.resolve` does.
+- **Hacks** run after the played card's ops and their Pulse, each as a `trigger` event with ability `hack` (empty `src`), with `$self` the played card (`{card, state}`), then a Pulse, before `card_played`.
+- **Zones.** A move to a position taken in the meantime fizzles; control of a roster hero fizzles; locks apply only to cards in hand; `add_card` with an unknown id fizzles; lane creeps that follow a hero go to lane 0 when no such hero is found at the reveal. The `swap` event also carries `card`, `other`, `p` and `lane`.
+- **Packs.** `CardLibrary.from_file` registers a test pack by id (`known_pack`, `open`); `load_replay` keeps the current library when the replay's pack matches it. Fixture cards are `verified`, so random fuzz decks validate. Test packs carry granted text inline in a `grant_text` card field (the Classic pack uses locale `grants`).
+- **Tests.** Fuzz failures are saved under `res://.tools/fuzz_failures/`, not `user://`. Meta tests 5 to 7 cover the Classic pack (training cards have no `valve_text`) and live in `rules_schema_test`; `tests/data/coverage.json` records the SHA-256 of `tools/coverage.py`, and the schema test fails when the table is stale.
+- **Speed.** Listener contexts are built only for units that listen or carry granted abilities, aura scans skip zones that cannot hold a wanted aura (`CardLibrary.aura_holders`), settle derives only tower mana, and the combat plan maps victims by uid.
+- **Review fixes (after the M2 review).** `next_combat` entries given while their own lane's combat resolves (a death or battle-damage trigger in its Pulse) carry that combat's `combat_seq` and outlast it, ending with the lane's next combat. The `attackers` relation and death snapshots skip stunned and disarmed attackers (`Stats.flag`). Soulbound closes only from units that actually die (the order above; `Combat.plan` matches). Discard and card counters find hand handles by `iid`. The bot scores the locks its own plays add from a compiled static value (`static.lock`: random opponent hand cards a play locks), up to the opponent's unlocked cards (public), because its simulation has no opponent hand.
+- **UI.** Improvement chips start 26 px right of the tower (not 18) to clear the pending-damage tag; while the stepper asks for an improvement, every chip shows, compressed into the usual six-chip span so the row stays clear of the coin. Book marks and charges badges are drawn in a pass above every chip, and the hovered chip is drawn in front, so an overlapping row never hides them. Hovering or clicking a "+n" chip opens its lane's rows the same way (they close when the pointer leaves them or a press lands elsewhere; a press on the "+n" spot right after a hover opened the rows only opens them), and "+n" glows while an own chip it hides can be used. A cooling chip without art darkens its letter almost fully under the number. In a lane step the hint sits in the band below the lane panels. A hand card's note (reason and marks; a lock mark replaces the "Locked" reason) shows in a panel beside the lifted card, level with its art, instead of a cursor tooltip; lock, charges and cooldown strings have singular forms (`*_ONE`). A lane step opens the overview and closes it again. Ability holds start in click mode. Tower badges sit under the health plate; hand badges run down the card's left edge (the visible spine of the fan). Inspect adds a statuses line and one line per badge explaining it (`BADGE_*`), and hand tooltips explain their marks. The hard sync now happens only when events rolled out of the window; a longer burst animates its first 60 animated events and applies the rest at once. Your own hero-following lane creeps are staged in that hero's lane during deployment; the opponent's stay hidden until the reveal.
 
 ### M3 to M7. Card batches
 

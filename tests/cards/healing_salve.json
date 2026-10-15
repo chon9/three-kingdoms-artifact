@@ -1,0 +1,10 @@
+{
+"card": "healing_salve",
+"source_id": 3003,
+"text": "Heal a unit 6.",
+"covers": ["play", "heal", "unit"],
+"cases": [
+ {"name": "Heal a unit 6", "clause": 0, "tags": ["play", "heal", "unit"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=3"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "healing_salve", "target": "k"}], "expect": {"k.health": 9, "events": {"has": ["heal"]}}},
+ {"name": "healing stops at the maximum", "clause": 0, "tags": ["negative", "heal"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=8"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "healing_salve", "target": "k"}], "expect": {"k.health": 11}},
+ {"name": "an enemy unit can be healed too", "clause": 0, "tags": ["edge", "unit"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["centaur_hunter#c:hp=1"]}}}, "do": [{"play": "healing_salve", "target": "c"}], "expect": {"c.health": 7}}
+]}

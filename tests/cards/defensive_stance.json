@@ -1,0 +1,10 @@
+{
+"card": "defensive_stance",
+"source_id": 10297,
+"text": "Give a hero +3 Armor this round.",
+"covers": ["play", "stat_armor", "temp_buff", "hero", "this_round"],
+"cases": [
+ {"name": "Give a hero +3 Armor this round", "clause": 0, "tags": ["play", "stat_armor", "temp_buff", "hero", "this_round"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "defensive_stance", "target": "k"}], "expect": {"k.armor": 4}},
+ {"name": "the armor ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "defensive_stance", "target": "k"}, {"end_round": true}], "expect": {"k.armor": 1}},
+ {"name": "a creep is not a target", "clause": 0, "tags": ["negative", "hero"], "board": "@0", "do": [], "expect_illegal": [{"play": "defensive_stance", "target": "c"}]}
+]}

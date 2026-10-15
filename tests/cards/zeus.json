@@ -1,0 +1,11 @@
+{
+"card": "zeus",
+"source_id": 10065,
+"text": "Static Field: Deal 1 piercing damage to Zeus's enemy neighbors after you play a blue spell.",
+"covers": ["after_you_play", "piercing_damage", "enemy_neighbors", "self"],
+"cases": [
+ {"name": "Static Field: 1 piercing damage to the enemy neighbors after you play a blue spell", "clause": 0, "tags": ["after_you_play", "piercing_damage", "enemy_neighbors", "self"], "board": {"lanes": {"0": {"p0": [null, "zeus#z", null], "p1": ["ogre_conscript#a", "centaur_hunter#b", "melee_creep#c"]}}, "deck": {"p0": ["foresight", "no_accident", "slay", "hip_fire"], "p1": ["foresight", "no_accident", "slay", "hip_fire"]}}, "do": [{"play": "foresight"}], "expect": {"a.health": 6, "b.health": 7, "c.health": 3, "events": {"has": ["trigger", "damage"]}}},
+ {"name": "a spell of another colour does not trigger it", "clause": 0, "tags": ["negative", "after_you_play"], "board": {"lanes": {"0": {"p0": ["debbi#d", "zeus#z", null], "p1": ["melee_creep#a", "centaur_hunter#b", "melee_creep#c"]}}, "deck": {"p0": ["foresight", "no_accident", "slay", "hip_fire"], "p1": ["foresight", "no_accident", "slay", "hip_fire"]}}, "do": [{"play": "no_accident", "target": "a"}], "expect": {"b.health": 8, "c.health": 4}},
+ {"name": "the opponent's blue spell does not trigger it", "clause": 0, "tags": ["edge", "after_you_play"], "board": {"lanes": {"0": {"p0": ["zeus#z", null], "p1": ["jmuy#j", "centaur_hunter#b"]}}, "deck": {"p0": ["foresight", "no_accident", "slay", "hip_fire"], "p1": ["foresight", "no_accident", "slay", "hip_fire"]}, "active_player": 1, "initiative": 1}, "do": [{"play": "foresight", "player": 1}], "expect": {"j.health": 8, "b.health": 8}},
+ {"name": "a Zeus in another lane does not trigger (lane scope, RQ-03)", "clause": 0, "tags": ["edge", "self"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}, "1": {"p0": ["zeus#z"], "p1": ["centaur_hunter#b"]}}, "deck": {"p0": ["foresight", "no_accident", "slay", "hip_fire"], "p1": ["foresight", "no_accident", "slay", "hip_fire"]}}, "do": [{"play": "foresight"}], "expect": {"b.health": 8}}
+]}

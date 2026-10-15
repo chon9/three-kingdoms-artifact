@@ -1,0 +1,9 @@
+{
+"card": "pick_off",
+"source_id": 10354,
+"text": "Deal 4 damage to a unit in any lane.",
+"covers": ["play", "damage", "unit"],
+"cases": [
+ {"name": "Deal 4 damage to a unit in any lane", "clause": 0, "tags": ["play", "damage", "unit"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["melee_creep#c"]}, "2": {"p0": ["melee_creep#m"], "p1": ["centaur_hunter#h"]}}}, "do": [{"play": "pick_off", "target": "h"}], "expect": {"h.health": 4}},
+ {"name": "armor reduces it", "clause": 0, "tags": ["negative", "damage"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "pick_off", "target": "o"}], "expect": {"o.health": 5}}
+]}

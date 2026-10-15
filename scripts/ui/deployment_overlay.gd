@@ -268,19 +268,26 @@ func sync(new_view: Dictionary, new_viewer: int, new_actions: Array, spent_text:
 			card.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT).tween_property(card, "position", target, AnimationQueue.duration(0.25))
 
 ## Staging per lane: both players' creeps for this round (public) and the
-## viewer's planned heroes. The opponent's plans are never read.
+## viewer's planned heroes. The opponent's plans are never read. Your creeps
+## that follow a hero (lane -1, a Kanna-style rule) stand in that hero's
+## planned or current lane; the opponent's wait unseen until the reveal.
 func _sync_staging(plans: Dictionary) -> void:
 	if board == null:
 		return
 	var pending: Array = view.get("pending_creeps", [[], []])
 	var roster: Array = view.players[viewer].get("roster", [])
+	var follows = pending[viewer].any(func(value): return int(value) == -1)
+	var hero_lane = board.display_engine._creep_lane_of(viewer) if follows else -1
 	for lane_index in range(3):
 		var sides: Array = [[], []]
 		for side in range(2):
 			var player = 1 - viewer if side == 0 else viewer
 			var ordinal = 0
 			for lane_value in pending[player]:
-				if int(lane_value) == lane_index:
+				var resolved = int(lane_value)
+				if resolved == -1 and player == viewer:
+					resolved = hero_lane
+				if resolved == lane_index:
 					sides[side].append({"key": "c%d_%d" % [side, ordinal], "card_id": "melee_creep", "uid": -1, "kind": "creep",
 						"movable": false, "selected": false, "hidden": false, "model": board.staged_model(_creep_unit(player), side == 1)})
 					ordinal += 1

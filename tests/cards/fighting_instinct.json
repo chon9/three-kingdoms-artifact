@@ -1,0 +1,10 @@
+{
+"card": "fighting_instinct",
+"source_id": 4004,
+"text": "Modify a red hero with +1 Attack and +1 Armor.",
+"covers": ["play", "modify", "stat_armor", "stat_attack", "colour_hero", "permanent"],
+"cases": [
+ {"name": "Modify a red hero with +1 Attack and +1 Armor", "clause": 0, "tags": ["play", "modify", "stat_attack", "stat_armor", "colour_hero", "permanent"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fighting_instinct", "target": "k"}], "expect": {"k.attack": 7, "k.armor": 2, "events": {"has": ["mod"]}}},
+ {"name": "a hero of another colour is not a target", "clause": 0, "tags": ["negative", "colour_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "jmuy#j"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "fighting_instinct", "target": "j"}]},
+ {"name": "the modification survives the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fighting_instinct", "target": "k"}, {"kill": ["k"]}], "expect": {"k.attack": 7, "k.armor": 2}}
+]}

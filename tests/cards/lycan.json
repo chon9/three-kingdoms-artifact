@@ -1,0 +1,10 @@
+{
+"card": "lycan",
+"source_id": 10014,
+"text": "Feral Impulse: Lycan's allied neighbors have +2 Attack.",
+"covers": ["continuous", "stat_attack", "allied_neighbors"],
+"cases": [
+ {"name": "Feral Impulse: allied neighbors have +2 Attack", "clause": 0, "tags": ["continuous", "stat_attack", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "lycan#y", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [], "expect": {"l.attack": 4, "r.attack": 4, "y.attack": 4}},
+ {"name": "Lycan itself and the enemies get nothing", "clause": 0, "tags": ["negative", "allied_neighbors"], "board": "@0", "do": [], "expect": {"y.attack": 4, "a.attack": 2, "b.attack": 2}},
+ {"name": "the aura ends when Lycan dies", "clause": 0, "tags": ["edge", "continuous"], "board": "@0", "do": [{"kill": ["y"]}], "expect": {"l.attack": 2}}
+]}

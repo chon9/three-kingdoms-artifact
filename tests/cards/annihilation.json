@@ -1,0 +1,9 @@
+{
+"card": "annihilation",
+"source_id": 10315,
+"text": "Condemn all units.",
+"covers": ["play", "condemn", "all_units"],
+"cases": [
+ {"name": "Condemn all units in the lane", "clause": 0, "tags": ["play", "condemn", "all_units"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"play": "annihilation"}], "expect": {"j.in_play": false, "m.in_play": false, "k.in_play": false, "c.in_play": false, "p0.gold": 6, "p1.gold": 6}},
+ {"name": "other lanes are untouched (RQ-04)", "clause": 0, "tags": ["edge", "all_units"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [{"play": "annihilation"}], "expect": {"o.in_play": true, "p.in_play": true}}
+]}

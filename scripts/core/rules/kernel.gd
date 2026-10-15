@@ -85,11 +85,15 @@ static func _live_listeners(e, kind: String, payload: Dictionary) -> Array:
 				var unit = row[slot]
 				if unit == null:
 					continue
-				var ctx = Stats.unit_ctx(e, unit)
-				if listening.has(str(unit.card)):
-					_add_card_listeners(e, found, kind, payload, str(unit.card), ctx, 0, slot, int(unit.uid))
-				if granted and not unit.get("mods", []).is_empty():
-					_add_granted_listeners(e, found, kind, payload, unit.mods, ctx, 0, slot, int(unit.uid))
+				# A context is built only for a unit that can listen.
+				var listens = listening.has(str(unit.card))
+				var carries = granted and not unit.get("mods", []).is_empty()
+				if listens or carries:
+					var ctx = Stats.unit_ctx(e, unit)
+					if listens:
+						_add_card_listeners(e, found, kind, payload, str(unit.card), ctx, 0, slot, int(unit.uid))
+					if carries:
+						_add_granted_listeners(e, found, kind, payload, unit.mods, ctx, 0, slot, int(unit.uid))
 				# Item triggers work only while the host is in a lane (RQ-38).
 				for slot_name in ["weapon", "armor", "accessory"]:
 					if not unit.get("items", {}).has(slot_name):
@@ -276,8 +280,7 @@ static func pulse(e) -> void:
 	for loop in range(MAX_PULSE_LOOPS):
 		Stats.settle(e)
 		var dying = _collect_dying(e)
-		dying.units = _close_soulbound(e, dying.units)
-		dying.units = _consume_death_shields(e, dying.units)
+		dying.units = _resolve_dying(e, dying.units)
 		var removed = not dying.units.is_empty() or not dying.items.is_empty() or not dying.improvements.is_empty()
 		if removed:
 			var snapshots = _snapshot(e, dying.units)
@@ -354,6 +357,25 @@ static func _collect_dying(e) -> Dictionary:
 				items.append([unit, slot])
 	return {"units": units, "items": items, "improvements": improvements}
 
+## Death Shields first save units from the dying set; Soulbound then closes
+## only from units that actually die, and a twin it adds may still be saved by
+## its own shield (RQ-10, RQ-11, RQ-39).
+static func _resolve_dying(e, dying: Array) -> Array:
+	var dies = _consume_death_shields(e, dying)
+	var closed = _close_soulbound(e, dies)
+	if closed.size() == dies.size():
+		return dies
+	var members: Dictionary = {}
+	for unit in dies:
+		members[int(unit.uid)] = true
+	var added: Array = []
+	for unit in closed:
+		if not members.has(int(unit.uid)):
+			added.append(unit)
+	for unit in _consume_death_shields(e, added):
+		members[int(unit.uid)] = true
+	return closed.filter(func(unit): return members.has(int(unit.uid)))
+
 ## Soulbound (RQ-39): a dying Soulbound unit condemns every other allied unit
 ## with the same card in any lane, in this same Pulse.
 static func _close_soulbound(e, dying: Array) -> Array:
@@ -383,23 +405,48 @@ static func _close_soulbound(e, dying: Array) -> Array:
 static func _death_order(e, unit: Dictionary) -> Array:
 	return [int(unit.lane), int(unit.owner), Zones.slot_of(e, unit), int(unit.uid)]
 
-## A dying unit with a Death Shield loses one shield entry and survives at 1
+## A dying unit with a Death Shield loses one shield and survives at 1
 ## health; it saves from condemn, Lethal and Soulbound alike (RQ-10, RQ-11).
+## Only the shield is used up: the rest of the entry that carried it stays.
 static func _consume_death_shields(e, dying: Array) -> Array:
 	var out: Array = []
 	for unit in dying:
 		if not Stats.status(e, unit, "death_shield"):
 			out.append(unit)
 			continue
-		var mods: Array = unit.get("mods", [])
-		for index in range(mods.size()):
-			if str(mods[index].get("k", "")) == "give" and int(mods[index].get("kw", {}).get("death_shield", 0)) > 0:
-				mods.remove_at(index)
-				break
+		_use_death_shield(unit)
 		unit.health = 1
 		unit["condemned"] = false
 		e._event("shield", {"uid": int(unit.uid), "card": str(unit.card)})
 	return out
+
+## Removes one Death Shield: from a give entry first (an entry left with
+## nothing else is dropped), otherwise from the unit's own keywords (a Modify
+## and its provenance entry, or a printed shield).
+static func _use_death_shield(unit: Dictionary) -> void:
+	var mods: Array = unit.get("mods", [])
+	for index in range(mods.size()):
+		var entry: Dictionary = mods[index]
+		if str(entry.get("k", "")) != "give" or int(entry.get("kw", {}).get("death_shield", 0)) <= 0:
+			continue
+		var keywords: Dictionary = entry.kw.duplicate()
+		keywords.erase("death_shield")
+		entry["kw"] = keywords
+		if keywords.is_empty() and entry.get("st", {}).is_empty() and str(entry.get("ab", "")).is_empty():
+			mods.remove_at(index)
+		return
+	var own: Dictionary = unit.get("kw", {})
+	if int(own.get("death_shield", 0)) <= 0:
+		return
+	for entry in mods:
+		if str(entry.get("k", "")) == "modify" and int(entry.get("kw", {}).get("death_shield", 0)) > 0:
+			entry.kw["death_shield"] = int(entry.kw.death_shield) - 1
+			if int(entry.kw.death_shield) <= 0:
+				entry.kw.erase("death_shield")
+			break
+	own["death_shield"] = int(own.death_shield) - 1
+	if int(own.death_shield) <= 0:
+		own.erase("death_shield")
 
 ## Look-back snapshots, taken for every dying unit before any is removed.
 static func _snapshot(e, units: Array) -> Array:
@@ -423,7 +470,7 @@ static func _snapshot(e, units: Array) -> Array:
 		var attackers: Array = []
 		for index in range(enemy.size()):
 			var attacker = enemy[index]
-			if attacker == null:
+			if attacker == null or Stats.flag(e, attacker, "disarm"):
 				continue
 			var aimed = e._combat_target(attacker, lane_index, index)
 			if not aimed.is_empty() and int(aimed.uid) == int(unit.uid):
@@ -599,11 +646,20 @@ static func give(e, target, stats: Dictionary, keywords: Dictionary, grant: Stri
 			if stats.is_empty() and granted.is_empty() and grant.is_empty():
 				return
 			_record(e, target, "give", by, source, stats, granted, grant, until)
+			_stamp_combat(e, target, int(target.lane), until)
 			e._event("status", {"id": int(target.uid), "card": str(target.card), "st": stats, "kw": granted, "until": until, "src": source})
 		"tower":
 			var structure: Dictionary = e.state.lanes[int(target.lane)].structures[int(target.p)]
 			_record(e, structure, "give", by, source, stats, granted, grant, until)
+			_stamp_combat(e, structure, int(target.lane), until)
 			e._event("status", {"id": Select.key(target), "tower": [int(target.lane), int(target.p)], "st": stats, "kw": granted, "until": until, "src": source})
+
+## A next_combat entry given while its own lane's combat resolves (a death
+## or battle-damage trigger) lasts until the lane's next combat: it carries the
+## combat's sequence number, which that combat's expiry skips.
+static func _stamp_combat(e, holder: Dictionary, lane_index: int, until: String) -> void:
+	if until == "next_combat" and int(e._combat_lane) >= 0 and lane_index == int(e._combat_lane):
+		holder.mods.back()["seq"] = int(e.state.get("combat_seq", 0))
 
 static func _record(e, holder: Dictionary, kind: String, by: int, source: String, stats: Dictionary,
 		keywords: Dictionary, grant: String, duration: String) -> void:
@@ -765,20 +821,23 @@ static func lane_open(e, lane_index: int) -> void:
 	e._check_winner()
 
 ## Removes give entries of `duration` from units (and towers) in `lane_index`.
+## next_combat entries given during this very combat stay (Kernel._stamp_combat).
 static func expire(e, lane_index: int, duration: String) -> void:
+	var keep_seq = int(e.state.get("combat_seq", 0)) if duration == "next_combat" else -1
 	for row in e.state.lanes[lane_index].units:
 		for unit in row:
 			if unit != null:
-				_drop_entries(unit, duration)
+				_drop_entries(unit, duration, keep_seq)
 	for structure in e.state.lanes[lane_index].structures:
-		_drop_entries(structure, duration)
+		_drop_entries(structure, duration, keep_seq)
 
-static func _drop_entries(holder: Dictionary, duration: String) -> void:
+static func _drop_entries(holder: Dictionary, duration: String, keep_seq: int = -1) -> void:
 	if not holder.has("mods") or holder.mods.is_empty():
 		return
 	var kept: Array = []
 	for entry in holder.mods:
-		if not (str(entry.k) == "give" and str(entry.d) == duration):
+		if not (str(entry.k) == "give" and str(entry.d) == duration) \
+				or (keep_seq >= 0 and int(entry.get("seq", -1)) == keep_seq):
 			kept.append(entry)
 	holder["mods"] = kept
 

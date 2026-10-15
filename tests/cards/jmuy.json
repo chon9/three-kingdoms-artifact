@@ -1,0 +1,10 @@
+{
+"card": "jmuy",
+"source_id": 4008,
+"text": "Wisdom of the Elders: Draw a card.",
+"covers": ["active", "draw"],
+"cases": [
+ {"name": "Wisdom of the Elders draws a card and starts its cooldown", "clause": 0, "tags": ["active", "draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}, "deck": {"p0": ["foresight", "slay"]}}, "do": [{"ability": "j"}], "expect": {"p0.hand": ["slay"], "j.cooldown": 4, "events": {"has": ["ability", "draw_cards"]}}},
+ {"name": "a silenced J'Muy cannot use it", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"j": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "j"}]},
+ {"name": "the cooldown ticks down each round and blocks a second use", "clause": 0, "tags": ["edge", "active"], "board": "@0", "do": [{"ability": "j"}, {"end_round": true}], "expect": {"j.cooldown": 3}}
+]}

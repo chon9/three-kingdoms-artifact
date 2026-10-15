@@ -1,0 +1,9 @@
+{
+"card": "tower_barrage",
+"source_id": 10402,
+"text": "Deal 2 damage to each enemy.",
+"covers": ["play", "damage", "all_enemies"],
+"cases": [
+ {"name": "Deal 2 damage to each enemy", "clause": 0, "tags": ["play", "damage", "all_enemies"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["centaur_hunter#a", "keefe#k"]}}}, "do": [{"play": "tower_barrage"}], "expect": {"a.health": 6, "k.health": 10}},
+ {"name": "allies and the enemy tower are unaffected (RQ-01)", "clause": 0, "tags": ["negative", "all_enemies"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["centaur_hunter#a", null]}}}, "do": [{"play": "tower_barrage"}], "expect": {"m.health": 4, "j.health": 8, "tower.0.1.health": 40}}
+]}

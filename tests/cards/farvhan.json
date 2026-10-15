@@ -1,0 +1,10 @@
+{
+"card": "farvhan",
+"source_id": 4000,
+"text": "Pack Leadership: Farvhan the Dreamer's allied neighbors have +1 Armor.",
+"covers": ["continuous", "stat_armor", "allied_neighbors"],
+"cases": [
+ {"name": "Pack Leadership: allied neighbors have +1 Armor", "clause": 0, "tags": ["continuous", "stat_armor", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "farvhan#f", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [], "expect": {"l.armor": 1, "r.armor": 1, "f.armor": 0}},
+ {"name": "an ally that is not a neighbor and the enemies get nothing", "clause": 0, "tags": ["negative", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", null, "farvhan#f"], "p1": ["melee_creep#x", "melee_creep#y", "melee_creep#z"]}}}, "do": [], "expect": {"a.armor": 0, "z.armor": 0, "y.armor": 0}},
+ {"name": "the aura ends when Farvhan dies", "clause": 0, "tags": ["edge", "continuous"], "board": "@0", "do": [{"kill": ["f"]}], "expect": {"l.armor": 0, "f.in_play": false}}
+]}

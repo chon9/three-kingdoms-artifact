@@ -1,0 +1,8 @@
+{
+"card": "ogre_conscript",
+"source_id": 10127,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "ogre_conscript fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["ogre_conscript#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.health": 7, "u.armor": 2, "u.attack": 7, "e.in_play": false}}
+]}

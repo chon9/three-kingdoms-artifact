@@ -92,6 +92,7 @@ HUD_STRUCTURE_DAMAGE,Tower damage  {up} up  /  {down} down,城楼伤害  上 {up
 HUD_SILENCED,Silenced,已沉默
 HUD_WILL_DIE,Will fall,将阵亡
 HUD_COOLDOWN,Ready in {n} rounds,{n}回合后就绪
+HUD_COOLDOWN_ONE,Ready in 1 round,1回合后就绪
 HUD_READY,Ready,就绪
 HUD_TIMER,{minutes}:{seconds},{minutes}:{seconds}
 HUD_INCOMING_DAMAGE,Takes {n} damage in combat.,交战中将受到{n}点伤害。
@@ -525,3 +526,14 @@ CARD_KEYWORDS,Keywords: {list},关键词：{list}
 CARD_EFFECTS,Effects: {list},效果：{list}
 CARD_EFFECT_PERMANENT,{card} (permanent: {changes}),{card}（永久：{changes}）
 CARD_EFFECT_TEMPORARY,"{card} ({changes}, {duration})",{card}（{changes}，{duration}）
+HUD_IMPROVEMENTS,{n} improvements,{n}个营建
+CARD_CHARGES,Charges: {n},充能：{n}
+CARD_STATUSES,Statuses: {list},状态：{list}
+CARD_STATUS_LINE,{status} ({duration}),{status}（{duration}）
+CARD_GRANTED,Granted: {list},获得效果：{list}
+BADGE_LOCK,Locked: it cannot be played for {n} more rounds.,已锁定：{n}回合内无法打出。
+BADGE_LOCK_ONE,Locked: it cannot be played for 1 more round.,已锁定：1回合内无法打出。
+BADGE_CHARGES,{n} charges.,{n}层充能。
+BADGE_CHARGES_ONE,1 charge.,1层充能。
+BADGE_HACKED,Changed: it has extra effects when played.,已篡改：打出时附带额外效果。
+BADGE_ARMOR,Armor {n}: reduces the damage it takes.,护甲{n}：减少受到的伤害。

@@ -1,0 +1,10 @@
+{
+"card": "combat_training",
+"source_id": 10300,
+"text": "Modify a hero with +2 Attack.",
+"covers": ["play", "modify", "stat_attack", "hero", "permanent"],
+"cases": [
+ {"name": "Modify a hero with +2 Attack", "clause": 0, "tags": ["play", "modify", "stat_attack", "hero", "permanent"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#a"]}}}, "do": [{"play": "combat_training", "target": "a"}], "expect": {"a.attack": 8}},
+ {"name": "a creep is not a target", "clause": 0, "tags": ["negative", "hero"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "combat_training", "target": "c"}]},
+ {"name": "the modification is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "combat_training", "target": "k"}, {"end_round": true}], "expect": {"k.attack": 8}}
+]}

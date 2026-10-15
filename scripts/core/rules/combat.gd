@@ -29,10 +29,12 @@ static func _plan(e, lane_index: int) -> Dictionary:
 		"condemn": [], "dies": []}
 	var towers = [Stats.tower(e, lane_index, 0), Stats.tower(e, lane_index, 1)]
 	var derived: Dictionary = {}
+	var by_uid: Dictionary = {}
 	for player in range(2):
 		for unit in lane.units[player]:
 			if unit != null:
 				derived[int(unit.uid)] = Stats.derive(e, unit)
+				by_uid[int(unit.uid)] = unit
 	for player in range(2):
 		var row: Array = lane.units[player]
 		for slot in range(row.size()):
@@ -68,25 +70,31 @@ static func _plan(e, lane_index: int) -> Dictionary:
 			if retaliate > 0:
 				var their_pierce = int(theirs.kw.get("pierce", 0)) > 0
 				_unit_strike(e, result, int(target.uid), attacker, maxi(0, retaliate - (0 if their_pierce else int(mine.armor))), "retaliate")
-	# Regeneration heals in the combat phase, before the death check (RQ-09).
+	# Regeneration heals in the combat phase, before the death check (RQ-09):
+	# `heal` holds what it actually restores after this combat's damage, up
+	# to the unit's maximum.
 	for player in range(2):
 		for unit in lane.units[player]:
 			if unit == null:
 				continue
 			var regeneration = int(derived[int(unit.uid)].kw.get("regeneration", 0))
 			if regeneration > 0:
-				result.heal[str(unit.uid)] = regeneration
+				var hurt = int(unit.health) - int(result.unit_damage.get(str(unit.uid), 0))
+				var restored = mini(int(derived[int(unit.uid)].max_health), hurt + regeneration) - hurt
+				if restored > 0:
+					result.heal[str(unit.uid)] = restored
 		result.tower_heal[player] = int(towers[player].regeneration)
 	# Lethal: battle damage above 0 condemns the victim (RQ-10).
 	for strike in result.strikes:
 		if not strike[0] is int or not strike[1] is int or int(strike[2]) <= 0:
 			continue
 		var source: Dictionary = derived.get(int(strike[0]), {})
-		var victim = e.find_unit(int(strike[1]))
+		var victim: Dictionary = by_uid.get(int(strike[1]), {})
 		if source.is_empty() or victim.is_empty():
 			continue
 		if _lethal_to(source.kw, victim) and int(strike[1]) not in result.condemn:
 			result.condemn.append(int(strike[1]))
+	var falling: Array = []
 	for player in range(2):
 		for unit in lane.units[player]:
 			if unit == null:
@@ -94,8 +102,35 @@ static func _plan(e, lane_index: int) -> Dictionary:
 			var key = str(unit.uid)
 			var health = mini(int(derived[int(unit.uid)].max_health),
 				int(unit.health) - int(result.unit_damage.get(key, 0)) + int(result.heal.get(key, 0)))
-			var shielded = Stats.status(e, unit, "death_shield")
-			if not shielded and (health <= 0 or int(unit.uid) in result.condemn):
+			if health <= 0 or int(unit.uid) in result.condemn or bool(unit.get("condemned", false)):
+				falling.append(unit)
+	# Death Shields save fallers first; Soulbound (RQ-39) then closes from the
+	# units that actually die, in this lane: a twin whose shield is unused is
+	# saved by it, a twin whose shield already saved it this combat dies
+	# (Kernel._resolve_dying).
+	var dying: Array = []
+	var saved: Dictionary = {}
+	for unit in falling:
+		if Stats.status(e, unit, "death_shield"):
+			saved[int(unit.uid)] = true
+		else:
+			dying.append(unit)
+	var index = 0
+	while index < dying.size():
+		var unit: Dictionary = dying[index]
+		index += 1
+		if int(derived[int(unit.uid)].kw.get("soulbound", 0)) <= 0:
+			continue
+		for partner in lane.units[int(unit.owner)]:
+			if partner == null or str(partner.card) != str(unit.card) or dying.has(partner):
+				continue
+			if not saved.has(int(partner.uid)) and Stats.status(e, partner, "death_shield"):
+				saved[int(partner.uid)] = true
+				continue
+			dying.append(partner)
+	for player in range(2):
+		for unit in lane.units[player]:
+			if unit != null and dying.has(unit):
 				result.dies.append(int(unit.uid))
 	return result
 
@@ -150,8 +185,10 @@ static func resolve(e, lane_index: int) -> void:
 		if not unit.is_empty():
 			unit["condemned"] = true
 	_record_hits(e, forecast.strikes, lane_index, true)
+	e._combat_lane = lane_index
 	Kernel.pulse(e)
 	Kernel.expire(e, lane_index, "next_combat")
+	e._combat_lane = -1
 	Kernel.emit(e, "after_combat", {"lane": lane_index})
 	Kernel.pulse(e)
 	e._check_winner()

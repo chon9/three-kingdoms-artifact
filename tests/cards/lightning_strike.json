@@ -1,0 +1,9 @@
+{
+"card": "lightning_strike",
+"source_id": 10352,
+"text": "Deal 6 damage to the enemy tower.",
+"covers": ["play", "damage", "tower_damage", "enemy_tower"],
+"cases": [
+ {"name": "Deal 6 damage to the enemy tower", "clause": 0, "tags": ["play", "damage", "tower_damage", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "lightning_strike"}], "expect": {"tower.0.1.health": 34, "tower.0.0.health": 40}},
+ {"name": "after the tower falls it hits the ancient", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}, "towers": {"0": {"p1": {"health": 80, "ancient": true}}}}, "do": [{"play": "lightning_strike"}], "expect": {"tower.0.1.health": 74}}
+]}

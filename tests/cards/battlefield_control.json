@@ -1,0 +1,11 @@
+{
+"card": "battlefield_control",
+"source_id": 4010,
+"text": "Choose a unit. Choose a combat target for it.",
+"covers": ["play", "change_combat_target", "combat_target", "unit"],
+"cases": [
+ {"name": "Choose a unit: any unit in the active lane", "clause": 0, "tags": ["play", "unit"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["keefe#k", null]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [], "expect_legal": [{"play": "battlefield_control", "target": "m", "destination": "tower"}, {"play": "battlefield_control", "target": "k", "destination": "j"}]},
+ {"name": "a unit in another lane is not offered", "clause": 0, "tags": ["negative", "unit"], "board": "@0", "do": [], "expect_illegal": [{"play": "battlefield_control", "target": "o", "destination": "p"}]},
+ {"name": "Choose a combat target: the tower when the position across is empty", "clause": 1, "tags": ["play", "change_combat_target", "combat_target"], "board": "@0", "do": [{"play": "battlefield_control", "target": "m", "destination": "tower"}, {"combat": true}], "expect": {"m.combat_target": 0, "tower.0.1.health": 38}},
+ {"name": "the tower is not a target while a unit stands directly across (RQ-19)", "clause": 1, "tags": ["negative", "combat_target"], "board": "@0", "do": [], "expect_illegal": [{"play": "battlefield_control", "target": "j", "destination": "tower"}]}
+]}

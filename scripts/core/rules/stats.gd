@@ -231,19 +231,26 @@ static func _aura_sources(e, fields: Array) -> Array:
 	var library = e.library
 	var wanted: Array = []
 	var granted = false
+	# Zones that can hold a wanted aura (units carry item and granted auras too).
+	var zones: Dictionary = {}
 	if fields.is_empty():
 		wanted.append(library.aura_cards)
 		granted = not library.granted_aura_fields.is_empty()
+		zones = {"unit": true, "item": true, "improvement": true, "deed": true}
 	else:
 		for field in fields:
 			if library.aura_fields.has(field):
 				wanted.append(library.aura_fields[field])
+				zones.merge(library.aura_holders.get(field, {}))
 			if library.granted_aura_fields.has(field):
 				granted = true
 	if wanted.is_empty() and not granted:
 		return []
 	var out: Array = []
+	var scan_units = granted or zones.has("unit") or zones.has("item")
 	for player in range(2):
+		if not scan_units:
+			break
 		for lane_index in range(3):
 			for unit in e.state.lanes[lane_index].units[player]:
 				if unit == null or not _source_live(unit):
@@ -270,6 +277,8 @@ static func _aura_sources(e, fields: Array) -> Array:
 						if not _is_host_aura(aura) and _wants(aura, fields):
 							out.append([aura, item_ctx(e, unit, str(slot))])
 	for player in range(2):
+		if not zones.has("improvement"):
+			break
 		for lane_index in range(3):
 			for improvement in e.state.lanes[lane_index].get("improvements", [[], []])[player]:
 				if bool(improvement.get("condemned", false)) and AURAS_NEED_HEALTH:
@@ -281,6 +290,8 @@ static func _aura_sources(e, fields: Array) -> Array:
 					if _wants(rules.abilities[index], fields):
 						out.append([rules.abilities[index], object_ctx(e, improvement)])
 	for player in range(2):
+		if not zones.has("deed"):
+			break
 		for deed in e.state.players[player].get("deeds", []):
 			if not _listed(wanted, str(deed.card)):
 				continue
@@ -330,6 +341,11 @@ static func object_ctx(e, object: Dictionary) -> Dictionary:
 ## Derived tower values: armor, retaliate, regeneration and the mana modifier
 ## (give entries and auras; permanent Modify is already in the base fields).
 static func tower(e, lane_index: int, player: int) -> Dictionary:
+	return tower_with(e, lane_index, player, aura_sources(e, TOWER_FIELDS))
+
+## tower() with the tower aura sources already collected (settle reads all
+## six towers from one scan of the board).
+static func tower_with(e, lane_index: int, player: int, sources: Array) -> Dictionary:
 	var structure: Dictionary = e.state.lanes[lane_index].structures[player]
 	var out = {"armor": int(structure.get("armor", 0)), "retaliate": int(structure.get("kw", {}).get("retaliate", 0)),
 		"regeneration": int(structure.get("kw", {}).get("regeneration", 0)), "mana": 0}
@@ -341,7 +357,7 @@ static func tower(e, lane_index: int, player: int) -> Dictionary:
 		for keyword in ["retaliate", "regeneration"]:
 			out[keyword] += int(entry.get("kw", {}).get(keyword, 0))
 	var handle = {"tower": true, "lane": lane_index, "p": player}
-	for source in aura_sources(e, TOWER_FIELDS):
+	for source in sources:
 		var aura: Dictionary = source[0]
 		var ctx: Dictionary = source[1]
 		if aura.get("if") != null and not VM.cond(e, aura["if"], ctx):
@@ -376,6 +392,34 @@ static func rules_of(e, player: int) -> Dictionary:
 			out.forbid_play.append({"kinds": rules.forbid_play.kinds, "lane": Select.source_lane(e, ctx)})
 		if rules.has("creep_lane"):
 			out.creep_lane.append(ctx.src)
+	return out
+
+## Heroes of `player` whose aura grants creep_lane (Kanna, RQ-22): heroes in a
+## lane, then roster heroes in the Fountain that are ready to deploy this round
+## (spec §3.11: "in a lane or ready to deploy").
+static func creep_lane_heroes(e, player: int) -> Array:
+	var out: Array = []
+	if not e.library.aura_fields.has("players:rules"):
+		return out
+	var candidates: Array = []
+	for lane_index in range(3):
+		for unit in e.state.lanes[lane_index].units[player]:
+			if unit != null and bool(unit.get("hero", false)):
+				candidates.append(unit)
+	for hero in e.state.players[player].get("roster", []):
+		if int(hero.get("lane", -1)) == -1 and int(hero.get("ready_round", 1)) <= int(e.state.get("round", 1)):
+			candidates.append(hero)
+	var handle = {"player": player}
+	for unit in candidates:
+		var rules: Dictionary = e.library.rules(str(unit.get("card", "")))
+		for index in rules.get("auras", []):
+			var aura: Dictionary = rules.abilities[index]
+			if not aura.get("rules", {}).has("creep_lane"):
+				continue
+			var ctx = unit_ctx(e, unit)
+			if (aura.get("if") == null or VM.cond(e, aura["if"], ctx)) and Select.includes(e, aura.affects, ctx, handle):
+				out.append(unit)
+				break
 	return out
 
 # --- Settle ------------------------------------------------------------------------
@@ -420,6 +464,8 @@ static func settle(e) -> void:
 			unit.health = int(unit.health) + cap - seen
 		unit["hp_seen"] = cap
 		mirror_statuses(unit)
+	# Settle folds only tower mana: scan just the auras that change it.
+	var tower_sources = aura_sources(e, ["towers:mana"])
 	for lane_index in range(3):
 		var lane: Dictionary = e.state.lanes[lane_index]
 		if not lane.has("max_mana_base"):
@@ -429,7 +475,7 @@ static func settle(e) -> void:
 			# A fixture that wrote max_mana directly sets a new base.
 			if int(lane.max_mana[player]) != maxi(0, int(lane.max_mana_base[player]) + int(lane.mana_bonus[player])):
 				lane.max_mana_base[player] = int(lane.max_mana[player]) - int(lane.mana_bonus[player])
-			var total = int(tower(e, lane_index, player).mana)
+			var total = int(tower_with(e, lane_index, player, tower_sources).mana)
 			var new_max = maxi(0, int(lane.max_mana_base[player]) + total)
 			var delta = new_max - int(lane.max_mana[player])
 			if delta != 0:

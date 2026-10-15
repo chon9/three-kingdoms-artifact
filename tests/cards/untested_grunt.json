@@ -1,0 +1,8 @@
+{
+"card": "untested_grunt",
+"source_id": 10128,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "untested_grunt fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["untested_grunt#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.in_play": false, "u.attack": 4, "e.health": 0, "e.in_play": false}}
+]}

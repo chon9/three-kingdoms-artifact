@@ -18,13 +18,19 @@ const GLOSSARY_PATH = "res://data/locale/glossary.json"
 const FALLBACK_LOCALE = "en"
 const NO_RULES = {"abilities": [], "auras": [], "events": {}, "grant_events": {}, "grants": [], "active": -1,
 	"host": {}, "play": {}, "enter": [], "keywords": {}, "params": {}, "errors": [], "status": "",
-	"static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0}, "ability_static": {}}
+	"static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0}, "ability_static": {}}
 static var _locale_data: Dictionary = {}
 static var _glossary: Dictionary = {}
 static var _raw_definitions: Dictionary = {}
 ## Parsed and compiled packs, shared by every library instance (card data is
 ## read-only at runtime; the bot creates one engine per simulated action).
 static var _packs: Dictionary = {}
+## Packs loaded with from_file() (test packs such as the M2 rules fixtures,
+## tests/fixtures/rules_fixtures.json): pack id -> {"path", "compiled"}. They
+## are never in PACKS, never in a shipped preset and never exported; once
+## loaded, the static helpers (raw_definition, compiled_rules, loc) and
+## replays find their cards too.
+static var _extra: Dictionary = {}
 var cards: Dictionary = {}
 var heroes: Array = []
 var content_pack: String
@@ -47,6 +53,10 @@ var aura_cards: Dictionary = {}
 var aura_fields: Dictionary = {}
 ## Fields that some card's grants can give as an aura (granted text).
 var granted_aura_fields: Dictionary = {}
+## "<target>:<field>" -> {"unit": true, "item": true, "improvement": true,
+## "deed": true}: where the cards with such an aura live, so a scan skips the
+## zones that cannot hold one.
+var aura_holders: Dictionary = {}
 
 func _init(pack: String = "artifact_classic_decks_v2") -> void:
 	assert(PACKS.has(pack), "Unsupported content pack")
@@ -63,6 +73,7 @@ func _init(pack: String = "artifact_classic_decks_v2") -> void:
 	aura_cards = data.aura_cards
 	aura_fields = data.aura_fields
 	granted_aura_fields = data.granted_aura_fields
+	aura_holders = data.aura_holders
 
 static func _pack(pack: String) -> Dictionary:
 	if _packs.has(pack):
@@ -71,7 +82,7 @@ static func _pack(pack: String) -> Dictionary:
 	assert(parsed is Dictionary, "Invalid card catalog")
 	var data = {"catalog": parsed, "heroes": parsed.heroes, "cards": {}, "compiled": {}, "errors": [],
 		"warnings": [], "listening": {}, "grant_listening": {}, "aura_cards": {}, "aura_fields": {},
-		"granted_aura_fields": {}}
+		"granted_aura_fields": {}, "aura_holders": {}}
 	for card in parsed.cards:
 		data.cards[card.id] = card
 	var entries: Array = []
@@ -101,11 +112,17 @@ static func _index(data: Dictionary, id: String, rules: Dictionary) -> void:
 		data.grant_listening[event] = true
 	if not rules.auras.is_empty():
 		data.aura_cards[id] = true
+	var holder = {"hero": "unit", "creep": "unit", "improvement": "improvement"}.get(str(rules.get("kind", "")), "item")
+	if str(rules.get("kind", "")) == "item" and data.cards.get(id, {}).get("slot", "") == "deed":
+		holder = "deed"
 	for index in rules.auras:
 		for field in aura_grant_fields(rules.abilities[index]):
 			if not data.aura_fields.has(field):
 				data.aura_fields[field] = {}
 			data.aura_fields[field][id] = true
+			if not data.aura_holders.has(field):
+				data.aura_holders[field] = {}
+			data.aura_holders[field][holder] = true
 	for granted in rules.grants:
 		if str(granted.get("kind", "")) == "aura":
 			for field in aura_grant_fields(granted):
@@ -202,16 +219,98 @@ static func with_cards(pack: String, entries: Array):
 	library.aura_cards = library.aura_cards.duplicate()
 	library.aura_fields = library.aura_fields.duplicate(true)
 	library.granted_aura_fields = library.granted_aura_fields.duplicate()
+	library.aura_holders = library.aura_holders.duplicate(true)
 	var data = {"heroes": library.heroes, "cards": library.cards, "compiled": library.compiled,
 		"errors": library.errors, "warnings": library.warnings, "listening": library.listening,
 		"grant_listening": library.grant_listening, "aura_cards": library.aura_cards,
-		"aura_fields": library.aura_fields, "granted_aura_fields": library.granted_aura_fields}
+		"aura_fields": library.aura_fields, "granted_aura_fields": library.granted_aura_fields,
+		"aura_holders": library.aura_holders}
 	for entry in entries:
 		var id = str(entry.get("id", ""))
 		library.cards[id] = entry
 		_index(data, id, RulesDB.compile(entry))
 	_check_links(data, entries)
 	return library
+
+## A library from a pack file outside PACKS (spec M2: test packs such as
+## tests/fixtures/rules_fixtures.json). The file has the shape of a pack
+## (heroes, cards, optional presets and pools); with "base": "<pack id>" it
+## extends that pack (its heroes, cards and catalog), and its own catalog keys
+## replace the base ones. Entries are compiled into private copies, so the
+## shared pack cache stays untouched. The pack is registered under `pack_id`
+## for the static helpers and for replays (open()).
+static func from_file(path: String, pack_id: String):
+	var parsed = _read_json(path)
+	assert(not parsed.is_empty(), "Invalid card pack file %s" % path)
+	var script = load("res://scripts/core/card_library.gd")
+	var base = str(parsed.get("base", ""))
+	var library = script.new(base if PACKS.has(base) else PACKS.keys()[0])
+	if not PACKS.has(base):
+		library.heroes = []
+		library.cards = {}
+		library.compiled = {}
+		library.errors = []
+		library.warnings = []
+		library.listening = {}
+		library.grant_listening = {}
+		library.aura_cards = {}
+		library.aura_fields = {}
+		library.granted_aura_fields = {}
+		library.aura_holders = {}
+		library.catalog = {}
+	library.content_pack = pack_id
+	library.catalog = library.catalog.duplicate(true)
+	for key in parsed:
+		if key not in ["heroes", "cards", "base"]:
+			library.catalog[key] = parsed[key]
+	library.heroes = library.heroes.duplicate()
+	library.cards = library.cards.duplicate()
+	library.compiled = library.compiled.duplicate()
+	library.errors = library.errors.duplicate()
+	library.warnings = library.warnings.duplicate()
+	library.listening = library.listening.duplicate(true)
+	library.grant_listening = library.grant_listening.duplicate()
+	library.aura_cards = library.aura_cards.duplicate()
+	library.aura_fields = library.aura_fields.duplicate(true)
+	library.granted_aura_fields = library.granted_aura_fields.duplicate()
+	library.aura_holders = library.aura_holders.duplicate(true)
+	var data = {"heroes": library.heroes, "cards": library.cards, "compiled": library.compiled,
+		"errors": library.errors, "warnings": library.warnings, "listening": library.listening,
+		"grant_listening": library.grant_listening, "aura_cards": library.aura_cards,
+		"aura_fields": library.aura_fields, "granted_aura_fields": library.granted_aura_fields,
+		"aura_holders": library.aura_holders}
+	var entries: Array = []
+	for hero in parsed.get("heroes", []):
+		var entry: Dictionary = hero.duplicate()
+		if not entry.has("kind"):
+			entry["kind"] = "hero"
+		library.heroes.append(entry)
+		entries.append(entry)
+	for card in parsed.get("cards", []):
+		library.cards[str(card.id)] = card
+		entries.append(card)
+	for entry in entries:
+		_index(data, str(entry.get("id", "")), RulesDB.compile(entry))
+	_check_links(data, entries)
+	library.errors = data.errors
+	library.warnings = data.warnings
+	# Register the pack: static lookups and replays find its cards from now on.
+	raw_definition("")
+	for entry in entries:
+		if not _raw_definitions.has(str(entry.id)):
+			_raw_definitions[str(entry.id)] = entry
+	_extra[pack_id] = {"path": path, "compiled": library.compiled}
+	return library
+
+## True for a shipped pack (PACKS) or a pack loaded with from_file().
+static func known_pack(pack_id: String) -> bool:
+	return PACKS.has(pack_id) or _extra.has(pack_id)
+
+## A library of a shipped pack, or of a pack loaded earlier with from_file().
+static func open(pack_id: String):
+	if _extra.has(pack_id):
+		return from_file(str(_extra[pack_id].path), pack_id)
+	return load("res://scripts/core/card_library.gd").new(pack_id)
 
 ## Compiled rules of a card, hero, token or item ({} shaped as NO_RULES when unknown).
 func rules(card_id: String) -> Dictionary:
@@ -225,7 +324,7 @@ func playable(card_id: String) -> bool:
 func listeners(event: String) -> Array:
 	return listening.get(event, {}).keys()
 
-## The bot's static values of a card: draw, initiative, random, bias (spec §9.2).
+## The bot's static values of a card: draw, initiative, random, bias, lock (spec §9.2).
 func static_value(card_id: String) -> Dictionary:
 	return rules(card_id).get("static", NO_RULES.static)
 
@@ -235,6 +334,9 @@ static func compiled_rules(card_id: String) -> Dictionary:
 		var data = _pack(pack)
 		if data.compiled.has(card_id):
 			return data.compiled[card_id]
+	for pack in _extra:
+		if _extra[pack].compiled.has(card_id):
+			return _extra[pack].compiled[card_id]
 	return NO_RULES
 
 ## The card has an active ability (shows an ability badge).
@@ -357,9 +459,18 @@ func shop_cards() -> Array:
 static func loc(card_id: String, field: String = "name", locale: String = "", skin: String = "") -> String:
 	var definition = raw_definition(card_id)
 	var entry = _skin_section(skin, "cards").get(card_id, {})
+	if field.begins_with("grant_"):
+		# Granted text (spec §8.8): the locale entry's grants[i], else a test
+		# pack's grant_text[i].
+		var index = int(field.substr(6))
+		var granted = _pick(_at(entry.get("grants", []), index), _resolve_locale(locale))
+		if granted.is_empty():
+			granted = _pick(_at(definition.get("grant_text", []), index), _resolve_locale(locale))
+		return format_text(granted, definition)
 	var text = _pick(entry.get(field), _resolve_locale(locale))
 	if text.is_empty():
-		text = str(definition.get(field, ""))
+		# Test packs carry their text in the entry, as a string or {locale: text}.
+		text = _pick(definition.get(field), _resolve_locale(locale))
 	if text.is_empty() and field == "name":
 		text = card_id
 	return format_text(text, definition)
@@ -440,6 +551,9 @@ static func _resolve_locale(locale: String) -> String:
 	return Settings.normalize_locale(locale) if not locale.is_empty() else current_locale()
 
 ## Plain strings are used as-is; {locale: text} dictionaries fall back to en.
+static func _at(values, index: int):
+	return values[index] if values is Array and index >= 0 and index < values.size() else null
+
 static func _pick(value, locale: String) -> String:
 	if value is String:
 		return value

@@ -198,8 +198,20 @@ func build_models(lane_index: int, ability_ready: Dictionary = {}) -> Dictionary
 		models["tower_damage"] = [0, 0]
 	else:
 		models["tower_damage"] = [int(preview.tower_damage[1 - viewer]), int(preview.tower_damage[viewer])]
+	models["tower_stats"] = [display_engine.tower_stats(lane_index, 1 - viewer), display_engine.tower_stats(lane_index, viewer)]
+	models["improvements"] = [_improvement_models(lane, 1 - viewer, ability_ready), _improvement_models(lane, viewer, ability_ready)]
 	display_engine.frame_end()
 	return models
+
+## Chip models for one wall's improvements, in play order (spec §8.4).
+func _improvement_models(lane: Dictionary, player: int, ability_ready: Dictionary) -> Array:
+	var out: Array = []
+	for improvement in lane.get("improvements", [[], []])[player]:
+		var oid = int(improvement.get("oid", -1))
+		var card_id = str(improvement.get("card", ""))
+		out.append({"oid": oid, "card": card_id, "charges": int(improvement.get("charges", 0)),
+			"cd": int(improvement.get("cd", 0)), "has_active": Library.has_active(card_id), "ready": ability_ready.has(oid)})
+	return out
 
 ## Non-zero derived keywords of a unit: {keyword: value}.
 func _keywords(unit: Dictionary) -> Dictionary:
@@ -225,12 +237,12 @@ func _abilities(unit: Dictionary, ability_ready: Dictionary) -> Array:
 			out.append({"source": source[0], "card": source[1], "cd": source[2], "ready": ability_ready.has(source[0])})
 	return out
 
-## Modifier entries for the inspect panel: [{src, k, d, st, kw}].
+## Modifier entries for the inspect panel: [{src, k, d, st, kw, ab}].
 func _mod_summary(unit: Dictionary) -> Array:
 	var out: Array = []
 	for entry in unit.get("mods", []):
 		out.append({"src": str(entry.get("src", "")), "k": str(entry.get("k", "")), "d": str(entry.get("d", "")),
-			"st": entry.get("st", {}), "kw": entry.get("kw", {})})
+			"st": entry.get("st", {}), "kw": entry.get("kw", {}), "ab": str(entry.get("ab", ""))})
 	return out
 
 ## Display model for a unit that is not on the board yet (a staged creep or
@@ -282,6 +294,47 @@ func lane_at(global_point: Vector2) -> int:
 
 func tower(lane_index: int, own: bool) -> Control:
 	return lanes[lane_index].towers[1 if own else 0]
+
+## The improvement chip `oid` on any lane (null when it is not shown).
+func improvement_chip(oid: int) -> Control:
+	for lane in lanes:
+		var found = lane.chip(oid)
+		if found != null:
+			return found
+	return null
+
+func lane_of_chip(oid: int) -> int:
+	for index in range(3):
+		if lanes[index].chips.has(oid):
+			return index
+	return -1
+
+## The improvement chip under `global_point` on a visible lane, or null.
+func improvement_at(global_point: Vector2) -> Control:
+	for lane in lanes:
+		if lane.visible:
+			var found = lane.improvement_at(global_point)
+			if found != null:
+				return found
+	return null
+
+## The lane whose "+n" improvement chip is under `global_point`, or -1.
+func more_chip_lane_at(global_point: Vector2) -> int:
+	for index in range(3):
+		if lanes[index].visible and lanes[index].more_at(global_point):
+			return index
+	return -1
+
+## The board card and slot of the item instance `oid`: [UnitCard, slot] or [].
+func item_holder(oid: int) -> Array:
+	for lane in lanes:
+		for uid in lane.cards:
+			var card: Control = lane.cards[uid]
+			var states: Dictionary = card.model.get("unit", {}).get("item_state", {})
+			for slot in states:
+				if int(states[slot].get("oid", -1)) == oid:
+					return [card, str(slot)]
+	return []
 
 # --- Input and drawing ----------------------------------------------------
 

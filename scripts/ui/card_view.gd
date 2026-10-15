@@ -7,7 +7,9 @@ extends Control
 ## plus the faction emblem (or a seal without the emblem art).
 ##
 ## Every size is relative to BASE, so one script draws thumbnails and the
-## large inspect view.
+## large inspect view. Cards in hand carry `badges` (EFFECT_SYSTEM_SPEC.md
+## §8.6): a lock with its rounds, charges, and a mark for changed (hacked)
+## text, stacked down the left edge so they show on the fan's visible spine.
 
 const Library = preload("res://scripts/core/card_library.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -28,6 +30,17 @@ var dimmed: bool = false
 var face_down: bool = false
 var hovered: bool = false
 var glow_color: Color = UiKit.PLAYABLE
+## Hand marks: [{"k": "lock" | "charges" | "hacked", "v": n}].
+var badges: Array = []:
+	set(value):
+		if badges != value:
+			badges = value
+			queue_redraw()
+## 1 right after a mark changes, easing to 0 (badge pop).
+var badge_pop: float = 0.0:
+	set(value):
+		badge_pop = value
+		queue_redraw()
 var _text: TextParagraph
 var _text_key: String = ""
 var _pulse: float = 0.0
@@ -154,6 +167,15 @@ func _draw() -> void:
 		UiKit.draw_round_rect(self, rect, Color(0.02, 0.02, 0.03, 0.5), radius)
 	if hovered and not dimmed:
 		UiKit.draw_round_rect(self, rect, Color.TRANSPARENT, radius, Color(1, 1, 1, 0.35), 1.5)
+	_draw_badges(layout, s)
+
+## Hand marks down the left edge of the art, under the type disc.
+func _draw_badges(layout: Dictionary, s: float) -> void:
+	var radius = 13.0 * s * (1.0 + 0.4 * badge_pop)
+	for index in range(badges.size()):
+		var badge: Dictionary = badges[index]
+		var center = layout.art.position + Vector2(16.0, 46.0 + 30.0 * index) * s
+		UiKit.draw_badge(self, str(badge.get("k", "")), int(badge.get("v", 0)), center, radius)
 
 func _draw_shadow(rect: Rect2, radius: float) -> void:
 	for ring in range(3):

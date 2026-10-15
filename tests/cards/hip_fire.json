@@ -1,0 +1,11 @@
+{
+"card": "hip_fire",
+"source_id": 10273,
+"text": "Deal 4 damage to a unit. | Get initiative.",
+"covers": ["play", "damage", "get_initiative", "unit"],
+"cases": [
+ {"name": "Deal 4 damage to a unit", "clause": 0, "tags": ["play", "damage", "unit"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["centaur_hunter#c"]}}}, "do": [{"play": "hip_fire", "target": "c"}], "expect": {"c.health": 4}},
+ {"name": "armor reduces it", "clause": 0, "tags": ["negative", "damage"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "hip_fire", "target": "o"}], "expect": {"o.health": 5}},
+ {"name": "Get initiative: the caster acts again", "clause": 1, "tags": ["get_initiative"], "board": "@0", "do": [{"play": "hip_fire", "target": "c"}], "expect": {"initiative": 0}},
+ {"name": "a card without it hands the initiative over", "clause": 1, "tags": ["negative", "get_initiative"], "board": "@0", "do": [{"play": "no_accident", "target": "c"}], "expect": {"initiative": 1}}
+]}

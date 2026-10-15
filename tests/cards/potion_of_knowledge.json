@@ -1,0 +1,9 @@
+{
+"card": "potion_of_knowledge",
+"source_id": 3005,
+"text": "Draw a card.",
+"covers": ["play", "draw"],
+"cases": [
+ {"name": "Draw a card", "clause": 0, "tags": ["play", "draw"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}, "deck": {"p0": ["slay", "foresight"]}}, "do": [{"play": "potion_of_knowledge"}], "expect": {"p0.hand": ["foresight"]}},
+ {"name": "an empty deck draws nothing", "clause": 0, "tags": ["edge", "draw"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "potion_of_knowledge"}], "expect": {"p0.hand": []}}
+]}

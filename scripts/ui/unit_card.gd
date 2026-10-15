@@ -3,9 +3,12 @@ extends Control
 ##
 ## Colour bar (with weapon/armor/accessory slots for heroes), cropped art with
 ## a name ribbon, attack/armor/health badges (attack green when buffed, health
-## red when damaged), active-ability, passive and silence badges, the combat
-## arrow chevron on the river-facing edge, and the live damage preview: a red
-## "-N" tag, plus grey art with a red cross and skull when the unit will die.
+## red when damaged), active-ability and passive badges, up to four status,
+## flag and keyword badges on the right edge (EFFECT_SYSTEM_SPEC.md §8.5), the
+## combat arrow chevron on the river-facing edge, and the live damage preview:
+## a red "-N" tag, plus grey art with a red cross and skull when the unit will
+## die. Item slots whose item has an active ability are buttons (§8.3): they
+## glow while it can be used and show the rounds left on its cooldown.
 
 const Library = preload("res://scripts/core/card_library.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -16,27 +19,10 @@ const STATS_TOP = 132.0
 const SLOT_ICONS = {"weapon": "sword", "armor": "shield", "accessory": "suit_hearts"}
 const DAMAGED = Color("ff8a7a")
 const MAX_BADGES = 4
-## Badge kind -> [fill, rim, icon, glyph] (spec §8.5); numbers are drawn for
-## NUMBER_BADGES, otherwise the icon, otherwise the glyph.
-const BADGE_STYLES = {
-	"stun": [Color(0.3, 0.24, 0.05), Color(1.0, 0.85, 0.3), "", "晕"],
-	"silence": [Color(0.2, 0.08, 0.25), Color(0.75, 0.5, 0.95), "lock_closed", ""],
-	"disarm": [Color(0.25, 0.1, 0.1), Color(0.85, 0.45, 0.45), "sword", ""],
-	"death_shield": [Color(0.12, 0.2, 0.24), Color(0.6, 0.9, 1.0), "", "护"],
-	"damage_immunity": [Color(0.12, 0.18, 0.28), Color(0.7, 0.85, 1.0), "shield", ""],
-	"pierce": [Color(0.22, 0.16, 0.06), Color(UiKit.GOLD_BRIGHT), "sword", ""],
-	"lethal": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3), "skull", ""],
-	"lethal_heroes": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3), "skull", ""],
-	"lethal_creeps": [Color(0.1, 0.1, 0.1), Color(0.9, 0.3, 0.3), "skull", ""],
-	"siege": [Color(0.25, 0.1, 0.06), Color(UiKit.GOLD), "", ""],
-	"cleave": [Color(0.22, 0.08, 0.08), Color(0.95, 0.55, 0.4), "", ""],
-	"retaliate": [Color(0.2, 0.14, 0.08), Color(0.9, 0.7, 0.4), "", ""],
-	"regeneration": [Color(0.06, 0.2, 0.1), Color(0.45, 0.9, 0.55), "", ""],
-	"bounty": [Color(0.24, 0.2, 0.06), Color(UiKit.GOLD_BRIGHT), "", ""],
-	"rapid_deployment": [Color(0.08, 0.18, 0.12), Color(0.5, 0.9, 0.6), "", "速"],
-	"soulbound": [Color(0.16, 0.08, 0.22), Color(0.8, 0.6, 1.0), "", "同"],
-}
-const NUMBER_BADGES = ["siege", "cleave", "retaliate", "regeneration", "bounty"]
+const BADGE_RADIUS = 11.0
+const BADGE_STEP = 24.0
+const SLOTS = ["weapon", "armor", "accessory"]
+const SLOT_SIZE = Vector2(22, 14)
 const GREY_SHADER = """
 shader_type canvas_item;
 uniform float amount = 1.0;
@@ -71,6 +57,10 @@ var preview_hidden: bool = false:
 		if preview_hidden != value:
 			preview_hidden = value
 			apply(model)
+## 1 right after a status or modification lands, easing to 0 (badge pop).
+var badge_pop: float = 0.0
+## 0..1: the purple condemn mark drawn before a condemned unit is removed.
+var condemn_mark: float = 0.0
 var _pulse: float = 0.0
 var _mark: Control
 static var _grey: ShaderMaterial
@@ -119,13 +109,63 @@ func ability_hit(global_point: Vector2) -> bool:
 		return false
 	return rect.has_point(get_global_transform().affine_inverse() * global_point)
 
+## Local rectangle of the item slot `slot` in the colour bar (heroes only).
+func item_rect(slot: String) -> Rect2:
+	var index = SLOTS.find(slot)
+	if index == -1 or not is_hero():
+		return Rect2()
+	var left = SIZE.x * 0.5 - SLOT_SIZE.x * 1.5 - 3.0
+	return Rect2(Vector2(left + index * (SLOT_SIZE.x + 3.0), 3), SLOT_SIZE)
+
+## The item slot under `global_point` whose item has an active ability ("" if
+## none): a little larger than the slot, so it is easy to hit.
+func item_hit(global_point: Vector2) -> String:
+	var local = get_global_transform().affine_inverse() * global_point
+	for slot in SLOTS:
+		if not item_ability(slot).is_empty() and item_rect(slot).grow(3.0).has_point(local):
+			return slot
+	return ""
+
+## The model's ability entry of the item in `slot` ({source, card, cd, ready}),
+## or {} when that item has no active ability.
+func item_ability(slot: String) -> Dictionary:
+	var unit: Dictionary = model.get("unit", {})
+	if not unit.get("items", {}).has(slot):
+		return {}
+	var oid = int(unit.get("item_state", {}).get(slot, {}).get("oid", -1))
+	for entry in model.get("abilities", []):
+		if int(entry.get("source", -2)) == oid:
+			return entry
+	return {}
+
+## The item oid in `slot` (-1 when empty).
+func item_oid(slot: String) -> int:
+	return int(model.get("unit", {}).get("item_state", {}).get(slot, {}).get("oid", -1))
+
+## The badge kinds drawn on the right edge, in order ("more" for the +n disc).
+func badge_kinds() -> Array:
+	var badges: Array = model.get("badges", [])
+	var shown = badges.size() if badges.size() <= MAX_BADGES else MAX_BADGES - 1
+	var out: Array = []
+	for index in range(shown):
+		out.append(str(badges[index].get("k", "")))
+	if badges.size() > shown:
+		out.append("more")
+	return out
+
+func _items_ready() -> bool:
+	for entry in model.get("abilities", []):
+		if entry.get("ready", false) and int(entry.get("source", -1)) != uid:
+			return true
+	return false
+
 ## Global position of the chevron tip (where attacks leave the card).
 func front_point() -> Vector2:
 	var local = Vector2(SIZE.x * 0.5, -6.0 if own else SIZE.y + 6.0)
 	return get_global_transform() * local
 
 func _process(delta: float) -> void:
-	if target_state != 0 or model.get("ability_ready", false):
+	if target_state != 0 or model.get("ability_ready", false) or _items_ready():
 		_pulse = fmod(_pulse + delta * 3.0, TAU)
 		queue_redraw()
 
@@ -220,16 +260,27 @@ func _bottom_points(rect: Rect2) -> PackedVector2Array:
 	return points
 
 func _draw_slots(items: Dictionary, alpha: float) -> void:
-	var slot_size = Vector2(22, 14)
-	var left = SIZE.x * 0.5 - slot_size.x * 1.5 - 3.0
-	for index in range(3):
-		var slot = ["weapon", "armor", "accessory"][index]
-		var rect = Rect2(Vector2(left + index * (slot_size.x + 3.0), 3), slot_size)
+	for slot in SLOTS:
+		var rect = item_rect(slot)
 		var filled = items.has(slot)
+		var ability = item_ability(slot) if filled else {}
+		var ready = ability.get("ready", false)
+		var cooldown = int(ability.get("cd", 0))
+		if ready:
+			UiKit.draw_glow(self, rect, 3.0, UiKit.PLAYABLE, 0.75 + 0.3 * sin(_pulse))
+		var rim = Color(UiKit.GOLD_BRIGHT, alpha) if filled else Color(1, 1, 1, 0.22 * alpha)
+		if ready:
+			rim = Color(UiKit.PLAYABLE, alpha)
 		UiKit.draw_round_rect(self, rect, Color(UiKit.card_color("item"), alpha) if filled else Color(0, 0, 0, 0.35 * alpha), 2.0,
-			Color(UiKit.GOLD_BRIGHT, alpha) if filled else Color(1, 1, 1, 0.22 * alpha), 1.0)
+			rim, 1.5 if not ability.is_empty() else 1.0)
 		UiKit.draw_icon(self, SLOT_ICONS[slot], Rect2(rect.get_center() - Vector2(5, 5), Vector2(10, 10)),
 			Color(0.12, 0.08, 0.02, alpha) if filled else Color(1, 1, 1, 0.38 * alpha))
+		if cooldown > 0:
+			UiKit.draw_round_rect(self, rect, Color(0.02, 0.02, 0.03, 0.62 * alpha), 2.0)
+			UiKit.draw_text(self, UiKit.bold_font(), str(cooldown), rect.get_center(), 12, Color(UiKit.PAPER, alpha), -1.0, 2)
+		elif not ability.is_empty():
+			# A small book mark: this item has an ability to use.
+			draw_circle(rect.position + Vector2(rect.size.x - 1.0, 1.0), 3.5, Color(UiKit.PLAYABLE if ready else UiKit.PAPER_DIM, alpha))
 
 func _draw_stats(rect: Rect2, alpha: float) -> void:
 	var unit: Dictionary = model.unit
@@ -284,29 +335,30 @@ func _draw_badges(unit: Dictionary, alpha: float) -> void:
 	# Statuses, flags and keywords on the right edge: up to four, then +n.
 	var badges: Array = model.get("badges", [])
 	var shown = badges.size() if badges.size() <= MAX_BADGES else MAX_BADGES - 1
+	var radius = BADGE_RADIUS * (1.0 + 0.45 * badge_pop)
 	for index in range(shown):
-		_draw_badge(badges[index], Vector2(SIZE.x - 16, BAR_H + 17.0 + index * 23.0), alpha)
+		var badge: Dictionary = badges[index]
+		UiKit.draw_badge(self, str(badge.get("k", "")), int(badge.get("v", 1)), _badge_center(index), radius, alpha)
 	if badges.size() > shown:
-		var center = Vector2(SIZE.x - 16, BAR_H + 17.0 + shown * 23.0)
-		UiKit.draw_disc(self, center, 10.0, Color(0.12, 0.12, 0.13, alpha), Color(0.7, 0.7, 0.7, alpha), 1.5)
-		UiKit.draw_text(self, UiKit.bold_font(), "+%d" % (badges.size() - shown), center, 11, Color(UiKit.PAPER, alpha), -1.0, 2)
+		var center = _badge_center(shown)
+		UiKit.draw_disc(self, center, BADGE_RADIUS, Color(0.12, 0.12, 0.13, alpha), Color(0.7, 0.7, 0.7, alpha), 1.5)
+		UiKit.draw_text(self, UiKit.bold_font(), "+%d" % (badges.size() - shown), center, 12, Color(UiKit.PAPER, alpha), -1.0, 2)
 
-## One badge disc: an icon, a glyph or a number on the badge's colour.
-func _draw_badge(badge: Dictionary, center: Vector2, alpha: float) -> void:
-	var kind = str(badge.get("k", ""))
-	var style: Array = BADGE_STYLES.get(kind, [Color(0.15, 0.15, 0.16), Color(0.7, 0.7, 0.7), "", ""])
-	UiKit.draw_disc(self, center, 10.0, Color(style[0], alpha), Color(style[1], alpha), 1.5)
-	var value = int(badge.get("v", 1))
-	if kind in NUMBER_BADGES:
-		UiKit.draw_text(self, UiKit.bold_font(), str(value), center, 13, Color(UiKit.PAPER, alpha), -1.0, 2)
-	elif not str(style[2]).is_empty():
-		UiKit.draw_icon(self, str(style[2]), Rect2(center - Vector2(6, 6), Vector2(12, 12)), Color(1, 1, 1, alpha))
-	else:
-		UiKit.draw_text(self, UiKit.bold_font(), str(style[3]), center, 11, Color(UiKit.PAPER, alpha), -1.0, 2)
+func _badge_center(index: int) -> Vector2:
+	return Vector2(SIZE.x - 15.0, BAR_H + 16.0 + index * BADGE_STEP)
 
 ## Badge tooltip text (BADGE_* in ui.csv), for hover and inspect.
 static func badge_text(badge: Dictionary) -> String:
-	return UiKit.t("BADGE_" + str(badge.get("k", "")).to_upper(), {"n": int(badge.get("v", 1))})
+	return UiKit.t_n("BADGE_" + str(badge.get("k", "")).to_upper(), int(badge.get("v", 1)))
+
+## Redraws both layers (the badge pop and the condemn mark animate these).
+func set_badge_pop(value: float) -> void:
+	badge_pop = value
+	queue_redraw()
+
+func set_condemn_mark(value: float) -> void:
+	condemn_mark = value
+	_mark.queue_redraw()
 
 ## Combat arrow on the river-facing edge: a short arrow pointing straight
 ## ahead or diagonally at the target; gold-red when it will hit the tower.
@@ -348,6 +400,8 @@ func _draw_damage_tag() -> void:
 ## Drawn on an unshaded child so it stays red on greyed (dying) cards.
 func _draw_death_mark() -> void:
 	_draw_damage_tag()
+	if condemn_mark > 0.0:
+		_draw_condemn_mark()
 	if not _marked_dying():
 		return
 	var center = Vector2(SIZE.x * 0.5, (BAR_H + STATS_TOP) * 0.5)
@@ -361,3 +415,15 @@ func _draw_death_mark() -> void:
 	UiKit.draw_icon(_mark, "skull", Rect2(center - Vector2(12, 12), Vector2(24, 24)), Color("f1e9dc"))
 	if not CardArt.art(card_id).is_empty():
 		_draw_name(_mark, 1.0)
+
+## Condemn: a purple brush stroke across the art, drawn in as `condemn_mark`
+## grows (the death animation follows at the sync).
+func _draw_condemn_mark() -> void:
+	var center = Vector2(SIZE.x * 0.5, (BAR_H + STATS_TOP) * 0.5)
+	var start = center + Vector2(-46, 40)
+	var finish = start.lerp(center + Vector2(46, -40), condemn_mark)
+	var purple = Color("b157e6")
+	_mark.draw_line(start + Vector2(0, 2), finish + Vector2(0, 2), Color(0, 0, 0, 0.45), 11.0, true)
+	_mark.draw_line(start, finish, Color(purple, 0.92), 8.0, true)
+	_mark.draw_circle(center, 13.0 * condemn_mark, Color(0.1, 0.02, 0.14, 0.6 * condemn_mark))
+	UiKit.draw_icon(_mark, "skull", Rect2(center - Vector2(10, 10) * condemn_mark, Vector2(20, 20) * condemn_mark), Color(purple.lightened(0.4), condemn_mark))

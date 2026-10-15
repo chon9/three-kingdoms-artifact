@@ -1,0 +1,11 @@
+{
+"card": "forward_charge",
+"source_id": 10413,
+"text": "Give allies +2 Siege this round. Allies change their combat target to the unit or tower across from them.",
+"covers": ["play", "change_combat_target", "siege", "temp_buff", "all_allies", "combat_target", "this_round"],
+"cases": [
+ {"name": "Give allies +2 Siege this round", "clause": 0, "tags": ["play", "siege", "temp_buff", "all_allies", "this_round"], "board": {"lanes": {"0": {"p0": ["debbi#d", "melee_creep#m"], "p1": ["centaur_hunter#c", "melee_creep#e"]}}}, "do": [{"play": "forward_charge"}], "expect": {"d.kw.siege": 2, "m.kw.siege": 2, "e.kw.siege": 0}},
+ {"name": "the siege ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "forward_charge"}, {"end_round": true}], "expect": {"d.kw.siege": 0}},
+ {"name": "Allies change their combat target to the unit or tower across", "clause": 1, "tags": ["change_combat_target", "all_allies", "combat_target"], "board": {"lanes": {"0": {"p0": ["debbi#d", "melee_creep#m:arrow=-1"], "p1": ["centaur_hunter#c", null]}}}, "do": [{"play": "forward_charge"}, {"combat": true}], "expect": {"tower.0.1.health": 36, "c.health": 1}},
+ {"name": "enemies keep their own targets", "clause": 1, "tags": ["negative", "combat_target"], "board": {"lanes": {"0": {"p0": ["debbi#d", null], "p1": ["melee_creep#e", "melee_creep#f:arrow=-1"]}}}, "do": [{"play": "forward_charge"}], "expect": {"f.arrow": -1}}
+]}

@@ -12,7 +12,7 @@ This guide covers what you need to add or change a card: the workflow, the schem
    - `tests/cards/<id>.json`, one empty case per Valve clause, with `covers` from `tests/data/mechanics_tags.json`.
 2. **Review the rules.** Compare them with the Valve text and copy the closest pattern below. Prefer shorthands and `filter` over raw selectors and `where`.
 3. **Validate.** `python tools/rules_hash.py`, then `godot --headless --path . -s tests/rules_schema_test.gd`. Errors name the card, the JSON path (with each op's name) and the problem, e.g. `chain_frost.play.ops[2]:repeat.ops[1]:let.value.rel2: unknown selector key rel2`. A shipped card must be `verified`, or a `draft` that names the RQ keeping it a draft in `rq` (the scaffold copies the draft's RQs); a draft without one fails until step 5.
-4. **Test it.** Fill in the spec cases (the runner, `tests/card_specs_test.gd`, arrives in M2; until then add the cases to `tests/rules_kernel_test.gd` or the card suites, and the reviewer checks them). Each Valve clause needs a positive case and a negative or edge case (no legal target, fizzle, silenced or stunned source, immunity or shield, Purge, Fountain).
+4. **Test it.** Fill in the spec cases in `tests/cards/<id>.json` and run them with `godot --headless --path . -s tests/card_specs_test.gd -- --card <id>` (see [Testing tools](#testing-tools)). Each Valve clause needs a positive case and a negative or edge case (no legal target, fizzle, silenced or stunned source, immunity or shield, Purge, Fountain).
 5. **Verify it.** Set `"status": "verified"` only when its cases pass and its text matches Valve's (or keep it a `draft` with its RQ).
 6. **Version and test it.** Run `python tools/rules_hash.py` after the last data or code edit (`RULES_VERSION` hashes the rules code and both data packs, so every edit changes it), then `test.ps1`. Only verified, non-token cards may enter a preset (`validate_preset`).
 
@@ -38,7 +38,8 @@ Rules of thumb:
 | `play` | A block: spells, consumables, and a creep's Play Effect (after placement). |
 | `enter` | Ops run when an item or improvement enters play (Equip Effect). |
 | `abilities` | Auras, triggers and active abilities, each with a unique `id`. |
-| `grants` | Text this card can give to other objects, referenced by index. |
+| `grants` | Text this card can give to other objects, referenced by index. Its display text is the locale entry's `grants` list (`[{en, zh_CN}]` in `data/locale/cards.json`), read with `Library.loc(card, "grant_<index>")`. |
+| `grant_text` | Test packs only (they have no locale entries): the same `[{en, zh_CN}]` list inline. |
 | `valve_text` | Valve's final English text, for review and the parity test. |
 
 Item `attack`, `armor` and `health` become an implicit aura on the equipped hero (`health` grants `max_health`).
@@ -119,7 +120,13 @@ Conditions: `all`, `any`, `not`, `{"cmp": [A, op, B]}`, `{"is": Ref, "in": Sel}`
 | `initiative`, `end_action_phase` | | Keep initiative; go straight to combat (RQ-20). |
 | `let`, `if`, `repeat`, `for_each`, `chance`, `break` | | Control flow. `chance` is the only coin flip. |
 | `pulse` | | Valve's □: settle, resolve triggers, remove the dead. |
-| `move`, `swap`, `control`, `lock`, `add_card`, `card_counter` | | **Pending (M2):** they validate, so drafts compile, but a `verified` card may not use them. |
+| `move` | `unit`, `lane`, `position` | To `lane` (a value, `$c.lane`, or `"random_other"`: each unit rolls one of its own two other lanes), at `position` (a creep position of that lane; none means a random empty one). The unit keeps its items and entries; its forced target ends when it no longer applies, its arrow rolls, `unit_entered` fires when the lane changes. A position taken in the meantime makes the move fizzle. |
+| `swap` | `a`, `b` | Two units of one row exchange positions; the arrows stay with the positions (RQ-30). No `unit_entered`. |
+| `control` | `unit`, `to` | The unit changes sides and spawns into its new owner's row (random empty position, arrow roll, `unit_entered`). A roster hero cannot change sides (fizzles). |
+| `lock` | `cards`, `n` | Cards in hand get `n` more rounds of lock; one round decays each round. Locked cards cannot be played. The holder learns which cards, the log only how many. |
+| `add_card` | `player`, `card` or `from_pool`, `base` | Puts a card into a hand: a named card, or a random Secret Shop card. `base: true` copies without locks, charges or hacks (RQ-36). Unknown ids fizzle. |
+| `card_counter` | `cards`, `counter`, `add` | Adds to a counter of cards in hand or deck (default `charges`), starting from the printed value (CF-2). Read with `{"card_counter": Ref}`. |
+| `modify` with a `hack` grant | `to` (cards in hand), `grant` | A hack: text appended to cards in hand. When such a card is played, after its own ops and their Pulse, each hack runs (as a `trigger` event named `hack`) before `card_played`. |
 | `native` | `fn`, `args` | Escape hatch in `rules/natives.gd`; budget 5, used 0. |
 
 Every op ignores objects that are no longer in play; a random pick over an empty set draws no randomness.
@@ -150,7 +157,7 @@ An aura whose `affects` is a player may grant `rules`: `round_draw`, `forbid_pla
 
 ### What the validator rejects
 
-Unknown keys anywhere; fractions; unbound refs (`$c` not chosen earlier, `$v` not bound, `$e` fields of another event, `$self` in a spell); randomness in choices, conditions (an `if` op's `cond` included), auras and filters; an op without a field it needs (`Vocab.OP_REQUIRED`: `damage` and `heal` need `to` and `amount`, `retarget` needs `unit` and `to`, `if` needs `cond`, `chance` needs `pct`, `give` needs `until`...); a number written as a string; a hero or creep without `attack` or `health`; a `summon` of a card that is not a hero or creep of the pack, and a `signature` that is not a card of the pack; stat auras that read derived stats, keyword auras that read keywords, and auras granting statuses; missing params; bad `grant` indexes; actives without a cooldown; tower keywords other than armor, mana, retaliate and regeneration; `health` in a Grant (use `max_health`); a verified card using a pending op. A card with any error is not playable, and `tests/rules_schema_test.gd` requires zero errors.
+Unknown keys anywhere; fractions; unbound refs (`$c` not chosen earlier, `$v` not bound, `$e` fields of another event, `$self` in a spell); randomness in choices, conditions (an `if` op's `cond` included), auras and filters; an op without a field it needs (`Vocab.OP_REQUIRED`: `damage` and `heal` need `to` and `amount`, `retarget` needs `unit` and `to`, `if` needs `cond`, `chance` needs `pct`, `give` needs `until`...); a number written as a string; a hero or creep without `attack` or `health`; a `summon` of a card that is not a hero or creep of the pack, and a `signature` that is not a card of the pack; stat auras that read derived stats, keyword auras that read keywords, and auras granting statuses; missing params; bad `grant` indexes; actives without a cooldown; tower keywords other than armor, mana, retaliate and regeneration; `health` in a Grant (use `max_health`); an `add_card` with both or neither of `card` and `from_pool`; `give`, or a `modify` without a hack grant, aimed at cards in hand (cards in hand only take a hack), and a hack grant aimed at anything but cards. A card with any error is not playable, and `tests/rules_schema_test.gd` requires zero errors.
 
 It warns (and the pack test requires zero warnings) when a top-level parameter is read by no `{"param": ...}` and no locale `{placeholder}`: that is usually a typo such as `amout` or `atack`.
 
@@ -304,11 +311,43 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
 "abilities": [{"id": "deed", "kind": "aura", "affects": "you", "grant": {"rules": {"secret_shop_discount": 1}}}]
 ```
 
+**Lane, then position** (the fixture Redeploy; Ball Lightning and Divided We Stand move the same way): each choice narrows the next, and the UI asks for them one step at a time.
+```json
+"cross_lane": true,
+"play": {"choices": [{"key": "target", "from": {"s": "units", "side": "ally", "lane": "all"}}, {"key": "lane", "from": {"s": "lanes", "lane": "all"}},
+                     {"key": "position", "from": {"s": "positions", "side": "ally", "lane": "$c.lane"}}],
+  "ops": [{"op": "move", "unit": "$c.target", "lane": "$c.lane", "position": "$c.position"}]}
+```
+
+**A random other lane per unit** (Relentless Pursuit's bounce): `{"op": "move", "unit": "enemies", "lane": "random_other"}`.
+
+**Locks and hacks on the opponent's hand** (Self Sabotage, Claszureme Hourglass):
+```json
+"play": {"ops": [{"op": "lock", "cards": {"use": "opponent_hand", "pick": {"random": 2}}, "n": 1}]}
+"grants": [{"kind": "hack", "ops": [{"op": "pulse"}, {"op": "tower_damage", "amount": 3, "to": {"s": "towers", "side": "ally", "lane": "all", "pick": {"random": 1}}}]}],
+"play": {"ops": [{"op": "modify", "to": {"use": "opponent_hand", "pick": {"random": 2}}, "grant": 0}]}
+```
+
+**Counters on cards and copies** (the fixture Repeating Bolt, Gather Strength and Copy; Ogre Magi's trigger copies with `"card": "$e.card"`):
+```json
+"play": {"ops": [{"op": "repeat", "times": {"card_counter": "$played", "counter": "charges"}, "ops": [{"op": "pulse"}, {"op": "damage", "to": {"use": "enemies", "pick": {"random": 1}}, "amount": 2}]}]}
+"play": {"ops": [{"op": "card_counter", "cards": {"s": "cards", "zone": ["hand", "deck"], "player": "you", "card": "fx_counter_spell", "pick": {"random": 2}}, "add": 1}]}
+"play": {"ops": [{"op": "add_card", "player": "you", "base": true, "card": {"card_of": {"use": "your_hand", "pick": {"random": 1}}}}]}
+```
+
+**Control and swap** (Chen; a neighbor swap):
+```json
+"play": {"choices": [{"key": "target", "from": "enemy_creeps"}], "ops": [{"op": "control", "unit": "$c.target", "to": "you"}]}
+"play": {"choices": [{"key": "target", "from": "allies"}, {"key": "destination", "from": {"s": "units", "rel": {"allied_neighbors": "$c.target"}}}],
+  "ops": [{"op": "swap", "a": "$c.target", "b": "$c.destination"}]}
+```
+
 ## How the kernel runs it
 
-- **One command.** `apply_action` validates against `legal_actions`, runs the card's ops, then a Pulse, then emits `card_played` and pulses again. An ability emits `ability` before its ops.
+- **One command.** `apply_action` validates against `legal_actions`, runs the card's ops, then a Pulse, then the played card's hacks (each followed by a Pulse), then emits `card_played` and pulses again. An ability emits `ability` before its ops.
+- **Zones.** Moves, swaps, control changes and summons keep the rows aligned and the arrows consistent, and end forced targets that no longer apply (a forced tower target ends when a unit stands directly across; a forced unit target ends unless it is an enemy within one position). A unit entering a lane (summon, move, control, deployment) fires `unit_entered`.
 - **Triggers.** When an event fires, live listeners are collected and checked (`filter`, `where`, `once_per`), then queued. A Pulse resolves the queue as one batch, sorted by event, the initiative player's side first, lane, zone, position, ability and id (RQ-37). Events raised during a batch wait for the next batch.
-- **The Pulse.** Settle continuous effects (a max-health change moves current health, RQ-40), collect units at 0 health or condemned, condemn Soulbound partners, consume Death Shields, snapshot and remove the dead, emit `death` and `unit_died`, resolve the batch, and repeat until nothing is queued and nothing died. A unit projects its auras until it is removed (FX-3).
+- **The Pulse.** Settle continuous effects (a max-health change moves current health, RQ-40), collect units at 0 health or condemned, consume Death Shields, condemn the Soulbound partners of the units that still die (a partner may use its own shield), snapshot and remove the dead, emit `death` and `unit_died`, resolve the batch, and repeat until nothing is queued and nothing died. A unit projects its auras until it is removed (FX-3).
 - **Stats.** `attack_of`, `armor_of`, `max_health_of` and `keyword_of` derive values at read time: base fields (with Modify written in), temporary entries, item auras, stat auras, then keyword auras.
 - **Guards.** 2048 ops per command, 16 nested Pulses, 64 loops per Pulse. Overflow stops resolution and logs `rules_overflow` the same way on every peer.
 
@@ -329,9 +368,19 @@ The rules scripts are static functions over the engine; `tests/rules_schema_test
 
 The golden games (`tests/golden/`, data in `tests/data/goldens/`) replay 54 recorded bot games and compare every step. A refactor must keep them byte-identical. A deliberate rules change (like FX-1 to FX-3) re-records them with `godot --headless --path . --script res://tools/record_goldens.gd`; list which games changed and why. `tests/differential_test.gd` compares the engine with a frozen copy of the pre-migration engine (`tests/legacy/`), which receives the same deliberate fixes.
 
-## Not yet supported (M2)
+## Testing tools
 
-- The pending ops above, and hacks on cards in hand.
-- Improvement and Deed play, and item or improvement actives and triggers with real cards.
-- The per-card spec runner (`tests/card_specs_test.gd`), generated card checks and fuzzing.
-- The generic target stepper, ability buttons for items and improvements, the improvement row, hand badges and event animations.
+- **Card specs** (`tests/cards/<id>.json`, run by `tests/card_specs_test.gd`, spec §13.1). Each case builds a board from a small DSL (`lanes` rows of `"card#label:hp=3:atk=2:arrow=-1:ready=2+item"` entries, `hand`, `deck`, `towers`, `improvements`, `fountain`, `mana`, `gold`, `hand_state`...), runs steps (`play`, `ability`, `pass`, `combat`, `end_round`, `kill`, `draw`) and checks `expect` fields (`<label>.attack`, `<label>.kw.siege`, `<label>.stunned`, `tower`, `p0.hand`, `events` with `has`/`not`, `expect_legal`, `expect_illegal`, `expect_rate`, `expect_private`). The runner also checks the invariants after every step, that two runs give the same digest, that every event formats in both skins and locales, and that rejected commands change nothing. `--card <id>` runs one card.
+- **Meta tests** (`tests/rules_schema_test.gd`): every verified Classic card has a spec, its `text` equals `valve_text`, and its `covers` include the card's mechanics tags; `tools/coverage.py` maps Valve's verb and trigger tags to ops and events (`python -I -X utf8 tools/coverage.py` rewrites `tests/data/coverage.json`, `--check` only checks; the schema test compares the table's hash).
+- **The rules fixture pack** (`tests/fixtures/rules_fixtures.json`, loaded with `CardLibrary.from_file(path, "rules_fixtures")`): synthetic `fx_*` cards for every keyword, status, duration, zone op, improvement, item ability, deed and rules-layer grant. It is never in a preset or `PACKS` and is excluded from exports. `tests/mechanics_test.gd` runs the keyword matrix and the RQ cases on it, plus `preview_equals_combat` on 2,000 random boards.
+- **Fuzz** (`tests/fuzz_test.gd`, `--seeds 50` by default, `--nightly` for 2,000): random legal decks over both packs and the fixture pack, the bot against a random agent and itself, invariants after every step, mutated commands, hidden-information swaps, replay round trips and torture boards. Failing journals are saved under `res://.tools/fuzz_failures/`.
+- **The bot** (`tests/bot_test.gd`): evaluation terms, polarity, the prefilter, purity, the hidden swap and the decision budget on a dense board.
+
+## In the UI
+
+Nothing per card is needed: actives of units, items and improvements get buttons (the unit badge, the item slot, the improvement chip); every choice step (unit, combat target, lane, position, improvement) is asked for by the generic target stepper; statuses, flags and keywords show as badges; locks, charges and hacks show on cards in hand; every event key animates and logs. A card with granted text needs its `grants` locale entries.
+
+## Not yet supported
+
+- The Classic cards themselves beyond the 49 migrated ones: they land in batches (spec §12, M3 to M7) once their mechanics exist, each with its spec.
+- The bot averages random cards over seeds 1 to 3 only from M4.

@@ -62,6 +62,8 @@ var _lookback: Dictionary = {}
 var _deploying: bool = false
 var _deriving: Dictionary = {}
 var _causes: Dictionary = {}
+# The lane whose combat is resolving (-1 outside Combat.resolve).
+var _combat_lane: int = -1
 # Read-frame cache of derived stats (Stats.frame_begin / frame_end).
 var _frame: Dictionary = {}
 var _frame_depth: int = 0
@@ -75,6 +77,7 @@ func _reset_transient() -> void:
 	_deploying = false
 	_deriving = {}
 	_causes = {}
+	_combat_lane = -1
 	_frame = {}
 	_frame_depth = 0
 
@@ -380,7 +383,7 @@ func _play(player: int, command: Dictionary) -> void:
 	var card_id: String = taken.card
 	var card = library.cards[card_id]
 	var rules: Dictionary = library.rules(card_id)
-	state.lanes[state.lane].mana[player] -= int(card.cost)
+	state.lanes[state.lane].mana[player] -= int(card.get("cost", 0))
 	var target = find_unit(int(command.get("target", -1)))
 	var played = {"p": player, "card": card_id}
 	if not target.is_empty():
@@ -411,6 +414,7 @@ func _play(player: int, command: Dictionary) -> void:
 		VM.run(self, ops, ctx)
 	# Deaths resolve before post-spell triggers; a condemned Zeus cannot trigger.
 	Kernel.pulse(self)
+	_run_hacks(player, card_id, taken.state)
 	Kernel.emit(self, "card_played", {"player": player, "card": card_id, "kind": str(card.kind),
 		"color": str(card.get("color", "")), "cost": int(card.get("cost", 0)), "lane": int(state.lane),
 		"target": int(command.get("target", -1))})
@@ -420,6 +424,23 @@ func _play(player: int, command: Dictionary) -> void:
 		_end_action_phase(player)
 	else:
 		_finish_action(player, ctx.get("keep_initiative", false))
+
+## Hacks on a played card (Self Sabotage) run after the card has resolved and
+## pulsed, in the order they were attached, with the player who played it as
+## controller; a Pulse follows each, and card_played comes after them all
+## (spec §3.12, RQ-36). The hack takes its params from the granting card.
+func _run_hacks(player: int, card_id: String, entry: Dictionary) -> void:
+	for hack in entry.get("hacks", []):
+		var ability: Dictionary = Stats.granted_ability(self, {"ab": str(hack)})
+		if ability.is_empty() or _ops_left <= 0:
+			continue
+		var granting = str(hack).split("#")[0]
+		var played = {"card": card_id, "state": entry}
+		var ctx = {"src": played, "host": null, "controller": player, "lane": int(state.lane), "card": granting,
+			"choices": {}, "vars": {}, "played": played, "keep_initiative": false, "end_phase": false}
+		_event("trigger", {"src": "", "card": granting, "ability": "hack", "p": player})
+		VM.run(self, ability.get("ops", []), ctx)
+		Kernel.pulse(self)
 
 ## An active ability of a unit, item or improvement (spec §4.6).
 func _use_ability(player: int, command: Dictionary) -> void:
@@ -572,6 +593,13 @@ func _begin_deployment() -> void:
 	for player in range(2):
 		for creep in range(2):
 			state.pending_creeps[player].append(Kernel.rand_index(self, 3))
+	# Kanna (RQ-22): with a creep_lane hero in a lane or ready to deploy, the
+	# player's lane creeps are published as -1 ("her lane") after the random
+	# draws, so randomness is unchanged and her private plan never leaks.
+	for player in range(2):
+		if not Stats.creep_lane_heroes(self, player).is_empty():
+			for index in range(state.pending_creeps[player].size()):
+				state.pending_creeps[player][index] = -1
 	_event("deployment", {"round": state.round, "creeps": state.pending_creeps.duplicate(true)})
 
 func _reveal_deployment() -> void:
@@ -587,10 +615,12 @@ func _reveal_deployment() -> void:
 				hero.health = max_health_of(hero)
 				hero["hp_seen"] = int(hero.health)
 				placements.append([hero, int(owner.plans[str(hero.uid)])])
+		# A -1 lane creep goes to Kanna's planned (or current) lane (RQ-22).
+		var creep_lane = _creep_lane_of(player) if pending[player].any(func(value): return int(value) < 0) else -1
 		owner.plans.clear()
 		owner.finished = false
 		for lane_index in pending[player]:
-			placements.append([_make_creep(player), int(lane_index)])
+			placements.append([_make_creep(player), int(lane_index) if int(lane_index) >= 0 else maxi(0, creep_lane)])
 	state.pending_creeps = [[], []]
 	# _place_all shuffles `placements` in place: read back the placement
 	# order (and each unit's final combat position) for the reveal animation.
@@ -610,6 +640,17 @@ func _reveal_deployment() -> void:
 	_event("deployment_placed", {"units": placed})
 	_event("deployment_revealed")
 	Kernel.lane_open(self, 0)
+
+## The lane `player`'s lane creeps follow (Kanna, RQ-22): the planned lane of
+## the first creep_lane hero, else its current lane; -1 when there is none.
+func _creep_lane_of(player: int) -> int:
+	var plans: Dictionary = state.players[player].get("plans", {})
+	for hero in Stats.creep_lane_heroes(self, player):
+		if plans.has(str(hero.uid)):
+			return int(plans[str(hero.uid)])
+		if int(hero.lane) >= 0:
+			return int(hero.lane)
+	return -1
 
 func _make_unit(definition: Dictionary, player: int, is_hero: bool) -> Dictionary:
 	# Units carry ids and numbers only; display text is looked up by "card".
@@ -926,7 +967,7 @@ func replay_data() -> Dictionary:
 		"seed": match_seed, "decks": deck_ids.duplicate(), "actions": journal.duplicate(true)}
 
 func load_replay(data: Dictionary) -> Dictionary:
-	if data.get("protocol") != PROTOCOL_VERSION or not Library.PACKS.has(data.get("content_pack", "")):
+	if data.get("protocol") != PROTOCOL_VERSION or not Library.known_pack(str(data.get("content_pack", ""))):
 		return _fail("replay_version", "Replay version or card pack does not match.")
 	if str(data.get("rules", "")) != RulesVersion.RULES_VERSION:
 		return _fail("replay_rules", "Replay was recorded with other card rules.",
@@ -937,7 +978,10 @@ func load_replay(data: Dictionary) -> Dictionary:
 		return _fail("replay_actions", "Invalid replay actions.")
 	if not data.get("decks") is Array:
 		return _fail("replay_decks", "Replay has no valid deck selection.")
-	library = Library.new(data.content_pack)
+	# An engine already holding the replay's pack keeps it (a test pack may
+	# carry generated presets); otherwise the pack is opened by id.
+	if str(library.content_pack) != str(data.content_pack):
+		library = Library.open(str(data.content_pack))
 	var initial = start(int(data.seed), data.get("decks", ["starter", "starter"]))
 	if not initial.ok:
 		return initial

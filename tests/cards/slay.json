@@ -1,0 +1,9 @@
+{
+"card": "slay",
+"source_id": 10410,
+"text": "Condemn a creep.",
+"covers": ["play", "condemn", "creep"],
+"cases": [
+ {"name": "Condemn a creep", "clause": 0, "tags": ["play", "condemn", "creep"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["centaur_hunter#c"]}}}, "do": [{"play": "slay", "target": "c"}], "expect": {"c.in_play": false, "p0.gold": 1}},
+ {"name": "a hero is not a target", "clause": 0, "tags": ["negative", "creep"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["keefe#k"]}}}, "do": [], "expect_illegal": [{"play": "slay", "target": "k"}]}
+]}

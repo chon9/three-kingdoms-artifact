@@ -13,7 +13,7 @@ const SCHEMA_TRAINING = 2
 const CARD_FIELDS = ["id", "source_id", "kind", "color", "cost", "price", "attack", "armor", "health",
 	"signature", "slot", "text", "image", "artist", "image_patch", "consumable", "cross_lane", "status",
 	"token", "rq", "keywords", "charges", "play", "enter", "abilities", "grants", "ai", "valve_text",
-	"name", "ability_name"]
+	"name", "ability_name", "grant_text"]
 const KINDS = ["hero", "creep", "spell", "improvement", "item"]
 const COLORS = ["red", "green", "blue", "black", "neutral", "item"]
 const SLOTS = ["weapon", "armor", "accessory", "deed"]
@@ -90,10 +90,6 @@ const OP_REQUIRED = {
 	"chance": ["pct"],
 	"native": ["fn"],
 }
-## Ops in the vocabulary that the VM does not run yet. They validate, so
-## draft cards compile, but a verified card may not use them (milestone M2:
-## zone and hand-state mechanics).
-const OPS_PENDING = ["move", "swap", "control", "lock", "add_card", "card_counter"]
 ## Op fields that hold a set (a Ref, a selector, a shorthand or a list).
 const SET_FIELDS = {"damage": ["to"], "damage_split": ["to"], "tower_damage": ["to"], "heal": ["to"],
 	"tower_heal": ["to"], "modify": ["to"], "give": ["to"], "purge": ["to"], "condemn": ["to"],

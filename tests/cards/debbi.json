@@ -1,0 +1,10 @@
+{
+"card": "debbi",
+"source_id": 4005,
+"text": "Meticulous Planner: Debbi the Cunning deals +2 damage when attacking a hero or tower.",
+"covers": ["continuous", "damage_bonus", "self"],
+"cases": [
+ {"name": "Meticulous Planner: +2 damage when attacking a hero", "clause": 0, "tags": ["continuous", "damage_bonus", "self"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"k.health": 3}},
+ {"name": "+2 damage when attacking a tower", "clause": 0, "tags": ["continuous", "damage_bonus"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 31}},
+ {"name": "no bonus against a creep", "clause": 0, "tags": ["negative", "damage_bonus"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["centaur_hunter#c"]}}}, "do": [{"combat": true}], "expect": {"c.health": 1}}
+]}

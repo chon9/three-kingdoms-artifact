@@ -1,0 +1,11 @@
+{
+"card": "berserkers_call",
+"source_id": 10288,
+"text": "Choose an allied red hero. It battles its enemy neighbors.",
+"covers": ["play", "battle", "allied_hero", "enemy_neighbors"],
+"cases": [
+ {"name": "Choose an allied red hero", "clause": 0, "tags": ["play", "allied_hero"], "board": {"lanes": {"0": {"p0": ["axe#x", "jmuy#j"], "p1": ["melee_creep#a", "melee_creep#b"]}}}, "do": [], "expect_legal": [{"play": "berserkers_call", "target": "x"}]},
+ {"name": "a hero of another colour or an enemy hero is not a target", "clause": 0, "tags": ["negative", "allied_hero"], "board": {"lanes": {"0": {"p0": ["axe#x", "jmuy#j"], "p1": ["keefe#k", "melee_creep#b"]}}}, "do": [], "expect_illegal": [{"play": "berserkers_call", "target": "j"}, {"play": "berserkers_call", "target": "k"}]},
+ {"name": "It battles its enemy neighbors", "clause": 1, "tags": ["battle", "enemy_neighbors"], "board": {"lanes": {"0": {"p0": [null, "axe#x", null], "p1": ["melee_creep#a", "centaur_hunter#b", "melee_creep#c"]}}}, "do": [{"play": "berserkers_call", "target": "x"}], "expect": {"a.in_play": false, "b.health": 2, "c.in_play": false, "x.health": 8}},
+ {"name": "units that are not its enemy neighbors stay out of it", "clause": 1, "tags": ["negative", "battle"], "board": {"lanes": {"0": {"p0": ["axe#x", null, null], "p1": ["melee_creep#a", "melee_creep#b", "centaur_hunter#c"]}}}, "do": [{"play": "berserkers_call", "target": "x"}], "expect": {"c.health": 8}}
+]}

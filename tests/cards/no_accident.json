@@ -1,0 +1,10 @@
+{
+"card": "no_accident",
+"source_id": 4007,
+"text": "Deal 3 damage to a unit.",
+"covers": ["play", "damage", "unit"],
+"cases": [
+ {"name": "Deal 3 damage to a unit", "clause": 0, "tags": ["play", "damage", "unit"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["centaur_hunter#c"]}}}, "do": [{"play": "no_accident", "target": "c"}], "expect": {"c.health": 5}},
+ {"name": "armor reduces it", "clause": 0, "tags": ["negative", "damage"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "no_accident", "target": "o"}], "expect": {"o.health": 6}},
+ {"name": "a kill pays the bounty to the caster", "clause": 0, "tags": ["edge", "unit"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["melee_creep#c:hp=2"]}}}, "do": [{"play": "no_accident", "target": "c"}], "expect": {"c.in_play": false, "p0.gold": 1}}
+]}

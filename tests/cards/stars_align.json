@@ -1,0 +1,10 @@
+{
+"card": "stars_align",
+"source_id": 10334,
+"text": "Give your tower +3 Mana this round.",
+"covers": ["play", "mana_change", "temp_buff", "allied_tower", "tower_mana", "this_round"],
+"cases": [
+ {"name": "Give your tower +3 Mana this round", "clause": 0, "tags": ["play", "mana_change", "temp_buff", "allied_tower", "tower_mana", "this_round"], "board": {"lanes": {"0": {"p0": ["farvhan#f"], "p1": ["melee_creep#c"]}}, "mana": 5}, "do": [{"play": "stars_align"}], "expect": {"max_mana.0.0": 8, "mana.0.0": 7}},
+ {"name": "the mana ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "stars_align"}, {"end_round": true}], "expect": {"max_mana.0.0": 6}},
+ {"name": "the enemy tower is unaffected", "clause": 0, "tags": ["negative", "allied_tower"], "board": "@0", "do": [{"play": "stars_align"}], "expect": {"max_mana.0.1": 5}}
+]}

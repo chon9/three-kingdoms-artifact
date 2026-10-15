@@ -31,7 +31,7 @@ static func compile(card: Dictionary) -> Dictionary:
 		"status": str(normalized.get("status", "")), "token": bool(normalized.get("token", false)),
 		"rq": normalized.get("rq", []), "params": {}, "keywords": {}, "play": {}, "enter": [],
 		"abilities": [], "grants": [], "host": {}, "events": {}, "grant_events": {}, "active": -1,
-		"auras": [], "static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0},
+		"auras": [], "static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0},
 		"ability_static": {}, "uses": {}}
 	for key in normalized:
 		var value = normalized[key]
@@ -135,19 +135,17 @@ static func compile(card: Dictionary) -> Dictionary:
 			if not out.grant_events.has(compiled.on):
 				out.grant_events[compiled.on] = []
 			out.grant_events[compiled.on].append(index)
-	# Static values for the bot (spec §9.2).
+	# Static values for the bot (spec §9.2) and the polarity of each choice
+	# (spec §9.4: +1 harms the chosen unit, -1 helps it, 0 neither).
 	if not out.play.is_empty():
 		out.static = _static_value(out.play.get("ops", []))
 		out.static["initiative"] = bool(out.play.get("initiative", false))
+		out.static["polarity"] = _polarity(out.play.get("ops", []))
 	out.static["random"] = _has_random(normalized)
 	var ai = normalized.get("ai", {})
 	if ai is Dictionary and ai.has("bias"):
 		out.static["bias"] = float(ai.bias)
 	_collect_uses(out, out.uses)
-	if out.status == "verified":
-		for op_name in out.uses:
-			if op_name in Vocab.OPS_PENDING:
-				_err(report, id, "status", "verified cards may not use %s yet (milestone M2); mark the card draft" % op_name)
 	for op_name in out.uses:
 		if op_name == "native":
 			_warn(report, id, "native", "uses a native handler")
@@ -716,6 +714,19 @@ static func _op_defaults(name: String, out: Dictionary, path: String, scope: Dic
 				for keyword in out.keywords:
 					if keyword in Vocab.STATUS_KEYWORDS:
 						_e(scope, path, "statuses are given, not modified")
+			_check_card_targets(name, out, path, scope)
+		"lock":
+			out["n"] = out.get("n", 1)
+		"card_counter":
+			out["counter"] = out.get("counter", "charges")
+			out["add"] = out.get("add", 1)
+		"add_card":
+			out["player"] = out.get("player", "you")
+			out["base"] = bool(out.get("base", false))
+			if out.has("card") == out.has("from_pool"):
+				_e(scope, path, "add_card names either a card or from_pool")
+		"control":
+			out["to"] = out.get("to", "you")
 		"purge":
 			out["from"] = out.get("from", "opponent")
 		"summon":
@@ -747,6 +758,28 @@ static func _op_defaults(name: String, out: Dictionary, path: String, scope: Dic
 			out["ops"] = out.get("ops", [])
 		"native":
 			_e(scope, path, "no native handler %s is registered" % str(out.get("fn", "")))
+
+## Rule 8: cards in hand take only a hack, attached with modify, and a hack
+## goes only to cards (a selector of cards; refs are checked at run time).
+static func _check_card_targets(name: String, out: Dictionary, path: String, scope: Dictionary) -> void:
+	var grants = scope.card.get("grants", [])
+	var grant = int(out.get("grant", -1))
+	var is_hack = grants is Array and grant >= 0 and grant < grants.size() and grants[grant] is Dictionary \
+		and str(grants[grant].get("kind", "")) == "hack"
+	if _selects_cards(out.get("to")):
+		if name == "give" or not is_hack or not out.stats.is_empty() or not out.keywords.is_empty():
+			_e(scope, path, "cards in hand only take a hack, attached with modify")
+	elif is_hack:
+		_e(scope, path, "a hack is attached to cards in hand")
+
+static func _selects_cards(value) -> bool:
+	if value is Dictionary:
+		return str(value.get("s", "")) == "cards"
+	if value is Array:
+		for entry in value:
+			if _selects_cards(entry):
+				return true
+	return false
 
 # --- Sets, refs, expressions and conditions ---------------------------------------
 
@@ -1084,13 +1117,90 @@ static func _cond(value, path: String, scope: Dictionary) -> Dictionary:
 
 # --- Static analysis ------------------------------------------------------------
 
-## The bot's static values of an op list: constant draws for "you" (spec §9.2).
+## The bot's static values of an op list (spec §9.2): constant draws for
+## "you", and how many opponent hand cards its locks hold back (the bot cannot
+## see them: its simulation has no opponent hand).
 static func _static_value(ops: Array) -> Dictionary:
 	var draw = 0
+	var locks = 0
 	for op in ops:
 		if str(op.get("op", "")) == "draw" and str(op.get("player", "you")) == "you" and op.get("n") is int:
 			draw += int(op.n)
-	return {"draw": draw, "initiative": false, "random": false, "bias": 0.0}
+		elif str(op.get("op", "")) == "lock" and op.get("cards") is Dictionary:
+			# Compiled card selector: {"s": "cards", "player", "zone", "pick": n}.
+			var cards: Dictionary = op.cards
+			if str(cards.get("s", "")) == "cards" and str(cards.get("player", "")) == "opponent" \
+					and "hand" in cards.get("zone", []) and cards.get("pick") is int:
+				locks += int(cards.pick)
+	return {"draw": draw, "initiative": false, "random": false, "bias": 0.0, "lock": locks}
+
+## Compile-time polarity of each choice key of an op list (spec §9.4): +1
+## when the ops harm the chosen unit (damage, condemn, a battle against it,
+## a status that hinders, a negative modification, a change of control), -1
+## when they help it (heal, a positive or protective modification, a return
+## to the Fountain), 0 otherwise. The bot's prefilter ranks combinations with it.
+const HELPFUL_KEYWORDS = ["siege", "cleave", "retaliate", "regeneration", "bounty", "bonus_hero", "bonus_tower", "pierce",
+	"lethal", "lethal_creeps", "lethal_heroes", "damage_immunity", "rapid_deployment", "death_shield"]
+const HARMFUL_KEYWORDS = ["stun", "silence", "disarm"]
+
+static func _polarity(ops: Array) -> Dictionary:
+	var totals: Dictionary = {}
+	_add_polarity(ops, totals)
+	var out: Dictionary = {}
+	for key in totals:
+		out[key] = signi(int(totals[key]))
+	return out
+
+static func _add_polarity(ops: Array, totals: Dictionary) -> void:
+	for op in ops:
+		if not op is Dictionary:
+			continue
+		var sign = 0
+		var fields: Array = []
+		match str(op.get("op", "")):
+			"damage", "damage_split", "condemn":
+				sign = 1
+				fields = ["to"]
+			"control":
+				sign = 1
+				fields = ["unit"]
+			"battle":
+				sign = 1
+				fields = ["b"]
+			"heal":
+				sign = -1
+				fields = ["to"]
+			"to_fountain":
+				sign = -1
+				fields = ["unit"]
+			"modify", "give":
+				var value = 0
+				for stat in op.get("stats", {}):
+					value += int(op.stats[stat]) if op.stats[stat] is int else 1
+				for keyword in op.get("keywords", {}):
+					if keyword in HARMFUL_KEYWORDS:
+						value -= 1
+					elif keyword in HELPFUL_KEYWORDS:
+						value += 1
+				sign = -signi(value)
+				fields = ["to"]
+		for field in fields:
+			for key in _choice_keys(op.get(field)):
+				totals[key] = int(totals.get(key, 0)) + sign
+		for nested in ["ops", "then", "else"]:
+			if op.get(nested) is Array:
+				_add_polarity(op[nested], totals)
+
+## The choice keys a set refers to directly ("$c.target", or a list holding it).
+static func _choice_keys(value) -> Array:
+	if value is String and str(value).begins_with("$c."):
+		return [str(value).substr(3).split(".")[0]]
+	if value is Array:
+		var keys: Array = []
+		for entry in value:
+			keys.append_array(_choice_keys(entry))
+		return keys
+	return []
 
 static func _has_random(value) -> bool:
 	if value is Dictionary:

@@ -1,0 +1,10 @@
+{
+"card": "short_sword",
+"source_id": 3002,
+"text": "Equipped hero has +2 Attack.",
+"covers": ["equip", "stat_attack", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +2 attack", "clause": 0, "tags": ["equip", "stat_attack", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "short_sword", "target": "k"}], "expect": {"k.attack": 8, "k.items": {"weapon": "short_sword"}}},
+ {"name": "a creep or an enemy hero cannot be equipped", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "short_sword", "target": "m"}, {"play": "short_sword", "target": "e"}]},
+ {"name": "the bonus stays with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": "@0", "do": [{"play": "short_sword", "target": "k"}, {"kill": ["k"]}], "expect": {"k.attack": 8, "k.in_play": false}}
+]}

@@ -1,0 +1,9 @@
+{
+"card": "rix",
+"source_id": 10026,
+"text": "Relentless Rebel: Rix has Rapid Deployment.",
+"covers": ["continuous", "rapid_deployment", "self"],
+"cases": [
+ {"name": "Relentless Rebel: Rix is ready the round after it dies", "clause": 0, "tags": ["continuous", "rapid_deployment", "self"], "board": {"lanes": {"0": {"p0": ["rix#x"], "p1": ["melee_creep#c"]}}}, "do": [{"kill": ["x"]}], "expect": {"x.in_play": false, "x.ready_round": 3}},
+ {"name": "a hero without Rapid Deployment waits a full round", "clause": 0, "tags": ["negative", "rapid_deployment"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"kill": ["k"]}], "expect": {"k.ready_round": 4}}
+]}

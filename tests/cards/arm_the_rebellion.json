@@ -1,0 +1,10 @@
+{
+"card": "arm_the_rebellion",
+"source_id": 10311,
+"text": "Modify allied creeps with +2 Attack and +1 Armor.",
+"covers": ["play", "modify", "stat_armor", "stat_attack", "all_allied_creeps", "permanent"],
+"cases": [
+ {"name": "Modify allied creeps with +2 Attack and +1 Armor", "clause": 0, "tags": ["play", "modify", "stat_attack", "stat_armor", "all_allied_creeps", "permanent"], "board": {"lanes": {"0": {"p0": ["farvhan#f", "melee_creep#a", null], "p1": ["melee_creep#e", "melee_creep#g", "melee_creep#h"]}}}, "do": [{"play": "arm_the_rebellion"}], "expect": {"a.attack": 4, "a.armor": 2}},
+ {"name": "heroes, enemy creeps and other lanes are unaffected", "clause": 0, "tags": ["negative", "all_allied_creeps"], "board": {"lanes": {"0": {"p0": ["farvhan#f", null], "p1": ["melee_creep#e", "melee_creep#g"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [{"play": "arm_the_rebellion"}], "expect": {"f.attack": 4, "e.attack": 2, "o.attack": 2}},
+ {"name": "the modification is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "arm_the_rebellion"}, {"end_round": true}], "expect": {"a.attack": 4}}
+]}

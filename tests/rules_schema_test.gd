@@ -10,7 +10,11 @@ extends SceneTree
 ##   Kernel.rand_index / Kernel.chance (D1);
 ## * presets hold only verified, non-token cards; every RQ a card names is in
 ##   docs/RULES.md; Valve parity (cooldowns, charges, Pulse markers, Get
-##   initiative, randomness) against tests/data/mechanics_tags.json.
+##   initiative, randomness, verb and trigger tags through tools/coverage.py)
+##   against tests/data/mechanics_tags.json;
+## * every verified Classic card has a spec in tests/cards/ whose text is its
+##   valve_text and whose covers hold its mechanics tags, with a positive and
+##   a negative or edge case per Valve clause (§13.7 items 5 to 7).
 
 const Library = preload("res://scripts/core/card_library.gd")
 const RulesDB = preload("res://scripts/core/rules/rules_db.gd")
@@ -22,6 +26,9 @@ const HASH_EXTRA = ["scripts/core/match_engine.gd", "scripts/core/card_library.g
 const DRAFTS = "res://tests/data/classic_rules_drafts.json"
 const TAGS = "res://tests/data/mechanics_tags.json"
 const RULES_DOC = "res://docs/RULES.md"
+const COVERAGE = "res://tests/data/coverage.json"
+const CARDS_DIR = "res://tests/cards"
+const NEGATIVE_TAGS = ["negative", "edge"]
 var checks = 0
 var failures: Array = []
 
@@ -36,6 +43,7 @@ func _initialize() -> void:
 	_vocabulary_closed()
 	_presets_and_rqs()
 	_valve_parity()
+	_card_specs()
 	for failure in failures:
 		printerr("FAIL: " + failure)
 	print("%s: %d rules meta checks (schema, vocabulary, RULES_VERSION, lint, presets, RQs, Valve parity)." % ["PASS" if failures.is_empty() else "FAIL", checks])
@@ -118,9 +126,6 @@ func _packs_compile() -> void:
 			var verified = str(rules.status) == "verified"
 			_check(verified or (str(rules.status) == "draft" and not rules.get("rq", []).is_empty()),
 				"Shipped card %s is verified, or a draft that names its RQ in rq (status %s)" % [card_id, rules.status])
-			if verified:
-				for op_name in rules.get("uses", {}):
-					_check(op_name not in Vocab.OPS_PENDING, "Verified %s uses no pending op (%s)" % [card_id, op_name])
 
 ## The schema-4 drafts of every counted Classic card validate (spec C.2).
 func _drafts_compile() -> void:
@@ -175,7 +180,12 @@ func _validator_rejects() -> void:
 		[_with(spell, {"play": {"ops": [{"op": "condemn", "to": {"s": "units", "where": {"in_play": "$it"}}}, {"op": "condemn", "to": "$it"}]}}), "only available inside where"],
 		[_with(spell, {"play": {"ops": [{"op": "modify", "to": "allies", "grant": 3}]}}), "does not index"],
 		[_with(spell, {"play": {"ops": [{"op": "battle", "a": {"use": "allies", "pick": {"random": 2}}, "b": "enemies"}]}}), "single-object field"],
-		[_with(spell, {"status": "verified", "play": {"ops": [{"op": "swap", "a": "$v.x", "b": "$v.y"}]}}), "verified cards may not use swap"],
+		[_with(spell, {"play": {"ops": [{"op": "swap", "a": "$v.x", "b": "$v.y"}]}}), "variable $v.x is not bound"],
+		[_with(spell, {"play": {"ops": [{"op": "swap", "a": {"use": "allies", "pick": {"random": 1}}}]}}), "swap needs b"],
+		[_with(spell, {"play": {"ops": [{"op": "add_card", "player": "you"}]}}), "add_card names either a card or from_pool"],
+		[_with(spell, {"play": {"ops": [{"op": "give", "to": "your_hand", "stats": {"attack": 1}, "until": "round"}]}}), "cards in hand only take a hack"],
+		[_with(spell, {"grants": [{"kind": "hack", "ops": []}], "play": {"ops": [{"op": "modify", "to": "allies", "grant": 0}]}}), "a hack is attached to cards in hand"],
+		[_with(spell, {"play": {"ops": [{"op": "move", "unit": {"use": "allies", "pick": {"random": 1}}, "lane": "sideways"}]}}), "unknown selector sideways"],
 		[_with(spell, {"effect": "damage", "play": {"ops": []}}), "legacy field effect"],
 		[_with(spell, {"status": "done", "play": {"ops": []}}), "status must be verified or draft"],
 		[_with(spell, {"play": {"ops": [{"op": "native", "fn": "mystery"}]}}), "no native handler"],
@@ -265,10 +275,7 @@ func _vocabulary_closed() -> void:
 				for name in found.get_string(1).replace("\"", "").split(", "):
 					handled[name] = true
 	for op_name in Vocab.OPS:
-		if op_name in Vocab.OPS_PENDING:
-			_check(not handled.has(op_name), "Pending op %s is not implemented yet (move it out of OPS_PENDING when it is)" % op_name)
-		else:
-			_check(handled.has(op_name), "The VM implements op %s" % op_name)
+		_check(handled.has(op_name), "The VM implements op %s" % op_name)
 	for op_name in handled:
 		_check(Vocab.OPS.has(op_name), "VM op %s is in the vocabulary" % op_name)
 	var sources = ""
@@ -341,10 +348,14 @@ func _valve_parity() -> void:
 	if drafts is Dictionary:
 		entries.append_array(drafts.cards)
 	var problems: Array = []
+	var coverage = _coverage()
+	var parity_cards = 0
+	var seen_sources: Dictionary = {}
 	for card in entries:
 		var source_id = int(card.get("source_id", 0))
 		if not valve.has(source_id):
 			continue
+		seen_sources[source_id] = true
 		var tag: Dictionary = valve[source_id]
 		var rules = RulesDB.compile(card)
 		var where = "%s (%s)" % [card.id, card.get("status", "")]
@@ -374,7 +385,147 @@ func _valve_parity() -> void:
 		var random = bool(rules.static.random) or JSON.stringify(card).find("creep_lane") != -1
 		if bool(tag.get("random", false)) and not random:
 			problems.append("%s: Valve text is random but the rules draw no randomness" % where)
-	_check(problems.is_empty(), "Valve parity (cooldowns, charges, Pulse markers, initiative, randomness): %s" % [problems.slice(0, 8)])
+		# The last bullet of item 10: every verb and trigger tag maps to an
+		# op, keyword, rules key, listener or block (tools/coverage.py's tables).
+		if not coverage.is_empty():
+			var known = _facts(card)
+			var text = JSON.stringify(card)
+			for verb in tag.get("verbs", []):
+				if not coverage.verbs.has(verb) or not _holds(coverage.verbs[verb], card, known, text):
+					problems.append("%s: verb tag %s maps to nothing in the rules" % [where, verb])
+			for trigger in tag.get("triggers", []):
+				if not coverage.triggers.has(trigger) or not _holds(coverage.triggers[trigger], card, known, text):
+					problems.append("%s: trigger tag %s maps to nothing in the rules" % [where, trigger])
+	parity_cards = seen_sources.size()
+	_check(not coverage.is_empty(), "tests/data/coverage.json (tools/coverage.py) parses")
+	_check(parity_cards >= 303, "Valve parity covers every counted card (%d)" % parity_cards)
+	_check(problems.is_empty(), "Valve parity (cooldowns, charges, Pulse markers, initiative, randomness, verb and trigger tags): %s" % [problems.slice(0, 8)])
+
+## tools/coverage.py's tables, checked to be current against the script.
+func _coverage() -> Dictionary:
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(COVERAGE))
+	if not parsed is Dictionary:
+		return {}
+	var script = FileAccess.get_file_as_string("res://tools/coverage.py").replace("\r", "")
+	var digest = script.sha256_text()
+	_check(str(parsed.get("source_sha256", "")) == digest, "tests/data/coverage.json is current; run python tools/coverage.py")
+	_check(int(parsed.get("summary", {}).get("passing", 0)) == int(parsed.get("summary", {}).get("cards", -1)) and int(parsed.summary.cards) == 303,
+		"tools/coverage.py reports every counted card passing: %s" % [parsed.get("summary", {})])
+	return parsed
+
+## What a raw card entry uses (tools/coverage.py facts()).
+func _facts(entry: Dictionary) -> Dictionary:
+	var out = {"ops": {}, "keywords": {}, "rules": {}, "kinds": {}, "events": {}, "blocks": {}, "fields": {}}
+	_collect_facts(entry, out)
+	for block in ["play", "enter"]:
+		if entry.has(block):
+			out.blocks[block] = true
+	for field in ["grants", "keywords"]:
+		if entry.get(field) is Array and not entry[field].is_empty() or entry.get(field) is Dictionary and not entry[field].is_empty():
+			out.fields[field] = true
+	return out
+
+func _collect_facts(value, out: Dictionary) -> void:
+	if value is Array:
+		for item in value:
+			_collect_facts(item, out)
+		return
+	if not value is Dictionary:
+		return
+	if value.has("op"):
+		out.ops[str(value.op)] = true
+	if value.get("keywords") is Dictionary:
+		for key in value.keywords:
+			out.keywords[str(key)] = true
+	if value.get("grant") is Dictionary:
+		for key in value.grant:
+			if str(key) != "rules":
+				out.keywords[str(key)] = true
+		if value.grant.get("rules") is Dictionary:
+			for key in value.grant.rules:
+				out.rules[str(key)] = true
+	if str(value.get("kind", "")) in ["aura", "trigger", "active", "hack"] and (value.has("ops") or value.has("grant")):
+		out.kinds[str(value.kind)] = true
+	if str(value.get("kind", "")) == "trigger" and value.has("on"):
+		out.events[str(value.on)] = true
+	for key in value:
+		_collect_facts(value[key], out)
+
+func _holds(rule: Dictionary, entry: Dictionary, known: Dictionary, text: String) -> bool:
+	if rule.is_empty():
+		return true
+	if bool(rule.get("initiative", false)) and entry.get("play", {}) is Dictionary and bool(entry.get("play", {}).get("initiative", false)):
+		return true
+	for key in ["ops", "keywords", "rules", "kinds", "events", "blocks", "fields"]:
+		for value in rule.get(key, []):
+			if known[key].has(str(value)):
+				return true
+	for fragment in rule.get("text", []):
+		if text.find(str(fragment).replace(": ", ":")) != -1:
+			return true
+	return false
+
+## §13.7 items 5 to 7 and the coverage gate (K14) over tests/cards/<id>.json:
+## every verified Classic card has a spec, its text equals the card's
+## valve_text, its covers contain every mechanics tag of the card (and every
+## covered tag is exercised by a case), and every Valve clause has a positive
+## case and a negative or edge case. tests/card_specs_test.gd runs the cases.
+
+func _card_specs() -> void:
+	var specs: Dictionary = {}
+	var names: Array = Array(DirAccess.get_files_at(CARDS_DIR)).filter(func(name): return str(name).ends_with(".json"))
+	for name in names:
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string("%s/%s" % [CARDS_DIR, name]))
+		_check(parsed is Dictionary and str(parsed.get("card", "")) + ".json" == str(name), "Spec %s parses and is named after its card" % name)
+		if parsed is Dictionary:
+			specs[str(parsed.get("card", ""))] = parsed
+	var library = Library.new()
+	var tags = JSON.parse_string(FileAccess.get_file_as_string(TAGS))
+	var by_source: Dictionary = {}
+	for entry in tags.cards:
+		by_source[int(entry.source_id)] = entry
+	var verified = 0
+	for card_id in library.compiled:
+		var rules: Dictionary = library.compiled[card_id]
+		if str(rules.status) != "verified":
+			continue
+		verified += 1
+		var definition = library.definition(card_id)
+		_check(specs.has(card_id), "meta_5: verified card %s has a spec (tests/cards/%s.json)" % [card_id, card_id])
+		if not specs.has(card_id):
+			continue
+		var spec: Dictionary = specs[card_id]
+		_check(int(spec.get("source_id", -1)) == int(definition.get("source_id", -2)), "Spec %s names the card's source_id" % card_id)
+		_check(str(spec.get("text", "")) == str(definition.get("valve_text", "")), "meta_6: spec %s text equals valve_text" % card_id)
+		var tag: Dictionary = by_source.get(int(definition.get("source_id", 0)), {})
+		_check(not tag.is_empty(), "%s has mechanics tags" % card_id)
+		var wanted: Array = []
+		for key in ["triggers", "verbs", "targets", "durations"]:
+			for value in tag.get(key, []):
+				if value not in wanted:
+					wanted.append(value)
+		var covers: Array = spec.get("covers", [])
+		var missing = wanted.filter(func(value): return value not in covers)
+		_check(missing.is_empty(), "meta_7: spec %s covers every mechanics tag (missing %s)" % [card_id, missing])
+		var case_tags: Array = []
+		for entry in spec.get("cases", []):
+			case_tags.append_array(entry.get("tags", []))
+		var untested = covers.filter(func(value): return value not in case_tags)
+		_check(untested.is_empty(), "Every tag spec %s covers is exercised by a case (missing %s)" % [card_id, untested])
+		# The coverage gate: a positive and a negative or edge case per clause.
+		for clause in range(tag.get("clauses", []).size()):
+			var positive = spec.cases.any(func(entry): return int(entry.get("clause", -1)) == clause and not _is_negative(entry))
+			var negative = spec.cases.any(func(entry): return int(entry.get("clause", -1)) == clause and _is_negative(entry))
+			_check(positive and negative, "Spec %s has a positive and a negative or edge case for clause %d" % [card_id, clause])
+		if tag.get("clauses", []).is_empty():
+			_check(not spec.get("cases", []).is_empty(), "Spec %s (no Valve clause) still checks the card on the board" % card_id)
+	_check(verified >= 49 and specs.size() >= verified, "Every verified Classic card has a spec (%d cards, %d specs)" % [verified, specs.size()])
+
+func _is_negative(entry: Dictionary) -> bool:
+	for value in entry.get("tags", []):
+		if str(value) in NEGATIVE_TAGS:
+			return true
+	return false
 
 func _count_ops(value, name: String) -> int:
 	var total = 0
