@@ -1,0 +1,13 @@
+{
+"card": "fur_lined_mantle",
+"source_id": 10213,
+"text": "Equipped hero has +8 Health.",
+"covers": ["equip", "stat_health", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +8 Health: maximum and current Health 11 -> 19", "clause": 0, "tags": ["equip", "stat_health", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fur_lined_mantle", "target": "k"}], "expect": {"k.max_health": 19, "k.health": 19, "k.items": {"accessory": "fur_lined_mantle"}}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "fur_lined_mantle", "target": "m"}, {"play": "fur_lined_mantle", "target": "e"}, {"play": "fur_lined_mantle", "target": "s"}]},
+ {"name": "rq_40: a damaged hero gains the 8 too (a max Health change moves current Health): 5 -> 13", "clause": 0, "tags": ["stat_health", "RQ-40"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=5"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fur_lined_mantle", "target": "k"}], "expect": {"k.max_health": 19, "k.health": 13}},
+ {"name": "the bonus stays with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fur_lined_mantle", "target": "k"}, {"kill": ["k"]}], "expect": {"k.max_health": 19, "k.in_play": false}},
+ {"name": "rq_40: replaced by Traveler's Cloak, the hero loses 8 and gains 4 (6 -> 2)", "clause": 0, "tags": ["edge", "stat_health", "RQ-40"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=6+fur_lined_mantle"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "travelers_cloak", "target": "k"}], "expect": {"k.max_health": 15, "k.health": 2, "k.in_play": true, "k.items": {"accessory": "travelers_cloak"}}},
+ {"name": "rq_40: losing the Mantle's Health can kill: 4 -> 0, the opponent gets the 5 bounty", "clause": 0, "tags": ["edge", "stat_health", "RQ-40"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=4+fur_lined_mantle"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "travelers_cloak", "target": "k"}], "expect": {"k.in_play": false, "fountain.0.keefe": 1, "p1.gold": 5}}
+]}

@@ -4993,7 +4993,9 @@
   "zh_text": "装备者+1护甲。\n锁阵：将装备者的敌方邻位单位随机移至其他路。主动技能，冷却1。",
   "en_text": "Equipped hero gains +1 armor.\nLock the Gates: move equipped hero's enemy neighbors to random other lanes. Active ability; cooldown 1.",
   "rationale": "Cao Ren's 八门金锁阵 (演义 ch.36), a formation that swallows attackers and spits them out elsewhere: a defensive formation-armour that scatters adjacent enemies.",
-  "art_subject": "A bird's-eye view of a circular eight-gated troop formation, enemy cavalry being swept through its gates and scattered in different directions."
+  "art_subject": "A bird's-eye view of a circular eight-gated troop formation, enemy cavalry being swept through its gates and scattered in different directions.",
+  "ability_zh": "锁阵",
+  "ability_en": "Lock the Gates"
  },
  {
   "card_id": 10263,

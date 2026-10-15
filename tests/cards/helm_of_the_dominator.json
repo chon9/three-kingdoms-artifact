@@ -1,0 +1,18 @@
+{
+"card": "helm_of_the_dominator",
+"source_id": 10224,
+"text": "Equipped hero has +3 Armor. | Active 2: Get control of an enemy creep.",
+"covers": ["active", "equip", "stat_armor", "steal_control", "enemy_creep", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +3 Armor: Axe has 5 Armor", "clause": 0, "tags": ["equip", "equipped_hero", "continuous", "stat_armor"], "board": {"lanes": {"0": {"p0": ["axe#a+helm_of_the_dominator"], "p1": ["melee_creep#c"]}}}, "do": [], "expect": {"a.armor": 5, "a.attack": 6}},
+ {"name": "the Armor counts in combat: Keefe's 6 deals 1", "clause": 0, "tags": ["edge", "stat_armor", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#a+helm_of_the_dominator"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"a.health": 9}},
+ {"name": "Active 2: get control of an enemy creep", "clause": 1, "tags": ["active", "steal_control", "enemy_creep"], "board": {"lanes": {"0": {"p0": ["axe#a+helm_of_the_dominator", null], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"ability": "a.armor", "target": "c"}], "expect": {"c.owner": 0, "c.lane": 0, "c.in_play": true, "units.0.0": 2, "units.0.1": 1, "initiative": 1, "events": {"has": ["ability", "control"]}}},
+ {"name": "an enemy hero is not a target", "clause": 1, "tags": ["negative", "enemy_creep"], "board": "@2", "do": [], "expect_illegal": [{"ability": "a.armor", "target": "k"}]},
+ {"name": "an allied creep is not a target", "clause": 1, "tags": ["negative", "enemy_creep"], "board": {"lanes": {"0": {"p0": ["axe#a+helm_of_the_dominator", "melee_creep#m"], "p1": ["keefe#k", null]}}}, "do": [], "expect_illegal": [{"ability": "a.armor", "target": "m"}]},
+ {"name": "an enemy creep in another lane is not a target", "clause": 1, "tags": ["negative", "enemy_creep"], "board": {"lanes": {"0": {"p0": ["axe#a+helm_of_the_dominator"], "p1": ["keefe#k"]}, "1": {"p0": [null], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"ability": "a.armor", "target": "c"}]},
+ {"name": "a silenced equipped hero cannot use it", "clause": 1, "tags": ["negative", "active"], "board": {"lanes": {}, "base": "@2", "give": {"a": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "a.armor", "target": "c"}]},
+ {"name": "rq_02: the stolen creep's bounty goes to the equipped hero's opponent", "clause": 1, "tags": ["edge", "steal_control", "RQ-02"], "board": "@2", "do": [{"ability": "a.armor", "target": "c"}, {"kill": ["c"]}], "expect": {"p1.gold": 1, "p0.gold": 0}},
+ {"name": "rq_17: the creep enters a random empty position on the new owner's side", "clause": 1, "tags": ["edge", "steal_control", "RQ-17"], "board": {"lanes": {"0": {"p0": [null, "axe#a+helm_of_the_dominator", null, null], "p1": ["melee_creep#b", "keefe#k", "melee_creep#c", "melee_creep#e"]}}}, "do": [{"ability": "a.armor", "target": "e"}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"e.slot": [0.38, 0.62]}},
+ {"name": "the stolen creep stays under control next round", "clause": 1, "tags": ["edge", "steal_control"], "board": "@2", "do": [{"ability": "a.armor", "target": "c"}, {"end_round": true}], "expect": {"c.owner": 0}},
+ {"name": "on cooldown it cannot be used again this round", "clause": 1, "tags": ["edge", "active"], "board": {"lanes": {"0": {"p0": ["axe#a+helm_of_the_dominator", null, null], "p1": ["keefe#k", "melee_creep#c", "melee_creep#d"]}}}, "do": [{"ability": "a.armor", "target": "c"}, {"pass": 1}], "expect_illegal": [{"ability": "a.armor", "target": "d"}]}
+]}

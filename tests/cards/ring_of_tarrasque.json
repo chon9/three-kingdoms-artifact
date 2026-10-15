@@ -1,0 +1,14 @@
+{
+"card": "ring_of_tarrasque",
+"source_id": 10220,
+"text": "Equipped hero has +4 Health and +6 Regeneration.",
+"covers": ["equip", "regeneration", "stat_health", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +4 Health (11 -> 15) and +6 Regeneration", "clause": 0, "tags": ["equip", "regeneration", "stat_health", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "ring_of_tarrasque", "target": "k"}], "expect": {"k.max_health": 15, "k.health": 15, "k.kw.regeneration": 6, "k.items": {"accessory": "ring_of_tarrasque"}}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "ring_of_tarrasque", "target": "m"}, {"play": "ring_of_tarrasque", "target": "e"}, {"play": "ring_of_tarrasque", "target": "s"}]},
+ {"name": "rq_09: Regeneration heals before the death check: 3 - 5 + 6 = 4", "clause": 0, "tags": ["regeneration", "RQ-09"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=3+ring_of_tarrasque"], "p1": ["marrowfell_brawler#b"]}}}, "do": [{"combat": true}], "expect": {"k.health": 4, "k.in_play": true, "b.health": 10}},
+ {"name": "rq_09: Regeneration is capped at maximum Health: 15 - 1 + 6 -> 15", "clause": 0, "tags": ["edge", "regeneration", "RQ-09"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "ring_of_tarrasque", "target": "k"}, {"combat": true}], "expect": {"k.health": 15}},
+ {"name": "Regeneration heals only in the combat phase: equipping a hurt hero heals just the +4 (3 -> 7)", "clause": 0, "tags": ["negative", "regeneration"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=3"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "ring_of_tarrasque", "target": "k"}], "expect": {"k.health": 7, "k.max_health": 15}},
+ {"name": "a stunned hero still regenerates (a passive keyword)", "clause": 0, "tags": ["edge", "regeneration"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=3+ring_of_tarrasque"], "p1": ["marrowfell_brawler#b"]}}, "give": {"k": ["stun"]}}, "do": [{"combat": true}], "expect": {"k.health": 4, "b.health": 16}},
+ {"name": "the bonuses stay with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "ring_of_tarrasque", "target": "k"}, {"kill": ["k"]}], "expect": {"k.max_health": 15, "k.kw.regeneration": 6, "k.in_play": false}}
+]}

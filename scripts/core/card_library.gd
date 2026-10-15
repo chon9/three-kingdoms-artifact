@@ -13,6 +13,9 @@ const RulesDB = preload("res://scripts/core/rules/rules_db.gd")
 const PACKS = {
 	"artifact_classic_decks_v2": "res://data/classic_cards.json",
 	"original_training_fixtures": "res://data/training_cards.json"}
+## Item slots an item deck may hold (wiki Item Shop; consumables and Deeds
+## are sold only by the Secret Shop and the Consumables Shop).
+const EQUIPMENT_SLOTS = ["weapon", "armor", "accessory"]
 const LOCALE_PATH = "res://data/locale/cards.json"
 const GLOSSARY_PATH = "res://data/locale/glossary.json"
 const FALLBACK_LOCALE = "en"
@@ -52,7 +55,8 @@ var aura_cards: Dictionary = {}
 ## "towers:mana", "players:rules"), so a read scans only the sources that can
 ## change it.
 var aura_fields: Dictionary = {}
-## Fields that some card's grants can give as an aura (granted text).
+## Fields that some card's grants can give as a board aura (granted text;
+## granted "$host" auras change only their bearer and are not listed).
 var granted_aura_fields: Dictionary = {}
 ## "<target>:<field>" -> {"unit": true, "item": true, "improvement": true,
 ## "deed": true}: where the cards with such an aura live, so a scan skips the
@@ -125,7 +129,10 @@ static func _index(data: Dictionary, id: String, rules: Dictionary) -> void:
 				data.aura_holders[field] = {}
 			data.aura_holders[field][holder] = true
 	for granted in rules.grants:
-		if str(granted.get("kind", "")) == "aura":
+		# A granted "$host" aura changes only its bearer, which reads it from
+		# its own entries (Stats._derive), so it never makes a read scan the
+		# board for granted auras (M6: Stonehall's growth on every max-health read).
+		if str(granted.get("kind", "")) == "aura" and not (granted.get("affects") is String and str(granted.affects) == "$host"):
 			for field in aura_grant_fields(granted):
 				data.granted_aura_fields[field] = true
 
@@ -430,7 +437,10 @@ func validate_preset(entry: Dictionary) -> Dictionary:
 	for card_id in entry.items:
 		var card = get_card(str(card_id))
 		var count = entry.items[card_id]
-		if card.is_empty() or card.kind != "item" or card.get("consumable", false) or not _deckable(str(card_id)):
+		# The item deck "can only contain Weapon, Armor and Accessory cards"
+		# (wiki Item Shop): consumables and Deeds come from the shops only.
+		if card.is_empty() or card.kind != "item" or str(card.get("slot", "")) not in EQUIPMENT_SLOTS \
+				or card.get("consumable", false) or not _deckable(str(card_id)):
 			return {"ok": false, "code": "deck_item_card", "args": {}, "error": "Item decks use supported equipment."}
 		if not (count is int or count is float) or float(count) != floor(float(count)) or count < 1:
 			return {"ok": false, "code": "deck_item_copies", "args": {}, "error": "Item counts must be positive whole numbers."}

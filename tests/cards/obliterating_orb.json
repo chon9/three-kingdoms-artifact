@@ -1,0 +1,12 @@
+{
+"card": "obliterating_orb",
+"source_id": 10211,
+"text": "Condemn an improvement.",
+"covers": ["play", "condemn", "improvement"],
+"cases": [
+ {"name": "condemn an enemy improvement in the active lane; a consumable needs no hero and no mana", "clause": 0, "tags": ["play", "condemn", "improvement"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}, "improvements": {"0": {"p1": ["steel_reinforcement#s", "assault_ladders#l"]}}, "mana": 0}, "do": [{"play": "obliterating_orb", "target": "s"}], "expect": {"s.in_play": false, "l.in_play": true, "mana.0.0": 0, "p0.hand": 0, "initiative": 1, "events": {"has": ["play", "condemn", "improvement_gone"]}}},
+ {"name": "any improvement: an allied one can be condemned too", "clause": 0, "tags": ["play", "condemn", "improvement"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}, "improvements": {"0": {"p0": ["verdant_refuge#mine"], "p1": ["steel_reinforcement#s"]}}}, "do": [{"play": "obliterating_orb", "target": "mine"}], "expect": {"mine.in_play": false, "s.in_play": true, "m.armor": 0}},
+ {"name": "rq_04: an improvement in another lane is not a target, and with none in the active lane the Orb cannot be played", "clause": 0, "tags": ["negative", "improvement", "RQ-04"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}, "improvements": {"1": {"p1": ["steel_reinforcement#far"]}}}, "do": [], "expect": {"far.in_play": true}, "expect_illegal": [{"play": "obliterating_orb", "target": "far"}, {"play": "obliterating_orb"}]},
+ {"name": "a unit is not an improvement: the Orb cannot target a creep", "clause": 0, "tags": ["negative", "condemn"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}, "improvements": {"0": {"p1": ["steel_reinforcement#s"]}}}, "do": [], "expect": {"c.in_play": true}, "expect_illegal": [{"play": "obliterating_orb", "target": "c"}], "expect_legal": [{"play": "obliterating_orb", "target": "s"}]},
+ {"name": "the play is logged with the chosen improvement as its target, like a unit-targeted play", "clause": 0, "tags": ["play", "improvement"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}, "improvements": {"0": {"p1": ["steel_reinforcement#s", "assault_ladders#l"]}}}, "do": [{"play": "obliterating_orb", "target": "s"}], "expect": {"s.in_play": false, "l.in_play": true, "events": {"has": ["play", "condemn", "improvement_gone"]}}, "gd": "res://tests/cards/extra/obliterating_orb_log.gd"}
+]}

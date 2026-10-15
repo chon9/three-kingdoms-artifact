@@ -1,0 +1,18 @@
+{
+"card": "shivas_guard",
+"source_id": 10248,
+"text": "Equipped hero has +2 Armor. | Active 2: Modify a unit and its allied neighbors with -2 Attack.",
+"covers": ["active", "equip", "modify", "stat_armor", "stat_attack", "allied_neighbors", "equipped_hero", "unit", "continuous", "permanent"],
+"cases": [
+ {"name": "Equipped hero has +2 Armor: Axe has 4 Armor", "clause": 0, "tags": ["equip", "equipped_hero", "continuous", "stat_armor"], "board": {"lanes": {"0": {"p0": ["axe#a+shivas_guard"], "p1": ["melee_creep#c"]}}}, "do": [], "expect": {"a.armor": 4, "a.attack": 6}},
+ {"name": "the Armor counts in combat: Keefe's 6 deals 2", "clause": 0, "tags": ["edge", "stat_armor", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#a+shivas_guard"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"a.health": 8}},
+ {"name": "Active 2: modify a unit and its allied neighbors with -2 Attack", "clause": 1, "tags": ["active", "modify", "stat_attack", "unit", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["axe#a+shivas_guard", null, null, null], "p1": ["axe#x", "melee_creep#y", "keefe#z", "melee_creep#w"]}}}, "do": [{"ability": "a.armor", "target": "y"}], "expect": {"x.attack": 4, "y.attack": 0, "z.attack": 4, "w.attack": 2, "a.attack": 6, "initiative": 1, "events": {"has": ["ability", "mod"]}}},
+ {"name": "a unit at the end of its row has one allied neighbor", "clause": 1, "tags": ["allied_neighbors", "unit"], "board": "@2", "do": [{"ability": "a.armor", "target": "w"}], "expect": {"w.attack": 0, "z.attack": 4, "y.attack": 2, "x.attack": 6}},
+ {"name": "an allied target: its allied neighbors are the equipped hero's allies, the hero itself included", "clause": 1, "tags": ["edge", "allied_neighbors", "unit"], "board": {"lanes": {"0": {"p0": ["axe#a+shivas_guard", "melee_creep#m", "keefe#k"], "p1": ["melee_creep#c", null, null]}}}, "do": [{"ability": "a.armor", "target": "m"}], "expect": {"a.attack": 4, "m.attack": 0, "k.attack": 4}},
+ {"name": "permanent: the -2 Attack outlasts the round", "clause": 1, "tags": ["permanent", "modify"], "board": "@2", "do": [{"ability": "a.armor", "target": "y"}, {"end_round": true}], "expect": {"x.attack": 4, "z.attack": 4}},
+ {"name": "a hero keeps the modification in the Fountain", "clause": 1, "tags": ["edge", "permanent", "modify"], "board": "@2", "do": [{"ability": "a.armor", "target": "x"}, {"kill": ["x"]}], "expect": {"x.in_play": false, "x.attack": 4}},
+ {"name": "rq_12: the opponent's Purge removes it", "clause": 1, "tags": ["edge", "modify", "RQ-12"], "board": {"lanes": {"0": {"p0": ["axe#a+shivas_guard", null, null], "p1": ["rix#q", "melee_creep#y", "keefe#z"]}}}, "do": [{"ability": "a.armor", "target": "y"}, {"play": "aphotic_shield", "target": "z", "player": 1}], "expect": {"z.attack": 6, "y.attack": 0, "q.attack": 1}},
+ {"name": "a unit in another lane is not a target", "clause": 1, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["axe#a+shivas_guard"], "p1": ["melee_creep#c"]}, "1": {"p0": ["keefe#k"], "p1": ["melee_creep#x"]}}}, "do": [], "expect_illegal": [{"ability": "a.armor", "target": "x"}]},
+ {"name": "a silenced equipped hero cannot use it", "clause": 1, "tags": ["negative", "active"], "board": {"lanes": {}, "base": "@2", "give": {"a": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "a.armor", "target": "y"}]},
+ {"name": "on cooldown it cannot be used again this round", "clause": 1, "tags": ["edge", "active"], "board": "@2", "do": [{"ability": "a.armor", "target": "y"}, {"pass": 1}], "expect_illegal": [{"ability": "a.armor", "target": "w"}]}
+]}

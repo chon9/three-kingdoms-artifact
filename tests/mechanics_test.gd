@@ -20,7 +20,9 @@ extends SceneTree
 ##   the `blocking` death snapshot, a Modify reaching a hero that died in the
 ##   same command, and granted text in mod/status events;
 ## * the one added with the M5 cards (m5_* names): battle-damage reactions
-##   across a battle between two lanes (Gank).
+##   across a battle between two lanes (Gank);
+## * the one added with the M6 items (m6_* names): granted text on an item
+##   instance (Stonehall's "Modify Stonehall Pike with ...").
 ## Options (after --): --boards N (default 2000) for preview_equals_combat.
 
 const EngineClass = preload("res://scripts/core/match_engine.gd")
@@ -49,14 +51,15 @@ func _initialize() -> void:
 			_test_silence, _test_disarm, _test_rapid_deployment, _test_soulbound, _test_tower_stats, _test_durations,
 			_test_purge_and_fountain, _test_locks, _test_add_card_and_counters, _test_hacks, _test_summon_and_fountain,
 			_test_move, _test_swap, _test_control, _test_zone_fuzz, _test_improvements, _test_items, _test_deeds,
-			_test_rules_layer, _test_creep_lane, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_m3_engine, _test_m5_engine, _test_preview_equals_combat]:
+			_test_rules_layer, _test_creep_lane, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_m3_engine, _test_m5_engine,
+			_test_m6_engine, _test_preview_equals_combat]:
 		var started = Time.get_ticks_msec()
 		test.call()
 		if args.has("--timing"):
 			print("%-36s %6d ms" % [test.get_method(), Time.get_ticks_msec() - started])
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d M2 to M5 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, summoned heroes returning (RQ-29), objects, rules layer, blocking snapshots, RQ-54, granted-text events, cross-lane battle reactions, preview_equals_combat on %d boards)." % [
+	print("%s: %d M2 to M6 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, summoned heroes returning (RQ-29), objects, rules layer, blocking snapshots, RQ-54, granted-text events, cross-lane battle reactions, granted text on item instances, preview_equals_combat on %d boards)." % [
 		"PASS" if failures.is_empty() else "FAIL", checks, boards])
 	quit(0 if failures.is_empty() else 1)
 
@@ -1725,6 +1728,72 @@ func _test_m5_engine() -> void:
 	_rows(engine, 0, [[hero], ["fx_corrode_creep"]])
 	_combat(engine)
 	_check(engine.attack_of(hero) == printed_attack - 1 or int(hero.lane) == -1, "m5_cross_lane_battle_6: combat reactions are unchanged")
+
+## The engine capability added with the M6 items (EFFECT_SYSTEM_SPEC.md §12,
+## M6 as built): a Modify on an item instance ("Modify Stonehall Pike with
+## ...") records the granted text on that instance, where it works like the
+## item's printed text: host auras wherever the hero is, other auras and
+## triggers only while the hero is in a lane (RQ-38). The entries stack, leave
+## with the instance, and the opponent's Purge does not reach them (RQ-12).
+## Before M6 such a Modify matched no target kind and silently did nothing.
+func _test_m6_engine() -> void:
+	# A granted host aura, added after each combat (Tempered Blade).
+	var engine = _engine()
+	var hero: Dictionary = engine.state.players[0].roster[0]
+	var printed = int(hero.attack)
+	_rows(engine, 0, [[hero], ["melee_creep"]])
+	Zones.equip(engine, hero, "fx_growth_item")
+	Stats.settle(engine)
+	var instance: Dictionary = hero.item_state.weapon
+	_combat(engine)
+	_check(engine.attack_of(hero) == printed + 1 and instance.mods.size() == 1 and str(instance.mods[0].get("ab", "")) == "fx_growth_item#0",
+		"m6_item_modify_1: after combat the item instance holds the granted host aura (attack %d, printed %d, entries %s)" % [engine.attack_of(hero), printed, instance.mods])
+	_check(int(hero.attack) == printed and hero.get("mods", []).is_empty(), "m6_item_modify_1: the hero's own fields and entries are untouched")
+	var mods = _events(engine, "mod").filter(func(event): return int(event.get("id", 0)) == int(instance.oid))
+	_check(mods.size() == 1 and str(mods[0].get("card", "")) == "fx_growth_item" and str(mods[0].get("ab", "")) == "fx_growth_item#0",
+		"m6_item_modify_2: the mod event names the item instance and the granted text (%s)" % [mods])
+	if not mods.is_empty():
+		Settings.set_locale("en", false)
+		var text = EventText.format(mods[0])
+		_check(text.find("Equipped hero has +1 Attack") != -1, "m6_item_modify_2: the log quotes the granted text: %s" % text)
+	engine.state.lane = 0
+	_combat(engine)
+	_check(engine.attack_of(hero) == printed + 2 and instance.mods.size() == 2, "m6_item_modify_3: every combat adds another entry; they stack (attack %d)" % engine.attack_of(hero))
+	Kernel.purge(engine, hero, "opponent", {"controller": 1, "card": "fx_purge_spell"})
+	_check(engine.attack_of(hero) == printed + 2 and instance.mods.size() == 2, "m6_item_modify_4: the opponent's Purge does not reach the item (RQ-12)")
+	Kernel.modify(engine, Select.item_handle(hero, "weapon"), {"attack": 1}, {}, "", {"controller": 0, "card": "fighting_instinct"})
+	_check(engine.attack_of(hero) == printed + 2 and instance.mods.size() == 2, "m6_item_modify_5: a Modify on an item without granted text changes nothing")
+	hero.health = 0
+	engine._clean_dead(0)
+	_check(int(hero.lane) == -1 and engine.attack_of(hero) == printed + 2, "m6_item_modify_6: the granted host aura applies in the Fountain (attack %d)" % engine.attack_of(hero))
+	Zones.equip(engine, hero, "fx_growth_item")
+	Stats.settle(engine)
+	_check(engine.attack_of(hero) == printed and hero.item_state.weapon.mods.is_empty(), "m6_item_modify_7: a new instance starts from the printed text")
+	_check(Invariants.violations(engine).is_empty(), "m6_item_modify: invariants hold: %s" % [Invariants.violations(engine)])
+	# A granted board aura and a granted trigger (Rune Charm's Equip Effect).
+	engine = _engine()
+	hero = _caster(engine, 0, "red")
+	var neighbor = _unit(engine, "melee_creep", 0, 0)
+	var far = _unit(engine, "melee_creep", 0, 1)
+	var enemy = _unit(engine, "melee_creep", 1, 0)
+	Stats.settle(engine)
+	_check(_play(engine, 0, "fx_rune_item", {"target": hero.uid}).ok, "m6_item_grant_1: the charm is equipped")
+	var charm: Dictionary = hero.get("item_state", {}).get("accessory", {})
+	_check(charm.get("mods", []).size() == 2, "m6_item_grant_1: its Equip Effect records two granted texts on the instance (%s)" % [charm.get("mods", [])])
+	_check(engine.armor_of(neighbor) == 1 and engine.armor_of(far) == 0 and engine.armor_of(hero) == int(hero.armor),
+		"m6_item_grant_2: the granted board aura reaches only the hero's allied neighbors (%d, %d)" % [engine.armor_of(neighbor), engine.armor_of(far)])
+	var gold = int(engine.state.players[0].gold)
+	_check(_play(engine, 0, "fx_disarm_spell", {"target": enemy.uid}).ok and int(engine.state.players[0].gold) == gold + 1,
+		"m6_item_grant_3: the granted trigger fires after its owner plays a spell")
+	hero.health = 0
+	engine._clean_dead(0)
+	_check(int(hero.lane) == -1 and engine.armor_of(neighbor) == 0,
+		"m6_item_grant_4: the granted board aura ends while the hero is in the Fountain (RQ-38; armor %d)" % engine.armor_of(neighbor))
+	_caster(engine, 0, "green")
+	gold = int(engine.state.players[0].gold)
+	_check(_play(engine, 0, "fx_purge_spell", {"target": enemy.uid}).ok and int(engine.state.players[0].gold) == gold,
+		"m6_item_grant_5: the granted trigger does not fire while the hero is in the Fountain (RQ-38)")
+	_check(Invariants.violations(engine).is_empty(), "m6_item_grant: invariants hold: %s" % [Invariants.violations(engine)])
 
 ## On random fixture boards (keywords, statuses, items, improvements), the
 ## combat preview's damage, healing, deaths and tower damage equal what the

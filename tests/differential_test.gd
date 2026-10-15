@@ -4,8 +4,8 @@ extends SceneTree
 ## like the frozen legacy engine (tests/legacy/, the hand-written effect
 ## switch it replaced). Cards added after the migration (M3 on) are not in the
 ## frozen data, so the definitions, board creeps, equipment and hand cards come
-## from the legacy pack, and the decks only from presets both packs define
-## identically. Each seeded fixture builds the same random board in
+## from the legacy pack, the decks only from presets both packs define
+## identically, and the shop pools (grown by M6) from the legacy pack. Each seeded fixture builds the same random board in
 ## both engines with the definition on the board or in hand, then plays random
 ## legal actions (favouring that card). After every step the legal actions,
 ## the model-independent projection (tests/golden/golden_games.gd), the random
@@ -78,6 +78,12 @@ func _fixture(pack: String, card_id: String, index: int) -> Dictionary:
 	modern.library = EngineClass.Library.new(pack)
 	var decks = ["starter", "starter"]
 	if pack == "artifact_classic_decks_v2":
+		# The shop pools grew with the M6 items (wiki Item Shop) after the
+		# migration and the frozen pack keeps its M1 pools: the modern engine
+		# sells from those pools here, so only the migration is compared.
+		modern.library.catalog = modern.library.catalog.duplicate()
+		for pool in ["secret_shop", "consumables"]:
+			modern.library.catalog[pool] = legacy.library.catalog[pool].duplicate()
 		var presets: Array = []
 		for preset in legacy.library.presets():
 			if JSON.stringify(preset) == JSON.stringify(modern.library.preset(str(preset.id))):

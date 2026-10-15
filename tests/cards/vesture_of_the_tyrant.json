@@ -1,0 +1,18 @@
+{
+"card": "vesture_of_the_tyrant",
+"source_id": 10225,
+"text": "Equipped hero has +3 Armor and Rapid Deployment. Your tower has +3 Armor.",
+"covers": ["equip", "continuous", "rapid_deployment", "stat_armor", "allied_tower", "equipped_hero"],
+"cases": [
+ {"name": "Equipped hero has +3 Armor and Rapid Deployment", "clause": 0, "tags": ["equip", "stat_armor", "rapid_deployment", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#h+vesture_of_the_tyrant"], "p1": ["melee_creep#x"]}}}, "do": [], "expect": {"h.armor": 5, "h.kw.rapid_deployment": 1}},
+ {"name": "Rapid Deployment: killed in round 2, it is ready in round 3", "clause": 0, "tags": ["rapid_deployment", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["axe#h+vesture_of_the_tyrant"], "p1": ["melee_creep#x"]}}}, "do": [{"kill": ["h"]}], "expect": {"h.in_play": false, "h.ready_round": 3, "fountain.0.axe": 1}},
+ {"name": "without it the hero is ready only in round 4", "clause": 0, "tags": ["negative", "rapid_deployment"], "board": {"lanes": {"0": {"p0": ["axe#h"], "p1": ["melee_creep#x"]}}}, "do": [{"kill": ["h"]}], "expect": {"h.ready_round": 4}},
+ {"name": "killed in combat, it redeploys in the next round", "clause": 0, "tags": ["edge", "rapid_deployment"], "board": {"lanes": {"0": {"p0": ["zeus#h:hp=1+vesture_of_the_tyrant"], "p1": ["axe#x"]}}}, "do": [{"combat": true}, {"end_round": true, "deploy": {"h": 0}}], "expect": {"h.lane": 0, "h.armor": 3, "h.kw.rapid_deployment": 1}},
+ {"name": "in the Fountain the hero keeps its Armor and Rapid Deployment (host stats, RQ-38)", "clause": 0, "tags": ["edge", "equipped_hero", "RQ-38"], "board": {"lanes": {"0": {"p0": [null], "p1": ["melee_creep#x"]}}, "fountain": {"p0": ["axe#h+vesture_of_the_tyrant"]}}, "do": [], "expect": {"h.armor": 5, "h.kw.rapid_deployment": 1}},
+ {"name": "Your tower has +3 Armor: an unblocked Keefe deals 6 - 3", "clause": 1, "tags": ["allied_tower", "stat_armor", "continuous", "equip"], "board": {"lanes": {"0": {"p0": ["axe#h+vesture_of_the_tyrant", null], "p1": ["melee_creep#y", "keefe#k"]}}}, "do": [{"combat": true}], "expect": {"tower.0.0.health": 37}},
+ {"name": "without it the tower takes all 6", "clause": 1, "tags": ["negative", "allied_tower"], "board": {"lanes": {"0": {"p0": ["axe#h", null], "p1": ["melee_creep#y", "keefe#k"]}}}, "do": [{"combat": true}], "expect": {"tower.0.0.health": 34}},
+ {"name": "the enemy tower gets nothing", "clause": 1, "tags": ["negative", "allied_tower"], "board": {"lanes": {"0": {"p0": ["axe#h+vesture_of_the_tyrant", "melee_creep#m"], "p1": ["melee_creep#y", null]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 38}},
+ {"name": "rq_04: only the tower of the hero's lane (lane 1's tower takes all 6)", "clause": 1, "tags": ["edge", "allied_tower", "RQ-04"], "board": {"active_lane": 1, "lanes": {"0": {"p0": ["axe#h+vesture_of_the_tyrant"], "p1": ["melee_creep#x"]}, "1": {"p0": [null], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"tower.1.0.health": 34}},
+ {"name": "with the hero in the Fountain the tower has no extra Armor", "clause": 1, "tags": ["edge", "allied_tower", "RQ-38"], "board": {"lanes": {"0": {"p0": [null], "p1": ["keefe#k"]}}, "fountain": {"p0": ["axe#h+vesture_of_the_tyrant"]}}, "do": [{"combat": true}], "expect": {"tower.0.0.health": 34}},
+ {"name": "the tower Armor also reduces spell damage (Lightning Strike: 6 - 3)", "clause": 1, "tags": ["edge", "allied_tower", "stat_armor"], "board": {"active_player": 1, "initiative": 1, "lanes": {"0": {"p0": ["axe#h+vesture_of_the_tyrant"], "p1": ["zeus#z"]}}}, "do": [{"play": "lightning_strike", "player": 1}], "expect": {"tower.0.0.health": 37}}
+]}

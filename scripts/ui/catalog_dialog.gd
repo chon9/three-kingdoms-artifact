@@ -12,6 +12,8 @@ const CARD_SIZE = Vector2(150, 218)
 const FILTERS = ["all", "red", "green", "blue", "black", "neutral"]
 const COLOR_RANK = {"red": 0, "green": 1, "blue": 2, "black": 3, "neutral": 4, "item": 5}
 const KIND_RANK = {"hero": 0, "creep": 1, "spell": 2, "improvement": 3, "item": 4}
+## Items group by slot (consumables after the equipment, Deeds last), then price.
+const ITEM_RANK = {"weapon": 0, "armor": 1, "accessory": 2, "consumable": 3, "deed": 4}
 ## Filter label keys per skin: colours in the classic skin, the matching
 ## factions in the Three Kingdoms skin.
 const CLASSIC_LABELS = {"all": "CATALOG_FILTER_ALL", "red": "COLOR_RED", "green": "COLOR_GREEN", "blue": "COLOR_BLUE",
@@ -75,7 +77,8 @@ func build() -> void:
 	inspector.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 ## Every hero and card id of the pack in display order: heroes first, then
-## colour (red, green, blue, black, neutral, items), kind, cost and id.
+## colour (red, green, blue, black, neutral, items), kind, cost and id; items
+## by slot (ITEM_RANK), then price.
 static func definitions(pack) -> Array:
 	var ids: Array = []
 	for hero in pack.heroes:
@@ -85,9 +88,13 @@ static func definitions(pack) -> Array:
 	var keys: Dictionary = {}
 	for card_id in ids:
 		var entry: Dictionary = pack.definition(card_id)
+		var cost = int(entry.get("cost", 0))
+		if str(entry.get("kind", "")) == "item":
+			var slot = "consumable" if bool(entry.get("consumable", false)) else str(entry.get("slot", ""))
+			cost = int(ITEM_RANK.get(slot, 5)) * 1000 + int(entry.get("price", 0))
 		keys[card_id] = [int(KIND_RANK.get(str(entry.get("kind", "")), 9) == 0) * -1, int(bool(entry.get("token", false))),
 			int(COLOR_RANK.get(str(entry.get("color", "neutral")), 9)), int(KIND_RANK.get(str(entry.get("kind", "")), 9)),
-			int(entry.get("cost", 0)), card_id]
+			cost, card_id]
 	ids.sort_custom(func(a, b): return keys[a] < keys[b])
 	return ids
 

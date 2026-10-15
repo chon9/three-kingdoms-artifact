@@ -1,0 +1,11 @@
+{
+"card": "golden_ticket",
+"source_id": 10216,
+"text": "Get a random item from the Secret Shop.",
+"covers": ["play", "add_card_to_hand", "secret_shop"],
+"cases": [
+ {"name": "get a random Secret Shop item into hand; only its owner learns which (expect_private by gd)", "clause": 0, "tags": ["play", "add_card_to_hand", "secret_shop"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "golden_ticket"}], "expect": {"p0.hand": 1, "p1.hand": 0, "mana.0.0": 10, "initiative": 1, "events": {"has": ["play", "gain_card"]}}, "gd": "res://tests/cards/extra/golden_ticket_item.gd"},
+ {"name": "rq_59: the pick is uniform over the whole Secret Shop pool: 400 fresh matches gain every Secret Shop item", "clause": 0, "tags": ["add_card_to_hand", "secret_shop"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "golden_ticket"}], "expect": {"p0.hand": 1}, "gd": "res://tests/cards/extra/golden_ticket_pool.gd"},
+ {"name": "the item is random: over 200 seeds the gained card is not always the same", "clause": 0, "tags": ["secret_shop"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "golden_ticket"}], "expect_rate": {"p0.hand.travelers_cloak": [0.0, 0.5], "p0.hand": [1, 1]}, "seeds": {"from": 1, "count": 200}},
+ {"name": "played with 0 mana and no hero, the gained card joins the cards already in hand; the opponent gains nothing", "clause": 0, "tags": ["edge", "add_card_to_hand"], "board": {"lanes": {"0": {"p0": [], "p1": ["melee_creep#c"]}}, "mana": 0, "hand": {"p0": ["foresight"]}}, "do": [{"play": "golden_ticket"}], "expect": {"p0.hand": 2, "p0.hand.0": "foresight", "p1.hand": 0, "mana.0.0": 0}}
+]}

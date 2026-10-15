@@ -91,7 +91,8 @@ func _pool(kinds: Array, equipment: bool = false) -> Array:
 		var card: Dictionary = library.cards[card_id]
 		if str(card.get("kind", "")) not in kinds or not library._deckable(str(card_id)):
 			continue
-		if equipment and (card.get("consumable", false) or not card.has("slot")):
+		# Item decks hold equipment only (validate_preset, wiki Item Shop).
+		if equipment and (card.get("consumable", false) or str(card.get("slot", "")) not in Library.EQUIPMENT_SLOTS):
 			continue
 		ids.append(str(card_id))
 	ids.sort()

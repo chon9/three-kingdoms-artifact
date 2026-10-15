@@ -198,13 +198,23 @@ func _ability_line(source_card: String, label: String, cooldown: int) -> String:
 	var line = UiKit.t("CARD_ABILITY_LINE", {"label": label, "ability": EventText.ability_name(source_card)})
 	return line + "  ·  " + (UiKit.t_n("HUD_COOLDOWN", cooldown) if cooldown > 0 else UiKit.t("HUD_READY"))
 
-## Granted abilities ("<card>#<index>" in modification entries) with their text.
+## Granted abilities ("<card>#<index>" in modification entries) with their
+## text; the same text granted several times (Stonehall's growth after each
+## combat) is listed once with its count.
 func _append_granted(details: Array, mods: Array) -> void:
-	var granted: Array = []
+	var order: Array = []
+	var counts: Dictionary = {}
 	for entry in mods:
 		var ability = str(entry.get("ab", ""))
-		if not ability.is_empty():
-			granted.append(granted_text(ability))
+		if ability.is_empty():
+			continue
+		if not counts.has(ability):
+			order.append(ability)
+		counts[ability] = int(counts.get(ability, 0)) + 1
+	var granted: Array = []
+	for ability in order:
+		var text = granted_text(ability)
+		granted.append(text if int(counts[ability]) == 1 else "%s ×%d" % [text, int(counts[ability])])
 	if not granted.is_empty():
 		details.append(UiKit.t("CARD_GRANTED", {"list": "\n".join(granted)}))
 

@@ -104,16 +104,21 @@ static func _live_listeners(e, kind: String, payload: Dictionary) -> Array:
 						_add_card_listeners(e, found, kind, payload, str(unit.card), ctx, 0, slot, int(unit.uid))
 					if carries:
 						_add_granted_listeners(e, found, kind, payload, unit.mods, ctx, 0, slot, int(unit.uid))
-				# Item triggers work only while the host is in a lane (RQ-38).
+				# Item triggers work only while the host is in a lane (RQ-38):
+				# printed ones, then text granted to the item instance (M6).
 				for slot_name in ["weapon", "armor", "accessory"]:
 					if not unit.get("items", {}).has(slot_name):
 						continue
 					var item_card = str(unit.items[slot_name])
-					if not listening.has(item_card):
+					var item_mods: Array = unit.get("item_state", {}).get(slot_name, {}).get("mods", []) if granted else []
+					if not listening.has(item_card) and item_mods.is_empty():
 						continue
 					var item_ctx = Stats.item_ctx(e, unit, slot_name)
 					var position = slot * 3 + int(Select.SLOT_RANK[slot_name])
-					_add_card_listeners(e, found, kind, payload, item_card, item_ctx, 1, position, int(item_ctx.src.oid))
+					if listening.has(item_card):
+						_add_card_listeners(e, found, kind, payload, item_card, item_ctx, 1, position, int(item_ctx.src.oid))
+					if not item_mods.is_empty():
+						_add_granted_listeners(e, found, kind, payload, item_mods, item_ctx, 1, position, int(item_ctx.src.oid))
 	for player in range(2):
 		for lane_index in range(3):
 			for improvement in e.state.lanes[lane_index].get("improvements", [[], []])[player]:
@@ -652,6 +657,22 @@ static func modify(e, target, stats: Dictionary, keywords: Dictionary, grant: St
 				structure.kw[keyword] = int(structure.kw.get(keyword, 0)) + int(keywords[keyword])
 			_record(e, structure, "modify", by, source, written, keywords, grant, "perm")
 			e._event("mod", _with_grant({"id": Select.key(target), "tower": [int(target.lane), int(target.p)], "st": written, "kw": keywords, "perm": true, "src": source}, grant))
+		"item":
+			# M6: a Modify on an item instance ("Modify Stonehall Pike with
+			# ...") records the granted text on that instance, where it works
+			# like the item's printed text: host auras wherever the hero is,
+			# other auras and triggers while the hero is in a lane (RQ-38).
+			# The entries stack, leave with the instance when the item is
+			# replaced or condemned, and Purge never reaches them (RQ-12). An
+			# item has no stats or keywords of its own, so only grants apply.
+			if grant.is_empty() or not Select.in_play(e, target):
+				return
+			var host = Select.resolve_unit(e, int(target.uid))
+			var instance: Dictionary = host.get("item_state", {}).get(str(target.slot), {})
+			if instance.is_empty():
+				return
+			_record(e, instance, "modify", by, source, {}, {}, grant, "perm")
+			e._event("mod", _with_grant({"id": int(target.oid), "card": str(target.card), "st": {}, "kw": {}, "perm": true, "src": source}, grant))
 		"snapshot":
 			# RQ-54: a roster hero that died earlier in this command is in the
 			# Fountain. Heroes keep modifications through death (glossary), and a

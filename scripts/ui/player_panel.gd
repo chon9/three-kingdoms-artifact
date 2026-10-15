@@ -1,11 +1,14 @@
 extends Control
 ## A player's name plate on the right edge (opponent at the top, you at the
-## bottom): name, gold, deck and hand counts. It glows while that player is
-## acting. The opponent's plate also holds the in-match menu button.
+## bottom): name, gold, deck and hand counts, and the Deeds the player has
+## played (a public zone, RQ-41: a count, with their names in the tooltip).
+## It glows while that player is acting. The opponent's plate also holds the
+## in-match menu button.
 
 signal menu_pressed
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
+const Library = preload("res://scripts/core/card_library.gd")
 
 var own: bool = true
 var player_name: String = ""
@@ -16,6 +19,8 @@ var acting: bool = false
 var show_menu: bool = false
 ## Online opponent link (SteamBridge.connection_info()); empty offline.
 var connection: Dictionary = {}
+## Card ids in the player's deeds zone.
+var deeds: Array = []
 var _menu_hover: bool = false
 
 func _init() -> void:
@@ -34,10 +39,38 @@ func set_connection(info: Dictionary) -> void:
 	if info == connection:
 		return
 	connection = info
-	var ping = int(info.get("ping", -1))
-	tooltip_text = "" if info.is_empty() else UiKit.t("NET_TOOLTIP", {"state": UiKit.t("NET_" + str(info.get("level", "unknown")).to_upper()),
-		"ping": UiKit.t("NET_PING", {"ms": ping}) if ping >= 0 else "-"})
+	_refresh_tooltip()
 	queue_redraw()
+
+## The player's Deeds (card ids, public, RQ-41).
+func set_deeds(cards: Array) -> void:
+	if cards == deeds:
+		return
+	deeds = cards.duplicate()
+	_refresh_tooltip()
+	queue_redraw()
+
+## Re-localizes the tooltip (language or skin change).
+func refresh_text() -> void:
+	_refresh_tooltip()
+	queue_redraw()
+
+func _refresh_tooltip() -> void:
+	var lines: Array = []
+	if not connection.is_empty():
+		var ping = int(connection.get("ping", -1))
+		lines.append(UiKit.t("NET_TOOLTIP", {"state": UiKit.t("NET_" + str(connection.get("level", "unknown")).to_upper()),
+			"ping": UiKit.t("NET_PING", {"ms": ping}) if ping >= 0 else "-"}))
+	if not deeds.is_empty():
+		var counts: Dictionary = {}
+		for card_id in deeds:
+			counts[str(card_id)] = int(counts.get(str(card_id), 0)) + 1
+		var names: Array = []
+		for card_id in counts:
+			names.append(Library.loc(card_id) + ("" if int(counts[card_id]) == 1 else " ×%d" % int(counts[card_id])))
+		lines.append(UiKit.t("PANEL_DEEDS", {"deeds": UiKit.t("LIST_SEPARATOR").join(names)}))
+	tooltip_text = "
+".join(lines)
 
 func menu_rect() -> Rect2:
 	return Rect2(size.x - 44, 5, 36, 36)
@@ -71,6 +104,11 @@ func _draw() -> void:
 	x += 62.0
 	UiKit.draw_icon(self, "hand_card", Rect2(Vector2(x, center_y - 10), Vector2(20, 20)), UiKit.PAPER_DIM)
 	UiKit.draw_text_left(self, UiKit.bold_font(), str(hand), Vector2(x + 24, center_y), 17, UiKit.PAPER, -1.0, 2)
+	if not deeds.is_empty():
+		# Deeds in play (a seal and their count; the names are in the tooltip).
+		x += 56.0
+		UiKit.draw_icon(self, "crown_b", Rect2(Vector2(x, center_y - 10), Vector2(20, 20)), UiKit.GOLD_BRIGHT)
+		UiKit.draw_text_left(self, UiKit.bold_font(), str(deeds.size()), Vector2(x + 24, center_y), 17, UiKit.GOLD_BRIGHT, -1.0, 2)
 	var name_right = size.x - (52.0 if show_menu else 14.0)
 	var name_left = x + 56.0
 	if not connection.is_empty():

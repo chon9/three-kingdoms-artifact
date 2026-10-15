@@ -30,6 +30,14 @@ var dimmed: bool = false
 var face_down: bool = false
 var hovered: bool = false
 var glow_color: Color = UiKit.PLAYABLE
+## An item's price after the rules layer (a shop offer under a Shop Deed,
+## RQ-26), or null for its printed price. A lower price shows green; a
+## negative one, which pays gold, as "+N".
+var price_override = null:
+	set(value):
+		if price_override != value:
+			price_override = value
+			queue_redraw()
 ## Hand marks: [{"k": "lock" | "charges" | "hacked", "v": n}].
 var badges: Array = []:
 	set(value):
@@ -151,8 +159,16 @@ func _draw() -> void:
 		_draw_stat_bar(layout, s, color_id)
 	if card_kind == "item":
 		var coin = Vector2(size.x - 20.0 * s, size.y - 19.0 * s)
-		UiKit.draw_disc(self, coin, 15.0 * s, Color("b98a2e"), UiKit.GOLD_BRIGHT, 2.0 * s)
-		UiKit.draw_text(self, UiKit.bold_font(), str(int(definition.get("price", 0))), coin, int(17 * s), Color("2a1a08"))
+		var base = int(definition.get("price", 0))
+		var price = base if price_override == null else int(price_override)
+		if price < base:
+			# Discounted (a Shop Deed): a green coin; a negative price pays gold.
+			var label = str(price) if price >= 0 else "+%d" % -price
+			UiKit.draw_disc(self, coin, 15.0 * s, Color("3f8a3a"), UiKit.GOLD_BRIGHT, 2.0 * s)
+			UiKit.draw_text(self, UiKit.bold_font(), label, coin, int((17 if label.length() < 3 else 13) * s), UiKit.PAPER)
+		else:
+			UiKit.draw_disc(self, coin, 15.0 * s, Color("b98a2e"), UiKit.GOLD_BRIGHT, 2.0 * s)
+			UiKit.draw_text(self, UiKit.bold_font(), str(price), coin, int(17 * s), Color("2a1a08"))
 	var faction = Library.faction(card_id)
 	if faction != "neutral" and Library.current_skin() == "three_kingdoms":
 		if layout.stat_bar:
@@ -218,7 +234,9 @@ func _draw_text_box(layout: Dictionary, s: float) -> void:
 	var key = "%s|%s|%s" % [text, area, TranslationServer.get_locale()]
 	if key != _text_key:
 		_text_key = key
-		_text = UiKit.fit_paragraph(text, UiKit.body_font(), area, int(15 * s), maxi(7, int(9 * s)))
+		# Long texts (an item with a passive and an active, Apotheosis Blade)
+		# shrink below the usual minimum rather than overflow the box.
+		_text = UiKit.fit_paragraph(text, UiKit.body_font(), area, int(15 * s), maxi(6, int(7.5 * s)))
 	var height = _text.get_size().y
 	_text.draw(get_canvas_item(), Vector2(box.position.x + 6.0 * s, box.position.y + (box.size.y - height) * 0.5), ink)
 

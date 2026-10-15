@@ -1,0 +1,16 @@
+{
+"card": "rumusque_vestments",
+"source_id": 10217,
+"text": "Equipped hero has +1 Armor. | Active 2: Heal a unit 4.",
+"covers": ["active", "equip", "heal", "stat_armor", "equipped_hero", "unit", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +1 Armor: Axe has 3 Armor", "clause": 0, "tags": ["equip", "equipped_hero", "continuous", "stat_armor"], "board": {"lanes": {"0": {"p0": ["axe#a+rumusque_vestments"], "p1": ["melee_creep#c"]}}}, "do": [], "expect": {"a.armor": 3, "a.attack": 6, "a.max_health": 10}},
+ {"name": "the Armor counts in combat: Keefe's 6 deals 3", "clause": 0, "tags": ["edge", "stat_armor", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#a+rumusque_vestments"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"a.health": 7}},
+ {"name": "Active 2: heal a damaged allied hero 4", "clause": 1, "tags": ["active", "heal", "unit"], "board": {"lanes": {"0": {"p0": ["axe#a+rumusque_vestments", "keefe#k:hp=3"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"ability": "a.armor", "target": "k"}], "expect": {"k.health": 7, "initiative": 1, "events": {"has": ["ability", "heal"]}}},
+ {"name": "healing is capped at maximum Health", "clause": 1, "tags": ["edge", "heal"], "board": {"lanes": {"0": {"p0": ["axe#a+rumusque_vestments", "melee_creep#m:hp=2"], "p1": ["melee_creep#c", null]}}}, "do": [{"ability": "a.armor", "target": "m"}], "expect": {"m.health": 4}},
+ {"name": "any unit: the equipped hero or an enemy", "clause": 1, "tags": ["heal", "unit"], "board": {"lanes": {"0": {"p0": ["axe#a:hp=5+rumusque_vestments"], "p1": ["melee_creep#c:hp=1"]}}}, "do": [{"ability": "a.armor", "target": "c"}], "expect": {"c.health": 4, "a.health": 5}},
+ {"name": "the equipped hero can heal itself", "clause": 1, "tags": ["heal", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["axe#a:hp=5+rumusque_vestments"], "p1": ["melee_creep#c"]}}}, "do": [{"ability": "a.armor", "target": "a"}], "expect": {"a.health": 9}},
+ {"name": "a unit in another lane is not a target", "clause": 1, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["axe#a+rumusque_vestments"], "p1": ["melee_creep#c"]}, "1": {"p0": ["keefe#k:hp=3"], "p1": ["melee_creep#x"]}}}, "do": [], "expect_illegal": [{"ability": "a.armor", "target": "k"}]},
+ {"name": "a stunned equipped hero cannot use it", "clause": 1, "tags": ["negative", "active"], "board": {"lanes": {"0": {"p0": ["axe#a+rumusque_vestments", "keefe#k:hp=3"], "p1": ["melee_creep#c", null]}}, "give": {"a": ["stun"]}}, "do": [], "expect_illegal": [{"ability": "a.armor", "target": "k"}]},
+ {"name": "on cooldown it cannot be used again this round", "clause": 1, "tags": ["edge", "active"], "board": {"lanes": {"0": {"p0": ["axe#a+rumusque_vestments", "keefe#k:hp=3"], "p1": ["melee_creep#c", null]}}}, "do": [{"ability": "a.armor", "target": "k"}, {"pass": 1}], "expect": {"k.health": 7}, "expect_illegal": [{"ability": "a.armor", "target": "k"}]}
+]}

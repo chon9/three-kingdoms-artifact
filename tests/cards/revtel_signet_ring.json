@@ -1,0 +1,15 @@
+{
+"card": "revtel_signet_ring",
+"source_id": 10207,
+"text": "Equipped hero has +4 Health and -3 Bounty.",
+"covers": ["equip", "bounty", "stat_health", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +4 Health (11 -> 15) and -3 Bounty (5 -> 2)", "clause": 0, "tags": ["equip", "bounty", "stat_health", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "revtel_signet_ring", "target": "k"}], "expect": {"k.max_health": 15, "k.health": 15, "k.kw.bounty": 2, "k.items": {"accessory": "revtel_signet_ring"}}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "revtel_signet_ring", "target": "m"}, {"play": "revtel_signet_ring", "target": "e"}, {"play": "revtel_signet_ring", "target": "s"}]},
+ {"name": "when the hero dies, the opponent gets 5 - 3 = 2 gold", "clause": 0, "tags": ["bounty"], "board": {"lanes": {"0": {"p0": ["keefe#k+revtel_signet_ring"], "p1": ["melee_creep#c"]}}}, "do": [{"kill": ["k"]}], "expect": {"p1.gold": 2, "k.in_play": false}},
+ {"name": "killed in combat it pays 2; its own kill of the creep still pays 1", "clause": 0, "tags": ["bounty", "stat_health"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=1+revtel_signet_ring"], "p1": ["melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"p1.gold": 2, "p0.gold": 1, "k.in_play": false, "c.in_play": false}},
+ {"name": "on an enemy hero: killing it pays you only 2", "clause": 0, "tags": ["edge", "bounty"], "board": {"lanes": {"0": {"p0": ["melee_creep#c"], "p1": ["axe#e+revtel_signet_ring"]}}}, "do": [{"kill": ["e"]}], "expect": {"p0.gold": 2}},
+ {"name": "a hero returned to the Fountain alive pays no bounty at all (Town Portal Scroll)", "clause": 0, "tags": ["negative", "bounty"], "board": {"lanes": {"0": {"p0": ["keefe#k+revtel_signet_ring"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "town_portal_scroll", "target": "k"}], "expect": {"p1.gold": 0, "k.in_play": false}},
+ {"name": "replaced by Traveler's Cloak, the hero is worth 5 again", "clause": 0, "tags": ["edge", "bounty"], "board": {"lanes": {"0": {"p0": ["keefe#k+revtel_signet_ring"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "travelers_cloak", "target": "k"}, {"kill": ["k"]}], "expect": {"p1.gold": 5}},
+ {"name": "the -3 stays with the hero in the Fountain: it pays 2 again next time", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k+revtel_signet_ring"], "p1": ["melee_creep#c"]}}}, "do": [{"kill": ["k"]}], "expect": {"k.kw.bounty": 2, "k.max_health": 15, "k.in_play": false}}
+]}

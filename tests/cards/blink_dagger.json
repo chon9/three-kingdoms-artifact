@@ -1,0 +1,17 @@
+{
+"card": "blink_dagger",
+"source_id": 10206,
+"text": "Equipped hero has +2 Attack. | Active 2: Move equipped hero to another lane.",
+"covers": ["active", "equip", "move", "stat_attack", "equipped_hero", "other_lane", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +2 Attack: Axe has 8 Attack", "clause": 0, "tags": ["equip", "equipped_hero", "continuous", "stat_attack"], "board": {"lanes": {"0": {"p0": ["axe#a+blink_dagger"], "p1": ["melee_creep#c"]}}}, "do": [], "expect": {"a.attack": 8, "a.armor": 2}},
+ {"name": "the Attack counts in combat: Axe deals 8 to the hero across", "clause": 0, "tags": ["edge", "stat_attack", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#a+blink_dagger"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"k.health": 4}},
+ {"name": "Active 2: move equipped hero to the chosen other lane", "clause": 1, "tags": ["active", "move", "equipped_hero", "other_lane"], "board": {"lanes": {"0": {"p0": ["axe#a+blink_dagger", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"ability": "a.weapon", "lane": 2}], "expect": {"a.lane": 2, "a.in_play": true, "m.lane": 0, "units.0.0": 1, "units.2.0": 1, "initiative": 1, "events": {"has": ["ability", "move"]}}},
+ {"name": "the hero keeps its items and their stats in the new lane", "clause": 1, "tags": ["move", "equipped_hero"], "board": "@2", "do": [{"ability": "a.weapon", "lane": 1}], "expect": {"a.lane": 1, "a.attack": 8, "a.items": {"weapon": "blink_dagger"}}},
+ {"name": "the lane must be another lane", "clause": 1, "tags": ["negative", "other_lane"], "board": "@2", "do": [], "expect_illegal": [{"ability": "a.weapon", "lane": 0}], "expect_legal": [{"ability": "a.weapon", "lane": 1}]},
+ {"name": "rq_17: the hero enters a random empty position of the new lane", "clause": 1, "tags": ["edge", "move", "RQ-17"], "board": {"lanes": {"0": {"p0": ["axe#a+blink_dagger"], "p1": ["keefe#k"]}, "1": {"p0": [null, null], "p1": ["melee_creep#y", "melee_creep#z"]}}}, "do": [{"ability": "a.weapon", "lane": 1}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"a.slot": [0.38, 0.62]}},
+ {"name": "a silenced equipped hero cannot use it", "clause": 1, "tags": ["negative", "active"], "board": {"lanes": {}, "base": "@2", "give": {"a": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "a.weapon", "lane": 1}]},
+ {"name": "rq_38: in the Fountain it cannot be used", "clause": 1, "tags": ["negative", "active", "RQ-38"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}, "fountain": {"p0": ["axe#a+blink_dagger"]}}, "do": [], "expect_illegal": [{"ability": "a.weapon", "lane": 1}]},
+ {"name": "Active 2: in its new lane the next round it is still cooling down", "clause": 1, "tags": ["edge", "active"], "board": {"lanes": {"0": {"p0": ["axe#a+blink_dagger", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"ability": "a.weapon", "lane": 1}, {"end_round": true}, {"pass": 1}, {"combat": true}], "expect": {"lane": 1, "a.lane": 1}, "expect_illegal": [{"ability": "a.weapon", "lane": 0}]},
+ {"name": "two rounds later it is ready again in its new lane", "clause": 1, "tags": ["edge", "active"], "board": {"lanes": {"0": {"p0": ["axe#a+blink_dagger", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"ability": "a.weapon", "lane": 1}, {"end_round": true}, {"end_round": true}, {"pass": 1}, {"combat": true}], "expect": {"lane": 1, "a.lane": 1}, "expect_legal": [{"ability": "a.weapon", "lane": 0}, {"ability": "a.weapon", "lane": 2}]}
+]}

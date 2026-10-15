@@ -1,0 +1,15 @@
+{
+"card": "barbed_mail",
+"source_id": 10208,
+"text": "Equipped hero has +1 Armor and +2 Retaliate.",
+"covers": ["equip", "retaliate", "stat_armor", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +1 Armor (1 -> 2) and +2 Retaliate", "clause": 0, "tags": ["equip", "retaliate", "stat_armor", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "barbed_mail", "target": "k"}], "expect": {"k.armor": 2, "k.kw.retaliate": 2, "k.items": {"armor": "barbed_mail"}}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "barbed_mail", "target": "m"}, {"play": "barbed_mail", "target": "e"}, {"play": "barbed_mail", "target": "s"}]},
+ {"name": "in combat the Brawler takes 6 + 2 Retaliate (16 -> 8); the hero takes 6 - 2 (11 -> 7)", "clause": 0, "tags": ["retaliate", "stat_armor"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["marrowfell_brawler#b"]}}}, "do": [{"play": "barbed_mail", "target": "k"}, {"combat": true}], "expect": {"b.health": 8, "k.health": 7}},
+ {"name": "rq_06: Retaliate is reduced by the attacker's armor: Axe takes 6 - 2 and 2 - 2 (10 -> 6)", "clause": 0, "tags": ["edge", "retaliate", "RQ-06"], "board": {"lanes": {"0": {"p0": ["keefe#k+barbed_mail"], "p1": ["axe#e"]}}}, "do": [{"combat": true}], "expect": {"e.health": 6, "k.health": 7}},
+ {"name": "rq_06: a stunned hero does not attack but still retaliates (16 -> 14)", "clause": 0, "tags": ["edge", "retaliate", "RQ-06"], "board": {"lanes": {"0": {"p0": ["keefe#k+barbed_mail"], "p1": ["marrowfell_brawler#b"]}}, "give": {"k": ["stun"]}}, "do": [{"combat": true}], "expect": {"b.health": 14, "k.health": 7}},
+ {"name": "rq_06: Retaliate applies in a battle outside the combat phase (Berserker's Call)", "clause": 0, "tags": ["edge", "retaliate", "RQ-06"], "board": {"lanes": {"0": {"p0": ["keefe#k+barbed_mail"], "p1": ["marrowfell_brawler#b"]}}}, "do": [{"play": "berserkers_call", "target": "k"}], "expect": {"b.health": 8, "k.health": 7}},
+ {"name": "a disarmed attacker does not attack, so nothing is retaliated (16 -> 10)", "clause": 0, "tags": ["negative", "retaliate"], "board": {"lanes": {"0": {"p0": ["keefe#k+barbed_mail"], "p1": ["marrowfell_brawler#b"]}}, "give": {"b": ["disarm"]}}, "do": [{"combat": true}], "expect": {"b.health": 10, "k.health": 11}},
+ {"name": "the bonuses stay with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "barbed_mail", "target": "k"}, {"kill": ["k"]}], "expect": {"k.armor": 2, "k.kw.retaliate": 2, "k.in_play": false}}
+]}

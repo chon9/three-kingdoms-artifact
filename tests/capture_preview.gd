@@ -38,6 +38,16 @@ extends SceneTree
 ## catalog filtered to black / Qun), m5_catalog_zh, m5_catalog_classic,
 ## m5_catalog_classic_zh, m5_decks (the new presets in the deck dialog) and
 ## m5_decks_zh.
+## M6 (items, the item presets): m6_lane (Five Tiger Generals against the
+## Battle of Guandu: heroes with M6 equipment, one Stonehall item grown twice,
+## M6 items in hand, a Shop Deed on each plate), m6_lane_zh, m6_lane_classic,
+## m6_lane_classic_zh, m6_hand (an item lifted), m6_hand_zh, m6_item_inspect
+## (a grown Stonehall item: its granted text with its count), m6_item_inspect_zh,
+## m6_shop (a free Secret Shop offer under a Shop Deed), m6_shop_zh,
+## m6_shop_paid (two deeds: the offer pays gold), m6_catalog (the catalog
+## filtered to neutral: the items by slot and price), m6_catalog_zh,
+## m6_catalog_classic, m6_catalog_classic_zh, m6_decks (the new presets in the
+## deck dialog) and m6_decks_zh.
 ## Pass --size=1280x720 to check the smaller window, --out=res://dir/ to save
 ## the shots elsewhere.
 
@@ -49,6 +59,8 @@ const Bot = preload("res://scripts/ai/heuristic_bot.gd")
 const Library = preload("res://scripts/core/card_library.gd")
 const Kernel = preload("res://scripts/core/rules/kernel.gd")
 const Zones = preload("res://scripts/core/rules/zones.gd")
+const Select = preload("res://scripts/core/rules/select.gd")
+const Stats = preload("res://scripts/core/rules/stats.gd")
 const FIXTURES = "res://tests/fixtures/rules_fixtures.json"
 const M2_SHOTS = ["m2_board", "m2_board_zh", "m2_overview", "m2_stepper_lane", "m2_stepper_position",
 	"m2_stepper_improvement", "m2_item_ability", "m2_inspect", "m2_anim_status", "m2_anim_combat", "m2_chip_rows",
@@ -65,6 +77,14 @@ const M5_SHOTS = ["m5_lane", "m5_lane_zh", "m5_lane_classic", "m5_lane_classic_z
 	"m5_inspect_zh", "m5_catalog", "m5_catalog_zh", "m5_catalog_classic", "m5_catalog_classic_zh", "m5_decks", "m5_decks_zh"]
 ## New black cards for the M5 hand (EFFECT_SYSTEM_SPEC.md Appendix A).
 const M5_HAND = ["gank", "winters_curse", "coordinated_assault", "assassins_shadow", "the_cover_of_night", "march_of_the_machines", "heartstopper_aura"]
+const M6_SHOTS = ["m6_lane", "m6_lane_zh", "m6_lane_classic", "m6_lane_classic_zh", "m6_hand", "m6_hand_zh", "m6_item_inspect",
+	"m6_item_inspect_zh", "m6_shop", "m6_shop_zh", "m6_shop_paid", "m6_catalog", "m6_catalog_zh", "m6_catalog_classic",
+	"m6_catalog_classic_zh", "m6_decks", "m6_decks_zh"]
+## M6 items for the hand (EFFECT_SYSTEM_SPEC.md Appendix A).
+const M6_HAND = ["golden_ticket", "obliterating_orb", "fountain_flask", "apotheosis_blade", "horn_of_the_alpha", "claszureme_hourglass", "shop_deed"]
+## M6 equipment for player 0's heroes in the shown lane, by slot.
+const M6_GEAR = [["stonehall_pike", "stonehall_plate", "stonehall_cloak"], ["blink_dagger", "vesture_of_the_tyrant", "phase_boots"],
+	["wingfall_hammer", "seraphim_shield", "book_of_the_dead"]]
 const OUT = "res://.tools/shots/"
 const SEED = 20482
 
@@ -233,6 +253,7 @@ func _run() -> void:
 	await _capture_m3()
 	await _capture_m4()
 	await _capture_m5()
+	await _capture_m6()
 	print("Shots: ", ", ".join(saved))
 	app.queue_free()
 	await process_frame
@@ -1012,6 +1033,160 @@ func _capture_m5() -> void:
 			app.set_locale("zh_CN")
 			await _wait(0.6)
 			await _shot("m5_decks_zh")
+			app.set_locale("en")
+		app.close_dialogs()
+		await _wait(0.2)
+
+
+func _capture_m6() -> void:
+	if not M6_SHOTS.any(func(shot): return _wanted(shot)):
+		return
+	var screen = app.screen
+	app.set_locale("en")
+	app.set_skin("three_kingdoms")
+	app.deck_selections = ["five_tigers", "battle_of_guandu"]
+	app.controller.current_seed = SEED + 61
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	AnimationQueue.instant = true
+	var reached = _advance(_busy_lane, 1500)
+	var engine = app.controller.engine
+	print("M6 state: ", reached, " round ", engine.state.round, " lane ", engine.state.lane)
+	var lane_index = int(engine.state.lane)
+	# M6 equipment on player 0's heroes in this lane; the first one's
+	# Stonehall items have grown twice (granted text on the item instances).
+	var heroes: Array = engine.state.lanes[lane_index].units[0].filter(func(unit): return unit != null and unit.hero)
+	var grown = -1
+	for index in range(mini(heroes.size(), M6_GEAR.size())):
+		for card_id in M6_GEAR[index]:
+			Zones.equip(engine, heroes[index], card_id)
+	if not heroes.is_empty():
+		grown = int(heroes[0].uid)
+		for slot in ["weapon", "armor", "accessory"]:
+			var item_id = str(heroes[0].items.get(slot, ""))
+			for count in range(2):
+				Kernel.modify(engine, Select.item_handle(heroes[0], slot), {}, {}, item_id + "#0", {"controller": 0, "card": item_id})
+	for side in range(2):
+		engine.state.players[side].deeds = [{"oid": Kernel.next_oid(engine), "card": "shop_deed", "owner": side}]
+	engine.state.players[0].hand = M6_HAND.duplicate()
+	engine.state.players[0].hand_state = []
+	Zones.sync(engine)
+	engine._reset_transient()
+	Stats.settle(engine)
+	engine._settle_transient()
+	_publish()
+	await _idle()
+	AnimationQueue.instant = false
+	screen.view_lane(lane_index)
+	_mouse(screen.size * 0.5 + Vector2(0, 40))
+	await _wait(0.8)
+	await _shot("m6_lane")
+	if _wanted("m6_lane_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.3)
+		await _shot("m6_lane_zh")
+		app.set_locale("en")
+		await _wait(0.2)
+	if _wanted("m6_lane_classic") or _wanted("m6_lane_classic_zh"):
+		app.set_skin("classic")
+		await _wait(0.4)
+		await _shot("m6_lane_classic")
+		if _wanted("m6_lane_classic_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m6_lane_classic_zh")
+			app.set_locale("en")
+		app.set_skin("three_kingdoms")
+		await _wait(0.3)
+	if _wanted("m6_hand") or _wanted("m6_hand_zh"):
+		_mouse(screen.hand_card_point(3))
+		await _wait(0.9)
+		await _shot("m6_hand")
+		if _wanted("m6_hand_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m6_hand_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.4)
+	if (_wanted("m6_item_inspect") or _wanted("m6_item_inspect_zh")) and grown != -1:
+		screen.inspect_item(grown, "weapon")
+		await _wait(0.5)
+		await _shot("m6_item_inspect")
+		if _wanted("m6_item_inspect_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m6_item_inspect_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		screen.inspect.close()
+		await _wait(0.2)
+	if _wanted("m6_shop") or _wanted("m6_shop_zh") or _wanted("m6_shop_paid"):
+		AnimationQueue.instant = true
+		_advance(func(state): return state.phase == "shop")
+		AnimationQueue.instant = false
+		# One deed each (the bot may have played the Seal from its hand on the way).
+		for side in range(2):
+			engine.state.players[side].finished = false
+			engine.state.players[side].deeds = [{"oid": Kernel.next_oid(engine), "card": "shop_deed", "owner": side}]
+		engine.state.players[0].shop = {"secret": "apotheosis_blade", "item": str(engine.state.players[0].shop.get("item", "")),
+			"consumable": "fountain_flask"}
+		engine.state.players[0].gold = 6
+		engine.state.players[0].held_secret = ""
+		_publish()
+		await _wait(0.8)
+		await _shot("m6_shop")
+		if _wanted("m6_shop_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.3)
+			await _shot("m6_shop_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		if _wanted("m6_shop_paid"):
+			engine.state.players[0].deeds.append({"oid": Kernel.next_oid(engine), "card": "shop_deed", "owner": 0})
+			_publish()
+			await _wait(0.5)
+			await _shot("m6_shop_paid")
+	if _wanted("m6_catalog") or _wanted("m6_catalog_zh") or _wanted("m6_catalog_classic") or _wanted("m6_catalog_classic_zh"):
+		var catalog = app.open_catalog()
+		await _frames(3)
+		catalog.apply_filter("neutral")
+		await _wait(0.8)
+		await _shot("m6_catalog")
+		if _wanted("m6_catalog_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			catalog.apply_filter("neutral")
+			await _wait(0.6)
+			await _shot("m6_catalog_zh")
+			app.set_locale("en")
+			await _wait(0.3)
+		if _wanted("m6_catalog_classic") or _wanted("m6_catalog_classic_zh"):
+			app.set_skin("classic")
+			await _wait(0.6)
+			catalog.apply_filter("neutral")
+			await _wait(0.6)
+			await _shot("m6_catalog_classic")
+			if _wanted("m6_catalog_classic_zh"):
+				app.set_locale("zh_CN")
+				await _wait(0.6)
+				catalog.apply_filter("neutral")
+				await _wait(0.6)
+				await _shot("m6_catalog_classic_zh")
+				app.set_locale("en")
+			app.set_skin("three_kingdoms")
+		app.close_dialogs()
+		await _wait(0.2)
+	if _wanted("m6_decks") or _wanted("m6_decks_zh"):
+		app.deck_selections = ["five_tigers", "warlords_rise"]
+		app.open_decks()
+		await _wait(0.8)
+		await _shot("m6_decks")
+		if _wanted("m6_decks_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			await _shot("m6_decks_zh")
 			app.set_locale("en")
 		app.close_dialogs()
 		await _wait(0.2)

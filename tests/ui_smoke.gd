@@ -563,6 +563,8 @@ func _run() -> void:
 	var blue_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
 	catalog.apply_filter("black")
 	var black_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
+	catalog.apply_filter("neutral")
+	var neutral_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
 	catalog.apply_filter("all")
 	if not _require(total == pack.heroes.size() + pack.cards.size() and total >= 190 and str(catalog.cards[0].definition.get("kind", "")) == "hero"
 			and greens > 0 and greens < total and "treant_protector" in green_ids and "viper_strike" in green_ids and "duel" not in green_ids
@@ -576,6 +578,10 @@ func _run() -> void:
 	if not _require(["sorla_khan", "lich", "winter_wyvern", "chain_frost", "assault_ladders", "march_of_the_machines", "ravenous_mass", "gank"].all(func(card_id): return card_id in black_ids)
 			and "eclipse" not in black_ids and "duel" not in black_ids,
 			"The black (Qun) filter shows the M5 cards, the draft Chain Frost included (%d black)" % black_ids.size()):
+		return
+	if not _require(["blink_dagger", "stonehall_pike", "apotheosis_blade", "book_of_the_dead", "shop_deed", "golden_ticket", "fountain_flask"].all(func(card_id): return card_id in neutral_ids)
+			and "duel" not in neutral_ids and "gank" not in neutral_ids,
+			"The neutral filter shows the M6 items (%d neutral)" % neutral_ids.size()):
 		return
 	app.close_dialogs()
 	await process_frame
@@ -715,17 +721,79 @@ func _run() -> void:
 		return
 	if not await _check_m2_ui():
 		return
+	if not await _check_m6_ui():
+		return
 	app.show_main_menu()
 	if not _require(app.menu.visible and app.menu.buttons.resume.visible, "The main menu offers to resume the match"):
 		return
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog)." % checks)
 	app.queue_free()
 	await process_frame
 	_restore_settings()
 	quit(0)
+
+## The M6 UI (spec §12 M6): Keenfolk Musket's active clicked on its item slot
+## and aimed at a unit; under a Shop Deed the Secret Shop offer is free and
+## says so, with two it pays gold, and the purchase is logged as paid; both
+## players' plates show the deeds zone (RQ-41).
+func _check_m6_ui() -> bool:
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_LOCAL)
+	await _settle()
+	var engine = _engine()
+	var hero: Dictionary = engine.state.players[0].roster[0]
+	_place_in_lane(hero, 10)
+	Zones.equip(engine, hero, "keenfolk_musket")
+	var mark = engine._make_creep(1)
+	engine._spawn(mark, 0)
+	_act_in_lane_zero([])
+	await _settle()
+	var point = screen.item_ability_point(int(hero.uid), "weapon")
+	if not _require(point != Vector2.ZERO, "Keenfolk Musket's item slot is an ability button"):
+		return false
+	_click(point)
+	if not _require(screen.current_step_type() == "unit", "Clicking the Musket asks for a unit"):
+		return false
+	screen.target_unit(int(mark.uid))
+	await _settle()
+	if not _require(int(mark.health) == 2 and int(hero.item_state.weapon.cd) == 2,
+			"The Musket deals 2 damage to the chosen unit and starts its own cooldown (health %d, cooldown %d)" % [int(mark.health), int(hero.item_state.weapon.cd)]):
+		return false
+	# Shop Deeds: the Secret Shop offer's price after the rules layer.
+	app.local_player = 0
+	engine.state.players[0].deeds = [{"oid": Kernel.next_oid(engine), "card": "shop_deed", "owner": 0}]
+	engine.state.phase = "shop"
+	for owner in engine.state.players:
+		owner.finished = false
+		owner.shop = {"secret": "claymore", "item": "", "consumable": "healing_salve"}
+	engine.state.players[0].gold = 0
+	app.controller.refresh()
+	await _settle()
+	var secret: Dictionary = screen.shop.slots.secret
+	if not _require(screen.shop.visible and secret.card.price_override == 0 and secret.label.text.find(UiKit.t("SHOP_PRICE_FREE")) != -1
+			and screen.shop.slots.consumable.card.price_override == 3 and not secret.buy.disabled,
+			"Under a Shop Deed the Secret Shop offer is free, says so and can be bought with no gold (%s)" % secret.label.text):
+		return false
+	if not _require(screen.own_panel.deeds == ["shop_deed"] and screen.own_panel.tooltip_text.find(Library.loc("shop_deed")) != -1 and screen.enemy_panel.deeds.is_empty(),
+			"The player's plate shows its deed, the opponent's none (%s)" % screen.own_panel.tooltip_text):
+		return false
+	engine.state.players[0].deeds.append({"oid": Kernel.next_oid(engine), "card": "shop_deed", "owner": 0})
+	app.controller.refresh()
+	await _settle()
+	if not _require(secret.card.price_override == -14 and secret.label.text.find(UiKit.t("SHOP_PRICE_PAYS", {"gold": 14})) != -1,
+			"With two deeds the Claymore offer pays 14 gold (%s)" % secret.label.text):
+		return false
+	secret.buy.pressed.emit()
+	await _settle()
+	var bought = engine.state.events.filter(func(event): return str(event.get("k", "")) == "buy")
+	var line = EventText.format(bought.back()) if not bought.is_empty() else ""
+	if not _require(int(engine.state.players[0].gold) == 14 and line.find("14") != -1 and line.find("-14") == -1,
+			"Buying it pays 14 gold, and the log says so (%s)" % line):
+		return false
+	return true
 
 # --- M2: statuses, hand marks, the target stepper and ability buttons ------------
 

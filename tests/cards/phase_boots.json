@@ -1,0 +1,16 @@
+{
+"card": "phase_boots",
+"source_id": 10203,
+"text": "Equipped hero has +4 Health. | Active 2: Swap equipped hero with another ally.",
+"covers": ["active", "equip", "stat_health", "swap", "allied_unit", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +4 Health: Axe has 14 maximum Health", "clause": 0, "tags": ["equip", "equipped_hero", "continuous", "stat_health"], "board": {"lanes": {"0": {"p0": ["axe#a+phase_boots"], "p1": ["melee_creep#c"]}}}, "do": [], "expect": {"a.max_health": 14, "a.health": 14}},
+ {"name": "the Health survives damage: Keefe's 6 leaves Axe at 10", "clause": 0, "tags": ["edge", "stat_health", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#a+phase_boots"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"a.health": 10, "a.in_play": true}},
+ {"name": "Active 2: swap equipped hero with another ally, not only a neighbor", "clause": 1, "tags": ["active", "swap", "allied_unit", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["axe#a+phase_boots", "melee_creep#m", "keefe#k"], "p1": ["melee_creep#x", "melee_creep#y", "melee_creep#z"]}}}, "do": [{"ability": "a.accessory", "target": "k"}], "expect": {"a.slot": 2, "k.slot": 0, "m.slot": 1, "a.lane": 0, "initiative": 1, "events": {"has": ["ability", "swap"], "not": ["move"]}}},
+ {"name": "in combat each unit fights from its new position", "clause": 1, "tags": ["swap"], "board": "@2", "do": [{"ability": "a.accessory", "target": "k"}, {"combat": true}], "expect": {"z.in_play": false, "x.in_play": false, "a.health": 14, "k.health": 10}},
+ {"name": "rq_30: arrows stay with the positions", "clause": 1, "tags": ["edge", "swap", "RQ-30"], "board": {"lanes": {"0": {"p0": ["axe#a:arrow=1+phase_boots", "melee_creep#m"], "p1": [null, "melee_creep#y"]}}}, "do": [{"ability": "a.accessory", "target": "m"}], "expect": {"m.slot": 0, "m.arrow": 1, "a.slot": 1, "a.arrow": 0}},
+ {"name": "another ally only: not the hero itself, an enemy, or an ally in another lane", "clause": 1, "tags": ["negative", "allied_unit"], "board": {"lanes": {"0": {"p0": ["axe#a+phase_boots", "melee_creep#m"], "p1": ["melee_creep#x", "melee_creep#y"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [], "expect_illegal": [{"ability": "a.accessory", "target": "a"}, {"ability": "a.accessory", "target": "x"}, {"ability": "a.accessory", "target": "o"}], "expect_legal": [{"ability": "a.accessory", "target": "m"}]},
+ {"name": "an equipped hero with no other ally has nothing to swap with", "clause": 1, "tags": ["negative", "allied_unit"], "board": {"lanes": {"0": {"p0": ["axe#a+phase_boots"], "p1": ["melee_creep#x"]}}}, "do": [], "expect_illegal": [{"ability": "a.accessory", "target": "x"}, {"ability": "a.accessory", "target": "a"}]},
+ {"name": "a silenced equipped hero cannot use it", "clause": 1, "tags": ["negative", "active"], "board": {"lanes": {}, "base": "@2", "give": {"a": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "a.accessory", "target": "k"}]},
+ {"name": "on cooldown it cannot be used again this round", "clause": 1, "tags": ["edge", "active"], "board": "@2", "do": [{"ability": "a.accessory", "target": "k"}, {"pass": 1}], "expect_illegal": [{"ability": "a.accessory", "target": "m"}]}
+]}

@@ -8655,6 +8655,1561 @@
         "RQ-50"
       ],
       "valve_text": "Siege 5. Assassin's Shadow has -2 Attack for each ally."
+    },
+    {
+      "id": "chainmail",
+      "source_id": 10214,
+      "name": "Chainmail",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10214_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{armor} Armor.",
+      "price": 6,
+      "slot": "armor",
+      "armor": 2,
+      "status": "verified",
+      "valve_text": "Equipped hero has +2 Armor."
+    },
+    {
+      "id": "fur_lined_mantle",
+      "source_id": 10213,
+      "name": "Fur-lined Mantle",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10213_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{health} Health.",
+      "price": 6,
+      "slot": "accessory",
+      "health": 8,
+      "status": "verified",
+      "rq": [
+        "RQ-40"
+      ],
+      "valve_text": "Equipped hero has +8 Health."
+    },
+    {
+      "id": "heros_cape",
+      "source_id": 10236,
+      "name": "Hero's Cape",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10236_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{health} Health.",
+      "price": 12,
+      "slot": "accessory",
+      "health": 16,
+      "status": "verified",
+      "rq": [
+        "RQ-40"
+      ],
+      "valve_text": "Equipped hero has +16 Health."
+    },
+    {
+      "id": "platemail",
+      "source_id": 10237,
+      "name": "Platemail",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10237_card.png",
+      "artist": "Sam Carr",
+      "text": "Equipped hero has +{armor} Armor.",
+      "price": 12,
+      "slot": "armor",
+      "armor": 4,
+      "status": "verified",
+      "valve_text": "Equipped hero has +4 Armor."
+    },
+    {
+      "id": "red_mist_maul",
+      "source_id": 10223,
+      "name": "Red Mist Maul",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10223_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{attack} Attack and +{siege} Siege.",
+      "price": 9,
+      "slot": "weapon",
+      "attack": 2,
+      "siege": 5,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "maul",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "siege": {
+              "param": "siege"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-07"
+      ],
+      "valve_text": "Equipped hero has +2 Attack and +5 Siege."
+    },
+    {
+      "id": "barbed_mail",
+      "source_id": 10208,
+      "name": "Barbed Mail",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10208_card.png",
+      "artist": "Sam Carr",
+      "text": "Equipped hero has +{armor} Armor and +{retaliate} Retaliate.",
+      "price": 5,
+      "slot": "armor",
+      "armor": 1,
+      "retaliate": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "barbs",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "retaliate": {
+              "param": "retaliate"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-06"
+      ],
+      "valve_text": "Equipped hero has +1 Armor and +2 Retaliate."
+    },
+    {
+      "id": "blade_of_the_vigil",
+      "source_id": 10212,
+      "name": "Blade of the Vigil",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10212_card.png",
+      "artist": "Sam Carr",
+      "text": "Equipped hero has +{attack} Attack and +{cleave} Cleave.",
+      "price": 7,
+      "slot": "weapon",
+      "attack": 2,
+      "cleave": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "vigil",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "cleave": {
+              "param": "cleave"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-07",
+        "RQ-08"
+      ],
+      "valve_text": "Equipped hero has +2 Attack and +4 Cleave."
+    },
+    {
+      "id": "ring_of_tarrasque",
+      "source_id": 10220,
+      "name": "Ring of Tarrasque",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10220_card.png",
+      "artist": "Daarken",
+      "text": "Equipped hero has +{health} Health and +{regeneration} Regeneration.",
+      "price": 10,
+      "slot": "accessory",
+      "health": 4,
+      "regeneration": 6,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "tarrasque",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "regeneration": {
+              "param": "regeneration"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-09"
+      ],
+      "valve_text": "Equipped hero has +4 Health and +6 Regeneration."
+    },
+    {
+      "id": "revtel_signet_ring",
+      "source_id": 10207,
+      "name": "Revtel Signet Ring",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10207_card.png",
+      "artist": "JiHun Lee",
+      "text": "Equipped hero has +{health} Health and {bounty} Bounty.",
+      "price": 4,
+      "slot": "accessory",
+      "health": 4,
+      "bounty": -3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "signet",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "bounty": {
+              "param": "bounty"
+            }
+          }
+        }
+      ],
+      "valve_text": "Equipped hero has +4 Health and -3 Bounty."
+    },
+    {
+      "id": "ristul_emblem",
+      "source_id": 10230,
+      "name": "Ristul Emblem",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10230_card.png",
+      "artist": "Christine Choi",
+      "text": "Equipped hero has +{health} Health and {armor} Armor. The unit blocking equipped hero has {blocker_armor} Armor.",
+      "price": 4,
+      "slot": "accessory",
+      "armor": -2,
+      "health": 4,
+      "blocker_armor": -2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "ristul",
+          "kind": "aura",
+          "affects": "blocker",
+          "grant": {
+            "armor": {
+              "param": "blocker_armor"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-05"
+      ],
+      "valve_text": "Equipped hero has +4 Health and -2 Armor. The unit blocking equipped hero has -2 Armor."
+    },
+    {
+      "id": "shield_of_basilius",
+      "source_id": 10242,
+      "name": "Shield of Basilius",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10242_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{armor} Armor. Equipped hero's allied neighbors have +{neighbor_armor} Armor.",
+      "price": 8,
+      "slot": "armor",
+      "armor": 2,
+      "neighbor_armor": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "basilius",
+          "kind": "aura",
+          "affects": "allied_neighbors",
+          "grant": {
+            "armor": {
+              "param": "neighbor_armor"
+            }
+          }
+        }
+      ],
+      "valve_text": "Equipped hero has +2 Armor. Equipped hero's allied neighbors have +1 Armor."
+    },
+    {
+      "id": "shield_of_aquila",
+      "source_id": 10243,
+      "name": "Shield of Aquila",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10243_card.png",
+      "artist": "Anastasia Ovchinnikova",
+      "text": "Equipped hero has +{armor} Armor. Equipped hero's allied neighbors have +{neighbor_armor} Armor.",
+      "price": 10,
+      "slot": "armor",
+      "armor": 2,
+      "neighbor_armor": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "aquila",
+          "kind": "aura",
+          "affects": "allied_neighbors",
+          "grant": {
+            "armor": {
+              "param": "neighbor_armor"
+            }
+          }
+        }
+      ],
+      "valve_text": "Equipped hero has +2 Armor. Equipped hero's allied neighbors have +3 Armor."
+    },
+    {
+      "id": "keenfolk_plate",
+      "source_id": 10259,
+      "name": "Keenfolk Plate",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10259_card.png",
+      "artist": "James Paick",
+      "text": "Equipped hero has +{armor} Armor. Equipped hero has +{armor_per_attacker} Armor for each of its attackers. Equipped hero's attackers have -{attacker_armor_loss} Armor.",
+      "price": 8,
+      "slot": "armor",
+      "armor": 1,
+      "armor_per_attacker": 1,
+      "attacker_armor_loss": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "keenfolk_plate",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "armor": {
+              "mul": [
+                {
+                  "count": "attackers"
+                },
+                {
+                  "param": "armor_per_attacker"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "keenfolk_plate_attackers",
+          "kind": "aura",
+          "affects": "attackers",
+          "grant": {
+            "armor": {
+              "neg": {
+                "param": "attacker_armor_loss"
+              }
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-05",
+        "RQ-38"
+      ],
+      "valve_text": "Equipped hero has +1 Armor. Equipped hero has +1 Armor for each of its attackers. Equipped hero's attackers have -1 Armor."
+    },
+    {
+      "id": "seraphim_shield",
+      "source_id": 10232,
+      "name": "Seraphim Shield",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10232_card.png",
+      "artist": "Magali Villeneuve",
+      "text": "Equipped hero has +{armor} Armor. All units have -{attack_loss} Attack.",
+      "price": 13,
+      "slot": "armor",
+      "armor": 2,
+      "attack_loss": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "seraphim",
+          "kind": "aura",
+          "affects": "units",
+          "grant": {
+            "attack": {
+              "neg": {
+                "param": "attack_loss"
+              }
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-04",
+        "RQ-38"
+      ],
+      "valve_text": "Equipped hero has +2 Armor. All units have -2 Attack."
+    },
+    {
+      "id": "vesture_of_the_tyrant",
+      "source_id": 10225,
+      "name": "Vesture of the Tyrant",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10225_card.png",
+      "artist": "Suzanne Helmigh",
+      "text": "Equipped hero has +{armor} Armor and Rapid Deployment. Your tower has +{tower_armor} Armor.",
+      "price": 19,
+      "slot": "armor",
+      "armor": 3,
+      "tower_armor": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "tyrant",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "rapid_deployment": 1
+          }
+        },
+        {
+          "id": "tyrant_tower",
+          "kind": "aura",
+          "affects": "your_tower",
+          "grant": {
+            "armor": {
+              "param": "tower_armor"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-38"
+      ],
+      "valve_text": "Equipped hero has +3 Armor and Rapid Deployment. Your tower has +3 Armor."
+    },
+    {
+      "id": "stonehall_cloak",
+      "source_id": 10205,
+      "name": "Stonehall Cloak",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10205_card.png",
+      "artist": "Suzanne Helmigh",
+      "text": "Equipped hero has +{health} Health. Modify Stonehall Cloak with \"Equipped hero has +{growth_health} Health\" after the combat phase.",
+      "price": 5,
+      "slot": "accessory",
+      "health": 4,
+      "growth_health": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "stonehall",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "grant": 0
+            }
+          ]
+        }
+      ],
+      "grants": [
+        {
+          "id": "stonehall_cloak_growth",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "max_health": {
+              "param": "growth_health"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-38"
+      ],
+      "valve_text": "Equipped hero has +4 Health. Modify Stonehall Cloak with \"Equipped hero has +2 Health\" after the combat phase."
+    },
+    {
+      "id": "stonehall_pike",
+      "source_id": 10252,
+      "name": "Stonehall Pike",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10252_card.png",
+      "artist": "Robbie Trevino",
+      "text": "Equipped hero has +{attack} Attack. Modify Stonehall Pike with \"Equipped hero has +{growth_attack} Attack\" after the combat phase.",
+      "price": 5,
+      "slot": "weapon",
+      "attack": 2,
+      "growth_attack": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "stonehall",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "grant": 0
+            }
+          ]
+        }
+      ],
+      "grants": [
+        {
+          "id": "stonehall_pike_growth",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "attack": {
+              "param": "growth_attack"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-38"
+      ],
+      "valve_text": "Equipped hero has +2 Attack. Modify Stonehall Pike with \"Equipped hero has +1 Attack\" after the combat phase."
+    },
+    {
+      "id": "stonehall_plate",
+      "source_id": 10253,
+      "name": "Stonehall Plate",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10253_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{armor} Armor. Modify Stonehall Plate with \"Equipped hero has +{growth_armor} Armor\" after the combat phase.",
+      "price": 5,
+      "slot": "armor",
+      "armor": 1,
+      "growth_armor": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "stonehall",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "grant": 0
+            }
+          ]
+        }
+      ],
+      "grants": [
+        {
+          "id": "stonehall_plate_growth",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "armor": {
+              "param": "growth_armor"
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-38"
+      ],
+      "valve_text": "Equipped hero has +1 Armor. Modify Stonehall Plate with \"Equipped hero has +1 Armor\" after the combat phase."
+    },
+    {
+      "id": "poaching_knife",
+      "source_id": 10234,
+      "name": "Poaching Knife",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10234_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{attack} Attack. Get {hero_gold} gold after an enemy hero dies. Get {creep_gold} gold after an enemy creep dies.",
+      "price": 8,
+      "slot": "weapon",
+      "attack": 2,
+      "hero_gold": 5,
+      "creep_gold": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "poach_hero",
+          "kind": "trigger",
+          "on": "unit_died",
+          "filter": {
+            "side": "enemy",
+            "kind": "hero"
+          },
+          "ops": [
+            {
+              "op": "gold",
+              "player": "you",
+              "add": {
+                "param": "hero_gold"
+              }
+            }
+          ]
+        },
+        {
+          "id": "poach_creep",
+          "kind": "trigger",
+          "on": "unit_died",
+          "filter": {
+            "side": "enemy",
+            "kind": "creep"
+          },
+          "ops": [
+            {
+              "op": "gold",
+              "player": "you",
+              "add": {
+                "param": "creep_gold"
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-03",
+        "RQ-38",
+        "RQ-43"
+      ],
+      "valve_text": "Equipped hero has +2 Attack. Get 5 gold after an enemy hero dies. Get 1 gold after an enemy creep dies."
+    },
+    {
+      "id": "cloak_of_endless_carnage",
+      "source_id": 10231,
+      "name": "Cloak of Endless Carnage",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10231_card.png",
+      "artist": "Daarken",
+      "text": "Equipped hero has +{health} Health. Draw a card after an allied neighbor of equipped hero dies.",
+      "price": 10,
+      "slot": "accessory",
+      "health": 8,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "carnage",
+          "kind": "trigger",
+          "on": "unit_died",
+          "filter": {
+            "was": "allied_neighbor"
+          },
+          "ops": [
+            {
+              "op": "draw",
+              "player": "you",
+              "n": 1
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-38",
+        "RQ-43"
+      ],
+      "valve_text": "Equipped hero has +8 Health. Draw a card after an allied neighbor of equipped hero dies."
+    },
+    {
+      "id": "jasper_daggers",
+      "source_id": 10256,
+      "name": "Jasper Daggers",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10256_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{attack} Attack and Pierce. Equip Effect: Purge your opponent's effects from equipped hero.",
+      "price": 5,
+      "slot": "weapon",
+      "attack": 2,
+      "status": "verified",
+      "enter": [
+        {
+          "op": "purge",
+          "to": "$host",
+          "from": "opponent"
+        }
+      ],
+      "abilities": [
+        {
+          "id": "jasper",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "pierce": 1
+          }
+        }
+      ],
+      "rq": [
+        "RQ-12",
+        "RQ-35"
+      ],
+      "valve_text": "Equipped hero has +2 Attack and Pierce. | Equip Effect: Purge your opponent's effects from equipped hero."
+    },
+    {
+      "id": "assassins_veil",
+      "source_id": 10202,
+      "name": "Assassin's Veil",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10202_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{health} Health. Active {ability_cooldown}: Choose a combat target for equipped hero.",
+      "ability_name": "Assassin's Veil",
+      "price": 4,
+      "slot": "accessory",
+      "health": 4,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "veil",
+          "kind": "active",
+          "valve": 10469,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "destination",
+              "combat_target_of": "$host"
+            }
+          ],
+          "ops": [
+            {
+              "op": "retarget",
+              "unit": "$host",
+              "to": "$c.destination"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-19"
+      ],
+      "valve_text": "Equipped hero has +4 Health. | Active 2: Choose a combat target for equipped hero."
+    },
+    {
+      "id": "keenfolk_musket",
+      "source_id": 10218,
+      "name": "Keenfolk Musket",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10218_card.png",
+      "artist": "Mobo Boehme",
+      "text": "Equipped hero has +{attack} Attack. Active {ability_cooldown}: Deal {amount} damage to a unit.",
+      "ability_name": "Keenfolk Musket",
+      "price": 6,
+      "slot": "weapon",
+      "attack": 2,
+      "ability_cooldown": 2,
+      "amount": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "musket",
+          "kind": "active",
+          "valve": 10474,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "to": "$c.target",
+              "amount": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-24"
+      ],
+      "valve_text": "Equipped hero has +2 Attack. | Active 2: Deal 2 damage to a unit."
+    },
+    {
+      "id": "rumusque_vestments",
+      "source_id": 10217,
+      "name": "Rumusque Vestments",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10217_card.png",
+      "artist": "Sara Winters",
+      "text": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Heal a unit {amount}.",
+      "ability_name": "Rumusque Vestments",
+      "price": 9,
+      "slot": "armor",
+      "armor": 1,
+      "ability_cooldown": 2,
+      "amount": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "vestments",
+          "kind": "active",
+          "valve": 10473,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "ops": [
+            {
+              "op": "heal",
+              "to": "$c.target",
+              "amount": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Equipped hero has +1 Armor. | Active 2: Heal a unit 4."
+    },
+    {
+      "id": "shivas_guard",
+      "source_id": 10248,
+      "name": "Shiva's Guard",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10248_card.png",
+      "artist": "Magali Villeneuve",
+      "text": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Modify a unit and its allied neighbors with {attack_loss} Attack.",
+      "ability_name": "Shiva's Guard",
+      "price": 16,
+      "slot": "armor",
+      "armor": 2,
+      "ability_cooldown": 2,
+      "attack_loss": -2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "shiva",
+          "kind": "active",
+          "valve": 10481,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "ops": [
+            {
+              "op": "modify",
+              "to": [
+                "$c.target",
+                {
+                  "s": "units",
+                  "rel": {
+                    "allied_neighbors": "$c.target"
+                  }
+                }
+              ],
+              "stats": {
+                "attack": {
+                  "param": "attack_loss"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-12"
+      ],
+      "valve_text": "Equipped hero has +2 Armor. | Active 2: Modify a unit and its allied neighbors with -2 Attack."
+    },
+    {
+      "id": "wingfall_hammer",
+      "source_id": 10226,
+      "name": "Wingfall Hammer",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10226_card.png",
+      "artist": "JiHun Lee",
+      "text": "Equipped hero has +{attack} Attack. Active {ability_cooldown}: Give equipped hero and its allied neighbors +X Regeneration this round where X is half its Attack.",
+      "ability_name": "Wingfall Hammer",
+      "price": 19,
+      "slot": "weapon",
+      "attack": 4,
+      "ability_cooldown": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "wingfall",
+          "kind": "active",
+          "valve": 10478,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "give",
+              "to": [
+                "$host",
+                "allied_neighbors"
+              ],
+              "until": "round",
+              "keywords": {
+                "regeneration": {
+                  "half": {
+                    "stat": "attack",
+                    "of": "$host"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-28"
+      ],
+      "valve_text": "Equipped hero has +4 Attack. | Active 1: Give equipped hero and its allied neighbors +X Regeneration this round where X is half its Attack."
+    },
+    {
+      "id": "helm_of_the_dominator",
+      "source_id": 10224,
+      "name": "Helm of the Dominator",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10224_card.png",
+      "artist": "Chris Welch",
+      "text": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Get control of an enemy creep.",
+      "ability_name": "Helm of the Dominator",
+      "price": 19,
+      "slot": "armor",
+      "armor": 3,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "dominate",
+          "kind": "active",
+          "valve": 10477,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "enemy_creeps"
+            }
+          ],
+          "ops": [
+            {
+              "op": "control",
+              "unit": "$c.target",
+              "to": "you"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Equipped hero has +3 Armor. | Active 2: Get control of an enemy creep."
+    },
+    {
+      "id": "phase_boots",
+      "source_id": 10203,
+      "name": "Phase Boots",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10203_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{health} Health. Active {ability_cooldown}: Swap equipped hero with another ally.",
+      "ability_name": "Phase Boots",
+      "price": 5,
+      "slot": "accessory",
+      "health": 4,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "phase",
+          "kind": "active",
+          "valve": 10470,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "other_allies"
+            }
+          ],
+          "ops": [
+            {
+              "op": "swap",
+              "a": "$host",
+              "b": "$c.target"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-30"
+      ],
+      "valve_text": "Equipped hero has +4 Health. | Active 2: Swap equipped hero with another ally."
+    },
+    {
+      "id": "blink_dagger",
+      "source_id": 10206,
+      "name": "Blink Dagger",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10206_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{attack} Attack. Active {ability_cooldown}: Move equipped hero to another lane.",
+      "ability_name": "Blink Dagger",
+      "price": 7,
+      "slot": "weapon",
+      "attack": 2,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "blink",
+          "kind": "active",
+          "valve": 10471,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "lane",
+              "from": {
+                "s": "lanes",
+                "not": "$host.lane"
+              }
+            }
+          ],
+          "ops": [
+            {
+              "op": "move",
+              "unit": "$host",
+              "lane": "$c.lane"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Equipped hero has +2 Attack. | Active 2: Move equipped hero to another lane."
+    },
+    {
+      "id": "nyctashas_guard",
+      "source_id": 10262,
+      "name": "Nyctasha's Guard",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10262_card.png",
+      "artist": "Forrest Imel",
+      "text": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Move equipped hero's enemy neighbors to random other lanes.",
+      "ability_name": "Nyctasha's Guard",
+      "price": 25,
+      "slot": "armor",
+      "armor": 1,
+      "ability_cooldown": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "nyctasha",
+          "kind": "active",
+          "valve": 10484,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "move",
+              "unit": "enemy_neighbors",
+              "lane": "random_other"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Equipped hero has +1 Armor. | Active 1: Move equipped hero's enemy neighbors to random other lanes."
+    },
+    {
+      "id": "bracers_of_sacrifice",
+      "source_id": 10222,
+      "name": "Bracers of Sacrifice",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10222_card.png",
+      "artist": "Mark Winters",
+      "text": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Deal {amount} damage to equipped hero's enemy neighbors and condemn equipped hero.",
+      "ability_name": "Bracers of Sacrifice",
+      "price": 8,
+      "slot": "armor",
+      "armor": 2,
+      "ability_cooldown": 1,
+      "amount": 6,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "sacrifice",
+          "kind": "active",
+          "valve": 10476,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "damage",
+              "to": "enemy_neighbors",
+              "amount": {
+                "param": "amount"
+              }
+            },
+            {
+              "op": "condemn",
+              "to": "$host"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-02"
+      ],
+      "valve_text": "Equipped hero has +2 Armor. | Active 1: Deal 6 damage to equipped hero's enemy neighbors and condemn equipped hero."
+    },
+    {
+      "id": "horn_of_the_alpha",
+      "source_id": 10260,
+      "name": "Horn of the Alpha",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10260_card.png",
+      "artist": "Anastasia Ovchinnikova",
+      "text": "Equipped hero has +{health} Health. Active {ability_cooldown}: Summon a Thunderhide Pack.",
+      "ability_name": "Horn of the Alpha",
+      "price": 25,
+      "slot": "accessory",
+      "health": 4,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "horn",
+          "kind": "active",
+          "valve": 10483,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "summon",
+              "card": "thunderhide_pack"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-38"
+      ],
+      "valve_text": "Equipped hero has +4 Health. | Active 2: Summon a Thunderhide Pack."
+    },
+    {
+      "id": "book_of_the_dead",
+      "source_id": 10235,
+      "name": "Book of the Dead",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10235_card.png",
+      "artist": "Pauline Voss",
+      "text": "Equipped hero has +{health} Health. Add a charge to Book of the Dead after an allied Melee Creep dies. Active {ability_cooldown}: Summon a Zombie for each charge and remove all charges.",
+      "ability_name": "Book of the Dead",
+      "price": 10,
+      "slot": "accessory",
+      "health": 4,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "harvest",
+          "kind": "trigger",
+          "on": "unit_died",
+          "filter": {
+            "side": "ally",
+            "card": "melee_creep"
+          },
+          "ops": [
+            {
+              "op": "charges",
+              "on": "$self",
+              "add": 1
+            }
+          ]
+        },
+        {
+          "id": "raise",
+          "kind": "active",
+          "valve": 10480,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "summon",
+              "card": "zombie",
+              "count": {
+                "charges": "$self"
+              }
+            },
+            {
+              "op": "charges",
+              "on": "$self",
+              "set": 0
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-04",
+        "RQ-38",
+        "RQ-43"
+      ],
+      "valve_text": "Equipped hero has +4 Health. Add a charge to Book of the Dead after an allied Melee Creep dies. | Active 2: Summon a Zombie for each charge and remove all charges."
+    },
+    {
+      "id": "demagicking_maul",
+      "source_id": 10210,
+      "name": "Demagicking Maul",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10210_card.png",
+      "artist": "Lake Hurwitz",
+      "text": "Equipped hero has +{attack} Attack. Active {ability_cooldown}: Condemn a random enemy improvement. May only be used if equipped hero is unblocked.",
+      "ability_name": "Demagicking Maul",
+      "price": 5,
+      "slot": "weapon",
+      "attack": 2,
+      "ability_cooldown": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "demagic",
+          "kind": "active",
+          "valve": 10540,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "requires": {
+            "unblocked": "$host"
+          },
+          "ops": [
+            {
+              "op": "condemn",
+              "to": {
+                "s": "improvements",
+                "side": "enemy",
+                "pick": {
+                  "random": 1
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-04"
+      ],
+      "valve_text": "Equipped hero has +2 Attack. | Active 1: Condemn a random enemy improvement. May only be used if equipped hero is unblocked."
+    },
+    {
+      "id": "apotheosis_blade",
+      "source_id": 10263,
+      "name": "Apotheosis Blade",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10263_card.png",
+      "artist": "Kieran Yanner",
+      "text": "Equipped hero has +{attack} Attack and +{siege} Siege. Condemn each unit equipped hero deals battle damage to. Active {ability_cooldown}: Condemn enemy improvements. Condemn each item equipped by the unit blocking equipped hero.",
+      "ability_name": "Apotheosis Blade",
+      "price": 25,
+      "slot": "weapon",
+      "attack": 8,
+      "siege": 4,
+      "ability_cooldown": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "godlike",
+          "kind": "aura",
+          "affects": "$host",
+          "grant": {
+            "siege": {
+              "param": "siege"
+            },
+            "lethal": 1
+          }
+        },
+        {
+          "id": "ascension",
+          "kind": "active",
+          "valve": 10541,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "condemn",
+              "to": {
+                "s": "improvements",
+                "side": "enemy"
+              }
+            },
+            {
+              "op": "condemn",
+              "to": {
+                "s": "items",
+                "rel": {
+                  "equipped_on": "blocker"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-04",
+        "RQ-10",
+        "RQ-45"
+      ],
+      "valve_text": "Equipped hero has +8 Attack and +4 Siege. Condemn each unit equipped hero deals battle damage to. | Active 1: Condemn enemy improvements. Condemn each item equipped by the unit blocking equipped hero."
+    },
+    {
+      "id": "obliterating_orb",
+      "source_id": 10211,
+      "name": "Obliterating Orb",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10211_card.png",
+      "artist": "Forrest Imel",
+      "text": "Condemn an improvement.",
+      "price": 9,
+      "consumable": true,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "improvements"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "condemn",
+            "to": "$c.target"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-04"
+      ],
+      "valve_text": "Condemn an improvement."
+    },
+    {
+      "id": "fountain_flask",
+      "source_id": 3004,
+      "name": "Fountain Flask",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/3004_card.png",
+      "artist": "Suzanne Helmigh",
+      "text": "Fully heal a unit.",
+      "price": 4,
+      "consumable": true,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "heal",
+            "to": "$c.target",
+            "amount": "full"
+          }
+        ]
+      },
+      "valve_text": "Fully heal a unit."
+    },
+    {
+      "id": "golden_ticket",
+      "source_id": 10216,
+      "name": "Golden Ticket",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10216_card.png",
+      "artist": "Pauline Voss",
+      "text": "Get a random item from the Secret Shop.",
+      "price": 9,
+      "consumable": true,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "add_card",
+            "player": "you",
+            "from_pool": "secret_shop"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-59"
+      ],
+      "valve_text": "Get a random item from the Secret Shop."
+    },
+    {
+      "id": "shop_deed",
+      "source_id": 10255,
+      "name": "Shop Deed",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10255_card.png",
+      "artist": "Lius Lasahido",
+      "text": "Each item in your Secret Shop costs X less gold, where X is equal to its base cost.",
+      "price": 22,
+      "slot": "deed",
+      "ai": {
+        "bias": 2.0
+      },
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "deed",
+          "kind": "aura",
+          "affects": "you",
+          "grant": {
+            "rules": {
+              "secret_shop_discount": 1
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-26",
+        "RQ-41"
+      ],
+      "valve_text": "Each item in your Secret Shop costs X less gold, where X is equal to its base cost."
+    },
+    {
+      "id": "claszureme_hourglass",
+      "source_id": 10241,
+      "name": "Claszureme Hourglass",
+      "color": "item",
+      "kind": "item",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10241_card.png",
+      "artist": "Magali Villeneuve",
+      "text": "Equipped hero has +{health} Health. Whenever opponent draws a card, give that card +{amount} Lock if equipped hero is in any lane.",
+      "price": 10,
+      "slot": "accessory",
+      "health": 4,
+      "amount": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "hourglass",
+          "kind": "trigger",
+          "on": "card_drawn",
+          "filter": {
+            "player": "opponent"
+          },
+          "lane": "any",
+          "ops": [
+            {
+              "op": "lock",
+              "cards": "$e.card",
+              "n": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-14",
+        "RQ-38",
+        "RQ-51"
+      ],
+      "valve_text": "Equipped hero has +4 Health. Whenever opponent draws a card, give that card +1 Lock if equipped hero is in any lane."
     }
   ],
   "deck": {
@@ -8683,12 +10238,52 @@
     "leather_armor",
     "travelers_cloak",
     "broadsword",
-    "claymore"
+    "claymore",
+    "chainmail",
+    "fur_lined_mantle",
+    "heros_cape",
+    "platemail",
+    "red_mist_maul",
+    "barbed_mail",
+    "blade_of_the_vigil",
+    "ring_of_tarrasque",
+    "revtel_signet_ring",
+    "ristul_emblem",
+    "shield_of_basilius",
+    "shield_of_aquila",
+    "keenfolk_plate",
+    "seraphim_shield",
+    "vesture_of_the_tyrant",
+    "stonehall_cloak",
+    "stonehall_pike",
+    "stonehall_plate",
+    "poaching_knife",
+    "cloak_of_endless_carnage",
+    "jasper_daggers",
+    "assassins_veil",
+    "keenfolk_musket",
+    "rumusque_vestments",
+    "shivas_guard",
+    "wingfall_hammer",
+    "helm_of_the_dominator",
+    "phase_boots",
+    "blink_dagger",
+    "nyctashas_guard",
+    "bracers_of_sacrifice",
+    "horn_of_the_alpha",
+    "book_of_the_dead",
+    "demagicking_maul",
+    "apotheosis_blade",
+    "obliterating_orb",
+    "golden_ticket",
+    "shop_deed",
+    "claszureme_hourglass"
   ],
   "consumables": [
     "healing_salve",
     "potion_of_knowledge",
-    "town_portal_scroll"
+    "town_portal_scroll",
+    "fountain_flask"
   ],
   "presets": [
     {
@@ -9227,6 +10822,183 @@
         "travelers_cloak": 3,
         "short_sword": 2,
         "broadsword": 1
+      }
+    },
+    {
+      "id": "five_tigers",
+      "name": "Red Armory",
+      "description": "Keefe, Axe, Timbersaw, Legion Commander and Bristleback duel and battle up front, armed with Stonehall gear that grows after every combat and Wingfall Hammer's regeneration.",
+      "heroes": [
+        "keefe",
+        "axe",
+        "timbersaw",
+        "legion_commander",
+        "bristleback"
+      ],
+      "cards": {
+        "fighting_instinct": 3,
+        "berserkers_call": 3,
+        "whirling_death": 3,
+        "duel": 3,
+        "viscous_nasal_goo": 3,
+        "bronze_legionnaire": 3,
+        "stonehall_elite": 2,
+        "legion_standard_bearer": 2,
+        "hellbear_crippler": 2,
+        "poised_to_strike": 2,
+        "defensive_stance": 2,
+        "combat_training": 2,
+        "fight_through_the_pain": 2,
+        "rising_anger": 2,
+        "spot_weakness": 2,
+        "heroic_resolve": 1,
+        "tresdins_standards": 1,
+        "time_of_triumph": 1,
+        "marrowfell_brawler": 1
+      },
+      "items": {
+        "wingfall_hammer": 1,
+        "keenfolk_musket": 1,
+        "stonehall_plate": 1,
+        "barbed_mail": 1,
+        "chainmail": 1,
+        "keenfolk_plate": 1,
+        "stonehall_cloak": 1,
+        "fur_lined_mantle": 1,
+        "horn_of_the_alpha": 1
+      }
+    },
+    {
+      "id": "emperor_of_wu",
+      "name": "Green Bulwark",
+      "description": "Farvhan, Drow Ranger, Treant Protector, Lycan and Abaddon hold the line behind shields and Vesture of the Tyrant, while Book of the Dead raises the fallen creeps.",
+      "heroes": [
+        "farvhan",
+        "drow",
+        "treant_protector",
+        "lycan",
+        "abaddon"
+      ],
+      "cards": {
+        "prowler_vanguard": 3,
+        "gust": 3,
+        "roseleaf_druid": 3,
+        "savage_wolf": 3,
+        "aphotic_shield": 3,
+        "satyr_duelist": 2,
+        "selfish_cleric": 2,
+        "smeevil_blacksmith": 2,
+        "rampaging_hellbear": 2,
+        "vhoul_martyr": 2,
+        "stars_align": 2,
+        "avernus_blessing": 2,
+        "arm_the_rebellion": 2,
+        "defend_the_weak": 2,
+        "rumusque_blessing": 2,
+        "iron_branch_protection": 1,
+        "restoration_effort": 1,
+        "soul_of_spring": 1,
+        "defensive_bloom": 1,
+        "champion_of_the_ancient": 1
+      },
+      "items": {
+        "blade_of_the_vigil": 1,
+        "shield_of_aquila": 1,
+        "seraphim_shield": 1,
+        "vesture_of_the_tyrant": 1,
+        "rumusque_vestments": 1,
+        "platemail": 1,
+        "shield_of_basilius": 1,
+        "bracers_of_sacrifice": 1,
+        "book_of_the_dead": 1
+      }
+    },
+    {
+      "id": "battle_of_guandu",
+      "name": "Blue Arsenal",
+      "description": "J'Muy, Earthshaker, Prellex, Ogre Magi and Crystal Maiden blink, swap and steal creeps with Blink Dagger, Phase Boots and Helm of the Dominator, while Claszureme Hourglass locks the opponent's draws.",
+      "heroes": [
+        "jmuy",
+        "earthshaker",
+        "prellex",
+        "ogre_magi",
+        "crystal_maiden"
+      ],
+      "cards": {
+        "battlefield_control": 3,
+        "echo_slam": 3,
+        "barracks": 3,
+        "ignite": 3,
+        "frostbite": 3,
+        "relentless_zombie": 2,
+        "troll_soothsayer": 1,
+        "satyr_magician": 1,
+        "strafing_run": 2,
+        "lightning_strike": 2,
+        "cunning_plan": 2,
+        "tower_barrage": 2,
+        "better_late_than_never": 2,
+        "arcane_assault": 2,
+        "foresight": 2,
+        "dimensional_portal": 2,
+        "thunderstorm": 2,
+        "compel": 1,
+        "call_the_reserves": 1,
+        "buying_time": 1
+      },
+      "items": {
+        "blink_dagger": 1,
+        "stonehall_pike": 1,
+        "red_mist_maul": 1,
+        "nyctashas_guard": 1,
+        "shivas_guard": 1,
+        "assassins_veil": 1,
+        "phase_boots": 1,
+        "cloak_of_endless_carnage": 1,
+        "claszureme_hourglass": 1
+      }
+    },
+    {
+      "id": "warlords_rise",
+      "name": "Black Bounty",
+      "description": "Debbi, Phantom Assassin, Bounty Hunter, Necrophos and Lion hunt heroes for gold with Poaching Knife, Revtel Signet Ring and Apotheosis Blade, then spend it in the shop.",
+      "heroes": [
+        "debbi",
+        "phantom_assassin",
+        "bounty_hunter",
+        "necrophos",
+        "lion"
+      ],
+      "cards": {
+        "no_accident": 3,
+        "coup_de_grace": 3,
+        "track": 3,
+        "heartstopper_aura": 3,
+        "mana_drain": 3,
+        "untested_grunt": 3,
+        "assassins_apprentice": 2,
+        "pit_fighter_of_quoidge": 2,
+        "oglodi_catapult": 2,
+        "sister_of_the_veil": 1,
+        "ravenhook": 2,
+        "hip_fire": 2,
+        "slay": 2,
+        "pick_off": 2,
+        "grazing_shot": 2,
+        "oglodi_vandal": 2,
+        "disciple_of_nevermore": 2,
+        "ravenous_mass": 1
+      },
+      "items": {
+        "apotheosis_blade": 1,
+        "demagicking_maul": 1,
+        "poaching_knife": 1,
+        "jasper_daggers": 1,
+        "helm_of_the_dominator": 1,
+        "heros_cape": 1,
+        "ring_of_tarrasque": 1,
+        "revtel_signet_ring": 1,
+        "ristul_emblem": 1
       }
     }
   ]

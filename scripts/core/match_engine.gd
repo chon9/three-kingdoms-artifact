@@ -389,6 +389,12 @@ func _play(player: int, command: Dictionary) -> void:
 	if not target.is_empty():
 		played["target"] = target.uid
 		played["target_card"] = target.card
+	elif int(command.get("target", -1)) >= OID_START:
+		# A chosen improvement (Obliterating Orb): the log names it too.
+		var chosen = find_object(int(command.target))
+		if str(chosen.get("kind", "")) == "improvement":
+			played["target"] = int(chosen.object.oid)
+			played["target_card"] = str(chosen.card)
 	_event("play", played)
 	var ctx = _play_ctx(player, card_id, command, taken.state)
 	var ops: Array = rules.get("play", {}).get("ops", [])

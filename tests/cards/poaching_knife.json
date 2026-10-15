@@ -1,0 +1,20 @@
+{
+"card": "poaching_knife",
+"source_id": 10234,
+"text": "Equipped hero has +2 Attack. Get 5 gold after an enemy hero dies. Get 1 gold after an enemy creep dies.",
+"covers": ["enemy_death", "equip", "gold_gain", "stat_attack", "equipped_hero", "player_gold", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +2 Attack (Axe 6 + 2)", "clause": 0, "tags": ["equip", "stat_attack", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife"], "p1": ["melee_creep#x"]}}}, "do": [], "expect": {"h.attack": 8}},
+ {"name": "in the Fountain the hero keeps +2 Attack", "clause": 0, "tags": ["edge", "equipped_hero", "RQ-38"], "board": {"lanes": {"0": {"p0": [null], "p1": ["melee_creep#x"]}}, "fountain": {"p0": ["axe#h+poaching_knife"]}}, "do": [], "expect": {"h.attack": 8}},
+ {"name": "replacing it with Short Sword ends both triggers", "clause": 0, "tags": ["negative", "equip"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife"], "p1": ["keefe#k"]}}}, "do": [{"play": "short_sword", "target": "h"}, {"kill": ["k"]}], "expect": {"h.attack": 8, "p0.gold": 5}},
+ {"name": "Get 5 gold after an enemy hero dies (plus its 5 bounty)", "clause": 1, "tags": ["enemy_death", "gold_gain", "player_gold"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife"], "p1": ["keefe#k"]}}}, "do": [{"kill": ["k"]}], "expect": {"p0.gold": 10, "p1.gold": 0, "events": {"has": ["trigger", "gold"]}}},
+ {"name": "an enemy hero killed in combat by the bearer pays too", "clause": 1, "tags": ["edge", "enemy_death", "gold_gain"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife"], "p1": ["zeus#z"]}}}, "do": [{"combat": true}], "expect": {"z.in_play": false, "p0.gold": 10}},
+ {"name": "an allied hero's death gives nothing (the opponent gets its bounty)", "clause": 1, "tags": ["negative", "enemy_death"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife", "zeus#z"], "p1": ["melee_creep#x", "melee_creep#y"]}}}, "do": [{"kill": ["z"]}], "expect": {"p0.gold": 0, "p1.gold": 5}},
+ {"name": "rq_03: an enemy hero dying in another lane gives only its bounty (the trigger is lane-local)", "clause": 1, "tags": ["edge", "enemy_death", "RQ-03"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife"], "p1": ["melee_creep#x"]}, "1": {"p0": ["melee_creep#o"], "p1": ["keefe#k"]}}}, "do": [{"kill": ["k"]}], "expect": {"p0.gold": 5}},
+ {"name": "rq_43: a bearer dying in the same Pulse as the enemy hero does not see its death", "clause": 1, "tags": ["edge", "enemy_death", "RQ-43"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife"], "p1": ["keefe#k"]}}}, "do": [{"kill": ["h", "k"]}], "expect": {"p0.gold": 5, "p1.gold": 5}},
+ {"name": "rq_38: a bearer in the Fountain gets nothing", "clause": 1, "tags": ["edge", "enemy_death", "RQ-38"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["keefe#k"]}}, "fountain": {"p0": ["axe#h+poaching_knife"]}}, "do": [{"kill": ["k"]}], "expect": {"p0.gold": 5}},
+ {"name": "Get 1 gold after an enemy creep dies (plus its 1 bounty)", "clause": 2, "tags": ["enemy_death", "gold_gain", "player_gold"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife"], "p1": ["melee_creep#x"]}}}, "do": [{"kill": ["x"]}], "expect": {"p0.gold": 2}},
+ {"name": "an allied creep's death gives nothing", "clause": 2, "tags": ["negative", "enemy_death"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife", "melee_creep#m"], "p1": ["melee_creep#x", "melee_creep#y"]}}}, "do": [{"kill": ["m"]}], "expect": {"p0.gold": 0, "p1.gold": 1}},
+ {"name": "two enemy creeps dying together pay 1 each, and the hero clause stays silent", "clause": 2, "tags": ["edge", "gold_gain"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife", "melee_creep#m"], "p1": ["melee_creep#x", "melee_creep#y"]}}}, "do": [{"kill": ["x", "y"]}], "expect": {"p0.gold": 4}},
+ {"name": "two Poaching Knives each pay", "clause": 2, "tags": ["edge", "gold_gain"], "board": {"lanes": {"0": {"p0": ["axe#h+poaching_knife", "keefe#k+poaching_knife"], "p1": ["melee_creep#x", "melee_creep#y"]}}}, "do": [{"kill": ["x"]}], "expect": {"p0.gold": 3}}
+]}

@@ -24,9 +24,10 @@ func _initialize() -> void:
 	_m3_presets()
 	_m4_presets()
 	_m5_presets()
+	_m6_presets()
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3, M4 and M5 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
+	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3, M4, M5 and M6 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
 	quit(0 if failures.is_empty() else 1)
 
 func _check(condition: bool, message: String) -> void:
@@ -71,10 +72,10 @@ func _profiles() -> void:
 	# green cards plus three heroes' signature improvements; M4 the 44 blue
 	# cards plus two heroes' signature improvements, Barracks and Ignite; M5
 	# the 39 black cards plus two heroes' signature improvements, Assault
-	# Ladders and March of the Machines (EFFECT_SYSTEM_SPEC.md §12).
-	_check(engine.library.heroes.size() == 48 and engine.library.cards.size() == 183,
-		"231 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
-	_check(engine.library.presets().size() == 14, "Fourteen playable deck presets (%d)" % engine.library.presets().size())
+	# Ladders and March of the Machines; M6 the 40 items (EFFECT_SYSTEM_SPEC.md §12).
+	_check(engine.library.heroes.size() == 48 and engine.library.cards.size() == 223,
+		"271 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
+	_check(engine.library.presets().size() == 18, "Eighteen playable deck presets (%d)" % engine.library.presets().size())
 	for profile in engine.library.presets():
 		_check(engine.library.validate_preset(profile).ok, "Preset passes card/hero/signature validation")
 		_check(engine.library.match_deck(profile.id).size() == 40, "Preset main deck has forty cards")
@@ -94,6 +95,13 @@ func _profiles() -> void:
 	bad = engine.library.preset("starter").duplicate(true)
 	bad.cards.bronze_legionnaire = 2.5
 	_check(not engine.library.validate_preset(bad).ok, "Fractional copies rejected")
+	# The item deck holds only Weapon, Armor and Accessory cards (wiki Item
+	# Shop): consumables and Deeds are bought from the shops.
+	for item_id in ["golden_ticket", "obliterating_orb", "fountain_flask", "shop_deed"]:
+		bad = engine.library.preset("starter").duplicate(true)
+		bad.items[item_id] = 1
+		var result = engine.library.validate_preset(bad)
+		_check(not result.ok and str(result.get("code", "")) == "deck_item_card", "%s cannot enter an item deck (%s)" % [item_id, result])
 
 func _auras() -> void:
 	var engine = _empty()
@@ -332,6 +340,9 @@ const ORIGINAL_PRESETS = ["starter", "green_assault", "blue_black_control"]
 const M3_PRESETS = ["sun_liu_alliance", "northern_expedition", "gathering_of_champions", "ruxu_standoff", "little_conqueror"]
 const M4_PRESETS = ["bronze_sparrow_terrace", "siege_of_xiapi", "longxi_struggle"]
 const M5_PRESETS = ["fengyi_pavilion", "hulao_pass", "yellow_turban_rebellion"]
+const M6_PRESETS = ["five_tigers", "emperor_of_wu", "battle_of_guandu", "warlords_rise"]
+## The four basic consumables the Consumables Shop sells (wiki Item Shop).
+const BASIC_CONSUMABLES = ["healing_salve", "potion_of_knowledge", "town_portal_scroll", "fountain_flask"]
 
 ## M3 acceptance 5 (EFFECT_SYSTEM_SPEC.md §12): every preset added with the
 ## red and green cards validates, and bot-vs-bot matches with it terminate
@@ -387,15 +398,13 @@ func _m4_presets() -> void:
 ## M5 acceptance 5: the presets added with the black cards (mono-black,
 ## black/red, black/blue) validate, are built from new black cards and
 ## heroes, and their bot matches terminate within 1,500 steps for 6 seeds
-## against every preset in turn, aligned, formatted and replayable. Between
-## them they play every deckable M5 card (Chain Frost is a draft, RQ-16, so
-## Lich cannot fill a deck).
+## against every preset of M1 to M5 in turn (their pool when they landed),
+## aligned, formatted and replayable. Between them they play every deckable
+## M5 card (Chain Frost is a draft, RQ-16, so Lich cannot fill a deck).
 func _m5_presets() -> void:
 	var library = MatchEngine.Library.new()
 	var legacy = Legacy.new()
-	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
-	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS,
-		"The presets are the original three, the M3 five, the M4 three and the M5 three, in order (%s)" % [all_ids])
+	var all_ids: Array = ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS
 	var pairs: Dictionary = {}
 	var played: Dictionary = {}
 	for index in range(M5_PRESETS.size()):
@@ -424,6 +433,57 @@ func _m5_presets() -> void:
 		if str(card.get("color", "")) == "black" and not legacy.cards.has(str(card_id)) and library._deckable(str(card_id)) and not played.has(str(card_id)):
 			missing.append(card_id)
 	_check(missing.is_empty(), "The M5 presets play every deckable new black card (missing %s)" % [missing])
+
+## M6 acceptance 5: the presets added with the items (mono-red, mono-green,
+## mono-blue and mono-black) validate; each item deck holds nine different
+## M6 equipment cards, and between them they hold every deckable M6
+## equipment card once. Their bot matches terminate within 1,500 steps for 6
+## seeds against every preset in turn, aligned, formatted and replayable.
+## The shop pools follow the wiki Item Shop page: the Secret Shop sells any
+## item that is not a basic consumable (M6's consumables and its Deed
+## included), the Consumables Shop one of the four basic consumables, and
+## item decks hold equipment only.
+func _m6_presets() -> void:
+	var library = MatchEngine.Library.new()
+	var legacy = Legacy.new()
+	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
+	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS + M6_PRESETS,
+		"The presets are the original three, the M3 five, the M4 three, the M5 three and the M6 four, in order (%s)" % [all_ids])
+	var held: Dictionary = {}
+	for index in range(M6_PRESETS.size()):
+		var preset_id = str(M6_PRESETS[index])
+		var preset = library.preset(preset_id)
+		_check(not preset.is_empty() and library.validate_preset(preset).ok, "Preset %s validates" % preset_id)
+		if preset.is_empty():
+			continue
+		var new_items = preset.items.keys().filter(func(card_id): return not legacy.cards.has(str(card_id)))
+		_check(new_items.size() == 9 and preset.items.values().all(func(count): return int(count) == 1),
+			"Preset %s's item deck is nine different M6 items (%s)" % [preset_id, preset.items])
+		for item_id in new_items:
+			_check(not held.has(item_id), "%s is in one M6 item deck only" % item_id)
+			held[str(item_id)] = true
+		_preset_matches(preset_id, index, all_ids, "M6")
+	var missing: Array = []
+	var items: Array = []
+	for card_id in library.cards:
+		var card: Dictionary = library.cards[card_id]
+		if str(card.get("kind", "")) != "item":
+			continue
+		items.append(str(card_id))
+		if not legacy.cards.has(str(card_id)) and str(card.get("slot", "")) in MatchEngine.Library.EQUIPMENT_SLOTS \
+				and library._deckable(str(card_id)) and not held.has(str(card_id)):
+			missing.append(card_id)
+	_check(missing.is_empty(), "The M6 presets hold every deckable new equipment card (missing %s)" % [missing])
+	_check(items.size() == 48, "The pack has all 48 Classic items (%d)" % items.size())
+	var consumables: Array = library.catalog.consumables
+	_check(consumables == BASIC_CONSUMABLES, "The Consumables Shop sells the four basic consumables (%s)" % [consumables])
+	var secret: Array = library.catalog.secret_shop.duplicate()
+	var expected: Array = items.filter(func(card_id): return card_id not in BASIC_CONSUMABLES)
+	secret.sort()
+	expected.sort()
+	_check(secret == expected, "The Secret Shop sells every item but the basic consumables (%d of %d)" % [secret.size(), expected.size()])
+	_check(library.catalog.secret_shop.has("golden_ticket") and library.catalog.secret_shop.has("shop_deed") and library.catalog.secret_shop.has("obliterating_orb"),
+		"Golden Ticket, Obliterating Orb and Shop Deed come from the Secret Shop")
 
 ## The sorted hero colours of a preset, "a/b" (or one colour).
 func _colour_pair(library, preset: Dictionary) -> String:

@@ -1,0 +1,15 @@
+{
+"card": "blade_of_the_vigil",
+"source_id": 10212,
+"text": "Equipped hero has +2 Attack and +4 Cleave.",
+"covers": ["equip", "cleave", "stat_attack", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +2 Attack (6 -> 8) and +4 Cleave", "clause": 0, "tags": ["equip", "cleave", "stat_attack", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "blade_of_the_vigil", "target": "k"}], "expect": {"k.attack": 8, "k.kw.cleave": 4, "k.items": {"weapon": "blade_of_the_vigil"}}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "blade_of_the_vigil", "target": "m"}, {"play": "blade_of_the_vigil", "target": "e"}, {"play": "blade_of_the_vigil", "target": "s"}]},
+ {"name": "blocked in combat: the blocker takes 8 and each of its neighbors 4", "clause": 0, "tags": ["cleave", "stat_attack"], "board": {"lanes": {"0": {"p0": [null, "keefe#k", null], "p1": ["melee_creep#a", "marrowfell_brawler#b", "melee_creep#c"]}}}, "do": [{"play": "blade_of_the_vigil", "target": "k"}, {"combat": true}], "expect": {"b.health": 8, "a.in_play": false, "c.in_play": false, "k.health": 6}},
+ {"name": "rq_08: each neighbor's armor reduces the Cleave (Axe: 4 - 2, 10 -> 8)", "clause": 0, "tags": ["edge", "cleave", "RQ-08"], "board": {"lanes": {"0": {"p0": [null, "keefe#k+blade_of_the_vigil", null], "p1": ["axe#a", "marrowfell_brawler#b", "melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"a.health": 8, "c.in_play": false, "b.health": 8}},
+ {"name": "rq_07: unblocked, it attacks the tower and Cleave does not apply", "clause": 0, "tags": ["edge", "cleave", "RQ-07"], "board": {"lanes": {"0": {"p0": ["keefe#k+blade_of_the_vigil", null], "p1": [null, "melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 32, "c.health": 4}},
+ {"name": "rq_07: a disarmed hero deals no Cleave", "clause": 0, "tags": ["edge", "cleave", "RQ-07"], "board": {"base": "@2", "give": {"k": ["disarm"]}}, "do": [{"play": "blade_of_the_vigil", "target": "k"}, {"combat": true}], "expect": {"a.health": 4, "b.health": 16, "c.health": 4}},
+ {"name": "Cleave is a combat-phase keyword: Berserker's Call's battle deals the attack only", "clause": 0, "tags": ["edge", "cleave"], "board": {"lanes": {"0": {"p0": [null, "keefe#k+blade_of_the_vigil", null], "p1": ["marrowfell_brawler#a", "marrowfell_brawler#b", "marrowfell_brawler#c"]}}}, "do": [{"play": "berserkers_call", "target": "k"}], "expect": {"a.health": 8, "b.health": 8, "c.health": 8}},
+ {"name": "the bonuses stay with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "blade_of_the_vigil", "target": "k"}, {"kill": ["k"]}], "expect": {"k.attack": 8, "k.kw.cleave": 4, "k.in_play": false}}
+]}

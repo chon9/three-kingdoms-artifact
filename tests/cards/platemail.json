@@ -1,0 +1,12 @@
+{
+"card": "platemail",
+"source_id": 10237,
+"text": "Equipped hero has +4 Armor.",
+"covers": ["equip", "stat_armor", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +4 Armor (Keefe 1 -> 5); another allied hero is unaffected", "clause": 0, "tags": ["equip", "stat_armor", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k", "axe#x"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"play": "platemail", "target": "k"}], "expect": {"k.armor": 5, "k.items": {"armor": "platemail"}, "x.armor": 2}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "platemail", "target": "m"}, {"play": "platemail", "target": "e"}, {"play": "platemail", "target": "s"}]},
+ {"name": "the Armor reduces combat damage: the Brawler's 6 deals 1", "clause": 0, "tags": ["stat_armor", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["marrowfell_brawler#b"]}}}, "do": [{"play": "platemail", "target": "k"}, {"combat": true}], "expect": {"k.health": 10, "b.health": 10}},
+ {"name": "the bonus stays with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "platemail", "target": "k"}, {"kill": ["k"]}], "expect": {"k.armor": 5, "k.in_play": false}},
+ {"name": "it replaces Chainmail in the armor slot: the bonuses do not stack (1 + 4)", "clause": 0, "tags": ["edge", "stat_armor"], "board": {"lanes": {"0": {"p0": ["keefe#k+chainmail"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "platemail", "target": "k"}], "expect": {"k.armor": 5, "k.items": {"armor": "platemail"}}}
+]}

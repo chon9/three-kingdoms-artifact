@@ -89,7 +89,8 @@ static func _derive(e, unit: Dictionary, fields: Array) -> Dictionary:
 		if want_kw:
 			for keyword in entry.get("kw", {}):
 				kw[keyword] = int(kw.get(keyword, 0)) + int(entry.kw[keyword])
-	# Host auras of the unit's items apply wherever the hero is.
+	# Host auras of the unit's items apply wherever the hero is: printed ones,
+	# then those granted to the item instance by a Modify (M6, Stonehall).
 	var keyword_auras: Array = []
 	for slot in unit.get("items", {}):
 		var card_id = str(unit.items[slot])
@@ -110,8 +111,37 @@ static func _derive(e, unit: Dictionary, fields: Array) -> Dictionary:
 			max_health += _grant(e, aura.stats, "max_health", ctx)
 			if not aura.keywords.is_empty():
 				keyword_auras.append([aura, ctx])
-	# Board auras: only units in a lane receive them.
+		var instance_mods: Array = unit.get("item_state", {}).get(slot, {}).get("mods", [])
+		for entry in instance_mods:
+			var aura = granted_ability(e, entry)
+			if aura.is_empty() or str(aura.get("kind", "")) != "aura" or not _is_host_aura(aura) or not _wants(aura, fields):
+				continue
+			var ctx = item_ctx(e, unit, str(slot))
+			if aura.get("if") != null and not VM.cond(e, aura["if"], ctx):
+				continue
+			attack += _grant(e, aura.stats, "attack", ctx)
+			armor += _grant(e, aura.stats, "armor", ctx)
+			max_health += _grant(e, aura.stats, "max_health", ctx)
+			if not aura.keywords.is_empty():
+				keyword_auras.append([aura, ctx])
+	# Board auras: only units in a lane receive them. A "$host" aura granted to
+	# the unit itself (its own entries) is read here directly, not scanned
+	# from the board (CardLibrary keeps such grants out of granted_aura_fields).
 	if int(unit.get("lane", -1)) >= 0:
+		for entry in unit.get("mods", []):
+			if str(entry.get("ab", "")).is_empty():
+				continue
+			var aura = granted_ability(e, entry)
+			if aura.is_empty() or str(aura.get("kind", "")) != "aura" or not _is_host_aura(aura) or not _wants(aura, fields):
+				continue
+			var ctx = unit_ctx(e, unit)
+			if aura.get("if") != null and not VM.cond(e, aura["if"], ctx):
+				continue
+			attack += _grant(e, aura.stats, "attack", ctx)
+			armor += _grant(e, aura.stats, "armor", ctx)
+			max_health += _grant(e, aura.stats, "max_health", ctx)
+			if not aura.keywords.is_empty():
+				keyword_auras.append([aura, ctx])
 		for source in aura_sources(e, fields):
 			var aura: Dictionary = source[0]
 			var ctx: Dictionary = source[1]
@@ -263,19 +293,25 @@ static func _aura_sources(e, fields: Array) -> Array:
 						if _wants(rules.abilities[index], fields):
 							out.append([rules.abilities[index], ctx])
 				if granted:
+					# Granted "$host" auras are the bearer's own (Stats._derive).
 					for entry in unit.get("mods", []):
 						var ability = granted_ability(e, entry)
-						if not ability.is_empty() and str(ability.kind) == "aura" and _wants(ability, fields):
+						if not ability.is_empty() and str(ability.kind) == "aura" and not _is_host_aura(ability) and _wants(ability, fields):
 							out.append([ability, unit_ctx(e, unit)])
 				for slot in unit.get("items", {}):
 					var item_card = str(unit.items[slot])
-					if not _listed(wanted, item_card):
-						continue
-					var item_rules: Dictionary = library.rules(item_card)
-					for index in item_rules.auras:
-						var aura: Dictionary = item_rules.abilities[index]
-						if not _is_host_aura(aura) and _wants(aura, fields):
-							out.append([aura, item_ctx(e, unit, str(slot))])
+					if _listed(wanted, item_card):
+						var item_rules: Dictionary = library.rules(item_card)
+						for index in item_rules.auras:
+							var aura: Dictionary = item_rules.abilities[index]
+							if not _is_host_aura(aura) and _wants(aura, fields):
+								out.append([aura, item_ctx(e, unit, str(slot))])
+					if granted:
+						# Board auras granted to the item instance (M6).
+						for entry in unit.get("item_state", {}).get(slot, {}).get("mods", []):
+							var ability = granted_ability(e, entry)
+							if not ability.is_empty() and str(ability.kind) == "aura" and not _is_host_aura(ability) and _wants(ability, fields):
+								out.append([ability, item_ctx(e, unit, str(slot))])
 	for player in range(2):
 		if not zones.has("improvement"):
 			break

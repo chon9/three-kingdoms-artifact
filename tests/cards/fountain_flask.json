@@ -1,0 +1,12 @@
+{
+"card": "fountain_flask",
+"source_id": 3004,
+"text": "Fully heal a unit.",
+"covers": ["play", "full_heal", "unit"],
+"cases": [
+ {"name": "fully heal a damaged hero: Axe at 2 goes back to 10; a consumable needs no mana", "clause": 0, "tags": ["play", "full_heal", "unit"], "board": {"lanes": {"0": {"p0": ["axe#a:hp=2"], "p1": ["melee_creep#c"]}}, "mana": 0}, "do": [{"play": "fountain_flask", "target": "a"}], "expect": {"a.health": 10, "mana.0.0": 0, "p0.hand": 0, "events": {"has": ["play", "heal"]}}},
+ {"name": "full means the current maximum: a hero with Traveler's Cloak heals to 11", "clause": 0, "tags": ["full_heal", "unit"], "board": {"lanes": {"0": {"p0": ["zeus#z:hp=1+travelers_cloak"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fountain_flask", "target": "z"}], "expect": {"z.health": 11, "z.max_health": 11}},
+ {"name": "a unit means any unit: an enemy creep can be healed, with no allied hero in the lane", "clause": 0, "tags": ["full_heal", "unit"], "board": {"lanes": {"0": {"p0": [], "p1": ["melee_creep#c:hp=1"]}}}, "do": [{"play": "fountain_flask", "target": "c"}], "expect": {"c.health": 4}},
+ {"name": "an undamaged unit can be targeted and stays at full", "clause": 0, "tags": ["edge", "full_heal"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fountain_flask", "target": "m"}], "expect": {"m.health": 4}},
+ {"name": "a unit in another lane is not a target, and with no unit in the active lane the Flask cannot be played", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"1": {"p0": ["axe#a:hp=2"], "p1": []}}}, "do": [], "expect": {"a.health": 2}, "expect_illegal": [{"play": "fountain_flask", "target": "a"}, {"play": "fountain_flask"}]}
+]}

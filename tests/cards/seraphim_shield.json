@@ -1,0 +1,16 @@
+{
+"card": "seraphim_shield",
+"source_id": 10232,
+"text": "Equipped hero has +2 Armor. All units have -2 Attack.",
+"covers": ["equip", "continuous", "stat_armor", "stat_attack", "equipped_hero", "all_units"],
+"cases": [
+ {"name": "Equipped hero has +2 Armor (Axe 2 + 2)", "clause": 0, "tags": ["equip", "stat_armor", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", "axe#h+seraphim_shield"], "p1": ["keefe#k", "melee_creep#x"]}}}, "do": [], "expect": {"h.armor": 4}},
+ {"name": "in the Fountain the hero keeps +2 Armor but loses no Attack (no board aura there)", "clause": 0, "tags": ["edge", "equipped_hero", "RQ-38"], "board": {"lanes": {"0": {"p0": ["melee_creep#a"], "p1": ["melee_creep#x"]}}, "fountain": {"p0": ["axe#h+seraphim_shield"]}}, "do": [], "expect": {"h.armor": 4, "h.attack": 6, "a.attack": 2, "x.attack": 2}},
+ {"name": "replacing it with Leather Armor removes both clauses", "clause": 0, "tags": ["negative", "equip"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", "axe#h+seraphim_shield"], "p1": ["keefe#k", "melee_creep#x"]}}}, "do": [{"play": "leather_armor", "target": "h"}], "expect": {"h.armor": 3, "h.attack": 6, "k.attack": 6}},
+ {"name": "All units have -2 Attack: allies, enemies and the equipped hero itself", "clause": 1, "tags": ["all_units", "stat_attack", "continuous"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", "axe#h+seraphim_shield"], "p1": ["keefe#k", "melee_creep#x"]}}}, "do": [], "expect": {"h.attack": 4, "a.attack": 0, "k.attack": 4, "x.attack": 0}},
+ {"name": "rq_04: units in another lane are not affected", "clause": 1, "tags": ["negative", "all_units", "RQ-04"], "board": {"lanes": {"0": {"p0": ["axe#h+seraphim_shield"], "p1": ["keefe#k"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [], "expect": {"o.attack": 2, "p.attack": 2, "k.attack": 4}},
+ {"name": "Attack does not go below 0, and two Shields stack", "clause": 1, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["axe#h+seraphim_shield", "keefe#k+seraphim_shield"], "p1": ["bristleback#b", "melee_creep#x"]}}}, "do": [], "expect": {"b.attack": 4, "h.attack": 2, "k.attack": 2, "x.attack": 0}},
+ {"name": "the lower Attack reduces combat damage both ways", "clause": 1, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["axe#h+seraphim_shield"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"k.health": 8, "h.health": 10}},
+ {"name": "the aura ends when the hero dies", "clause": 1, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", "axe#h+seraphim_shield"], "p1": ["keefe#k", "melee_creep#x"]}}}, "do": [{"kill": ["h"]}], "expect": {"a.attack": 2, "k.attack": 6, "x.attack": 2}},
+ {"name": "an enemy's Seraphim Shield lowers your units too", "clause": 1, "tags": ["edge", "all_units"], "board": {"lanes": {"0": {"p0": ["axe#h"], "p1": ["keefe#k+seraphim_shield"]}}}, "do": [], "expect": {"h.attack": 4, "k.attack": 4}}
+]}

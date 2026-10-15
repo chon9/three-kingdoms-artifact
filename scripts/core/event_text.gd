@@ -10,9 +10,9 @@ extends RefCounted
 ##   pass               p
 ##   lane_open          lane, p        (p = player with initiative)
 ##   shop_open                          -
-##   play               p, card [, target, target_card]
+##   play               p, card [, target (a unit uid or an improvement oid), target_card]
 ##   ability            p, uid, card, ability   (uid = unit uid, item or improvement oid)
-##   buy                p, gold        (cost only, never the item identity)
+##   buy                p, gold        (cost only, never the item identity; below 0 it paid gold)
 ##   hold               p, gold
 ##   combat             lane, damage, strikes  (damage = [player 1 dealt, player 2 dealt])
 ##   death              p, uid, card, gold   (p = owner; the opponent earns gold)
@@ -103,7 +103,11 @@ static func format(event: Dictionary, _library = null, names: Array = []) -> Str
 			var card_id = str(event.get("card", ""))
 			return t("EV_ABILITY", {"card": Library.loc(card_id), "ability": ability_name(card_id)})
 		"buy":
-			return t("EV_BUY", {"player": player, "gold": int(event.get("gold", 0))})
+			# A negative price pays gold (Shop Deeds on the Secret Shop, RQ-26).
+			var gold = int(event.get("gold", 0))
+			if gold < 0:
+				return t("EV_BUY_PAID", {"player": player, "gold": -gold})
+			return t("EV_BUY", {"player": player, "gold": gold})
 		"hold":
 			return t("EV_HOLD", {"player": player, "gold": int(event.get("gold", 0))})
 		"combat":
@@ -176,7 +180,7 @@ static func _format_rules_event(event: Dictionary, player: String, names: Array)
 			return t("EV_STATUS", {"card": source, "target": _subject(event, names), "changes": changes(event),
 				"duration": t(DURATION_KEYS.get(str(event.get("until", "round")), "EV_UNTIL_ROUND"))})
 		"purge":
-			return t("EV_PURGE", {"target": _subject(event, names), "n": int(event.get("n", 0))})
+			return counted("EV_PURGE", int(event.get("n", 0)), {"target": _subject(event, names)})
 		"condemn":
 			return t("EV_CONDEMN", {"card": Library.loc(str(event.get("card", "")))})
 		"summon":
@@ -193,11 +197,11 @@ static func _format_rules_event(event: Dictionary, player: String, names: Array)
 		"fountain":
 			return t("EV_FOUNTAIN", {"card": Library.loc(str(event.get("card", "")))})
 		"battle":
-			return t("EV_BATTLE", {"card": Library.loc(str(event.get("card", ""))), "n": event.get("bs", []).size()})
+			return counted("EV_BATTLE", event.get("bs", []).size(), {"card": Library.loc(str(event.get("card", "")))})
 		"shield":
 			return t("EV_SHIELD", {"card": Library.loc(str(event.get("card", "")))})
 		"charges":
-			return t("EV_CHARGES", {"card": Library.loc(str(event.get("card", ""))), "n": int(event.get("n", 0))})
+			return counted("EV_CHARGES", int(event.get("n", 0)), {"card": Library.loc(str(event.get("card", "")))})
 		"gold":
 			var amount = int(event.get("n", 0))
 			return t("EV_GOLD" if amount >= 0 else "EV_GOLD_LOSE", {"player": player, "n": absi(amount)})
@@ -210,13 +214,13 @@ static func _format_rules_event(event: Dictionary, player: String, names: Array)
 			var count = int(event.get("n", 0))
 			return t("EV_DISCARD_ONE", {"player": player}) if count == 1 else t("EV_DISCARD", {"player": player, "n": count})
 		"lock":
-			return t("EV_LOCK", {"player": player, "n": int(event.get("n", 0))})
+			return counted("EV_LOCK", int(event.get("n", 0)), {"player": player})
 		"gain_card":
 			return t("EV_GAIN_CARD", {"player": player})
 		"charged":
-			return t("EV_CHARGED", {"player": player, "n": int(event.get("n", 0))})
+			return counted("EV_CHARGED", int(event.get("n", 0)), {"player": player})
 		"hack":
-			return t("EV_HACK", {"player": player, "n": int(event.get("n", 0))})
+			return counted("EV_HACK", int(event.get("n", 0)), {"player": player})
 		"improvement":
 			return t("EV_IMPROVEMENT", {"player": player, "card": Library.loc(str(event.get("card", ""))),
 				"lane": lane_name(event.get("lane", 0))})
@@ -296,6 +300,13 @@ static func steam_status(code: String, args: Dictionary = {}, fallback: String =
 static func t(key: String, args: Dictionary = {}) -> String:
 	var text = String(TranslationServer.translate(key))
 	return text.format(args) if not args.is_empty() else text
+
+## A counted message: `key`_ONE when n is 1 ("1 effect ... is purged",
+## not "1 effects ... are purged"), else `key` with {n}.
+static func counted(key: String, n: int, args: Dictionary = {}) -> String:
+	var filled = args.duplicate()
+	filled["n"] = n
+	return t(key + "_ONE", filled) if n == 1 else t(key, filled)
 
 static func lane_name(lane_index) -> String:
 	var index = int(lane_index)

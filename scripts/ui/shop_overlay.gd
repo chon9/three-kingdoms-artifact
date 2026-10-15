@@ -13,6 +13,7 @@ signal view_board_toggled(showing_board: bool)
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const CardView = preload("res://scripts/ui/card_view.gd")
+const Library = preload("res://scripts/core/card_library.gd")
 const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
 const SOURCES = ["secret", "item", "consumable"]
 const CHEST_SIZE = Vector2(940, 560)
@@ -29,6 +30,8 @@ var showing_board: bool = false
 var player: Dictionary = {}
 var actions: Array = []
 var _gold: int = 0
+## Source -> price after the rules layer, from the last sync.
+var _prices: Dictionary = {}
 var _tween: Tween
 
 func _init() -> void:
@@ -110,9 +113,13 @@ func _place() -> void:
 	back_button.position = Vector2((size.x - back_button.size.x) * 0.5 - 40.0, size.y - 214)
 
 ## Updates offers and buttons from the viewer's player view and actions.
-func sync(viewer_state: Dictionary, legal: Array, waiting: bool) -> void:
+## `prices` maps a source to its offer's price after the rules layer (a Shop
+## Deed discounts the Secret Shop, RQ-26); a missing source shows the printed
+## price.
+func sync(viewer_state: Dictionary, legal: Array, waiting: bool, prices: Dictionary = {}) -> void:
 	player = viewer_state
 	actions = legal
+	_prices = prices
 	_gold = int(viewer_state.get("gold", 0))
 	var shop: Dictionary = viewer_state.get("shop", {})
 	for source in SOURCES:
@@ -124,6 +131,7 @@ func sync(viewer_state: Dictionary, legal: Array, waiting: bool) -> void:
 		if not card_id.is_empty():
 			card.setup(card_id)
 			card.set_size_keep(CARD_SIZE)
+		card.price_override = prices.get(source) if not card_id.is_empty() else null
 		var affordable = false
 		for action in legal:
 			if action.get("type", "") == "buy" and action.get("source", "") == source:
@@ -144,9 +152,18 @@ func refresh_text() -> void:
 	var labels = {"secret": UiKit.t("SHOP_SECRET"),
 		"item": UiKit.t("SHOP_ITEM_DECK_COUNT", {"n": int(player.get("item_deck_count", 0)), "total": maxi(9, int(player.get("item_deck_count", 0)))}),
 		"consumable": UiKit.t("SHOP_CONSUMABLES")}
+	var shop: Dictionary = player.get("shop", {})
 	for source in SOURCES:
 		var slot = slots[source]
 		slot.label.text = labels[source]
+		# A discounted offer says so under its card: free, or pays gold.
+		var card_id = str(shop.get(source, ""))
+		if _prices.has(source) and not card_id.is_empty():
+			var price = int(_prices[source])
+			if price < int(Library.raw_definition(card_id).get("price", 0)):
+				var note = UiKit.t("SHOP_PRICE_FREE") if price == 0 else (UiKit.t("SHOP_PRICE_PAYS", {"gold": -price}) if price < 0 else "")
+				if not note.is_empty():
+					slot.label.text = "%s  ·  %s" % [labels[source], note]
 		slot.buy.text = UiKit.t("BTN_BUY")
 		slot.sold.text = UiKit.t("SHOP_SOLD")
 		slot.card.refresh()

@@ -20,12 +20,16 @@ extends SceneTree
 ## {"p0": [ids]}, towers {"0": {"p1": {"health": n, "ancient": bool}}},
 ## improvements {"0": {"p0": ["card#label"]}}, fountain {"p0":
 ## ["card#label[:ready=N]"]}, give {label: ["silence", ...]} (this round),
-## charges {label: n}, cooldowns {label: n}, hand_state {"p0": [{...}]};
-## "@n" reuses case n's board and {"base": "@n", ...} merges into it.
+## charges {label | "label.<slot>": n}, cooldowns {label | "label.<slot>": n}
+## (a slot names the hero's item instance), hand_state {"p0": [{...}]};
+## "@n" reuses case n's board and {"base": "@n", ...} merges into it. An
+## unknown card or a "+item" that is not equipment fails the board (the
+## modifiers of an entry go before its first +item).
 ## Steps ("do"): {"play": card, "target": label, "destination": label |
 ## "tower", "lane": n, "position": n, "player": p, "as": label (names the
 ## unit the play puts into a lane: the creep it plays, else the first unit
-## it summons)}, {"ability": label | "label.weapon"}, {"pass": p},
+## it summons)}, {"ability": label | "label.weapon", with the same target
+## fields ("tower" is 0)}, {"pass": p},
 ## {"combat": true}, {"end_round": true, "deploy": {hero label: lane}},
 ## {"kill": [labels]}, {"draw": {"p1": n}}, {"give": {label: ["stun", ...]}}
 ## (statuses this round, mid-case); a deployment phase step by step:
@@ -33,11 +37,15 @@ extends SceneTree
 ## deploy commands), {"reveal": true}.
 ## Expectations ("expect"): "label.<field>" (attack, armor, health,
 ## max_health, kw.<k>, stunned, silenced, disarmed, in_play, lane, slot,
-## owner, cooldown, charges, items, ready_round, combat_target, arrow), "tower.<lane>.<p>.health" (and
+## owner, cooldown, charges, items, ready_round, combat_target, arrow),
+## "label.<slot>.<field>" (the item instance in that slot: cooldown, charges,
+## card, mods), "tower.<lane>.<p>.health" (and
 ## .ancient), "mana.<lane>.<p>", "max_mana.<lane>.<p>", "p<i>.gold",
 ## "p<i>.hand" (ids, or a count), "p<i>.hand.<i>" (the card id at that
 ## index, "" past the end), "p<i>.hand.<card>" (copies of that card in hand),
-## "p<i>.hand_state.<i>.lock" (null past the end),
+## "p<i>.hand_state.<i>.lock" (null past the end), "p<i>.deeds" (deed ids,
+## or a count), "p<i>.price.<source>.<card>" (a shop price after the rules
+## layer),
 ## "initiative", "lane", "winner", "units.<lane>.<p>[.<card>]" (a count of
 ## units), "fountain.<p>[.<card>]" (a count of roster heroes out of the lanes),
 ## "events": {"has": [keys], "not": [keys]};
@@ -238,8 +246,8 @@ func _setup(board: Dictionary, seed_value: int) -> Dictionary:
 					row.append(null)
 					continue
 				var unit = _unit(engine, str(text), side, labels, used)
-				if unit.is_empty():
-					return {"error": "unknown card in %s" % text}
+				if unit.has("_error"):
+					return {"error": unit._error}
 				unit.lane = lane_index
 				row.append(unit)
 			state.lanes[lane_index].units[side] = row
@@ -247,8 +255,8 @@ func _setup(board: Dictionary, seed_value: int) -> Dictionary:
 		var side = int(str(side_key).substr(1))
 		for text in board.fountain[side_key]:
 			var unit = _unit(engine, str(text), side, labels, used)
-			if unit.is_empty():
-				return {"error": "unknown card in %s" % text}
+			if unit.has("_error"):
+				return {"error": unit._error}
 			unit.lane = -1
 	for lane_key in board.get("improvements", {}):
 		for side_key in board.improvements[lane_key]:
@@ -280,11 +288,18 @@ func _setup(board: Dictionary, seed_value: int) -> Dictionary:
 			return {"error": "give: unknown label %s" % name}
 		for status in board.give[name]:
 			Kernel.give(engine, labels[name], {}, {str(status): 1}, "", "round", {"controller": 1 - int(labels[name].get("owner", 0)), "card": ""})
+	# "charges" and "cooldowns" take a label, or "label.<slot>" for the item
+	# instance in that slot of a hero.
 	for name in board.get("charges", {}):
-		labels[name]["charges"] = int(board.charges[name])
+		var holder = _holder(labels, str(name))
+		if holder.is_empty():
+			return {"error": "charges: unknown label %s" % name}
+		holder["charges"] = int(board.charges[name])
 	for name in board.get("cooldowns", {}):
-		var object: Dictionary = labels[name]
-		object["cooldown" if object.has("uid") else "cd"] = int(board.cooldowns[name])
+		var holder = _holder(labels, str(name))
+		if holder.is_empty():
+			return {"error": "cooldowns: unknown label %s" % name}
+		holder["cooldown" if holder.has("uid") else "cd"] = int(board.cooldowns[name])
 	Stats.settle(engine)
 	for name in labels:
 		var object: Dictionary = labels[name]
@@ -302,9 +317,22 @@ func _setup(board: Dictionary, seed_value: int) -> Dictionary:
 		return {"error": "the board breaks the invariants: %s" % [broken]}
 	return {"engine": engine, "labels": labels}
 
+## The object a "charges"/"cooldowns" board key names: a label, or the item
+## instance of "label.<slot>" ({} when there is none).
+func _holder(labels: Dictionary, name: String) -> Dictionary:
+	var parts = name.split(".")
+	if not labels.has(parts[0]):
+		return {}
+	var object: Dictionary = labels[parts[0]]
+	if parts.size() == 1:
+		return object
+	return object.get("item_state", {}).get(parts[1], {})
+
 ## A unit from "card#label[:hp=N][:atk=N][:arm=N][:arrow=N][:ready=N][+item...]".
 ## Heroes of the player's roster are reused (so they stay roster heroes);
-## other heroes join the roster.
+## other heroes join the roster. An unknown card, or an item that is not
+## equipment ("card#x+item:arrow=-1" puts the modifier after the item),
+## returns {"_error": ...}.
 func _unit(engine, text: String, side: int, labels: Dictionary, used: Dictionary) -> Dictionary:
 	var items = text.split("+")
 	var head = items[0].split(":")
@@ -312,7 +340,11 @@ func _unit(engine, text: String, side: int, labels: Dictionary, used: Dictionary
 	var card_id = parts[0]
 	var definition = engine.library.definition(card_id)
 	if definition.is_empty():
-		return {}
+		return {"_error": "unknown card in %s" % text}
+	for item_id in items.slice(1):
+		var item: Dictionary = engine.library.get_card(str(item_id))
+		if str(item.get("kind", "")) != "item" or str(item.get("slot", "")) not in ["weapon", "armor", "accessory"]:
+			return {"_error": "unknown equipment %s in %s (modifiers go before the first +item)" % [item_id, text]}
 	var unit: Dictionary = {}
 	var hero = str(definition.get("kind", "")) == "hero" or engine.library.heroes.any(func(entry): return str(entry.id) == card_id)
 	if hero:
@@ -495,8 +527,18 @@ func _ability_command(labels: Dictionary, step: Dictionary) -> Dictionary:
 		id = int(source.get("item_state", {}).get(parts[1], {}).get("oid", -1))
 	var command = {"type": "ability", "unit": id}
 	for key in ["target", "destination", "lane", "position"]:
-		if step.has(key):
-			command[key] = _id_of(labels[step[key]]) if step[key] is String and labels.has(step[key]) else int(step[key])
+		if not step.has(key):
+			continue
+		var value = step[key]
+		if value is String:
+			if str(value) == "tower":
+				command[key] = 0
+			elif labels.has(value):
+				command[key] = _id_of(labels[value])
+			else:
+				return {"error": "unknown label %s" % value}
+		else:
+			command[key] = int(value)
 	return command
 
 func _id_of(object: Dictionary) -> int:
@@ -639,11 +681,23 @@ func _read(engine, labels: Dictionary, key: String):
 				return states[index].get(parts[3], 0)
 			"deck":
 				return owner.deck.size()
+			"deeds":
+				# "p<i>.deeds": the card ids in the player's public deeds zone.
+				return owner.get("deeds", []).map(func(deed): return str(deed.card))
+			"price":
+				# "p<i>.price.<source>.<card>": the shop price after the rules layer.
+				if parts.size() < 4:
+					return "price needs a source and a card"
+				return int(engine.price_of(int(parts[0].substr(1)), parts[2], parts[3]))
 	if not labels.has(parts[0]):
 		return "unknown label %s" % parts[0]
 	var object: Dictionary = labels[parts[0]]
 	var field = parts[1] if parts.size() > 1 else ""
 	var live = Select.in_play(engine, object) if object.has("uid") else not object.get("condemned", false)
+	if field in ["weapon", "armor", "accessory"] and parts.size() > 2:
+		# "<label>.<slot>.<field>" before the stat names: "a.armor.cooldown"
+		# is the armor item's cooldown, never the hero's Armor stat.
+		return _item_field(object, field, parts[2], key)
 	match field:
 		"attack":
 			return engine.attack_of(object)
@@ -677,6 +731,8 @@ func _read(engine, labels: Dictionary, key: String):
 			return int(object.get("charges", 0))
 		"items":
 			return object.get("items", {}).duplicate()
+		"weapon", "accessory":
+			return "unknown item field %s" % key
 		"ready_round":
 			return int(object.get("ready_round", 0))
 		"combat_target":
@@ -684,6 +740,22 @@ func _read(engine, labels: Dictionary, key: String):
 		"arrow":
 			return int(object.get("arrow", 0))
 	return "unknown field %s" % field
+
+## "<label>.<slot>.<field>": the item instance in that slot: its cooldown,
+## charges, card, or mods (how many entries it holds, such as granted text
+## from a Modify).
+func _item_field(object: Dictionary, slot: String, name: String, key: String):
+	var instance: Dictionary = object.get("item_state", {}).get(slot, {})
+	match name:
+		"cooldown":
+			return int(instance.get("cd", 0))
+		"charges":
+			return int(instance.get("charges", 0))
+		"card":
+			return str(object.get("items", {}).get(slot, ""))
+		"mods":
+			return instance.get("mods", []).size()
+	return "unknown item field %s" % key
 
 func _same(have, want) -> bool:
 	if have == null or want == null:

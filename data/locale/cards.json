@@ -2827,6 +2827,520 @@
 						"zh_CN": "攻城{siege}。每有一个友方单位，许贡门客-{attack_per_ally}攻击。"
 					},
 					"faction": "qun"
+				},
+				"chainmail": {
+					"name": {
+						"en": "Fish-Scale Armor",
+						"zh_CN": "鱼鳞甲"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor.",
+						"zh_CN": "装备者+{armor}护甲。"
+					},
+					"faction": "neutral"
+				},
+				"fur_lined_mantle": {
+					"name": {
+						"en": "Brocade Robe",
+						"zh_CN": "锦袍"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health.",
+						"zh_CN": "装备者+{health}体力。"
+					},
+					"faction": "neutral"
+				},
+				"heros_cape": {
+					"name": {
+						"en": "Red Hare",
+						"zh_CN": "赤兔"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health.",
+						"zh_CN": "装备者+{health}体力。"
+					},
+					"faction": "neutral"
+				},
+				"platemail": {
+					"name": {
+						"en": "Black Iron Armor",
+						"zh_CN": "玄甲"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor.",
+						"zh_CN": "装备者+{armor}护甲。"
+					},
+					"faction": "neutral"
+				},
+				"red_mist_maul": {
+					"name": {
+						"en": "Stone-Splitting Axe",
+						"zh_CN": "贯石斧"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack and +{siege} siege.",
+						"zh_CN": "装备者+{attack}攻击、+{siege}攻城。"
+					},
+					"faction": "neutral"
+				},
+				"barbed_mail": {
+					"name": {
+						"en": "Caltrop Mail",
+						"zh_CN": "蒺藜甲"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor and +{retaliate} retaliate.",
+						"zh_CN": "装备者+{armor}护甲、+{retaliate}反击。"
+					},
+					"faction": "neutral"
+				},
+				"blade_of_the_vigil": {
+					"name": {
+						"en": "Guding Blade",
+						"zh_CN": "古锭刀"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack and +{cleave} cleave.",
+						"zh_CN": "装备者+{attack}攻击、+{cleave}横扫。"
+					},
+					"faction": "neutral"
+				},
+				"ring_of_tarrasque": {
+					"name": {
+						"en": "Way of Great Peace",
+						"zh_CN": "太平要术"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health and +{regeneration} regeneration.",
+						"zh_CN": "装备者+{health}体力、+{regeneration}再生。"
+					},
+					"faction": "neutral"
+				},
+				"revtel_signet_ring": {
+					"name": {
+						"en": "Iron Pardon Tablet",
+						"zh_CN": "丹书铁券"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health and {bounty} bounty.",
+						"zh_CN": "装备者+{health}体力、{bounty}赏金。"
+					},
+					"faction": "neutral"
+				},
+				"ristul_emblem": {
+					"name": {
+						"en": "War Drums",
+						"zh_CN": "战鼓"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health and {armor} armor. The unit blocking equipped hero has {blocker_armor} armor.",
+						"zh_CN": "装备者+{health}体力、{armor}护甲。阻挡装备者的单位{blocker_armor}护甲。"
+					},
+					"faction": "neutral"
+				},
+				"shield_of_basilius": {
+					"name": {
+						"en": "Great Pavise",
+						"zh_CN": "大橹"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor. Equipped hero's allied neighbors have +{neighbor_armor} armor.",
+						"zh_CN": "装备者+{armor}护甲。装备者的友方邻位单位+{neighbor_armor}护甲。"
+					},
+					"faction": "neutral"
+				},
+				"shield_of_aquila": {
+					"name": {
+						"en": "Black Tortoise Shield",
+						"zh_CN": "玄武盾"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor. Equipped hero's allied neighbors have +{neighbor_armor} armor.",
+						"zh_CN": "装备者+{armor}护甲。装备者的友方邻位单位+{neighbor_armor}护甲。"
+					},
+					"faction": "neutral"
+				},
+				"keenfolk_plate": {
+					"name": {
+						"en": "Sleeved Armor",
+						"zh_CN": "筒袖铠"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor, and +{armor_per_attacker} armor for each of its attackers. Equipped hero's attackers have -{attacker_armor_loss} armor.",
+						"zh_CN": "装备者+{armor}护甲。每有一个单位攻击装备者，装备者+{armor_per_attacker}护甲。攻击装备者的单位-{attacker_armor_loss}护甲。"
+					},
+					"faction": "neutral"
+				},
+				"seraphim_shield": {
+					"name": {
+						"en": "Benevolent King Shield",
+						"zh_CN": "仁王盾"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor. All units have -{attack_loss} attack.",
+						"zh_CN": "装备者+{armor}护甲。所有单位-{attack_loss}攻击。"
+					},
+					"faction": "neutral"
+				},
+				"vesture_of_the_tyrant": {
+					"name": {
+						"en": "Dragon Robe",
+						"zh_CN": "龙袍"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor and rapid deployment. Your tower has +{tower_armor} armor.",
+						"zh_CN": "装备者+{armor}护甲并具有快速出阵。你的城楼+{tower_armor}护甲。"
+					},
+					"faction": "neutral"
+				},
+				"stonehall_cloak": {
+					"name": {
+						"en": "Ferghana Horse",
+						"zh_CN": "大宛马"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health. Permanently give Ferghana Horse \"Equipped hero gains +{growth_health} health\" after the combat phase.",
+						"zh_CN": "装备者+{health}体力。交战阶段后，永久使大宛马获得：“装备者+{growth_health}体力。”"
+					},
+					"faction": "neutral",
+					"grants": [
+						{
+							"en": "Equipped hero gains +{growth_health} health.",
+							"zh_CN": "装备者+{growth_health}体力。"
+						}
+					]
+				},
+				"stonehall_pike": {
+					"name": {
+						"en": "Hundred-Forged Blade",
+						"zh_CN": "百辟刀"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack. Permanently give Hundred-Forged Blade \"Equipped hero gains +{growth_attack} attack\" after the combat phase.",
+						"zh_CN": "装备者+{attack}攻击。交战阶段后，永久使百辟刀获得：“装备者+{growth_attack}攻击。”"
+					},
+					"faction": "neutral",
+					"grants": [
+						{
+							"en": "Equipped hero gains +{growth_attack} attack.",
+							"zh_CN": "装备者+{growth_attack}攻击。"
+						}
+					]
+				},
+				"stonehall_plate": {
+					"name": {
+						"en": "Bright Light Armor",
+						"zh_CN": "明光铠"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor. Permanently give Bright Light Armor \"Equipped hero gains +{growth_armor} armor\" after the combat phase.",
+						"zh_CN": "装备者+{armor}护甲。交战阶段后，永久使明光铠获得：“装备者+{growth_armor}护甲。”"
+					},
+					"faction": "neutral",
+					"grants": [
+						{
+							"en": "Equipped hero gains +{growth_armor} armor.",
+							"zh_CN": "装备者+{growth_armor}护甲。"
+						}
+					]
+				},
+				"poaching_knife": {
+					"name": {
+						"en": "Ring-Pommel Saber",
+						"zh_CN": "环首刀"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack. Get {hero_gold} gold after an enemy hero dies. Get {creep_gold} gold after an enemy creep dies.",
+						"zh_CN": "装备者+{attack}攻击。敌方武将阵亡后，获得{hero_gold}金。敌方兵卒阵亡后，获得{creep_gold}金。"
+					},
+					"faction": "neutral"
+				},
+				"cloak_of_endless_carnage": {
+					"name": {
+						"en": "Mengde's New Book",
+						"zh_CN": "孟德新书"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health. Draw a card after an allied neighbor of equipped hero dies.",
+						"zh_CN": "装备者+{health}体力。装备者的一个友方邻位单位阵亡后，摸一张牌。"
+					},
+					"faction": "neutral"
+				},
+				"jasper_daggers": {
+					"name": {
+						"en": "Ganjiang and Moye",
+						"zh_CN": "干将莫邪"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack and pierce.\nEquip effect: purge your opponent's effects from equipped hero.",
+						"zh_CN": "装备者+{attack}攻击并具有穿透。\n装备效果：驱散对手施加于装备者的所有效果。"
+					},
+					"faction": "neutral"
+				},
+				"assassins_veil": {
+					"name": {
+						"en": "Jueying Steed",
+						"zh_CN": "绝影"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health.\nJueying: choose a combat target for equipped hero. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{health}体力。\n绝影：为装备者指定交战目标。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Jueying",
+						"zh_CN": "绝影"
+					}
+				},
+				"keenfolk_musket": {
+					"name": {
+						"en": "Zhuge Crossbow",
+						"zh_CN": "诸葛连弩"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack.\nRapid Fire: deal {amount} damage to a unit. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{attack}攻击。\n连发：对一个单位造成{amount}点伤害。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Rapid Fire",
+						"zh_CN": "连发"
+					}
+				},
+				"rumusque_vestments": {
+					"name": {
+						"en": "Silver Lion Armor",
+						"zh_CN": "白银狮子"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor.\nLion's Breath: heal a unit {amount}. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{armor}护甲。\n狮吼：为一个单位恢复{amount}点体力。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Lion's Breath",
+						"zh_CN": "狮吼"
+					}
+				},
+				"shivas_guard": {
+					"name": {
+						"en": "Lion Helm",
+						"zh_CN": "狮盔"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor.\nLion's Dread: permanently give a unit and its allied neighbors {attack_loss} attack. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{armor}护甲。\n狮威：永久使一个单位及其友方邻位单位{attack_loss}攻击。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Lion's Dread",
+						"zh_CN": "狮威"
+					}
+				},
+				"wingfall_hammer": {
+					"name": {
+						"en": "Serpent Spear",
+						"zh_CN": "丈八蛇矛"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack.\nRally: give equipped hero and its allied neighbors +X regeneration this round, where X is half its attack. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{attack}攻击。\n蛇矛：本回合使装备者及其友方邻位单位+X再生，X为装备者攻击的一半。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Rally",
+						"zh_CN": "蛇矛"
+					}
+				},
+				"helm_of_the_dominator": {
+					"name": {
+						"en": "Purple-Gold Crown",
+						"zh_CN": "紫金冠"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor.\nOverawe: get control of an enemy creep. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{armor}护甲。\n慑服：获得一名敌方兵卒的控制权。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Overawe",
+						"zh_CN": "慑服"
+					}
+				},
+				"phase_boots": {
+					"name": {
+						"en": "Flying Lightning",
+						"zh_CN": "爪黄飞电"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health.\nLightning Dash: swap equipped hero with another ally. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{health}体力。\n飞电：将装备者与另一个友方单位交换位置。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Lightning Dash",
+						"zh_CN": "飞电"
+					}
+				},
+				"blink_dagger": {
+					"name": {
+						"en": "Yitian Sword",
+						"zh_CN": "倚天剑"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack.\nHeaven's Reach: move equipped hero to another lane. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{attack}攻击。\n倚天：将装备者移至另一路。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Heaven's Reach",
+						"zh_CN": "倚天"
+					}
+				},
+				"nyctashas_guard": {
+					"name": {
+						"en": "Eight-Gate Lock",
+						"zh_CN": "八门金锁"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor.\nLock the Gates: move equipped hero's enemy neighbors to random other lanes. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{armor}护甲。\n锁阵：将装备者的敌方邻位单位随机移至其他路。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Lock the Gates",
+						"zh_CN": "锁阵"
+					}
+				},
+				"bracers_of_sacrifice": {
+					"name": {
+						"en": "Death-Sworn Armor",
+						"zh_CN": "舍命甲"
+					},
+					"text": {
+						"en": "Equipped hero gains +{armor} armor.\nLast Stand: deal {amount} damage to equipped hero's enemy neighbors and condemn equipped hero. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{armor}护甲。\n同归：对装备者的敌方邻位单位造成{amount}点伤害，然后处斩装备者。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Last Stand",
+						"zh_CN": "同归"
+					}
+				},
+				"horn_of_the_alpha": {
+					"name": {
+						"en": "Tiger Tally",
+						"zh_CN": "虎符"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health.\nMobilize: summon a Tower Ship. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{health}体力。\n调兵：召唤一艘楼船。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Mobilize",
+						"zh_CN": "调兵"
+					}
+				},
+				"book_of_the_dead": {
+					"name": {
+						"en": "Soul-Calling Banner",
+						"zh_CN": "招魂幡"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health. Add a charge to Soul-Calling Banner after an allied Foot Soldier dies.\nCall the Dead: summon a Ghost Soldier for each charge, then remove all charges. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{health}体力。一名友方步卒阵亡后，为招魂幡增加1层充能。\n招魂：每有1层充能，召唤一名阴兵，然后移除所有充能。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Call the Dead",
+						"zh_CN": "招魂"
+					}
+				},
+				"demagicking_maul": {
+					"name": {
+						"en": "Meteor Hammer",
+						"zh_CN": "流星锤"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack.\nShooting Star: condemn a random enemy improvement. Only usable if equipped hero is unblocked. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{attack}攻击。\n流星：处斩一个随机的敌方营建。仅当装备者未被阻挡时可用。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Shooting Star",
+						"zh_CN": "流星"
+					}
+				},
+				"apotheosis_blade": {
+					"name": {
+						"en": "Sky Piercer",
+						"zh_CN": "方天画戟"
+					},
+					"text": {
+						"en": "Equipped hero gains +{attack} attack and +{siege} siege. Condemn each unit equipped hero deals battle damage to.\nHalberd Sweep: condemn enemy improvements. Condemn each item equipped by the unit blocking equipped hero. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "装备者+{attack}攻击、+{siege}攻城。受到装备者战斗伤害的单位均被处斩。\n画戟：处斩所有敌方营建，并处斩阻挡装备者的单位所装备的全部军备。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "neutral",
+					"ability_name": {
+						"en": "Halberd Sweep",
+						"zh_CN": "画戟"
+					}
+				},
+				"obliterating_orb": {
+					"name": {
+						"en": "Fire Oil",
+						"zh_CN": "火油"
+					},
+					"text": {
+						"en": "Condemn an improvement.",
+						"zh_CN": "处斩一个营建。"
+					},
+					"faction": "neutral"
+				},
+				"fountain_flask": {
+					"name": {
+						"en": "Du Kang Wine",
+						"zh_CN": "杜康酒"
+					},
+					"text": {
+						"en": "Fully heal a unit.",
+						"zh_CN": "完全恢复一个单位的体力。"
+					},
+					"faction": "neutral"
+				},
+				"golden_ticket": {
+					"name": {
+						"en": "Border Pass",
+						"zh_CN": "通关文牒"
+					},
+					"text": {
+						"en": "Get a random item from the Secret Shop.",
+						"zh_CN": "从黑市中随机获得一件军备。"
+					},
+					"faction": "neutral"
+				},
+				"shop_deed": {
+					"name": {
+						"en": "Imperial Jade Seal",
+						"zh_CN": "传国玉玺"
+					},
+					"text": {
+						"en": "Each item in your Secret Shop costs X less gold, where X is its base cost.",
+						"zh_CN": "你的黑市中每件军备的价格降低X金，X为其基础价格。"
+					},
+					"faction": "neutral"
+				},
+				"claszureme_hourglass": {
+					"name": {
+						"en": "Armillary Sphere",
+						"zh_CN": "浑天仪"
+					},
+					"text": {
+						"en": "Equipped hero gains +{health} health. Whenever your opponent draws a card, give that card +{amount} lock if equipped hero is in any lane.",
+						"zh_CN": "装备者+{health}体力。只要装备者在任意一路中，对手每摸一张牌，使该牌+{amount}锁定。"
+					},
+					"faction": "neutral"
 				}
 			},
 			"presets": {
@@ -2968,6 +3482,46 @@
 					"description": {
 						"en": "Zhang Jiao calls down Heaven's thunder as Yellow Heaven Rises; Zuo Ci's arts, Lady Zhurong's flying knives and Hua Tuo's powder strike the generals, and Sima Yi's lightning finishes them.",
 						"zh_CN": "张角呼风唤雷，黄天当立；左慈的遁甲、祝融的飞刀与华佗的麻沸散专攻敌将，司马懿再以天雷收尾。"
+					}
+				},
+				"five_tigers": {
+					"name": {
+						"en": "Five Tiger Generals",
+						"zh_CN": "五虎上将"
+					},
+					"description": {
+						"en": "Guan Yu, Zhang Fei, Zhao Yun, Ma Chao and Huang Zhong ride out with the Serpent Spear and the Zhuge Crossbow; the Bright Light Armor and the Ferghana Horse grow stronger with every battle.",
+						"zh_CN": "关羽、张飞、赵云、马超、黄忠五虎齐出，执丈八蛇矛、诸葛连弩；明光铠与大宛马每战愈强。"
+					}
+				},
+				"emperor_of_wu": {
+					"name": {
+						"en": "The Emperor of Wu",
+						"zh_CN": "孙权称帝"
+					},
+					"description": {
+						"en": "Sun Quan dons the Dragon Robe at Wuchang; Zhou Yu, Lu Xun, Gan Ning and Zhou Tai guard Jiangdong behind the Black Tortoise Shield and the Benevolent King Shield.",
+						"zh_CN": "孙权于武昌身披龙袍称帝；周瑜、陆逊、甘宁、周泰持玄武盾、仁王盾拱卫江东。"
+					}
+				},
+				"battle_of_guandu": {
+					"name": {
+						"en": "Battle of Guandu",
+						"zh_CN": "官渡之战"
+					},
+					"description": {
+						"en": "At Guandu Cao Cao rides Jueying with the Yitian Sword; Xu Chu and Zhang Liao raid Wuchao, Guo Jia counsels, Xiahou Dun holds the camp and Cao Ren's Eight-Gate Lock scatters the attackers.",
+						"zh_CN": "官渡之战，曹操乘绝影、佩倚天剑；许褚、张辽奇袭乌巢，郭嘉献策，夏侯惇坚守大营，曹仁八门金锁阵打散来敌。"
+					}
+				},
+				"warlords_rise": {
+					"name": {
+						"en": "Rise of the Warlords",
+						"zh_CN": "群雄割据"
+					},
+					"description": {
+						"en": "Lü Bu rides Red Hare with the Sky Piercer and the Purple-Gold Crown; Jia Xu schemes, Yuan Shao pays for every head, Hua Tuo heals and Zuo Ci conjures: each warlord takes what he can.",
+						"zh_CN": "吕布跨赤兔、执方天画戟、戴紫金冠；贾诩设谋、袁绍重金购首、华佗施术、左慈弄法，群雄各取所需。"
 					}
 				}
 			}
@@ -5455,6 +6009,480 @@
 						"en": "Siege {siege}. Assassin's Shadow has -{attack_per_ally} Attack for each ally.",
 						"zh_CN": "攻城{siege}。每有一个友方单位，刺客暗影-{attack_per_ally}攻击。"
 					}
+				},
+				"chainmail": {
+					"name": {
+						"en": "Chainmail",
+						"zh_CN": "锁子甲"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。"
+					}
+				},
+				"fur_lined_mantle": {
+					"name": {
+						"en": "Fur-lined Mantle",
+						"zh_CN": "皮袄斗篷"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health.",
+						"zh_CN": "装备此物品的英雄+{health}生命。"
+					}
+				},
+				"heros_cape": {
+					"name": {
+						"en": "Hero's Cape",
+						"zh_CN": "英雄披风"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health.",
+						"zh_CN": "装备此物品的英雄+{health}生命。"
+					}
+				},
+				"platemail": {
+					"name": {
+						"en": "Platemail",
+						"zh_CN": "板甲"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。"
+					}
+				},
+				"red_mist_maul": {
+					"name": {
+						"en": "Red Mist Maul",
+						"zh_CN": "红雾巨锤"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack and +{siege} Siege.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击和+{siege}攻城。"
+					}
+				},
+				"barbed_mail": {
+					"name": {
+						"en": "Barbed Mail",
+						"zh_CN": "倒刺链甲"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor and +{retaliate} Retaliate.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲和+{retaliate}反伤。"
+					}
+				},
+				"blade_of_the_vigil": {
+					"name": {
+						"en": "Blade of the Vigil",
+						"zh_CN": "守夜大剑"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack and +{cleave} Cleave.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击和+{cleave}顺势。"
+					}
+				},
+				"ring_of_tarrasque": {
+					"name": {
+						"en": "Ring of Tarrasque",
+						"zh_CN": "恐鳌之戒"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health and +{regeneration} Regeneration.",
+						"zh_CN": "装备此物品的英雄+{health}生命和+{regeneration}恢复。"
+					}
+				},
+				"revtel_signet_ring": {
+					"name": {
+						"en": "Revtel Signet Ring",
+						"zh_CN": "瑞文泰尔印戒"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health and {bounty} Bounty.",
+						"zh_CN": "装备此物品的英雄+{health}生命和{bounty}赏金。"
+					}
+				},
+				"ristul_emblem": {
+					"name": {
+						"en": "Ristul Emblem",
+						"zh_CN": "瑞斯托纹章"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health and {armor} Armor. The unit blocking equipped hero has {blocker_armor} Armor.",
+						"zh_CN": "装备此物品的英雄+{health}生命和{armor}护甲。阻挡装备此物品的英雄的单位{blocker_armor}护甲。"
+					}
+				},
+				"shield_of_basilius": {
+					"name": {
+						"en": "Shield of Basilius",
+						"zh_CN": "王者之盾"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Equipped hero's allied neighbors have +{neighbor_armor} Armor.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。装备此物品的英雄的友方近邻+{neighbor_armor}护甲。"
+					}
+				},
+				"shield_of_aquila": {
+					"name": {
+						"en": "Shield of Aquila",
+						"zh_CN": "天鹰之盾"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Equipped hero's allied neighbors have +{neighbor_armor} Armor.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。装备此物品的英雄的友方近邻+{neighbor_armor}护甲。"
+					}
+				},
+				"keenfolk_plate": {
+					"name": {
+						"en": "Keenfolk Plate",
+						"zh_CN": "基恩板甲"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Equipped hero has +{armor_per_attacker} Armor for each of its attackers. Equipped hero's attackers have -{attacker_armor_loss} Armor.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。每有一个攻击者，装备此物品的英雄便+{armor_per_attacker}护甲。装备此物品的英雄的攻击者-{attacker_armor_loss}护甲。"
+					}
+				},
+				"seraphim_shield": {
+					"name": {
+						"en": "Seraphim Shield",
+						"zh_CN": "炽天使护盾"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. All units have -{attack_loss} Attack.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。所有单位-{attack_loss}攻击。"
+					}
+				},
+				"vesture_of_the_tyrant": {
+					"name": {
+						"en": "Vesture of the Tyrant",
+						"zh_CN": "暴君王袍"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor and Rapid Deployment. Your tower has +{tower_armor} Armor.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲并获得快速部署。你的塔+{tower_armor}护甲。"
+					}
+				},
+				"stonehall_cloak": {
+					"name": {
+						"en": "Stonehall Cloak",
+						"zh_CN": "石堂城斗篷"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health. Modify Stonehall Cloak with \"Equipped hero has +{growth_health} Health\" after the combat phase.",
+						"zh_CN": "装备此物品的英雄+{health}生命。战斗阶段后修改石堂城斗篷，使其获得“装备此物品的英雄+{growth_health}生命”。"
+					},
+					"grants": [
+						{
+							"en": "Equipped hero has +{growth_health} Health.",
+							"zh_CN": "装备此物品的英雄+{growth_health}生命。"
+						}
+					]
+				},
+				"stonehall_pike": {
+					"name": {
+						"en": "Stonehall Pike",
+						"zh_CN": "石堂城长枪"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack. Modify Stonehall Pike with \"Equipped hero has +{growth_attack} Attack\" after the combat phase.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击。战斗阶段后，修改石堂城长枪，使其获得“装备此物品的英雄+{growth_attack}攻击”。"
+					},
+					"grants": [
+						{
+							"en": "Equipped hero has +{growth_attack} Attack.",
+							"zh_CN": "装备此物品的英雄+{growth_attack}攻击。"
+						}
+					]
+				},
+				"stonehall_plate": {
+					"name": {
+						"en": "Stonehall Plate",
+						"zh_CN": "石堂城板甲"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Modify Stonehall Plate with \"Equipped hero has +{growth_armor} Armor\" after the combat phase.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。战斗阶段后，修改石堂城板甲，使其获得“装备此物品的英雄+{growth_armor}护甲”。"
+					},
+					"grants": [
+						{
+							"en": "Equipped hero has +{growth_armor} Armor.",
+							"zh_CN": "装备此物品的英雄+{growth_armor}护甲。"
+						}
+					]
+				},
+				"poaching_knife": {
+					"name": {
+						"en": "Poaching Knife",
+						"zh_CN": "盗猎刀"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack. Get {hero_gold} gold after an enemy hero dies. Get {creep_gold} gold after an enemy creep dies.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击。当一名敌方英雄死亡后，获得{hero_gold}金钱。当一名敌方小兵死亡后，获得{creep_gold}金钱。"
+					}
+				},
+				"cloak_of_endless_carnage": {
+					"name": {
+						"en": "Cloak of Endless Carnage",
+						"zh_CN": "戮尽斗篷"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health. Draw a card after an allied neighbor of equipped hero dies.",
+						"zh_CN": "装备此物品的英雄+{health}生命。当装备此物品的英雄的一个友方近邻死亡后，抽一张牌。"
+					}
+				},
+				"jasper_daggers": {
+					"name": {
+						"en": "Jasper Daggers",
+						"zh_CN": "碧玉匕首"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack and Pierce. Equip Effect: Purge your opponent's effects from equipped hero.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击并获得透甲。装备效果：净化装备此物品的英雄上的所有对手效果。"
+					}
+				},
+				"assassins_veil": {
+					"name": {
+						"en": "Assassin's Veil",
+						"zh_CN": "刺客面纱"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health. Active {ability_cooldown}: Choose a combat target for equipped hero.",
+						"zh_CN": "装备此物品的英雄+{health}生命。主动{ability_cooldown}：为装备此物品的英雄选择一个战斗目标。"
+					},
+					"ability_name": {
+						"en": "Assassin's Veil",
+						"zh_CN": "刺客面纱"
+					}
+				},
+				"keenfolk_musket": {
+					"name": {
+						"en": "Keenfolk Musket",
+						"zh_CN": "基恩火枪"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack. Active {ability_cooldown}: Deal {amount} damage to a unit.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击。主动{ability_cooldown}：对一个单位造成{amount}伤害。"
+					},
+					"ability_name": {
+						"en": "Keenfolk Musket",
+						"zh_CN": "基恩火枪"
+					}
+				},
+				"rumusque_vestments": {
+					"name": {
+						"en": "Rumusque Vestments",
+						"zh_CN": "鲁姆斯克法袍"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Heal a unit {amount}.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。主动{ability_cooldown}：对一个单位进行{amount}治疗。"
+					},
+					"ability_name": {
+						"en": "Rumusque Vestments",
+						"zh_CN": "鲁姆斯克法袍"
+					}
+				},
+				"shivas_guard": {
+					"name": {
+						"en": "Shiva's Guard",
+						"zh_CN": "希瓦的守护"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Modify a unit and its allied neighbors with {attack_loss} Attack.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。主动{ability_cooldown}：修改一个单位及其友方近邻，使其{attack_loss}攻击。"
+					},
+					"ability_name": {
+						"en": "Shiva's Guard",
+						"zh_CN": "希瓦的守护"
+					}
+				},
+				"wingfall_hammer": {
+					"name": {
+						"en": "Wingfall Hammer",
+						"zh_CN": "折翼之锤"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack. Active {ability_cooldown}: Give equipped hero and its allied neighbors +X Regeneration this round where X is half its Attack.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击。主动{ability_cooldown}：在本回合装备此物品的英雄及其友方近邻+X恢复，X为其攻击的一半。"
+					},
+					"ability_name": {
+						"en": "Wingfall Hammer",
+						"zh_CN": "折翼之锤"
+					}
+				},
+				"helm_of_the_dominator": {
+					"name": {
+						"en": "Helm of the Dominator",
+						"zh_CN": "支配头盔"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Get control of an enemy creep.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。主动{ability_cooldown}：控制一名敌方小兵。"
+					},
+					"ability_name": {
+						"en": "Helm of the Dominator",
+						"zh_CN": "支配头盔"
+					}
+				},
+				"phase_boots": {
+					"name": {
+						"en": "Phase Boots",
+						"zh_CN": "相位鞋"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health. Active {ability_cooldown}: Swap equipped hero with another ally.",
+						"zh_CN": "装备此物品的英雄+{health}生命。主动{ability_cooldown}：将装备此物品的英雄与另一个友方单位互换位置。"
+					},
+					"ability_name": {
+						"en": "Phase Boots",
+						"zh_CN": "相位鞋"
+					}
+				},
+				"blink_dagger": {
+					"name": {
+						"en": "Blink Dagger",
+						"zh_CN": "闪烁匕首"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack. Active {ability_cooldown}: Move equipped hero to another lane.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击。主动{ability_cooldown}：将装备此物品的英雄移至另一条兵线。"
+					},
+					"ability_name": {
+						"en": "Blink Dagger",
+						"zh_CN": "闪烁匕首"
+					}
+				},
+				"nyctashas_guard": {
+					"name": {
+						"en": "Nyctasha's Guard",
+						"zh_CN": "妮塔莎的守护"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Move equipped hero's enemy neighbors to random other lanes.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。主动{ability_cooldown}：将装备此物品的英雄的敌方近邻移至其他随机兵线。"
+					},
+					"ability_name": {
+						"en": "Nyctasha's Guard",
+						"zh_CN": "妮塔莎的守护"
+					}
+				},
+				"bracers_of_sacrifice": {
+					"name": {
+						"en": "Bracers of Sacrifice",
+						"zh_CN": "牺牲背心"
+					},
+					"text": {
+						"en": "Equipped hero has +{armor} Armor. Active {ability_cooldown}: Deal {amount} damage to equipped hero's enemy neighbors and condemn equipped hero.",
+						"zh_CN": "装备此物品的英雄+{armor}护甲。主动{ability_cooldown}：对装备此物品的英雄的敌方近邻造成{amount}伤害，并惩处装备此物品的英雄。"
+					},
+					"ability_name": {
+						"en": "Bracers of Sacrifice",
+						"zh_CN": "牺牲背心"
+					}
+				},
+				"horn_of_the_alpha": {
+					"name": {
+						"en": "Horn of the Alpha",
+						"zh_CN": "领袖号角"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health. Active {ability_cooldown}: Summon a Thunderhide Pack.",
+						"zh_CN": "装备此物品的英雄+{health}生命。主动{ability_cooldown}：召唤一个雷肤兽群。"
+					},
+					"ability_name": {
+						"en": "Horn of the Alpha",
+						"zh_CN": "领袖号角"
+					}
+				},
+				"book_of_the_dead": {
+					"name": {
+						"en": "Book of the Dead",
+						"zh_CN": "亡者之书"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health. Add a charge to Book of the Dead after an allied Melee Creep dies. Active {ability_cooldown}: Summon a Zombie for each charge and remove all charges.",
+						"zh_CN": "装备此物品的英雄+{health}生命。当一名友方近战小兵死亡后，为亡者之书增加1能量。主动{ability_cooldown}：每有1能量，就召唤一具僵尸，并移除所有能量。"
+					},
+					"ability_name": {
+						"en": "Book of the Dead",
+						"zh_CN": "亡者之书"
+					}
+				},
+				"demagicking_maul": {
+					"name": {
+						"en": "Demagicking Maul",
+						"zh_CN": "祛魔之槌"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack. Active {ability_cooldown}: Condemn a random enemy improvement. May only be used if equipped hero is unblocked.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击。主动{ability_cooldown}：惩处一个随机敌方强化。只能在装备此物品的英雄未受阻挡时使用。"
+					},
+					"ability_name": {
+						"en": "Demagicking Maul",
+						"zh_CN": "祛魔之槌"
+					}
+				},
+				"apotheosis_blade": {
+					"name": {
+						"en": "Apotheosis Blade",
+						"zh_CN": "封神之刃"
+					},
+					"text": {
+						"en": "Equipped hero has +{attack} Attack and +{siege} Siege. Condemn each unit equipped hero deals battle damage to. Active {ability_cooldown}: Condemn enemy improvements. Condemn each item equipped by the unit blocking equipped hero.",
+						"zh_CN": "装备此物品的英雄+{attack}攻击和+{siege}攻城。惩处受到装备此物品的英雄战斗伤害的所有单位。主动{ability_cooldown}：惩处敌方强化。惩处阻挡装备此物品的英雄的单位所装备的所有物品。"
+					},
+					"ability_name": {
+						"en": "Apotheosis Blade",
+						"zh_CN": "封神之刃"
+					}
+				},
+				"obliterating_orb": {
+					"name": {
+						"en": "Obliterating Orb",
+						"zh_CN": "抹灭法球"
+					},
+					"text": {
+						"en": "Condemn an improvement.",
+						"zh_CN": "惩处一个强化。"
+					}
+				},
+				"fountain_flask": {
+					"name": {
+						"en": "Fountain Flask",
+						"zh_CN": "泉水烧瓶"
+					},
+					"text": {
+						"en": "Fully heal a unit.",
+						"zh_CN": "完整治疗一个单位。"
+					}
+				},
+				"golden_ticket": {
+					"name": {
+						"en": "Golden Ticket",
+						"zh_CN": "金奖券"
+					},
+					"text": {
+						"en": "Get a random item from the Secret Shop.",
+						"zh_CN": "从神秘商店获得一件随机物品。"
+					}
+				},
+				"shop_deed": {
+					"name": {
+						"en": "Shop Deed",
+						"zh_CN": "商店契约"
+					},
+					"text": {
+						"en": "Each item in your Secret Shop costs X less gold, where X is equal to its base cost.",
+						"zh_CN": "你的神秘商店中每件物品的价格降低X，X为其基础价格。"
+					}
+				},
+				"claszureme_hourglass": {
+					"name": {
+						"en": "Claszureme Hourglass",
+						"zh_CN": "超维视界沙漏"
+					},
+					"text": {
+						"en": "Equipped hero has +{health} Health. Whenever opponent draws a card, give that card +{amount} Lock if equipped hero is in any lane.",
+						"zh_CN": "装备此物品的英雄+{health}生命。如果装备此物品的英雄在任意兵线上，使对手每次抽取的牌+{amount}锁定。"
+					}
 				}
 			},
 			"presets": {
@@ -5590,6 +6618,46 @@
 					"description": {
 						"en": "Tinker, Lion and Sniper shoot down units with their abilities while March of the Machines and Necrophos wear the lane down; Zeus strikes every enemy hero.",
 						"zh_CN": "修补匠、莱恩与狙击手以技能精准击杀单位，机械行军与瘟疫法师消耗兵线；宙斯打击所有敌方英雄。"
+					}
+				},
+				"five_tigers": {
+					"name": {
+						"en": "Red Armory",
+						"zh_CN": "红色军械"
+					},
+					"description": {
+						"en": "Keefe, Axe, Timbersaw, Legion Commander and Bristleback duel and battle up front, armed with Stonehall gear that grows after every combat and Wingfall Hammer's regeneration.",
+						"zh_CN": "勇者基弗、斧王、伐木机、军团指挥官与钢背兽冲锋在前、单挑混战；石堂城装备每战愈强，折翼之锤提供恢复。"
+					}
+				},
+				"emperor_of_wu": {
+					"name": {
+						"en": "Green Bulwark",
+						"zh_CN": "绿色壁垒"
+					},
+					"description": {
+						"en": "Farvhan, Drow Ranger, Treant Protector, Lycan and Abaddon hold the line behind shields and Vesture of the Tyrant, while Book of the Dead raises the fallen creeps.",
+						"zh_CN": "梦者法瓦汗、卓尔游侠、树精卫士、狼人与亚巴顿以护盾与暴君王袍固守战线，亡者之书唤起阵亡的小兵。"
+					}
+				},
+				"battle_of_guandu": {
+					"name": {
+						"en": "Blue Arsenal",
+						"zh_CN": "蓝色军械库"
+					},
+					"description": {
+						"en": "J'Muy, Earthshaker, Prellex, Ogre Magi and Crystal Maiden blink, swap and steal creeps with Blink Dagger, Phase Boots and Helm of the Dominator, while Claszureme Hourglass locks the opponent's draws.",
+						"zh_CN": "睿智的姆伊、撼地者、普瑞蕾斯、食人魔魔法师与冰晶圣女借闪烁匕首、相位鞋与支配头盔闪现、换位并控制小兵；超维视界沙漏锁住对手抽到的牌。"
+					}
+				},
+				"warlords_rise": {
+					"name": {
+						"en": "Black Bounty",
+						"zh_CN": "黑色赏金"
+					},
+					"description": {
+						"en": "Debbi, Phantom Assassin, Bounty Hunter, Necrophos and Lion hunt heroes for gold with Poaching Knife, Revtel Signet Ring and Apotheosis Blade, then spend it in the shop.",
+						"zh_CN": "狡诈的黛比、幻影刺客、赏金猎人、瘟疫法师与莱恩以盗猎刀、瑞文泰尔印戒与封神之刃猎杀英雄换取金钱，再到商店中花掉。"
 					}
 				}
 			}

@@ -103,7 +103,25 @@ func _ui_keys() -> void:
 	Settings.set_locale("en", false)
 	_check(EventFormatter.t("LIST_SEPARATOR") == ", " and EventFormatter.t("LANE_LEFT") == "Left lane", "English strings keep their spacing")
 	_check(EventFormatter.t("ROUND_N", {"n": 3}) == "Round 3", "Named placeholders format in English")
+	# Counted log lines use the _ONE template at 1 (a Jasper Daggers purge of
+	# one effect, an Hourglass lock of one card, Book of the Dead's first charge).
+	var counted = [
+		[{"k": "purge", "uid": 1, "card": "axe", "n": 1}, "An effect on", " effects on"],
+		[{"k": "purge", "uid": 1, "card": "axe", "n": 2}, "2 effects on", "An effect"],
+		[{"k": "lock", "p": 0, "n": 1}, "A card in Player 1's hand is locked.", "cards"],
+		[{"k": "lock", "p": 0, "n": 2}, "2 cards in Player 1's hand are locked.", "A card"],
+		[{"k": "charges", "card": "", "n": 1}, "now has 1 charge.", "charges."],
+		[{"k": "charges", "card": "", "n": 3}, "now has 3 charges.", "1 charge"],
+		[{"k": "battle", "card": "", "bs": [[1, 2]]}, "battles a unit.", "units"],
+		[{"k": "charged", "p": 1, "n": 1}, "One of Player 2's cards gains charges.", "1 of"],
+		[{"k": "hack", "p": 1, "n": 1}, "A card in Player 2's hand is changed.", "cards in"],
+	]
+	for entry in counted:
+		var line = EventFormatter.format(entry[0])
+		_check(line.contains(entry[1]) and not line.contains(entry[2]), "Counted log line agrees with its count: %s" % line)
 	Settings.set_locale("zh_CN", false)
+	_check(EventFormatter.format({"k": "lock", "p": 0, "n": 1}) == "玩家1有一张手牌被锁定。", "Counted log line in Chinese")
+	_check(EventFormatter.format({"k": "lock", "p": 0, "n": 2}) == "玩家1有2张手牌被锁定。", "Counted log line in Chinese, plural")
 	_check(EventFormatter.t("LANE_LEFT") == "左路" and EventFormatter.t("TERM_TOWER") == "城楼" and EventFormatter.t("TERM_ANCIENT") == "都城", "Chinese lane, tower and ancient terms")
 	_check(EventFormatter.t("ROUND_N", {"n": 3}) == "第3回合", "Named placeholders format in Chinese")
 	Settings.set_locale("en", false)

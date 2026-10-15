@@ -304,6 +304,8 @@ func refresh_text() -> void:
 	reconnect.refresh_text()
 	pass_screen.refresh_text()
 	log_panel.refresh_text()
+	own_panel.refresh_text()
+	enemy_panel.refresh_text()
 	hint_label.visible = false
 	if not shown_view.is_empty():
 		# Strings built from the state (hand reasons, shop tooltips, the
@@ -591,7 +593,7 @@ func _sync_all(view: Dictionary, new_actions: Array, viewer: int, context: Dicti
 	shown_seq = int(view.get("event_seq", 0))
 	actions = new_actions
 	if str(view.phase) == "shop" and shop.visible:
-		shop.sync(view.players[viewer], new_actions, view.players[viewer].get("finished", false))
+		shop.sync(view.players[viewer], new_actions, view.players[viewer].get("finished", false), _shop_prices(view, viewer))
 	log_panel.set_events(view.get("events", []))
 	_refresh_controls()
 	if animated:
@@ -687,7 +689,7 @@ func _ensure_phase_ui(view: Dictionary, viewer: int, new_actions: Array) -> void
 	if phase == "shop":
 		if not shop.visible:
 			shop.open(false)
-		shop.sync(player, new_actions, player.get("finished", false))
+		shop.sync(player, new_actions, player.get("finished", false), _shop_prices(view, viewer))
 	elif shop.visible:
 		shop.close()
 	if phase == "deployment":
@@ -717,12 +719,17 @@ func _anim_play(event: Dictionary, viewer: int) -> void:
 	fx.show_cast(card_id, from, 0.45 if own else 0.95)
 	await queue.wait(0.35)
 	if event.has("target"):
-		var target: Control = board.unit_card(int(event.target))
-		if target != null:
-			var center = target.get_global_rect().get_center()
+		# A unit card, or an improvement chip (Obliterating Orb).
+		var spot = _source_spot(int(event.target))
+		if not spot.is_empty():
+			var center: Vector2 = spot.point
 			arrow.show_arrow(fx.get_global_transform() * Vector2(size.x - 205, size.y * 0.42), center, true, UiKit.PLAYABLE)
-			fx.burst(center, "cast", target.scale.x)
-			_flash(target)
+			if spot.has("card"):
+				fx.burst(center, "cast", spot.card.scale.x)
+				_flash(spot.card)
+			if spot.has("chip"):
+				fx.burst(center, "cast", 0.8)
+				_flash_chip(spot.chip)
 	await queue.wait(0.45 if own else 0.85)
 	arrow.hide_arrow()
 
@@ -1108,7 +1115,7 @@ func _enter_shop(view: Dictionary, viewer: int, new_actions: Array) -> void:
 	_set_band(_shop_band)
 	await queue.finish(board.set_overview(true, AnimationQueue.duration(0.45)))
 	shop.open(true)
-	shop.sync(view.players[viewer], new_actions, view.players[viewer].get("finished", false))
+	shop.sync(view.players[viewer], new_actions, view.players[viewer].get("finished", false), _shop_prices(view, viewer))
 	hand.set_lowered(true)
 	if sfx != null:
 		sfx.play("switch-b")
@@ -1491,6 +1498,9 @@ func _refresh_controls() -> void:
 		int(players[1 - viewer].get("hand_count", 0)), acting_enemy)
 	own_panel.set_values(names[0], int(players[viewer].gold), int(players[viewer].get("deck_count", 0)),
 		int(players[viewer].get("hand_count", players[viewer].get("hand", []).size())), phase == "action" and not acting_enemy)
+	# Deeds are a public zone (RQ-41): both plates show them.
+	enemy_panel.set_deeds(players[1 - viewer].get("deeds", []).map(func(deed): return str(deed.get("card", ""))))
+	own_panel.set_deeds(players[viewer].get("deeds", []).map(func(deed): return str(deed.get("card", ""))))
 	var online = controller.mode == controller.MODE_ONLINE
 	enemy_panel.set_connection(controller.steam_bridge.connection_info() if online else {})
 	own_deck.set_count(int(players[viewer].get("deck_count", 0)), UiKit.t("TERM_DECK"))
@@ -1603,7 +1613,26 @@ func _opponent_spent_text(view: Dictionary, viewer: int) -> String:
 		if str(event.get("k", "")) == "buy" and int(event.get("p", -1)) == 1 - viewer:
 			count += 1
 			gold += int(event.get("gold", 0))
-	return UiKit.t("SHOP_OPPONENT_SPENT", {"n": count, "gold": gold}) if count > 0 else ""
+	if count == 0:
+		return ""
+	# Shop Deeds can make Secret Shop prices negative (RQ-26).
+	return UiKit.t("SHOP_OPPONENT_SPENT", {"n": count, "gold": gold}) if gold >= 0 else UiKit.t("SHOP_OPPONENT_PAID", {"n": count, "gold": -gold})
+
+## The viewer's shop prices after the rules layer, by source: a Shop Deed
+## makes the Secret Shop offer free, or pays gold with two or more (RQ-26).
+## Deeds are public, so the view holds everything the price needs.
+func _shop_prices(view: Dictionary, viewer: int) -> Dictionary:
+	var prices: Dictionary = {}
+	var shop: Dictionary = view.players[viewer].get("shop", {})
+	if shop.is_empty():
+		return prices
+	var engine = MatchEngine.new()
+	engine.library = board.display_engine.library
+	engine.state = view
+	for source in shop:
+		if not str(shop[source]).is_empty():
+			prices[str(source)] = engine.price_of(viewer, str(source), str(shop[source]))
+	return prices
 
 func _towers_text(view: Dictionary, viewer: int) -> String:
 	var fallen = [0, 0]

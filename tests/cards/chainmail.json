@@ -1,0 +1,13 @@
+{
+"card": "chainmail",
+"source_id": 10214,
+"text": "Equipped hero has +2 Armor.",
+"covers": ["equip", "stat_armor", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +2 Armor (Keefe 1 -> 3); another allied hero is unaffected", "clause": 0, "tags": ["equip", "stat_armor", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k", "axe#x"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"play": "chainmail", "target": "k"}], "expect": {"k.armor": 3, "k.items": {"armor": "chainmail"}, "x.armor": 2, "k.attack": 6, "k.max_health": 11}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "chainmail", "target": "m"}, {"play": "chainmail", "target": "e"}, {"play": "chainmail", "target": "s"}]},
+ {"name": "the Armor reduces combat damage: the Melee Creep's 2 deals 0", "clause": 0, "tags": ["stat_armor", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "chainmail", "target": "k"}, {"combat": true}], "expect": {"k.health": 11, "c.in_play": false}},
+ {"name": "the bonus stays with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "chainmail", "target": "k"}, {"kill": ["k"]}], "expect": {"k.armor": 3, "k.in_play": false, "fountain.0.keefe": 1}},
+ {"name": "a new armor item replaces it and its +2 is gone (Leather Armor: 1 + 1)", "clause": 0, "tags": ["edge", "stat_armor"], "board": {"lanes": {"0": {"p0": ["keefe#k+chainmail"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "leather_armor", "target": "k"}], "expect": {"k.armor": 2, "k.items": {"armor": "leather_armor"}}},
+ {"name": "a stunned hero can be equipped (equipping is not an ability)", "clause": 0, "tags": ["edge", "equip"], "board": {"base": "@0", "give": {"k": ["stun"]}}, "do": [{"play": "chainmail", "target": "k"}], "expect": {"k.armor": 3, "k.stunned": true}}
+]}

@@ -1618,6 +1618,286 @@
       "artist": "Daniel Romanovsky",
       "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10085_large_english.cd928cdc0611623b76019790e303bc4ab02ef299.png",
       "local_file": "10085_card.png"
+    },
+    {
+      "id": 10214,
+      "name": "Chainmail",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10214_large_english.d2ca4f55e52f46a425a701cc7d5c2705341a5bd3.png",
+      "local_file": "10214_card.png"
+    },
+    {
+      "id": 10213,
+      "name": "Fur-lined Mantle",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10213_large_english.c2474504265dbb10c16bfd60954113bf0fd6852a.png",
+      "local_file": "10213_card.png"
+    },
+    {
+      "id": 10236,
+      "name": "Hero's Cape",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10236_large_english.3f6552b9f6451ae53a5b321c459f5970e067e1b2.png",
+      "local_file": "10236_card.png"
+    },
+    {
+      "id": 10237,
+      "name": "Platemail",
+      "artist": "Sam Carr",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10237_large_english.777252fb337ccbda9ab6f56577bf6f15ae6be209.png",
+      "local_file": "10237_card.png"
+    },
+    {
+      "id": 10223,
+      "name": "Red Mist Maul",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10223_large_english.2257c9d456db68ee584378010365cb0a2ec6efca.png",
+      "local_file": "10223_card.png"
+    },
+    {
+      "id": 10208,
+      "name": "Barbed Mail",
+      "artist": "Sam Carr",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10208_large_english.a8ff2201510655c75a50c54ebfdaa5cbaab52d6e.png",
+      "local_file": "10208_card.png"
+    },
+    {
+      "id": 10212,
+      "name": "Blade of the Vigil",
+      "artist": "Sam Carr",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10212_large_english.c3ba21880ccf0fc8ef029704abd26408553a5ca7.png",
+      "local_file": "10212_card.png"
+    },
+    {
+      "id": 10220,
+      "name": "Ring of Tarrasque",
+      "artist": "Daarken",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10220_large_english.4ae3c00db66885b1dc4251be454eb7c90d7271f7.png",
+      "local_file": "10220_card.png"
+    },
+    {
+      "id": 10207,
+      "name": "Revtel Signet Ring",
+      "artist": "JiHun Lee",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10207_large_english.605ea3e3fb7af2e04c579859557ae1002e74b4f8.png",
+      "local_file": "10207_card.png"
+    },
+    {
+      "id": 10230,
+      "name": "Ristul Emblem",
+      "artist": "Christine Choi",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10230_large_english.315dbcd40700e9a6f2b5ac1874d48cc02b0024d8.png",
+      "local_file": "10230_card.png"
+    },
+    {
+      "id": 10242,
+      "name": "Shield of Basilius",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10242_large_english.69d1334a7f3738bcffbcd0c013859038781dfb42.png",
+      "local_file": "10242_card.png"
+    },
+    {
+      "id": 10243,
+      "name": "Shield of Aquila",
+      "artist": "Anastasia Ovchinnikova",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10243_large_english.87e1182eefe67e631ac8249de71c98b7b08ef432.png",
+      "local_file": "10243_card.png"
+    },
+    {
+      "id": 10259,
+      "name": "Keenfolk Plate",
+      "artist": "James Paick",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10259_large_english.58a12e59f612c79656589fc2d1a4fc67443497f8.png",
+      "local_file": "10259_card.png"
+    },
+    {
+      "id": 10232,
+      "name": "Seraphim Shield",
+      "artist": "Magali Villeneuve",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10232_large_english.c2f80f5643c7d02ad6b07b555aa9e8e1762f512d.png",
+      "local_file": "10232_card.png"
+    },
+    {
+      "id": 10225,
+      "name": "Vesture of the Tyrant",
+      "artist": "Suzanne Helmigh",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10225_large_english.a53f60a56623ae8ff3a6547a39e1d7d00f338b81.png",
+      "local_file": "10225_card.png"
+    },
+    {
+      "id": 10205,
+      "name": "Stonehall Cloak",
+      "artist": "Suzanne Helmigh",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10205_large_english.1f44c671d1fe390abd12878cffeab10215c6eb04.png",
+      "local_file": "10205_card.png"
+    },
+    {
+      "id": 10252,
+      "name": "Stonehall Pike",
+      "artist": "Robbie Trevino",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10252_large_english.ee3a077e5b5aa501db6ae04f6e699b5f84d42886.png",
+      "local_file": "10252_card.png"
+    },
+    {
+      "id": 10253,
+      "name": "Stonehall Plate",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10253_large_english.33b438c66823529f8466eef23ee8b2e45f71fe16.png",
+      "local_file": "10253_card.png"
+    },
+    {
+      "id": 10234,
+      "name": "Poaching Knife",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10234_large_english.4146a74cde1fa04fd677f3089f3ffda8f5e2cec5.png",
+      "local_file": "10234_card.png"
+    },
+    {
+      "id": 10231,
+      "name": "Cloak of Endless Carnage",
+      "artist": "Daarken",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10231_large_english.7dbc6be030ebebb6259c5b1121bf7a600801e17b.png",
+      "local_file": "10231_card.png"
+    },
+    {
+      "id": 10256,
+      "name": "Jasper Daggers",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10256_large_english.bcc5d4bfb3786f91186b42429560e88ca0043874.png",
+      "local_file": "10256_card.png"
+    },
+    {
+      "id": 10202,
+      "name": "Assassin's Veil",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10202_large_english.4922e91b328f2459716d4fe11a1d2b8fbe76feed.png",
+      "local_file": "10202_card.png"
+    },
+    {
+      "id": 10218,
+      "name": "Keenfolk Musket",
+      "artist": "Mobo Boehme",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10218_large_english.0fe2a2e376f17a62badf72a59ec52dd11c329a2e.png",
+      "local_file": "10218_card.png"
+    },
+    {
+      "id": 10217,
+      "name": "Rumusque Vestments",
+      "artist": "Sara Winters",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10217_large_english.1b7ddb1f61ef07876a1a8398505824a6064acee4.png",
+      "local_file": "10217_card.png"
+    },
+    {
+      "id": 10248,
+      "name": "Shiva's Guard",
+      "artist": "Magali Villeneuve",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10248_large_english.733a1d09e0fc3ac0472398a080aea107b17de07c.png",
+      "local_file": "10248_card.png"
+    },
+    {
+      "id": 10226,
+      "name": "Wingfall Hammer",
+      "artist": "JiHun Lee",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10226_large_english.9738c552b438be1aeb8e7e26bdbf4f2e2707ce99.png",
+      "local_file": "10226_card.png"
+    },
+    {
+      "id": 10224,
+      "name": "Helm of the Dominator",
+      "artist": "Chris Welch",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10224_large_english.ce97124ec4bb16a4023386380bfdccfc87c778c0.png",
+      "local_file": "10224_card.png"
+    },
+    {
+      "id": 10203,
+      "name": "Phase Boots",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10203_large_english.7adfe23a6714685c695622a8106b4cde8d2e5478.png",
+      "local_file": "10203_card.png"
+    },
+    {
+      "id": 10206,
+      "name": "Blink Dagger",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10206_large_english.6bf2e017aca3fce72b423db63b952c9248db603d.png",
+      "local_file": "10206_card.png"
+    },
+    {
+      "id": 10262,
+      "name": "Nyctasha's Guard",
+      "artist": "Forrest Imel",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10262_large_english.b64815733b9d9601ce50d9fb75ab434aafe1d5df.png",
+      "local_file": "10262_card.png"
+    },
+    {
+      "id": 10222,
+      "name": "Bracers of Sacrifice",
+      "artist": "Mark Winters",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10222_large_english.964c1dbea3514bf1bccb3557435d24cc106df397.png",
+      "local_file": "10222_card.png"
+    },
+    {
+      "id": 10260,
+      "name": "Horn of the Alpha",
+      "artist": "Anastasia Ovchinnikova",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10260_large_english.615c34c3497b1bf44145ed8a3c77a4ff1a103b8c.png",
+      "local_file": "10260_card.png"
+    },
+    {
+      "id": 10235,
+      "name": "Book of the Dead",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10235_large_english.609197e2c0f377755fea6e2df111f515b188c451.png",
+      "local_file": "10235_card.png"
+    },
+    {
+      "id": 10210,
+      "name": "Demagicking Maul",
+      "artist": "Lake Hurwitz",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10210_large_english.617323f275c64293569f65d71c35108ea2fa2a21.png",
+      "local_file": "10210_card.png"
+    },
+    {
+      "id": 10263,
+      "name": "Apotheosis Blade",
+      "artist": "Kieran Yanner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10263_large_english.75ed6960c01f02e230edf0169bb80e26720cf041.png",
+      "local_file": "10263_card.png"
+    },
+    {
+      "id": 10211,
+      "name": "Obliterating Orb",
+      "artist": "Forrest Imel",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10211_large_english.8f6b7eec1c9637ca2da582208a1c8380f872aaff.png",
+      "local_file": "10211_card.png"
+    },
+    {
+      "id": 3004,
+      "name": "Fountain Flask",
+      "artist": "Suzanne Helmigh",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set00/3004_large_english.88a820e2e7b796eebbfd4d3cd3dff4681e0fff58.png",
+      "local_file": "3004_card.png"
+    },
+    {
+      "id": 10216,
+      "name": "Golden Ticket",
+      "artist": "Pauline Voss",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10216_large_english.5ed24e656d38de856a44bf886921f9c78c9f89df.png",
+      "local_file": "10216_card.png"
+    },
+    {
+      "id": 10255,
+      "name": "Shop Deed",
+      "artist": "Lius Lasahido",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10255_large_english.330a4de79f30a126e82683987734cc3d9ef276fa.png",
+      "local_file": "10255_card.png"
+    },
+    {
+      "id": 10241,
+      "name": "Claszureme Hourglass",
+      "artist": "Magali Villeneuve",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10241_large_english.bf086f2663702c91de9df854481ef7ee370263c1.png",
+      "local_file": "10241_card.png"
     }
   ]
 }

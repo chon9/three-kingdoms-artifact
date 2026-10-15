@@ -146,11 +146,18 @@ func _measure() -> Dictionary:
 	out["bot_decision"] = _time(func(): bot.choose_action(engine, 0), 3)
 	return out
 
-## One full headless bot match (seed 3, starter decks) in milliseconds.
+## One full headless bot match (seed 3, starter decks) in milliseconds. It
+## must be the legacy engine's game: the frozen pack keeps the M1 shop pools
+## (M6 grew them, which changes every game from its first shopping phase), so
+## this match sells from those pools too and plays the same 218 commands.
 func _match_ms() -> float:
 	var bot = BotClass.new()
-	var started = Time.get_ticks_usec()
 	var match_engine = EngineClass.new()
+	var legacy_catalog: Dictionary = Legacy.Library.new("artifact_classic_decks_v2").catalog
+	match_engine.library.catalog = match_engine.library.catalog.duplicate()
+	for pool in ["secret_shop", "consumables"]:
+		match_engine.library.catalog[pool] = legacy_catalog[pool].duplicate()
+	var started = Time.get_ticks_usec()
 	match_engine.start(3, ["starter", "starter"])
 	var steps = 0
 	while match_engine.state.winner == -1 and steps < 1500:

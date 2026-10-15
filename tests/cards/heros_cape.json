@@ -1,0 +1,13 @@
+{
+"card": "heros_cape",
+"source_id": 10236,
+"text": "Equipped hero has +16 Health.",
+"covers": ["equip", "stat_health", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +16 Health: maximum and current Health 11 -> 27", "clause": 0, "tags": ["equip", "stat_health", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "heros_cape", "target": "k"}], "expect": {"k.max_health": 27, "k.health": 27, "k.items": {"accessory": "heros_cape"}}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "heros_cape", "target": "m"}, {"play": "heros_cape", "target": "e"}, {"play": "heros_cape", "target": "s"}]},
+ {"name": "the hero survives a hit it could not survive without the Cape: 11 + 16 - 5 = 22", "clause": 0, "tags": ["stat_health", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["marrowfell_brawler#b"]}}}, "do": [{"play": "heros_cape", "target": "k"}, {"combat": true}], "expect": {"k.health": 22, "k.in_play": true}},
+ {"name": "the bonus stays with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "heros_cape", "target": "k"}, {"kill": ["k"]}], "expect": {"k.max_health": 27, "k.in_play": false}},
+ {"name": "rq_40: replaced by Fur-lined Mantle, the hero loses 16 and gains 8 (10 -> 2)", "clause": 0, "tags": ["edge", "stat_health", "RQ-40"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=10+heros_cape"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fur_lined_mantle", "target": "k"}], "expect": {"k.max_health": 19, "k.health": 2, "k.in_play": true}},
+ {"name": "rq_40: losing the Cape's Health can kill: 8 -> 0", "clause": 0, "tags": ["edge", "stat_health", "RQ-40"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=8+heros_cape"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fur_lined_mantle", "target": "k"}], "expect": {"k.in_play": false, "p1.gold": 5}}
+]}

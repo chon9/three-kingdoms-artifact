@@ -1,0 +1,16 @@
+{
+"card": "red_mist_maul",
+"source_id": 10223,
+"text": "Equipped hero has +2 Attack and +5 Siege.",
+"covers": ["equip", "siege", "stat_attack", "equipped_hero", "continuous"],
+"cases": [
+ {"name": "Equipped hero has +2 Attack (6 -> 8) and +5 Siege", "clause": 0, "tags": ["equip", "siege", "stat_attack", "equipped_hero", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "red_mist_maul", "target": "k"}], "expect": {"k.attack": 8, "k.kw.siege": 5, "k.items": {"weapon": "red_mist_maul"}}},
+ {"name": "only an allied hero in the active lane can equip it: not an allied creep, an enemy hero or an allied hero in another lane", "clause": 0, "tags": ["negative", "equipped_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}, "1": {"p0": ["sven#s"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "red_mist_maul", "target": "m"}, {"play": "red_mist_maul", "target": "e"}, {"play": "red_mist_maul", "target": "s"}]},
+ {"name": "blocked in combat, the hero kills its blocker and deals 5 Siege to the enemy tower", "clause": 0, "tags": ["siege", "stat_attack"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "red_mist_maul", "target": "k"}, {"combat": true}], "expect": {"c.in_play": false, "tower.0.1.health": 35}},
+ {"name": "rq_07: unblocked, it attacks the tower for 8 and Siege does not apply", "clause": 0, "tags": ["edge", "siege", "RQ-07"], "board": {"lanes": {"0": {"p0": ["keefe#k", null], "p1": [null, "melee_creep#c"]}}}, "do": [{"play": "red_mist_maul", "target": "k"}, {"combat": true}], "expect": {"tower.0.1.health": 32, "c.health": 4}},
+ {"name": "rq_07: a disarmed hero deals neither its attack nor its Siege", "clause": 0, "tags": ["edge", "siege", "RQ-07"], "board": {"lanes": {"0": {"p0": ["keefe#k+red_mist_maul"], "p1": ["marrowfell_brawler#b"]}}, "give": {"k": ["disarm"]}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 40, "b.health": 16}},
+ {"name": "rq_07: Siege applies when the hero attacks a unit diagonally", "clause": 0, "tags": ["edge", "siege", "RQ-07"], "board": {"lanes": {"0": {"p0": ["keefe#k:arrow=1+red_mist_maul", null], "p1": [null, "marrowfell_brawler#b"]}}}, "do": [{"combat": true}], "expect": {"b.health": 8, "tower.0.1.health": 35}},
+ {"name": "tower armor reduces the Siege damage (5 - 2)", "clause": 0, "tags": ["edge", "siege"], "board": {"lanes": {"0": {"p0": ["keefe#k+red_mist_maul"], "p1": ["marrowfell_brawler#b"]}}, "towers": {"0": {"p1": {"armor": 2}}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 37}},
+ {"name": "a new weapon replaces it: Short Sword keeps +2 Attack but the Siege is gone", "clause": 0, "tags": ["edge", "siege"], "board": {"lanes": {"0": {"p0": ["keefe#k+red_mist_maul"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "short_sword", "target": "k"}], "expect": {"k.attack": 8, "k.kw.siege": 0, "k.items": {"weapon": "short_sword"}}},
+ {"name": "the bonuses stay with the hero in the Fountain", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "red_mist_maul", "target": "k"}, {"kill": ["k"]}], "expect": {"k.attack": 8, "k.kw.siege": 5, "k.in_play": false}}
+]}
