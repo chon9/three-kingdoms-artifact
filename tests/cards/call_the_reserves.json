@@ -1,0 +1,14 @@
+{
+"card": "call_the_reserves",
+"source_id": 10335,
+"text": "Summon two Melee Creeps into any lane.",
+"covers": ["play", "summon", "lane_choice", "permanent"],
+"cases": [
+ {"name": "Summon two Melee Creeps into another lane (Cross Lane): the creeps fight there", "clause": 0, "tags": ["play", "summon", "lane_choice", "permanent"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "call_the_reserves", "lane": 1}, {"combat": true}, {"combat": true}], "expect": {"units.1.0.melee_creep": 2, "units.0.0.melee_creep": 0, "tower.1.1.health": 36, "mana.0.0": 4, "events": {"has": ["summon"]}}},
+ {"name": "any lane: every lane is offered, the active lane included", "clause": 0, "tags": ["lane_choice"], "board": "@0", "do": [], "expect_legal": [{"play": "call_the_reserves", "lane": 0}, {"play": "call_the_reserves", "lane": 1}, {"play": "call_the_reserves", "lane": 2}]},
+ {"name": "into the active lane: the creeps fill an empty own position, then new positions", "clause": 0, "tags": ["edge", "summon", "lane_choice"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"play": "call_the_reserves", "lane": 0}], "expect": {"units.0.0.melee_creep": 2, "units.0.0": 3, "c.health": 4, "d.health": 4}},
+ {"name": "the creeps stay after the round ends (permanent) and go to the caster, never the opponent", "clause": 0, "tags": ["permanent"], "board": "@0", "do": [{"play": "call_the_reserves", "lane": 2}, {"end_round": true}], "expect": {"events": {"has": ["summon", "deployment_revealed"]}}, "gd": "res://tests/cards/extra/summons_persist.gd"},
+ {"name": "no blue hero in the active lane: it cannot be cast, even into the lane where the blue hero stands", "clause": 0, "tags": ["negative", "lane_choice"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#c"]}, "1": {"p0": ["jmuy#j"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "call_the_reserves", "lane": 1}, {"play": "call_the_reserves", "lane": 0}]},
+ {"name": "a silenced blue hero gives no colour: it cannot be cast", "clause": 0, "tags": ["negative"], "board": {"base": "@0", "give": {"j": ["silence"]}}, "do": [], "expect_illegal": [{"play": "call_the_reserves", "lane": 1}]},
+ {"name": "mana comes from the active lane: 5 is not enough", "clause": 0, "tags": ["negative", "lane_choice"], "board": {"base": "@0", "mana": {"0": [5, 10], "1": [10, 10], "2": [10, 10]}}, "do": [], "expect_illegal": [{"play": "call_the_reserves", "lane": 1}]}
+]}

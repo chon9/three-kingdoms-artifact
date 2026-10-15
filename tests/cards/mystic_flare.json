@@ -1,0 +1,14 @@
+{
+"card": "mystic_flare",
+"source_id": 10063,
+"text": "Deal 12 damage evenly divided among a unit and its allied neighbors.",
+"covers": ["play", "damage", "damage_split", "allied_neighbors", "unit"],
+"cases": [
+ {"name": "rq_28_a_unit_with_two_allied_neighbors_splits_12_into_4_each", "clause": 0, "tags": ["play", "damage", "damage_split", "allied_neighbors", "unit", "RQ-28"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null, null], "p1": ["melee_creep#a", "keefe#k", "centaur_hunter#c"]}}}, "do": [{"play": "mystic_flare", "target": "k"}], "expect": {"a.in_play": false, "k.health": 8, "c.health": 4, "j.health": 8, "events": {"has": ["damage", "death"]}}},
+ {"name": "a unit with one allied neighbor: 6 each", "clause": 0, "tags": ["damage_split", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["keefe#k", "centaur_hunter#c"]}}}, "do": [{"play": "mystic_flare", "target": "k"}], "expect": {"k.health": 6, "c.health": 2}},
+ {"name": "a unit with no allied neighbor takes all 12", "clause": 0, "tags": ["edge", "damage_split", "unit"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["thunderhide_pack#t"]}}}, "do": [{"play": "mystic_flare", "target": "t"}], "expect": {"t.health": 2}},
+ {"name": "an empty position breaks adjacency: only the target is hit", "clause": 0, "tags": ["edge", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m", "melee_creep#n"], "p1": ["thunderhide_pack#t", null, "keefe#k"]}}}, "do": [{"play": "mystic_flare", "target": "t"}], "expect": {"t.health": 2, "k.health": 11}},
+ {"name": "an allied unit can be the target; the split hits its allied neighbors", "clause": 0, "tags": ["unit", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["keefe#k", null]}}}, "do": [{"play": "mystic_flare", "target": "j"}], "expect": {"j.health": 2, "m.in_play": false, "k.health": 11, "p1.gold": 1}},
+ {"name": "an immune neighbor still takes its share: the others get 4, not 6", "clause": 0, "tags": ["edge", "damage_split"], "board": {"base": "@0", "give": {"c": ["damage_immunity"]}}, "do": [{"play": "mystic_flare", "target": "k"}], "expect": {"a.in_play": false, "k.health": 8, "c.health": 8}},
+ {"name": "a unit in another lane is not a legal target", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}, "1": {"p0": ["melee_creep#m"], "p1": ["keefe#k"]}}}, "do": [], "expect_illegal": [{"play": "mystic_flare", "target": "k"}]}
+]}

@@ -1,0 +1,14 @@
+{
+"card": "relentless_zombie",
+"source_id": 10090,
+"text": "Play Effect: Give Relentless Zombie a Death Shield.",
+"covers": ["play_effect", "death_shield", "self"],
+"cases": [
+ {"name": "Play Effect: Give Relentless Zombie a Death Shield", "clause": 0, "tags": ["play_effect", "death_shield", "self"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["melee_creep#a", "melee_creep#b"]}}}, "do": [{"play": "relentless_zombie", "position": 1, "as": "z"}], "expect": {"z.kw.death_shield": 1, "z.attack": 2, "z.health": 2, "z.slot": 1, "mana.0.0": 8, "events": {"has": ["status"]}}},
+ {"name": "the shield saves it from lethal combat damage: it survives with 1 health", "clause": 0, "tags": ["death_shield"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["melee_creep#a", "melee_creep#b:atk=5"]}}}, "do": [{"play": "relentless_zombie", "position": 1, "as": "z"}, {"combat": true}], "expect": {"z.in_play": true, "z.health": 1, "z.kw.death_shield": 0, "b.health": 2, "events": {"has": ["shield"]}}},
+ {"name": "the shield is used once: the second death kills it", "clause": 0, "tags": ["edge", "death_shield"], "board": "@0", "do": [{"play": "relentless_zombie", "position": 1, "as": "z"}, {"kill": ["z"]}, {"kill": ["z"]}], "expect": {"z.in_play": false, "p1.gold": 1}},
+ {"name": "the shield lasts until used, not only this round", "clause": 0, "tags": ["edge", "death_shield"], "board": "@0", "do": [{"play": "relentless_zombie", "position": 1, "as": "z"}, {"end_round": true}, {"kill": ["z"]}], "expect": {"z.in_play": true, "z.health": 1, "z.kw.death_shield": 0}},
+ {"name": "rq_10: the shield also saves it from condemn (Annihilation)", "clause": 0, "tags": ["edge", "death_shield", "RQ-10"], "board": "@0", "do": [{"play": "relentless_zombie", "position": 1, "as": "z"}, {"pass": 1}, {"play": "annihilation"}], "expect": {"z.in_play": true, "z.health": 1, "j.in_play": false, "a.in_play": false, "b.in_play": false}},
+ {"name": "the opponent's Purge removes the shield", "clause": 0, "tags": ["negative", "death_shield"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["abaddon#ab", "melee_creep#b"]}}}, "do": [{"play": "relentless_zombie", "position": 1, "as": "z"}, {"play": "aphotic_shield", "target": "z", "player": 1}, {"kill": ["z"]}], "expect": {"z.in_play": false}},
+ {"name": "a Relentless Zombie already on the board does not get a shield from another copy's play", "clause": 0, "tags": ["negative", "self"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "relentless_zombie#y", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "relentless_zombie", "position": 2, "as": "z"}], "expect": {"z.kw.death_shield": 1, "y.kw.death_shield": 0}}
+]}

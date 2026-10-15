@@ -1,0 +1,16 @@
+{
+"card": "buying_time",
+"source_id": 10359,
+"text": "Give two random cards in opponent's hand +2 Lock.",
+"covers": ["play", "lock", "opponent_hand_random"],
+"cases": [
+ {"name": "give two cards in the opponent's hand +2 Lock (a two-card hand: both)", "clause": 0, "tags": ["play", "lock", "opponent_hand_random"], "board": {"lanes": {"0": {"p0": ["crystal_maiden#cm"], "p1": ["jmuy#j"]}}, "hand": {"p1": ["thundergods_wrath", "annihilation"]}}, "do": [{"play": "buying_time"}], "expect": {"p1.hand_state.0.lock": 2, "p1.hand_state.1.lock": 2, "p1.hand": 2, "events": {"has": ["lock"]}}},
+ {"name": "the picks are random: each card of a four-card hand is locked half of the time", "clause": 0, "tags": ["opponent_hand_random", "lock"], "seeds": {"from": 1, "count": 200}, "board": {"base": "@0", "hand": {"p1": ["thundergods_wrath", "annihilation", "foresight", "slay"]}}, "do": [{"play": "buying_time"}], "expect_rate": {"p1.hand_state.0.lock": [0.38, 0.62], "p1.hand_state.3.lock": [0.38, 0.62]}},
+ {"name": "a fixed seed locks the same two cards on every run", "clause": 0, "tags": ["edge", "opponent_hand_random"], "seed": 7, "board": {"base": "@0", "hand": {"p1": ["thundergods_wrath", "annihilation", "foresight", "slay"]}}, "do": [{"play": "buying_time"}], "expect": {"p1.hand": 4, "events": {"has": ["lock"]}}},
+ {"name": "rq_14_distinct_picks: a one-card hand gets +2 Lock once, not twice", "clause": 0, "tags": ["edge", "RQ-14", "lock"], "board": {"base": "@0", "hand": {"p1": ["annihilation"]}}, "do": [{"play": "buying_time"}], "expect": {"p1.hand_state.0.lock": 2}},
+ {"name": "rq_14_lock_stacks: Lock adds to a card's existing Lock", "clause": 0, "tags": ["edge", "RQ-14", "lock"], "board": {"base": "@0", "hand_state": {"p1": [{"lock": 1}, {}]}}, "do": [{"play": "buying_time"}], "expect": {"p1.hand_state.0.lock": 3, "p1.hand_state.1.lock": 2}},
+ {"name": "rq_14_lock_decay: locked cards cannot be played and lose one Lock per round", "clause": 0, "tags": ["negative", "RQ-14", "lock"], "board": {"base": "@0", "hand": {"p1": ["thundergods_wrath", "tower_barrage"]}}, "do": [{"play": "buying_time"}], "expect_illegal": [{"play": "tower_barrage", "player": 1}], "expect_legal": [{"play": "foresight", "player": 1}]},
+ {"name": "after one round the Lock is 1, after two rounds the card is free", "clause": 0, "tags": ["edge", "RQ-14", "lock"], "board": "@0", "do": [{"play": "buying_time"}, {"end_round": true}], "expect": {"p1.hand_state.0.lock": 1, "p1.hand_state.1.lock": 1}},
+ {"name": "an empty opponent hand: nothing is locked and no randomness is drawn", "clause": 0, "tags": ["negative", "opponent_hand_random"], "board": {"lanes": {"0": {"p0": ["crystal_maiden#cm"], "p1": ["jmuy#j"]}}}, "do": [{"play": "buying_time"}], "expect": {"p1.hand": 0, "events": {"not": ["lock"]}}},
+ {"name": "hidden information: the caster learns how many cards were locked, never which", "clause": 0, "tags": ["edge", "lock"], "board": "@0", "do": [{"play": "buying_time"}], "expect_private": {"viewer": 0, "absent": ["thundergods_wrath", "annihilation", "\"idx\""]}}
+]}

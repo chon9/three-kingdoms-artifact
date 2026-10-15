@@ -1,0 +1,12 @@
+{
+"card": "remote_detonation",
+"source_id": 10376,
+"text": "Deal 5 damage to each enemy across from an empty combat position.",
+"covers": ["play", "damage", "enemies_across_empty"],
+"cases": [
+ {"name": "each enemy across from an empty position takes 5, less its armor; blocked enemies are spared", "clause": 0, "tags": ["play", "damage", "enemies_across_empty"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null, "melee_creep#m"], "p1": ["melee_creep#a", "keefe#k", "centaur_hunter#c", "melee_creep#d"]}}}, "do": [{"play": "remote_detonation"}], "expect": {"k.health": 7, "d.in_play": false, "a.health": 4, "c.health": 8, "p0.gold": 1, "events": {"has": ["damage", "death"]}}},
+ {"name": "with every enemy blocked nothing is damaged", "clause": 0, "tags": ["negative", "enemies_across_empty"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#a"]}}}, "do": [{"play": "remote_detonation"}], "expect": {"k.health": 11, "a.health": 4, "events": {"not": ["damage"]}}},
+ {"name": "allies across from an empty enemy position are not hit", "clause": 0, "tags": ["negative", "enemies_across_empty"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m", "melee_creep#n"], "p1": [null, "melee_creep#a", "melee_creep#b"]}}}, "do": [{"play": "remote_detonation"}], "expect": {"j.health": 8, "a.health": 4, "b.health": 4, "events": {"not": ["damage"]}}},
+ {"name": "enemies across from empty positions in another lane are untouched", "clause": 0, "tags": ["edge", "enemies_across_empty"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["melee_creep#a", "melee_creep#b"]}, "1": {"p0": ["melee_creep#m", null], "p1": ["melee_creep#x", "melee_creep#y"]}}}, "do": [{"play": "remote_detonation"}], "expect": {"b.in_play": false, "a.health": 4, "y.health": 4, "x.health": 4}},
+ {"name": "a diagonal arrow does not matter: only the position directly across counts", "clause": 0, "tags": ["edge", "enemies_across_empty"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["melee_creep#a", "melee_creep#b:arrow=-1"]}}}, "do": [{"play": "remote_detonation"}], "expect": {"b.in_play": false, "a.health": 4}}
+]}

@@ -34,6 +34,9 @@ var interactive: bool = true
 ## the player panel. Negative values fall back to a share of the width.
 var fan_left: float = -1.0
 var fan_right: float = -1.0
+## Rightmost local x a card's note may reach (the match screen keeps it clear
+## of the initiative coin); negative: the hand's own width.
+var note_right: float = -1.0
 var _tweens: Dictionary = {}
 var _note: PanelContainer
 var _note_label: Label
@@ -136,7 +139,8 @@ func _show_note() -> void:
 	var left = _slot_point(target, Vector2.ZERO)
 	var right = _slot_point(target, Vector2(CARD_SIZE.x, 0))
 	var x = right.x + NOTE_GAP
-	if x + _note.size.x > size.x - 8.0:
+	var limit = note_right if note_right > 0.0 else size.x - 8.0
+	if x + _note.size.x > limit:
 		x = left.x - NOTE_GAP - _note.size.x
 	var level = _slot_point(target, Vector2(0, CARD_SIZE.y * 0.42)).y - _note.size.y * 0.5
 	_note.position = Vector2(clampf(x, 8.0, maxf(8.0, size.x - _note.size.x - 8.0)), maxf(8.0, level))

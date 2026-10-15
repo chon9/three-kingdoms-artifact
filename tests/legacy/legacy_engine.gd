@@ -761,15 +761,13 @@ func _place(unit: Dictionary, lane_index: int, position: int) -> void:
 	unit.lane = lane_index
 	# Pathing reset: an enemy attacking diagonally now faces this unit. A
 	# forced tower target (Battlefield Control) needs the position across to
-	# be empty (RQ-19), so the new unit blocks it as well.
+	# be empty (RQ-19), so the new unit blocks it as well. M4 review fidelity
+	# fix, applied to this reference too: a forced unit target (Battlefield
+	# Control at a diagonal enemy) is reset the same way (wiki Pathing).
 	var opposite = rows[1 - owner][position]
 	if opposite != null:
-		var forced = int(opposite.get("combat_target", -1))
-		if forced == 0:
-			opposite.combat_target = -1
-			opposite.arrow = 0
-		elif forced < 0:
-			opposite.arrow = 0
+		opposite.combat_target = -1
+		opposite.arrow = 0
 
 ## Places [unit, lane] pairs from both players in one shuffled order, so the
 ## result does not depend on which player is processed first.

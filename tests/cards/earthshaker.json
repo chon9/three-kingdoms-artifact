@@ -1,0 +1,16 @@
+{
+"card": "earthshaker",
+"source_id": 10033,
+"text": "Fissure: Stun Earthshaker's enemy neighbors this round.",
+"covers": ["active", "stun", "enemy_neighbors", "self", "this_round"],
+"cases": [
+ {"name": "Fissure stuns Earthshaker's three enemy neighbors and goes on cooldown 4", "clause": 0, "tags": ["active", "stun", "enemy_neighbors", "self"], "board": {"lanes": {"0": {"p0": [null, "earthshaker#e", null, null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c", "melee_creep#d"]}}}, "do": [{"ability": "e"}], "expect": {"a.stunned": true, "b.stunned": true, "c.stunned": true, "d.stunned": false, "e.cooldown": 4, "events": {"has": ["ability", "status"]}}},
+ {"name": "the stun ends with the round", "clause": 0, "tags": ["this_round"], "board": "@0", "do": [{"ability": "e"}, {"end_round": true}], "expect": {"a.stunned": false, "b.stunned": false, "c.stunned": false, "e.cooldown": 3}},
+ {"name": "stunned enemy neighbors deal no combat damage to Earthshaker", "clause": 0, "tags": ["stun", "enemy_neighbors"], "board": "@0", "do": [{"ability": "e"}, {"combat": true}], "expect": {"e.health": 7, "b.health": 2}},
+ {"name": "allied neighbors and enemies in another lane are not stunned", "clause": 0, "tags": ["edge", "enemy_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#m", "earthshaker#e"], "p1": ["melee_creep#a", "melee_creep#b"]}, "1": {"p0": ["melee_creep#n"], "p1": ["melee_creep#x"]}}}, "do": [{"ability": "e"}], "expect": {"a.stunned": true, "b.stunned": true, "m.stunned": false, "n.stunned": false, "x.stunned": false}},
+ {"name": "with no enemy neighbors Fissure stuns nothing but still goes on cooldown", "clause": 0, "tags": ["edge", "active"], "board": {"lanes": {"0": {"p0": ["earthshaker#e", "melee_creep#m", null], "p1": [null, null, "melee_creep#a"]}}}, "do": [{"ability": "e"}], "expect": {"a.stunned": false, "e.cooldown": 4, "events": {"not": ["status"]}}},
+ {"name": "a silenced Earthshaker cannot use Fissure", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"e": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "e"}]},
+ {"name": "a stunned Earthshaker cannot use Fissure", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"e": ["stun"]}}, "do": [], "expect_illegal": [{"ability": "e"}]},
+ {"name": "Fissure is on cooldown after use", "clause": 0, "tags": ["negative", "active"], "board": "@0", "do": [{"ability": "e"}], "expect_illegal": [{"ability": "e"}]},
+ {"name": "Fissure is used only while Earthshaker's lane is active", "clause": 0, "tags": ["negative", "active"], "board": {"active_lane": 1, "lanes": {"0": {"p0": ["earthshaker#e"], "p1": ["melee_creep#a"]}, "1": {"p0": ["jmuy#j"], "p1": ["melee_creep#b"]}}}, "do": [], "expect_illegal": [{"ability": "e"}]}
+]}

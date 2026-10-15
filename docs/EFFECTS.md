@@ -111,7 +111,7 @@ Conditions: `all`, `any`, `not`, `{"cmp": [A, op, B]}`, `{"is": Ref, "in": Sel}`
 | `give` | `to`, `stats`, `keywords`, `grant`, `until` | Temporary; `until` is `round`, `next_combat`, `death`, `equip` or `used`. |
 | `purge` | `to`, `from` | Removes the opponent's modify and give entries (RQ-12). |
 | `condemn` | `to` | The next Pulse destroys it (a Death Shield still saves). |
-| `summon` | `card`, `count`, `lane`, `for`, `as` | Random empty position, then an arrow roll. |
+| `summon` | `card`, `count`, `lane`, `for`, `as` | Random empty position, then an arrow roll. A summoned hero joins its owner's roster, so it returns from the Fountain like any hero (RQ-29). |
 | `retarget`, `taunt` | `unit`, `to` (uid, 0 for the tower, or `"across"`) | Forced combat targets. |
 | `battle` | `a`, `b` | `a` battles every `b` at once; retaliate answers. |
 | `to_fountain` | `unit` | A voluntary return: no bounty. |
@@ -245,6 +245,23 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
 "play": {"ops": [{"op": "give", "to": "your_tower", "stats": {"mana": {"param": "amount"}}, "until": "round"}]}
 ```
 
+**A summon each deployment phase** (Venomancer; Prellex and Barracks summon a `melee_creep`): `deployment` fires after the heroes are placed and before the arrow roll, also in round 1 (RQ-23, RQ-49); the source's lane is its new lane.
+```json
+"abilities": [{"id": "venomous_nature", "kind": "trigger", "on": "deployment", "ops": [{"op": "summon", "card": "plague_ward"}]}]
+```
+
+**Mana restored** (Satyr Magician's active; Incarnation of Selemene restores `"full"` after every `card_played` of yours) and **once per lane per round in any lane** (Crystal Maiden):
+```json
+"abilities": [{"id": "magician", "kind": "active", "cooldown": {"param": "ability_cooldown"}, "ops": [{"op": "mana", "to": "your_tower", "restore": "full"}]}]
+"abilities": [{"id": "arcane_aura", "kind": "trigger", "on": "card_played", "lane": "any", "once_per": "lane_round", "filter": {"player": "you", "kind": "spell"},
+  "ops": [{"op": "mana", "to": {"s": "towers", "side": "ally", "lane": "$e.lane"}, "restore": {"param": "amount"}}]}]
+```
+
+**An extra card each round** (Troll Soothsayer: a rules-layer aura on its player):
+```json
+"abilities": [{"id": "soothsayer", "kind": "aura", "affects": "you", "grant": {"rules": {"round_draw": 1}}}]
+```
+
 **Random discard, then condemn** (Coup de Grace):
 ```json
 "play": {"choices": [{"key": "target", "from": "heroes"}],
@@ -376,17 +393,16 @@ The golden games (`tests/golden/`, data in `tests/data/goldens/`) replay 54 reco
 
 ## Testing tools
 
-- **Card specs** (`tests/cards/<id>.json`, run by `tests/card_specs_test.gd`, spec §13.1). Each case builds a board from a small DSL (`lanes` rows of `"card#label:hp=3:atk=2:arrow=-1:ready=2+item"` entries, `hand`, `deck`, `towers`, `improvements`, `fountain`, `mana`, `gold`, `hand_state`...), runs steps (`play`, with `"as": "<label>"` to name the creep a play puts into the lane; `ability`; `pass`; `combat`; `end_round`, with `"deploy": {"<hero label>": lane}` to deploy heroes from the Fountain; `kill`; `draw`) and checks `expect` fields (`<label>.attack`, `<label>.kw.siege`, `<label>.stunned`, `tower`, `p0.hand`, `units.<lane>.<p>[.<card>]` (a count of units), `events` with `has`/`not`, `expect_legal`, `expect_illegal`, `expect_rate`, `expect_private`). For an assertion the DSL cannot express, `"gd": "res://tests/cards/extra/<id>.gd"` names a RefCounted script whose `check(engine, labels)` returns failure messages (`tests/cards/extra/soul_of_spring.gd` checks the granted text in the log). The runner also checks the invariants after every step, that two runs give the same digest, that every event formats in both skins and locales, and that rejected commands change nothing. `--card <id>` runs one card.
+- **Card specs** (`tests/cards/<id>.json`, run by `tests/card_specs_test.gd`, spec §13.1). Each case builds a board from a small DSL (`lanes` rows of `"card#label:hp=3:atk=2:arrow=-1:ready=2+item"` entries, `hand`, `deck`, `towers`, `improvements`, `fountain`, `mana`, `gold`, `hand_state`...), runs steps (`play`, with `"as": "<label>"` to name the creep a play puts into the lane, else the first unit it summons; `ability`; `pass`; `combat`; `end_round`, with `"deploy": {"<hero label>": lane}` to deploy heroes from the Fountain; a deployment phase step by step with `begin_deployment`, `"plan": {"<hero label>": lane}` (real deploy commands) and `reveal`; `kill`; `draw`) and checks `expect` fields (`<label>.attack`, `<label>.kw.siege`, `<label>.stunned`, `tower`, `p0.hand`, `p0.hand.<i>` (the card id there), `p0.hand.<card>` (copies of a card), `p0.hand_state.<i>.<field>` (null past the end), `units.<lane>.<p>[.<card>]` (a count of units), `fountain.<p>[.<card>]` (a count of roster heroes out of the lanes), `events` with `has`/`not`, `expect_legal`, `expect_illegal`, `expect_rate` (an empty list or string counts as false), `expect_private`). For an assertion the DSL cannot express, `"gd": "res://tests/cards/extra/<id>.gd"` names a RefCounted script whose `check(engine, labels)` returns failure messages (`tests/cards/extra/soul_of_spring.gd` checks the granted text in the log). The runner also checks the invariants after every step, that two runs give the same digest, that every event formats in both skins and locales, and that rejected commands change nothing. `--card <id>` runs one card.
 - **Meta tests** (`tests/rules_schema_test.gd`): every verified Classic card has a spec, its `text` equals `valve_text`, and its `covers` include the card's mechanics tags; `tools/coverage.py` maps Valve's verb and trigger tags to ops and events (`python -I -X utf8 tools/coverage.py` rewrites `tests/data/coverage.json`, `--check` only checks; the schema test compares the table's hash).
 - **The rules fixture pack** (`tests/fixtures/rules_fixtures.json`, loaded with `CardLibrary.from_file(path, "rules_fixtures")`): synthetic `fx_*` cards for every keyword, status, duration, zone op, improvement, item ability, deed and rules-layer grant. It is never in a preset or `PACKS` and is excluded from exports. `tests/mechanics_test.gd` runs the keyword matrix and the RQ cases on it, plus `preview_equals_combat` on 2,000 random boards.
 - **Fuzz** (`tests/fuzz_test.gd`, `--seeds 50` by default, `--nightly` for 2,000): random legal decks over both packs and the fixture pack, the bot against a random agent and itself, invariants after every step, mutated commands, hidden-information swaps, replay round trips and torture boards. Failing journals are saved under `res://.tools/fuzz_failures/`.
-- **The bot** (`tests/bot_test.gd`): evaluation terms, polarity, the prefilter, purity, the hidden swap and the decision budget on a dense board.
+- **The bot** (`tests/bot_test.gd`): evaluation terms, the static values of locks, hacks and mana restores, random candidates averaged over seeds 1 to 3 (spec §9.5), polarity, the prefilter, purity, the hidden swap and the decision budget on a dense board.
 
 ## In the UI
 
-Nothing per card is needed: actives of units, items and improvements get buttons (the unit badge, the item slot, the improvement chip); every choice step (unit, combat target, lane, position, improvement) is asked for by the generic target stepper; statuses, flags and keywords show as badges; locks, charges and hacks show on cards in hand; every event key animates and logs. A card with granted text needs its `grants` locale entries: the `mod` and `status` events of a grant carry `ab` (`"<card>#<index>"`), and the log quotes that text (`EV_CHANGE_GRANT`).
+Nothing per card is needed: actives of units, items and improvements get buttons (the unit badge, the item slot, the improvement chip); every choice step (unit, combat target, lane, position, improvement) is asked for by the generic target stepper, which takes the two units of an unordered pair (an `after` choice, Friendly Fire) in either order; statuses, flags and keywords show as badges; locks, charges and hacks show on cards in hand (a hacked card's note quotes the text the hack added); every event key animates and logs. A card with granted text needs its `grants` locale entries: the `mod` and `status` events of a grant carry `ab` (`"<card>#<index>"`), and the log quotes that text (`EV_CHANGE_GRANT`).
 
 ## Not yet supported
 
-- The Classic cards beyond M1's 49 and M3's red and green cards (with three heroes' signature improvements): blue, black, items and the other improvements land in batches (spec §12, M4 to M7) once their mechanics exist, each with its spec.
-- The bot averages random cards over seeds 1 to 3 only from M4.
+- The Classic cards beyond M1's 49, M3's red and green cards and M4's blue cards (with five heroes' signature improvements): black, items and the other improvements land in batches (spec §12, M5 to M7) once their mechanics exist, each with its spec.

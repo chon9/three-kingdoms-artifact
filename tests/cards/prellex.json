@@ -1,0 +1,14 @@
+{
+"card": "prellex",
+"source_id": 10053,
+"text": "Bringer of the Faithful: Summon a Melee Creep into Prellex's lane each deployment phase.",
+"covers": ["deployment_phase", "summon", "self", "permanent"],
+"cases": [
+ {"name": "Bringer of the Faithful: at the deployment phase a Melee Creep is summoned into Prellex's lane", "clause": 0, "tags": ["deployment_phase", "summon", "self", "permanent"], "board": {"lanes": {"1": {"p0": ["prellex#x"], "p1": ["melee_creep#e"]}}}, "do": [{"end_round": true}], "expect": {"x.lane": 1, "events": {"has": ["summon"]}}, "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "each deployment phase: two phases summon two creeps, and they stay", "clause": 0, "tags": ["deployment_phase", "permanent"], "board": "@0", "do": [{"end_round": true}, {"end_round": true}], "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "rq_23_new_lane: a Prellex deployed from the Fountain this phase summons into its new lane", "clause": 0, "tags": ["summon", "RQ-23"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#e"]}}, "fountain": {"p0": ["prellex#x"]}}, "do": [{"end_round": true, "deploy": {"x": 2}}], "expect": {"x.lane": 2, "events": {"has": ["summon"]}}, "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "rq_23_fountain: a Prellex in the Fountain (not ready) summons nothing", "clause": 0, "tags": ["negative", "RQ-23"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#e"]}}, "fountain": {"p0": ["prellex#x:ready=9"]}}, "do": [{"end_round": true}], "expect": {"x.lane": -1, "events": {"not": ["summon"]}}},
+ {"name": "a Prellex that dies in combat summons nothing at the next deployment phase", "clause": 0, "tags": ["negative", "deployment_phase"], "board": {"lanes": {"0": {"p0": ["prellex#x:hp=2"], "p1": ["axe#a"]}}}, "do": [{"combat": true}, {"end_round": true}], "expect": {"x.in_play": false, "events": {"not": ["summon"]}}},
+ {"name": "the opponent's Prellex summons for the opponent", "clause": 0, "tags": ["summon", "self"], "board": {"lanes": {"2": {"p0": ["jmuy#j"], "p1": ["prellex#x"]}}}, "do": [{"end_round": true}], "expect": {"events": {"has": ["summon"]}}, "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "rq_49_round1_deployment: Prellex among heroes 1 to 3 summons a Melee Creep in round 1's initial placement", "clause": 0, "tags": ["deployment_phase", "summon", "RQ-49"], "board": {"lanes": {"0": {"p0": ["prellex#x"], "p1": ["melee_creep#e"]}}}, "do": [], "gd": "res://tests/cards/extra/round1_deployment.gd"}
+]}

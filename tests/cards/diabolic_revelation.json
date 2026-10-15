@@ -1,0 +1,13 @@
+{
+"card": "diabolic_revelation",
+"source_id": 10319,
+"text": "Draw 2 cards. Deal 2 damage to allies in all lanes.",
+"covers": ["play", "damage", "draw", "all_allies"],
+"cases": [
+ {"name": "Draw 2 cards", "clause": 0, "tags": ["play", "draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}}, "deck": {"p0": ["melee_creep", "melee_creep", "foresight"]}}, "do": [{"play": "diabolic_revelation"}], "expect": {"p0.hand": 2, "p0.deck": 1, "p1.hand": 0, "events": {"has": ["draw_cards"]}}},
+ {"name": "a one-card deck draws only one card (no penalty)", "clause": 0, "tags": ["edge", "draw"], "board": {"base": "@0", "deck": {"p0": ["foresight"]}}, "do": [{"play": "diabolic_revelation"}], "expect": {"p0.hand": 1, "p0.deck": 0, "j.health": 6}},
+ {"name": "the drawn cards stay hidden from the opponent", "clause": 0, "tags": ["edge", "draw"], "board": {"base": "@0", "deck": {"p0": ["bolt_of_damocles", "bolt_of_damocles"]}}, "do": [{"play": "diabolic_revelation"}], "expect": {"p0.hand": 2}, "expect_private": {"viewer": 1, "absent": ["bolt_of_damocles"]}},
+ {"name": "Deal 2 damage to allies in all lanes", "clause": 1, "tags": ["play", "damage", "all_allies"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["keefe#k", null]}, "1": {"p0": ["axe#x"], "p1": ["melee_creep#e"]}, "2": {"p0": ["melee_creep#n"], "p1": []}}, "deck": {"p0": ["melee_creep", "melee_creep"]}}, "do": [{"play": "diabolic_revelation"}], "expect": {"j.health": 6, "m.health": 2, "x.health": 10, "n.health": 2, "events": {"has": ["damage"]}}},
+ {"name": "enemies, towers and heroes in the Fountain are untouched", "clause": 1, "tags": ["negative", "all_allies"], "board": {"base": "@3", "fountain": {"p0": ["zeus#z"]}}, "do": [{"play": "diabolic_revelation"}], "expect": {"k.health": 11, "e.health": 4, "z.health": 7, "tower.0.0.health": 40, "tower.0.1.health": 40}},
+ {"name": "rq_02_an_ally_killed_by_it_pays_bounty_to_the_opponent", "clause": 1, "tags": ["edge", "all_allies", "RQ-02"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "untested_grunt#g"], "p1": ["melee_creep#a", null]}}}, "do": [{"play": "diabolic_revelation"}], "expect": {"g.in_play": false, "p1.gold": 1, "p0.gold": 0, "a.health": 4}}
+]}

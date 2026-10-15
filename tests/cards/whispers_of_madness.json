@@ -1,0 +1,16 @@
+{
+"card": "whispers_of_madness",
+"source_id": 10422,
+"text": "Stun an enemy this round and stun allied heroes in all lanes this round.",
+"covers": ["play", "stun", "all_allied_heroes", "enemy_unit", "this_round"],
+"cases": [
+ {"name": "Stun an enemy and stun allied heroes in all lanes", "clause": 0, "tags": ["play", "stun", "enemy_unit", "all_allied_heroes"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#a"]}, "1": {"p0": ["axe#x"], "p1": ["melee_creep#b"]}, "2": {"p0": ["melee_creep#n"], "p1": ["legion_commander#l"]}}, "fountain": {"p0": ["rix#r"]}}, "do": [{"play": "whispers_of_madness", "target": "k"}], "expect": {"k.stunned": true, "j.stunned": true, "x.stunned": true, "events": {"has": ["status"]}}},
+ {"name": "allied creeps, other enemies, enemy heroes elsewhere and heroes in the Fountain are not stunned", "clause": 0, "tags": ["negative", "stun", "all_allied_heroes"], "board": "@0", "do": [{"play": "whispers_of_madness", "target": "k"}], "expect": {"m.stunned": false, "a.stunned": false, "n.stunned": false, "b.stunned": false, "l.stunned": false, "r.stunned": false}},
+ {"name": "the enemy may be a creep", "clause": 0, "tags": ["enemy_unit", "stun"], "board": "@0", "do": [{"play": "whispers_of_madness", "target": "a"}], "expect": {"a.stunned": true, "k.stunned": false, "j.stunned": true, "x.stunned": true}},
+ {"name": "an ally, or an enemy in another lane, is not a choice", "clause": 0, "tags": ["negative", "enemy_unit"], "board": "@0", "do": [], "expect_illegal": [{"play": "whispers_of_madness", "target": "m"}, {"play": "whispers_of_madness", "target": "j"}, {"play": "whispers_of_madness", "target": "b"}, {"play": "whispers_of_madness", "target": "l"}]},
+ {"name": "stunned heroes deal no combat damage on either side", "clause": 0, "tags": ["stun"], "board": "@0", "do": [{"play": "whispers_of_madness", "target": "k"}, {"combat": true}], "expect": {"j.health": 8, "k.health": 11, "m.health": 2, "a.health": 2}},
+ {"name": "an allied hero stunned in another lane does not attack in that lane's combat either", "clause": 0, "tags": ["stun", "all_allied_heroes", "this_round"], "board": "@0", "do": [{"play": "whispers_of_madness", "target": "k"}, {"combat": true}, {"combat": true}], "expect": {"lane": 2, "b.health": 4, "x.health": 10}},
+ {"name": "the caster's own stunned blue hero no longer lets it play blue cards in that lane", "clause": 0, "tags": ["edge", "stun", "all_allied_heroes"], "board": "@0", "do": [{"play": "whispers_of_madness", "target": "k"}, {"pass": 1}], "expect_illegal": [{"play": "arcane_assault", "player": 0}]},
+ {"name": "the stuns end with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "whispers_of_madness", "target": "k"}, {"end_round": true}], "expect": {"k.stunned": false, "j.stunned": false, "x.stunned": false}},
+ {"name": "the opponent's Purge removes the stun from its unit, not from the caster's heroes", "clause": 0, "tags": ["edge", "stun"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["keefe#k", "abaddon#ab"]}}}, "do": [{"play": "whispers_of_madness", "target": "k"}, {"play": "aphotic_shield", "target": "k", "player": 1}], "expect": {"k.stunned": false, "j.stunned": true}}
+]}

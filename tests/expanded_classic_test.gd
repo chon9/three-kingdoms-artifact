@@ -22,9 +22,10 @@ func _initialize() -> void:
 	_privacy_and_validation()
 	_matchup_matrix()
 	_m3_presets()
+	_m4_presets()
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
+	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3 and M4 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
 	quit(0 if failures.is_empty() else 1)
 
 func _check(condition: bool, message: String) -> void:
@@ -66,10 +67,12 @@ func _play(engine, card_id: String, target: int = -1) -> Dictionary:
 func _profiles() -> void:
 	var engine = MatchEngine.new()
 	# M1 migrated 49 definitions (10 heroes, 39 cards); M3 adds the 92 red and
-	# green cards plus three heroes' signature improvements (EFFECT_SYSTEM_SPEC.md §12).
-	_check(engine.library.heroes.size() == 28 and engine.library.cards.size() == 116,
-		"144 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
-	_check(engine.library.presets().size() == 8, "Eight playable deck presets (%d)" % engine.library.presets().size())
+	# green cards plus three heroes' signature improvements; M4 the 44 blue
+	# cards plus two heroes' signature improvements, Barracks and Ignite
+	# (EFFECT_SYSTEM_SPEC.md §12).
+	_check(engine.library.heroes.size() == 38 and engine.library.cards.size() == 152,
+		"190 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
+	_check(engine.library.presets().size() == 11, "Eleven playable deck presets (%d)" % engine.library.presets().size())
 	for profile in engine.library.presets():
 		_check(engine.library.validate_preset(profile).ok, "Preset passes card/hero/signature validation")
 		_check(engine.library.match_deck(profile.id).size() == 40, "Preset main deck has forty cards")
@@ -323,61 +326,103 @@ func _matchup_matrix() -> void:
 				_check(restored.load_replay(JSON.parse_string(JSON.stringify(engine.replay_data()))).ok, "Expanded replay loads with deck IDs")
 				_check(restored.state_digest() == engine.state_digest(), "Expanded replay preserves every field and RNG")
 
+const ORIGINAL_PRESETS = ["starter", "green_assault", "blue_black_control"]
+const M3_PRESETS = ["sun_liu_alliance", "northern_expedition", "gathering_of_champions", "ruxu_standoff", "little_conqueror"]
+const M4_PRESETS = ["bronze_sparrow_terrace", "siege_of_xiapi", "longxi_struggle"]
+
 ## M3 acceptance 5 (EFFECT_SYSTEM_SPEC.md §12): every preset added with the
 ## red and green cards validates, and bot-vs-bot matches with it terminate
-## within 1,500 steps for 6 seeds (against every preset in turn), with lanes
-## aligned, every event formatted and a replay round trip. The 18 golden
-## matchups above stay the three original presets.
+## within 1,500 steps for 6 seeds (against each preset of that milestone in
+## turn), with lanes aligned, every event formatted and a replay round trip.
+## The 18 golden matchups above stay the three original presets.
 func _m3_presets() -> void:
-	var bot = Bot.new()
 	var library = MatchEngine.Library.new()
-	var originals = ["starter", "green_assault", "blue_black_control"]
-	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
-	var added: Array = all_ids.filter(func(id): return id not in originals)
 	var legacy = Legacy.new()
-	_check(added.size() >= 5, "M3 adds a preset per colour pair with red or green (%s)" % [added])
 	var pairs: Dictionary = {}
-	for index in range(added.size()):
-		var preset_id = str(added[index])
+	for index in range(M3_PRESETS.size()):
+		var preset_id = str(M3_PRESETS[index])
 		var preset = library.preset(preset_id)
-		_check(library.validate_preset(preset).ok, "Preset %s validates" % preset_id)
-		var colors: Array = []
-		for hero_id in preset.heroes:
-			var color = str(library.definition(hero_id).color)
-			if color not in colors:
-				colors.append(color)
-		colors.sort()
-		pairs["/".join(colors)] = true
+		_check(not preset.is_empty() and library.validate_preset(preset).ok, "Preset %s validates" % preset_id)
+		if preset.is_empty():
+			continue
+		pairs[_colour_pair(library, preset)] = true
 		var m3_cards = preset.cards.keys().filter(func(card_id): return not legacy.cards.has(str(card_id)))
 		_check(m3_cards.size() >= 10, "Preset %s is built from new red and green cards (%d of them)" % [preset_id, m3_cards.size()])
-		for seed_index in range(6):
-			var seed_value = 101 + seed_index * 17 + index * 7
-			var opponent = str(all_ids[(index + seed_index * 3) % all_ids.size()])
-			var decks = [preset_id, opponent] if seed_index % 2 == 0 else [opponent, preset_id]
-			var engine = MatchEngine.new()
-			_check(engine.start(seed_value, decks).ok, "Preset %s starts a match (%s)" % [preset_id, decks])
-			var steps = 0
-			var invariant = Invariants.aligned(engine)
-			var formatted = true
-			while engine.state.winner == -1 and steps < 1500:
-				var player = int(engine.state.active_player) if engine.state.phase == "action" else (1 if engine.state.players[0].finished else 0)
-				var command = bot.choose_action(engine, player)
-				if command.is_empty():
-					failures.append("Bot stalled: %s vs %s" % decks)
-					break
-				var seen = int(engine.state.event_seq)
-				_check(engine.apply_action(player, command).ok, "M3 preset bot action is legal")
-				invariant = invariant and Invariants.aligned(engine)
-				var events = engine.state.events
-				for event in events.slice(events.size() - mini(int(engine.state.event_seq) - seen, events.size())):
-					var text = EventFormatter.format(event, engine.library)
-					formatted = formatted and not text.is_empty() and text != "?" and text.find("{") == -1
-				steps += 1
-			_check(engine.state.winner != -1, "M3 matchup terminates within 1,500 steps: %s vs %s, seed %d (%d steps)" % [decks[0], decks[1], seed_value, steps])
-			_check(invariant, "Lanes stay aligned and compacted: %s vs %s" % decks)
-			_check(formatted, "Every event formats: %s vs %s" % decks)
-			var restored = MatchEngine.new()
-			_check(restored.load_replay(JSON.parse_string(JSON.stringify(engine.replay_data()))).ok, "M3 replay loads: %s vs %s" % decks)
-			_check(restored.state_digest() == engine.state_digest(), "M3 replay preserves every field and RNG: %s vs %s" % decks)
+		_preset_matches(preset_id, index, ORIGINAL_PRESETS + M3_PRESETS, "M3")
 	for pair in ["green/red", "blue/red", "black/red", "blue/green", "black/green"]:
 		_check(pairs.has(pair), "A new preset covers the %s colour pair" % pair)
+
+## M4 acceptance 5: the presets added with the blue cards (mono-blue,
+## blue/black, blue/red) validate, are built from new blue cards and heroes,
+## and their bot matches terminate within 1,500 steps for 6 seeds against
+## every preset in turn, aligned, formatted and replayable.
+func _m4_presets() -> void:
+	var library = MatchEngine.Library.new()
+	var legacy = Legacy.new()
+	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
+	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS, "The presets are the original three, the M3 five and the M4 three, in order (%s)" % [all_ids])
+	var pairs: Dictionary = {}
+	for index in range(M4_PRESETS.size()):
+		var preset_id = str(M4_PRESETS[index])
+		var preset = library.preset(preset_id)
+		_check(not preset.is_empty() and library.validate_preset(preset).ok, "Preset %s validates" % preset_id)
+		if preset.is_empty():
+			continue
+		pairs[_colour_pair(library, preset)] = true
+		var blue_cards = preset.cards.keys().filter(func(card_id): return not legacy.cards.has(str(card_id)) and str(library.get_card(str(card_id)).get("color", "")) == "blue")
+		# New blue heroes (J'Muy and Zeus are M1's).
+		var blue_heroes: Array = []
+		for hero_id in preset.heroes:
+			if str(library.definition(str(hero_id)).get("color", "")) == "blue" and str(hero_id) not in ["jmuy", "zeus"]:
+				blue_heroes.append(hero_id)
+		_check(blue_cards.size() >= 10 and blue_heroes.size() >= 3,
+			"Preset %s is built from new blue cards (%d) and heroes (%d)" % [preset_id, blue_cards.size(), blue_heroes.size()])
+		_preset_matches(preset_id, index, all_ids, "M4")
+	for pair in ["blue", "black/blue", "blue/red"]:
+		_check(pairs.has(pair), "An M4 preset covers %s" % pair)
+
+## The sorted hero colours of a preset, "a/b" (or one colour).
+func _colour_pair(library, preset: Dictionary) -> String:
+	var colors: Array = []
+	for hero_id in preset.heroes:
+		var color = str(library.definition(hero_id).color)
+		if color not in colors:
+			colors.append(color)
+	colors.sort()
+	return "/".join(colors)
+
+## Six seeded bot-vs-bot matches of `preset_id` (the `index`-th of its
+## milestone), against `pool` presets in turn and on alternating sides: each
+## ends within 1,500 steps with legal actions, aligned lanes, formatted events
+## and an identical replay.
+func _preset_matches(preset_id: String, index: int, pool: Array, milestone: String) -> void:
+	var bot = Bot.new()
+	for seed_index in range(6):
+		var seed_value = 101 + seed_index * 17 + index * 7
+		var opponent = str(pool[(index + seed_index * 3) % pool.size()])
+		var decks = [preset_id, opponent] if seed_index % 2 == 0 else [opponent, preset_id]
+		var engine = MatchEngine.new()
+		_check(engine.start(seed_value, decks).ok, "Preset %s starts a match (%s)" % [preset_id, decks])
+		var steps = 0
+		var invariant = Invariants.aligned(engine)
+		var formatted = true
+		while engine.state.winner == -1 and steps < 1500:
+			var player = int(engine.state.active_player) if engine.state.phase == "action" else (1 if engine.state.players[0].finished else 0)
+			var command = bot.choose_action(engine, player)
+			if command.is_empty():
+				failures.append("Bot stalled: %s vs %s" % decks)
+				break
+			var seen = int(engine.state.event_seq)
+			_check(engine.apply_action(player, command).ok, "%s preset bot action is legal" % milestone)
+			invariant = invariant and Invariants.aligned(engine)
+			var events = engine.state.events
+			for event in events.slice(events.size() - mini(int(engine.state.event_seq) - seen, events.size())):
+				var text = EventFormatter.format(event, engine.library)
+				formatted = formatted and not text.is_empty() and text != "?" and text.find("{") == -1
+			steps += 1
+		_check(engine.state.winner != -1, "%s matchup terminates within 1,500 steps: %s vs %s, seed %d (%d steps)" % [milestone, decks[0], decks[1], seed_value, steps])
+		_check(invariant, "Lanes stay aligned and compacted: %s vs %s" % decks)
+		_check(formatted, "Every event formats: %s vs %s" % decks)
+		var restored = MatchEngine.new()
+		_check(restored.load_replay(JSON.parse_string(JSON.stringify(engine.replay_data()))).ok, "%s replay loads: %s vs %s" % [milestone, decks[0], decks[1]])
+		_check(restored.state_digest() == engine.state_digest(), "%s replay preserves every field and RNG: %s vs %s" % [milestone, decks[0], decks[1]])

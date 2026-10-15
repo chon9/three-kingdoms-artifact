@@ -43,17 +43,15 @@ static func place(e, unit: Dictionary, lane_index: int, position: int) -> void:
 		position = rows[owner].size() - 1
 	rows[owner][position] = unit
 	unit.lane = lane_index
-	# Pathing reset: an enemy attacking diagonally now faces this unit. A
-	# forced tower target (Battlefield Control) needs the position across to
-	# be empty (RQ-19), so the new unit blocks it as well.
+	# Pathing reset (wiki Pathing, "Resetting Pathing"): an enemy attacking to
+	# its left or right now faces this unit, whether its target was rolled or
+	# chosen (Battlefield Control, Compel, a taunt). A forced tower target needs
+	# the position across to be empty (RQ-19), so the new unit blocks it as
+	# well. The position was empty, so the enemy across was never attacking it.
 	var opposite = rows[1 - owner][position]
 	if opposite != null:
-		var forced = int(opposite.get("combat_target", -1))
-		if forced == 0:
-			opposite.combat_target = -1
-			opposite.arrow = 0
-		elif forced < 0:
-			opposite.arrow = 0
+		opposite.combat_target = -1
+		opposite.arrow = 0
 
 ## Places [unit, lane] pairs from both players in one shuffled order, so the
 ## result does not depend on which player is processed first.
@@ -243,8 +241,11 @@ static func move(e, unit: Dictionary, to_lane: int, position) -> bool:
 	return true
 
 ## Exchanges two units of the same row (spec §3.7). Arrows stay with the
-## positions (RQ-30); a forced combat target that is no longer in range ends.
-## Swaps are not entering a lane (RQ-21). Returns true when they swapped.
+## positions (RQ-30), forced combat targets included: the unit now in a
+## position inherits that position's arrow and forced target, and an enemy
+## whose forced target was one of the two keeps its arrow and now attacks the
+## unit in that position. Swaps are not entering a lane (RQ-21). Returns true
+## when they swapped.
 static func swap(e, a: Dictionary, b: Dictionary) -> bool:
 	var lane_index = int(a.get("lane", -1))
 	if lane_index < 0 or int(b.get("lane", -1)) != lane_index or int(a.owner) != int(b.owner) or int(a.uid) == int(b.uid):
@@ -257,8 +258,19 @@ static func swap(e, a: Dictionary, b: Dictionary) -> bool:
 	row[slot_a] = b
 	row[slot_b] = a
 	var arrow_a = int(a.arrow)
+	var forced_a = int(a.get("combat_target", -1))
 	a.arrow = int(b.arrow)
+	a.combat_target = int(b.get("combat_target", -1))
 	b.arrow = arrow_a
+	b.combat_target = forced_a
+	for enemy in e.state.lanes[lane_index].units[1 - int(a.owner)]:
+		if enemy == null:
+			continue
+		var forced = int(enemy.get("combat_target", -1))
+		if forced == int(a.uid):
+			enemy.combat_target = int(b.uid)
+		elif forced == int(b.uid):
+			enemy.combat_target = int(a.uid)
 	clear_stale_targets(e, lane_index)
 	normalize_arrows(e, lane_index)
 	e._event("swap", {"a": int(a.uid), "b": int(b.uid), "card": str(a.card), "other": str(b.card), "p": int(a.owner),
@@ -295,12 +307,16 @@ static func control(e, unit: Dictionary, new_owner: int) -> bool:
 
 ## Summons a fresh unit of `card_id` for `owner` into `lane_index`: a random
 ## empty own slot, otherwise a random end; then its arrow (deferred to the
-## deployment roll while deploying). Summoned heroes are not roster heroes.
+## deployment roll while deploying). A summoned hero joins its owner's roster
+## (RQ-29, Kernel.SUMMONED_HEROES_JOIN_ROSTER), so it goes to the Fountain
+## when it dies and is redeployed like any hero.
 static func summon(e, card_id: String, owner: int, lane_index: int) -> Dictionary:
 	var definition = e._definition_or_creep(card_id)
 	var hero = str(definition.get("kind", "creep")) == "hero"
 	var unit = e._make_unit(definition, owner, hero)
-	unit["roster"] = false
+	unit["roster"] = hero and Kernel.SUMMONED_HEROES_JOIN_ROSTER
+	if bool(unit.roster):
+		e.state.players[owner].roster.append(unit)
 	spawn(e, unit, lane_index)
 	if not e._deploying:
 		roll_arrow(e, unit)

@@ -1,0 +1,16 @@
+{
+"card": "arcane_assault",
+"source_id": 10374,
+"text": "Deal 2 damage to the enemy tower. Draw a card. | Get initiative.",
+"covers": ["play", "damage", "draw", "get_initiative", "tower_damage", "enemy_tower"],
+"cases": [
+ {"name": "Deal 2 damage to the enemy tower of the active lane", "clause": 0, "tags": ["play", "damage", "tower_damage", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}, "1": {"p0": ["jmuy#i"], "p1": ["melee_creep#b"]}}, "deck": {"p0": ["foresight"]}}, "do": [{"play": "arcane_assault"}], "expect": {"tower.0.1.health": 38, "tower.0.0.health": 40, "tower.1.1.health": 40, "a.health": 4, "mana.0.0": 6, "events": {"has": ["tower_damage"]}}},
+ {"name": "tower armor reduces it (Steel Reinforcement)", "clause": 0, "tags": ["negative", "damage", "tower_damage"], "board": {"base": "@0", "improvements": {"0": {"p1": ["steel_reinforcement#s"]}}}, "do": [{"play": "arcane_assault"}], "expect": {"tower.0.1.health": 39}},
+ {"name": "a tower at 2 health falls; the ancient takes no overflow", "clause": 0, "tags": ["edge", "tower_damage", "enemy_tower"], "board": {"base": "@0", "towers": {"0": {"p1": {"health": 2}}}}, "do": [{"play": "arcane_assault"}], "expect": {"tower.0.1.ancient": true, "tower.0.1.health": 80, "events": {"has": ["tower_fall"]}}},
+ {"name": "rq_46_ancient_is_tower: after the tower falls, the enemy tower is the lane's ancient", "clause": 0, "tags": ["edge", "tower_damage", "enemy_tower", "RQ-46"], "board": {"base": "@0", "towers": {"0": {"p1": {"health": 80, "ancient": true}}}}, "do": [{"play": "arcane_assault"}], "expect": {"tower.0.1.health": 78}},
+ {"name": "Draw a card", "clause": 1, "tags": ["play", "draw"], "board": "@0", "do": [{"play": "arcane_assault"}], "expect": {"p0.hand": ["foresight"], "p0.deck": 0, "events": {"has": ["draw_cards"]}}},
+ {"name": "with an empty deck the tower is still hit and nothing is drawn", "clause": 1, "tags": ["edge", "draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}}}, "do": [{"play": "arcane_assault"}], "expect": {"tower.0.1.health": 38, "p0.hand": 0, "events": {"not": ["draw_cards"]}}},
+ {"name": "Get initiative: the caster acts again", "clause": 2, "tags": ["play", "get_initiative"], "board": "@0", "do": [{"play": "arcane_assault"}], "expect": {"initiative": 0}, "expect_legal": [{"play": "lightning_strike", "player": 0}]},
+ {"name": "a card without it hands the initiative over", "clause": 2, "tags": ["negative", "get_initiative"], "board": "@0", "do": [{"play": "lightning_strike"}], "expect": {"initiative": 1}},
+ {"name": "passing right after keeps the initiative: the caster acts first in the next lane", "clause": 2, "tags": ["edge", "get_initiative"], "board": "@0", "do": [{"play": "arcane_assault"}, {"pass": 0}, {"pass": 1}], "expect": {"lane": 1, "initiative": 0}}
+]}

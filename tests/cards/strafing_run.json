@@ -1,0 +1,11 @@
+{
+"card": "strafing_run",
+"source_id": 10312,
+"text": "Deal 2 damage to each enemy creep.",
+"covers": ["play", "damage", "all_enemy_creeps"],
+"cases": [
+ {"name": "each enemy creep takes 2 damage, less its armor; enemy heroes are spared", "clause": 0, "tags": ["play", "damage", "all_enemy_creeps"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m", null], "p1": ["melee_creep#a", "keefe#k", "bronze_legionnaire#b"]}}}, "do": [{"play": "strafing_run"}], "expect": {"a.health": 2, "b.health": 2, "k.health": 11, "events": {"has": ["damage"]}}},
+ {"name": "allied creeps and enemy creeps in other lanes are untouched", "clause": 0, "tags": ["negative", "all_enemy_creeps"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m"], "p1": ["melee_creep#a", null]}, "1": {"p0": ["melee_creep#n"], "p1": ["melee_creep#x"]}}}, "do": [{"play": "strafing_run"}], "expect": {"a.health": 2, "m.health": 4, "n.health": 4, "x.health": 4, "tower.0.1.health": 40}},
+ {"name": "a 2-health enemy creep dies and pays its bounty", "clause": 0, "tags": ["edge", "all_enemy_creeps"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["untested_grunt#g"]}}}, "do": [{"play": "strafing_run"}], "expect": {"g.in_play": false, "p0.gold": 1, "events": {"has": ["death"]}}},
+ {"name": "with no enemy creeps nothing is damaged", "clause": 0, "tags": ["negative", "damage"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["keefe#k"]}}}, "do": [{"play": "strafing_run"}], "expect": {"k.health": 11, "events": {"not": ["damage"]}}}
+]}

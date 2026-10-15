@@ -1,0 +1,14 @@
+{
+"card": "divided_we_stand",
+"source_id": 10005,
+"text": "Summon a Meepo.",
+"covers": ["play", "summon", "permanent"],
+"cases": [
+ {"name": "Summon a Meepo into this lane", "clause": 0, "tags": ["play", "summon", "permanent"], "board": {"lanes": {"0": {"p0": ["meepo#m"], "p1": ["melee_creep#o"]}}}, "do": [{"play": "divided_we_stand"}], "expect": {"units.0.0.meepo": 2, "units.1.0": 0, "units.2.0": 0, "events": {"has": ["summon"]}}},
+ {"name": "rq_29_summoned_hero: the summoned Meepo is Soulbound with the roster Meepo in another lane, and is worth hero bounty", "clause": 0, "tags": ["edge", "summon", "RQ-29"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#o"]}, "1": {"p0": ["meepo#m"], "p1": [null]}}}, "do": [{"play": "divided_we_stand"}, {"kill": ["m"]}], "expect": {"units.0.0.meepo": 0, "units.0.0": 1, "m.in_play": false, "p1.gold": 10}},
+ {"name": "rq_29_summoned_hero: a summoned Meepo that dies goes to the Fountain with the roster Meepo (a hero returns to the Fountain, glossary)", "clause": 0, "tags": ["edge", "permanent", "RQ-29"], "board": {"lanes": {"0": {"p0": ["meepo#m"], "p1": ["melee_creep#o"]}}}, "do": [{"play": "divided_we_stand", "as": "s"}, {"kill": ["m"]}], "expect": {"fountain.0.meepo": 2, "s.lane": -1, "s.in_play": false, "s.ready_round": 4, "units.0.0.meepo": 0, "p1.gold": 10}},
+ {"name": "rq_29_summoned_hero: both Meepos are redeployed when they are ready again", "clause": 0, "tags": ["edge", "permanent", "RQ-29"], "board": {"lanes": {"0": {"p0": ["meepo#m"], "p1": ["melee_creep#o"]}}}, "do": [{"play": "divided_we_stand", "as": "s"}, {"kill": ["m"]}, {"end_round": true}, {"end_round": true, "deploy": {"m": 2, "s": 1}}], "expect": {"m.lane": 2, "s.lane": 1, "units.2.0.meepo": 1, "units.1.0.meepo": 1, "fountain.0.meepo": 0}},
+ {"name": "the summoned Meepo stays when nothing kills it (it is permanent)", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["meepo#m"], "p1": ["melee_creep#o"]}}}, "do": [{"play": "divided_we_stand"}, {"end_round": true}], "expect": {"units.0.0.meepo": 2}},
+ {"name": "summoned into a full row, the Meepo takes a new position at an end", "clause": 0, "tags": ["edge", "summon"], "board": {"lanes": {"0": {"p0": ["meepo#m", "melee_creep#c"], "p1": ["melee_creep#o", "melee_creep#q"]}}}, "do": [{"play": "divided_we_stand"}], "expect": {"units.0.0": 3, "units.0.0.meepo": 2, "c.health": 4}},
+ {"name": "without a blue hero in the lane it cannot be cast", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["axe#x"], "p1": ["melee_creep#o"]}, "1": {"p0": ["meepo#m"], "p1": [null]}}}, "do": [], "expect_illegal": [{"play": "divided_we_stand"}]}
+]}

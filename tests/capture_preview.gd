@@ -24,6 +24,13 @@ extends SceneTree
 ## new card lifted), m3_hand_zh, m3_inspect (a new hero), m3_inspect_zh,
 ## m3_catalog (the catalog filtered to red / Shu), m3_catalog_zh (green / Wu),
 ## m3_decks (two of the new presets in the deck dialog) and m3_decks_zh.
+## M4 (blue cards, the blue presets): m4_lane (Bronze Sparrow Terrace against
+## Struggle for Longxi, new blue cards in hand), m4_lane_zh, m4_lane_classic,
+## m4_lane_classic_zh, m4_hand (a new card lifted), m4_hand_zh, m4_hack_note
+## (a card hacked by Self Sabotage, its note quoting the added text),
+## m4_hack_note_zh, m4_inspect (a new blue hero), m4_inspect_zh, m4_catalog
+## (the catalog filtered to blue / Wei), m4_catalog_zh, m4_catalog_classic,
+## m4_decks (the new presets in the deck dialog) and m4_decks_zh.
 ## Pass --size=1280x720 to check the smaller window.
 
 const MainScene = preload("res://scenes/main.tscn")
@@ -42,6 +49,10 @@ const M3_SHOTS = ["m3_lane", "m3_lane_zh", "m3_lane_classic", "m3_hand", "m3_han
 	"m3_catalog", "m3_catalog_zh", "m3_decks", "m3_decks_zh"]
 ## New red and green cards for the M3 hand (EFFECT_SYSTEM_SPEC.md Appendix A).
 const M3_HAND = ["duel", "gods_strength", "viper_strike", "hand_of_god", "stonehall_elite", "spring_the_trap", "steel_reinforcement"]
+const M4_SHOTS = ["m4_lane", "m4_lane_zh", "m4_lane_classic", "m4_lane_classic_zh", "m4_hand", "m4_hand_zh", "m4_hack_note",
+	"m4_hack_note_zh", "m4_inspect", "m4_inspect_zh", "m4_catalog", "m4_catalog_zh", "m4_catalog_classic", "m4_decks", "m4_decks_zh"]
+## New blue cards for the M4 hand; the last one carries a Self Sabotage hack.
+const M4_HAND = ["eclipse", "mystic_flare", "friendly_fire", "incarnation_of_selemene", "lost_in_time", "barracks", "echo_slam"]
 const OUT = "res://.tools/shots/"
 const SEED = 20482
 
@@ -203,6 +214,7 @@ func _run() -> void:
 	await _capture_hud_fountain()
 	await _capture_m2()
 	await _capture_m3()
+	await _capture_m4()
 	print("Shots: ", ", ".join(saved))
 	app.queue_free()
 	await process_frame
@@ -728,6 +740,138 @@ func _capture_m3() -> void:
 			app.set_locale("zh_CN")
 			await _wait(0.6)
 			await _shot("m3_decks_zh")
+			app.set_locale("en")
+		app.close_dialogs()
+		await _wait(0.2)
+
+## M4: a mid-game lane between two of the blue presets, new blue cards in
+## hand (one of them hacked by Self Sabotage), a new blue hero inspected, the
+## catalog filtered to blue (Wei) and the new presets in the deck dialog.
+func _capture_m4() -> void:
+	if not M4_SHOTS.any(func(shot): return _wanted(shot)):
+		return
+	var screen = app.screen
+	app.set_locale("en")
+	app.set_skin("three_kingdoms")
+	app.deck_selections = ["bronze_sparrow_terrace", "longxi_struggle"]
+	app.controller.current_seed = SEED + 41
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	AnimationQueue.instant = true
+	var reached = _advance(_busy_lane, 1500)
+	var engine = app.controller.engine
+	print("M4 state: ", reached, " round ", engine.state.round, " lane ", engine.state.lane)
+	engine.state.players[0].hand = M4_HAND.duplicate()
+	engine.state.players[0].hand_state = []
+	Zones.sync(engine)
+	engine.state.players[0].hand_state[M4_HAND.size() - 1]["hacks"] = ["self_sabotage#0"]
+	var lane_index = int(engine.state.lane)
+	_publish()
+	await _idle()
+	AnimationQueue.instant = false
+	screen.view_lane(lane_index)
+	_mouse(screen.size * 0.5 + Vector2(0, 40))
+	await _wait(0.8)
+	await _shot("m4_lane")
+	if _wanted("m4_lane_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.3)
+		await _shot("m4_lane_zh")
+		app.set_locale("en")
+		await _wait(0.2)
+	if _wanted("m4_lane_classic") or _wanted("m4_lane_classic_zh"):
+		app.set_skin("classic")
+		await _wait(0.4)
+		await _shot("m4_lane_classic")
+		if _wanted("m4_lane_classic_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m4_lane_classic_zh")
+			app.set_locale("en")
+		app.set_skin("three_kingdoms")
+		await _wait(0.3)
+	if _wanted("m4_hand") or _wanted("m4_hand_zh"):
+		_mouse(screen.hand_card_point(1))
+		await _wait(0.9)
+		await _shot("m4_hand")
+		if _wanted("m4_hand_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m4_hand_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.4)
+	if _wanted("m4_hack_note") or _wanted("m4_hack_note_zh"):
+		_mouse(screen.hand_card_point(M4_HAND.size() - 1))
+		await _wait(0.9)
+		await _shot("m4_hack_note")
+		if _wanted("m4_hack_note_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			_mouse(screen.size * 0.5 + Vector2(0, 40))
+			await _wait(0.3)
+			_mouse(screen.hand_card_point(M4_HAND.size() - 1))
+			await _wait(0.9)
+			await _shot("m4_hack_note_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.4)
+	if _wanted("m4_inspect") or _wanted("m4_inspect_zh"):
+		var hero_uid = -1
+		var blue = ["luna", "crystal_maiden", "ogre_magi", "venomancer", "meepo", "skywrath_mage"]
+		for lane in engine.state.lanes:
+			for unit in lane.units[0] + lane.units[1]:
+				if unit != null and unit.hero and str(unit.card) in blue and hero_uid == -1:
+					hero_uid = int(unit.uid)
+		if hero_uid == -1:
+			for unit in engine.state.lanes[lane_index].units[0]:
+				if unit != null and unit.hero:
+					hero_uid = int(unit.uid)
+		screen.inspect_unit(hero_uid)
+		await _wait(0.5)
+		await _shot("m4_inspect")
+		if _wanted("m4_inspect_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m4_inspect_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		screen.inspect.close()
+		await _wait(0.2)
+	if _wanted("m4_catalog") or _wanted("m4_catalog_zh") or _wanted("m4_catalog_classic"):
+		var catalog = app.open_catalog()
+		await _frames(3)
+		catalog.apply_filter("blue")
+		await _wait(0.8)
+		await _shot("m4_catalog")
+		if _wanted("m4_catalog_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			catalog.apply_filter("blue")
+			await _wait(0.6)
+			await _shot("m4_catalog_zh")
+			app.set_locale("en")
+			await _wait(0.3)
+		if _wanted("m4_catalog_classic"):
+			app.set_skin("classic")
+			await _wait(0.6)
+			catalog.apply_filter("blue")
+			await _wait(0.6)
+			await _shot("m4_catalog_classic")
+			app.set_skin("three_kingdoms")
+		app.close_dialogs()
+		await _wait(0.2)
+	if _wanted("m4_decks") or _wanted("m4_decks_zh"):
+		app.deck_selections = ["bronze_sparrow_terrace", "siege_of_xiapi"]
+		app.open_decks()
+		await _wait(0.8)
+		await _shot("m4_decks")
+		if _wanted("m4_decks_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			await _shot("m4_decks_zh")
 			app.set_locale("en")
 		app.close_dialogs()
 		await _wait(0.2)

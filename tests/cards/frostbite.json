@@ -1,0 +1,14 @@
+{
+"card": "frostbite",
+"source_id": 10277,
+"text": "Deal 2 damage to a unit and disarm it this round.",
+"covers": ["play", "damage", "disarm", "unit", "this_round"],
+"cases": [
+ {"name": "deal 2 damage to a unit and disarm it this round: it deals no combat damage", "clause": 0, "tags": ["play", "damage", "disarm", "unit", "this_round"], "board": {"lanes": {"0": {"p0": ["crystal_maiden#cm"], "p1": ["jmuy#j"]}}}, "do": [{"play": "frostbite", "target": "j"}, {"combat": true}], "expect": {"j.health": 4, "j.disarmed": true, "j.stunned": false, "cm.health": 5, "events": {"has": ["damage", "status"]}}},
+ {"name": "the disarm ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "frostbite", "target": "j"}, {"end_round": true}], "expect": {"j.disarmed": false, "j.health": 6}},
+ {"name": "armor reduces the damage (not piercing); the disarm still lands", "clause": 0, "tags": ["edge", "damage"], "board": {"lanes": {"0": {"p0": ["crystal_maiden#cm"], "p1": ["axe#a"]}}}, "do": [{"play": "frostbite", "target": "a"}], "expect": {"a.health": 10, "a.disarmed": true}},
+ {"name": "Damage Immunity stops the damage, not the disarm", "clause": 0, "tags": ["edge", "disarm"], "board": {"base": "@0", "give": {"j": ["damage_immunity"]}}, "do": [{"play": "frostbite", "target": "j"}], "expect": {"j.health": 8, "j.disarmed": true}},
+ {"name": "a unit with 2 Health dies (the disarm fizzles with it)", "clause": 0, "tags": ["edge", "damage"], "board": {"lanes": {"0": {"p0": ["crystal_maiden#cm"], "p1": ["melee_creep#m:hp=2"]}}}, "do": [{"play": "frostbite", "target": "m"}], "expect": {"m.in_play": false, "p0.gold": 1}},
+ {"name": "a unit in another lane cannot be chosen", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["crystal_maiden#cm"], "p1": ["jmuy#j"]}, "1": {"p0": [null], "p1": ["melee_creep#x"]}}}, "do": [], "expect_illegal": [{"play": "frostbite", "target": "x"}]},
+ {"name": "a disarmed hero can still use its active ability (disarm is not silence)", "clause": 0, "tags": ["edge", "disarm"], "board": "@0", "do": [{"play": "frostbite", "target": "j"}], "expect_legal": [{"ability": "j", "player": 1}]}
+]}

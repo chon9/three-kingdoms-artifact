@@ -1,0 +1,14 @@
+{
+"card": "better_late_than_never",
+"source_id": 10336,
+"text": "Summon a Melee Creep into any lane.",
+"covers": ["play", "summon", "lane_choice", "permanent"],
+"cases": [
+ {"name": "Summon a Melee Creep into another lane (Cross Lane): the creeps fight there", "clause": 0, "tags": ["play", "summon", "lane_choice", "permanent"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "better_late_than_never", "lane": 1}, {"combat": true}, {"combat": true}], "expect": {"units.1.0.melee_creep": 1, "units.0.0.melee_creep": 0, "tower.1.1.health": 38, "mana.0.0": 7, "events": {"has": ["summon"]}}},
+ {"name": "any lane: every lane is offered, the active lane included", "clause": 0, "tags": ["lane_choice"], "board": "@0", "do": [], "expect_legal": [{"play": "better_late_than_never", "lane": 0}, {"play": "better_late_than_never", "lane": 1}, {"play": "better_late_than_never", "lane": 2}]},
+ {"name": "into the active lane: the creeps fill an empty own position, then new positions", "clause": 0, "tags": ["edge", "summon", "lane_choice"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"play": "better_late_than_never", "lane": 0}], "expect": {"units.0.0.melee_creep": 1, "units.0.0": 2, "c.health": 4, "d.health": 4}},
+ {"name": "the creeps stay after the round ends (permanent) and go to the caster, never the opponent", "clause": 0, "tags": ["permanent"], "board": "@0", "do": [{"play": "better_late_than_never", "lane": 2}, {"end_round": true}], "expect": {"events": {"has": ["summon", "deployment_revealed"]}}, "gd": "res://tests/cards/extra/summons_persist.gd"},
+ {"name": "no blue hero in the active lane: it cannot be cast, even into the lane where the blue hero stands", "clause": 0, "tags": ["negative", "lane_choice"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#c"]}, "1": {"p0": ["jmuy#j"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "better_late_than_never", "lane": 1}, {"play": "better_late_than_never", "lane": 0}]},
+ {"name": "a silenced blue hero gives no colour: it cannot be cast", "clause": 0, "tags": ["negative"], "board": {"base": "@0", "give": {"j": ["silence"]}}, "do": [], "expect_illegal": [{"play": "better_late_than_never", "lane": 1}]},
+ {"name": "mana comes from the active lane: 2 is not enough", "clause": 0, "tags": ["negative", "lane_choice"], "board": {"base": "@0", "mana": {"0": [2, 10], "1": [10, 10], "2": [10, 10]}}, "do": [], "expect_illegal": [{"play": "better_late_than_never", "lane": 1}]}
+]}

@@ -1,0 +1,14 @@
+{
+"card": "prey_on_the_weak",
+"source_id": 10325,
+"text": "Summon a Hound of War for every damaged unit.",
+"covers": ["play", "summon", "repeat", "scaling_x", "count_damaged_units", "permanent"],
+"cases": [
+ {"name": "one Hound of War for every damaged unit of the active lane: allies, enemies, heroes and creeps", "clause": 0, "tags": ["play", "summon", "repeat", "scaling_x", "count_damaged_units", "permanent"], "board": {"lanes": {"0": {"p0": ["jmuy#j:hp=5", "melee_creep#a:hp=3", "melee_creep#b"], "p1": ["melee_creep#c:hp=1", "axe#x:hp=9", "melee_creep#d"]}}}, "do": [{"play": "prey_on_the_weak"}], "expect": {"units.0.0.hound_of_war": 4, "units.0.1.hound_of_war": 0, "mana.0.0": 6, "events": {"has": ["summon"]}}},
+ {"name": "no damaged unit: it can still be cast and summons nothing", "clause": 0, "tags": ["edge", "count_damaged_units"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "prey_on_the_weak"}], "expect": {"units.0.0.hound_of_war": 0, "mana.0.0": 6, "events": {"not": ["summon"]}}},
+ {"name": "rq_04_active_lane: damaged units in another lane do not count", "clause": 0, "tags": ["edge", "RQ-04", "count_damaged_units"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c:hp=1"]}, "1": {"p0": ["melee_creep#m:hp=1"], "p1": ["melee_creep#n:hp=1"]}}}, "do": [{"play": "prey_on_the_weak"}], "expect": {"units.0.0.hound_of_war": 1, "units.1.0.hound_of_war": 0}},
+ {"name": "a damaged tower is not a unit: no Hound for it", "clause": 0, "tags": ["edge", "count_damaged_units"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}, "towers": {"0": {"p1": {"health": 20}, "p0": {"health": 30}}}}, "do": [{"play": "prey_on_the_weak"}], "expect": {"units.0.0.hound_of_war": 0}},
+ {"name": "the Hounds (2/0/1) are permanent and fight: two Hounds over an empty lane hit the tower for 4", "clause": 0, "tags": ["summon", "permanent"], "board": {"lanes": {"0": {"p0": ["jmuy#j:hp=4"], "p1": ["melee_creep#c:hp=1", null]}}}, "do": [{"play": "prey_on_the_weak"}, {"combat": true}], "expect": {"units.0.0.hound_of_war": 2}},
+ {"name": "no blue hero in the active lane: it cannot be cast", "clause": 0, "tags": ["negative"], "board": {"lanes": {"0": {"p0": ["axe#a:hp=3"], "p1": ["melee_creep#c:hp=1"]}, "1": {"p0": ["jmuy#j"], "p1": []}}}, "do": [], "expect_illegal": [{"play": "prey_on_the_weak"}]},
+ {"name": "a stunned blue hero gives no colour: it cannot be cast", "clause": 0, "tags": ["negative"], "board": {"base": "@0", "give": {"j": ["stun"]}}, "do": [], "expect_illegal": [{"play": "prey_on_the_weak"}]}
+]}

@@ -4,7 +4,7 @@
 
 Three lanes. Alternating actions. Heroes that return to the fight. Guan Yu holds the left lane while Cao Cao schemes in the middle and Sun Quan's fleet presses on the right. The rules are Valve's Artifact Classic rules, implemented in Godot; the names, text and artwork are our own Three Kingdoms theme. An optional **Classic** card theme shows the original card names for players who know the old game.
 
-The game currently supports **144 card definitions**: 28 heroes (among them Guan Yu, Zhang Fei, Liu Bei, Zhuge Liang, Zhao Yun, Cao Cao, Sima Yi, Sun Quan, Sun Ce, Zhou Yu, Lü Bu and Jia Xu), their signature cards, every red (Shu) and green (Wu) creep and spell of Artifact Classic, equipment and consumables, in eight preset decks. Play against the AI, pass the device to a friend, or (experimentally) over Steam, and save deterministic replays. The full Classic catalog and some placement and trigger details are still unfinished. This project is not affiliated with or endorsed by Valve.
+The game currently supports **190 card definitions**: 38 heroes (among them Guan Yu, Zhang Fei, Liu Bei, Zhuge Liang, Zhao Yun, Cao Cao, Sima Yi, Guo Jia, Zhang Liao, Zhen Ji, Sun Quan, Sun Ce, Zhou Yu, Lü Bu and Jia Xu), their signature cards, every red (Shu), green (Wu) and blue (Wei) creep and spell of Artifact Classic, equipment and consumables, in eleven preset decks. Play against the AI, pass the device to a friend, or (experimentally) over Steam, and save deterministic replays. The full Classic catalog and some placement and trigger details are still unfinished. This project is not affiliated with or endorsed by Valve.
 
 ## Run
 
@@ -80,10 +80,10 @@ Fonts, textures, icons, particles, sounds and the artwork's provenance are credi
 - UI-independent command validation and seeded match state.
 - Three sequential lanes, separate mana, color requirements, passing and initiative.
 - Simultaneous combat, per-hit armor, structure damage, kill gold, hero reserves and respawn delays.
-- 144 Classic definitions: 28 heroes and 116 spells, creeps, improvements, equipment, consumables and tokens (the 49 of the first release plus all 92 red and green cards and three heroes' signature improvements). Original training fixtures remain available only for engine regression tests.
+- 190 Classic definitions: 38 heroes and 152 spells, creeps, improvements, equipment, consumables and tokens (the 49 of the first release plus all 92 red and green cards, all 44 blue cards and five heroes' signature improvements). Original training fixtures remain available only for engine regression tests.
 - Neighbor armor and attack, hero and tower damage bonuses, draw and cooldown abilities, permanent modifications, battles, combat redirection, tower damage, temporary mana, creep summoning, global attack, post-spell piercing damage, rapid deployment, growth, siege, silence, condemnation, random discard and cross-lane damage.
 - Healing, card draw and return-to-Fountain consumables, including Fountain healing and temporary-effect cleanup.
-- Eight validated deck presets (one per colour pair with red or green, besides the original three), independent deck choices for each player, nine-card item decks, Secret Shop / item / consumable shopping, and a gallery of every supported card with colour (faction) filters.
+- Eleven validated deck presets (the original three, one per colour pair with red or green, and three built on the blue cards: Blue, Blue/Black and Blue/Red), independent deck choices for each player, nine-card item decks, Secret Shop / item / consumable shopping, and a gallery of every supported card with colour (faction) filters.
 - A one-ply heuristic opponent that uses public board information and its own hand, without reading enemy cards or future random rolls.
 - A Classic-style match screen: sliding lane camera and overview, combat arrows and damage preview, drag-to-play with target arrows, the initiative coin, the shop chest, drag-to-lane deployment, inspection, event animations (casts, combat lunges and damage numbers, deaths, tower falls, lane changes), a match log and a game-over screen.
 - Local play and reproducible command-journal replay restoration.
@@ -121,7 +121,7 @@ godot --path . -s res://tests/capture_preview.gd -- --size=1280x720 --only=lane_
 ## Source layout
 
 ```text
-data/classic_cards.json           Supported catalog and eight deck presets (rules data)
+data/classic_cards.json           Supported catalog and eleven deck presets (rules data)
 data/locale/cards.json            Card names and text per theme and language
 i18n/ui.csv                       Interface text (English, Simplified Chinese)
 data/training_cards.json          Original engine-test fixtures

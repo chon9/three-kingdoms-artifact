@@ -18,7 +18,8 @@ const GLOSSARY_PATH = "res://data/locale/glossary.json"
 const FALLBACK_LOCALE = "en"
 const NO_RULES = {"abilities": [], "auras": [], "events": {}, "grant_events": {}, "grants": [], "active": -1,
 	"host": {}, "play": {}, "enter": [], "keywords": {}, "params": {}, "errors": [], "status": "",
-	"static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0}, "ability_static": {}}
+	"static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0, "hack": 0, "mana": false},
+	"ability_static": {}}
 static var _locale_data: Dictionary = {}
 static var _glossary: Dictionary = {}
 static var _raw_definitions: Dictionary = {}
@@ -324,7 +325,10 @@ func playable(card_id: String) -> bool:
 func listeners(event: String) -> Array:
 	return listening.get(event, {}).keys()
 
-## The bot's static values of a card: draw, initiative, random, bias, lock (spec §9.2).
+## The bot's static values of a card (spec §9.2): draw, initiative, random,
+## bias, lock, hack (opponent hand cards a play hacks) with hack_damage (the
+## tower damage each hacked card deals its player), and mana (it restores the
+## caster's tower).
 func static_value(card_id: String) -> Dictionary:
 	return rules(card_id).get("static", NO_RULES.static)
 

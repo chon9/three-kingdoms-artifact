@@ -1,0 +1,16 @@
+{
+"card": "astral_imprisonment",
+"source_id": 10267,
+"text": "Stun a unit this round. Give that unit Damage Immunity this round.",
+"covers": ["play", "damage_immunity", "stun", "unit", "this_round"],
+"cases": [
+ {"name": "stun a unit this round: it deals no combat damage", "clause": 0, "tags": ["play", "stun", "unit", "this_round"], "board": {"lanes": {"0": {"p0": ["outworld_devourer#od"], "p1": ["axe#a"]}}}, "do": [{"play": "astral_imprisonment", "target": "a"}, {"combat": true}], "expect": {"a.stunned": true, "a.silenced": true, "a.disarmed": true, "od.health": 7, "events": {"has": ["status"]}}},
+ {"name": "the stun ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "astral_imprisonment", "target": "a"}, {"end_round": true}], "expect": {"a.stunned": false}},
+ {"name": "a stunned colour hero gives no colour: the caster's only blue hero cannot cast blue after imprisoning itself", "clause": 0, "tags": ["edge", "stun"], "board": "@0", "do": [{"play": "astral_imprisonment", "target": "od"}, {"pass": 1}], "expect": {"od.stunned": true}, "expect_illegal": [{"play": "lightning_strike"}]},
+ {"name": "a stunned hero cannot use its active ability", "clause": 0, "tags": ["negative", "stun"], "board": {"lanes": {"0": {"p0": ["outworld_devourer#od"], "p1": ["jmuy#j"]}}}, "do": [{"play": "astral_imprisonment", "target": "j"}], "expect_illegal": [{"ability": "j", "player": 1}]},
+ {"name": "a unit in another lane cannot be chosen", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["outworld_devourer#od"], "p1": ["axe#a"]}, "1": {"p0": [null], "p1": ["melee_creep#x"]}}}, "do": [], "expect_illegal": [{"play": "astral_imprisonment", "target": "x"}]},
+ {"name": "give that unit Damage Immunity this round: combat and spells deal it no damage", "clause": 1, "tags": ["play", "damage_immunity", "unit", "this_round"], "board": {"lanes": {"0": {"p0": ["outworld_devourer#od", "jmuy#j"], "p1": ["axe#a", "melee_creep#m"]}}}, "do": [{"play": "astral_imprisonment", "target": "a"}, {"pass": 1}, {"play": "thunderstorm"}, {"combat": true}], "expect": {"a.kw.damage_immunity": 1, "a.health": 10, "m.in_play": false}},
+ {"name": "Damage Immunity ends with the round", "clause": 1, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "astral_imprisonment", "target": "a"}, {"end_round": true}], "expect": {"a.kw.damage_immunity": 0}},
+ {"name": "imprison your own hero to save it: immune, but it cannot attack", "clause": 1, "tags": ["edge", "damage_immunity"], "board": {"lanes": {"0": {"p0": ["outworld_devourer#od:hp=3"], "p1": ["axe#a"]}}}, "do": [{"play": "astral_imprisonment", "target": "od"}, {"combat": true}], "expect": {"od.in_play": true, "od.health": 3, "a.health": 10}},
+ {"name": "Purge by the opponent ends both the stun and the immunity", "clause": 1, "tags": ["negative", "damage_immunity", "stun"], "board": {"lanes": {"0": {"p0": ["outworld_devourer#od", null], "p1": ["axe#a", "drow#d"]}}}, "do": [{"play": "astral_imprisonment", "target": "a"}, {"play": "cleansing_rite", "target": "a", "player": 1}], "expect": {"a.stunned": false, "a.kw.damage_immunity": 0}}
+]}

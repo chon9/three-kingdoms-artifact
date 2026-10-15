@@ -1,0 +1,15 @@
+{
+"card": "barracks",
+"source_id": 10147,
+"text": "Summon a Melee Creep into this lane each deployment phase.",
+"covers": ["deployment_phase", "summon", "permanent"],
+"cases": [
+ {"name": "at the deployment phase Barracks summons a Melee Creep into its own lane", "clause": 0, "tags": ["deployment_phase", "summon", "permanent"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#e"]}}, "improvements": {"1": {"p0": ["barracks#b"]}}}, "do": [{"end_round": true}], "expect": {"b.in_play": true, "events": {"has": ["summon"]}}, "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "played (Cross Lane) from the active lane into lane 2: nothing until the deployment phase, then a creep in lane 2", "clause": 0, "tags": ["summon", "deployment_phase"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#e"]}}}, "do": [{"play": "barracks", "lane": 2}], "expect": {"mana.0.0": 5, "units.2.0": 0, "events": {"has": ["improvement"], "not": ["summon"]}}},
+ {"name": "played into lane 2, then the deployment phase summons into lane 2", "clause": 0, "tags": ["summon", "deployment_phase"], "board": "@1", "do": [{"play": "barracks", "lane": 2}, {"end_round": true}], "expect": {"events": {"has": ["summon"]}}, "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "each deployment phase: two phases, two creeps", "clause": 0, "tags": ["permanent", "deployment_phase"], "board": "@0", "do": [{"end_round": true}, {"end_round": true}], "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "two Barracks in one lane summon two creeps", "clause": 0, "tags": ["edge", "summon"], "board": {"base": "@0", "improvements": {"1": {"p0": ["barracks#b", "barracks#c"]}}}, "do": [{"end_round": true}], "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "the opponent's Barracks summons for the opponent", "clause": 0, "tags": ["summon"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#e"]}}, "improvements": {"0": {"p1": ["barracks#b"]}}}, "do": [{"end_round": true}], "expect": {"events": {"has": ["summon"]}}, "gd": "res://tests/cards/extra/deployment_summons.gd"},
+ {"name": "a Barracks condemned before the deployment phase summons nothing", "clause": 0, "tags": ["negative"], "board": {"active_player": 1, "initiative": 1, "lanes": {"0": {"p0": ["jmuy#j"], "p1": ["axe#a"]}}, "improvements": {"0": {"p0": ["barracks#b"]}}}, "do": [{"play": "smash_their_defenses", "player": 1, "target": "b"}, {"end_round": true}], "expect": {"b.in_play": false, "events": {"not": ["summon"]}}},
+ {"name": "no blue hero in the active lane, or too little mana: it cannot be played", "clause": 0, "tags": ["negative"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#e"]}, "1": {"p0": ["jmuy#j"], "p1": []}}, "mana": {"0": [10, 10], "1": [4, 4], "2": [10, 10]}}, "do": [], "expect_illegal": [{"play": "barracks", "lane": 1}, {"play": "barracks", "lane": 0}]}
+]}

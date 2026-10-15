@@ -1,0 +1,16 @@
+{
+"card": "lost_in_time",
+"source_id": 10298,
+"text": "Give three random cards in opponent's hand +3 Lock.",
+"covers": ["play", "lock", "opponent_hand_random"],
+"cases": [
+ {"name": "give three cards in the opponent's hand +3 Lock (a three-card hand: all three)", "clause": 0, "tags": ["play", "lock", "opponent_hand_random"], "board": {"lanes": {"0": {"p0": ["crystal_maiden#cm"], "p1": ["jmuy#j"]}}, "hand": {"p1": ["thundergods_wrath", "annihilation", "tower_barrage"]}}, "do": [{"play": "lost_in_time"}], "expect": {"p1.hand_state.0.lock": 3, "p1.hand_state.1.lock": 3, "p1.hand_state.2.lock": 3, "p1.hand": 3, "events": {"has": ["lock"]}}},
+ {"name": "the picks are random: each card of a six-card hand is locked half of the time", "clause": 0, "tags": ["opponent_hand_random", "lock"], "seeds": {"from": 1, "count": 200}, "board": {"base": "@0", "hand": {"p1": ["thundergods_wrath", "annihilation", "tower_barrage", "foresight", "slay", "hip_fire"]}}, "do": [{"play": "lost_in_time"}], "expect_rate": {"p1.hand_state.0.lock": [0.38, 0.62], "p1.hand_state.5.lock": [0.38, 0.62]}},
+ {"name": "a fixed seed locks the same three cards on every run", "clause": 0, "tags": ["edge", "opponent_hand_random"], "seed": 7, "board": {"base": "@0", "hand": {"p1": ["thundergods_wrath", "annihilation", "tower_barrage", "foresight", "slay", "hip_fire"]}}, "do": [{"play": "lost_in_time"}], "expect": {"p1.hand": 6, "events": {"has": ["lock"]}}},
+ {"name": "rq_14_distinct_picks: a two-card hand gets +3 Lock on each card once (fewer picks, no repeats)", "clause": 0, "tags": ["edge", "RQ-14", "lock"], "board": {"base": "@0", "hand": {"p1": ["thundergods_wrath", "annihilation"]}}, "do": [{"play": "lost_in_time"}], "expect": {"p1.hand_state.0.lock": 3, "p1.hand_state.1.lock": 3}},
+ {"name": "rq_14_lock_stacks: Lock adds to a card's existing Lock", "clause": 0, "tags": ["edge", "RQ-14", "lock"], "board": {"base": "@0", "hand_state": {"p1": [{"lock": 2}, {}, {}]}}, "do": [{"play": "lost_in_time"}], "expect": {"p1.hand_state.0.lock": 5, "p1.hand_state.1.lock": 3}},
+ {"name": "rq_14_lock_decay: a locked card cannot be played; it loses one Lock per round", "clause": 0, "tags": ["negative", "RQ-14", "lock"], "board": "@0", "do": [{"play": "lost_in_time"}], "expect_illegal": [{"play": "tower_barrage", "player": 1}], "expect_legal": [{"play": "foresight", "player": 1}]},
+ {"name": "after two rounds the Lock is 1: still locked", "clause": 0, "tags": ["edge", "RQ-14", "lock"], "board": "@0", "do": [{"play": "lost_in_time"}, {"end_round": true}, {"end_round": true}], "expect": {"p1.hand_state.2.lock": 1}},
+ {"name": "an empty opponent hand: nothing is locked", "clause": 0, "tags": ["negative", "opponent_hand_random"], "board": {"lanes": {"0": {"p0": ["crystal_maiden#cm"], "p1": ["jmuy#j"]}}}, "do": [{"play": "lost_in_time"}], "expect": {"p1.hand": 0, "events": {"not": ["lock"]}}},
+ {"name": "hidden information: the caster learns how many cards were locked, never which", "clause": 0, "tags": ["edge", "lock"], "board": "@0", "do": [{"play": "lost_in_time"}], "expect_private": {"viewer": 0, "absent": ["thundergods_wrath", "annihilation", "tower_barrage", "\"idx\""]}}
+]}

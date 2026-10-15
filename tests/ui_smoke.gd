@@ -383,6 +383,52 @@ func _run() -> void:
 		return
 	_engine()._remove_from_lane(seer)
 	_engine()._remove_from_lane(seer_ally)
+	# --- Friendly Fire: an unordered pair, either unit picked first (M4) -----------
+	var fodder: Array = []
+	for count in range(3):
+		fodder.append(Zones.summon(_engine(), "melee_creep", 1, 0))
+	_focus_player_zero(["friendly_fire"])
+	await _settle()
+	fodder.sort_custom(func(a, b): return _engine().slot_of(a) < _engine().slot_of(b))
+	var rightmost: Dictionary = fodder.back()
+	var leftmost: Dictionary = fodder.front()
+	if not _require(screen.select_card(0) and screen.current_step_type() == "unit", "Friendly Fire asks for an enemy"):
+		return
+	if not _require(screen.target_unit(int(rightmost.uid)) and screen.current_step_type() == "unit",
+			"The rightmost enemy can be picked first (the pair is unordered), then Friendly Fire asks for the second enemy"):
+		return
+	screen.target_unit(int(leftmost.uid))
+	await _settle()
+	# The command sent is the canonical pair: the left enemy battles the right one.
+	var battles: Array = []
+	for event in _engine().state.events:
+		if str(event.get("k", "")) == "battle" and int(event.get("a", -1)) == int(leftmost.uid) and event.get("bs", []).has(int(rightmost.uid)):
+			battles.append(event)
+	if not _require(_engine().state.players[0].hand.is_empty() and int(rightmost.health) < 4 and int(leftmost.health) < 4 and not battles.is_empty(),
+			"The two picked enemies battle each other (health %d and %d)" % [int(rightmost.health), int(leftmost.health)]):
+		return
+	for unit in fodder:
+		_engine()._remove_from_lane(unit)
+	# M4: a hacked card at the right of the fan shows its (long) note beside
+	# it, clear of the initiative coin, also in Chinese (a narrower note).
+	var locale_before = Settings.locale
+	app.set_locale("zh_CN")
+	var hacked_hand = ["foresight", "foresight", "foresight", "foresight", "foresight", "foresight", "lightning_strike"]
+	_act_in_lane_zero(hacked_hand, [{}, {}, {}, {}, {}, {}, {"hacks": ["self_sabotage#0"]}])
+	await _settle()
+	AnimationQueue.instant = false
+	_mouse(screen.hand_card_point(hacked_hand.size() - 1))
+	await create_timer(0.9).timeout
+	var shown_note = screen.hand.shown_note()
+	var note_box: Rect2 = screen.hand._note.get_global_rect()
+	var coin_box: Rect2 = screen.coin.get_global_rect()
+	AnimationQueue.instant = true
+	_mouse(screen.lane_point(0))
+	app.set_locale(locale_before)
+	await _settle()
+	if not _require(shown_note.find(EventText.t("EV_CHANGE_GRANT", {"text": Library.loc("self_sabotage", "grant_0")})) != -1 and not note_box.intersects(coin_box),
+			"A long hand note stays clear of the initiative coin (%s vs %s)" % [note_box, coin_box]):
+		return
 	# --- Edge hover: only cross-lane cards switch lanes, once per visit -----------
 	_focus_player_zero(["no_accident"])
 	await _settle()
@@ -485,7 +531,7 @@ func _run() -> void:
 		app.close_dialogs()
 		await process_frame
 	# The catalog lists every definition of the pack (M3: the red and green
-	# cards too), heroes first, and filters by colour (faction).
+	# cards too; M4: the blue ones), heroes first, and filters by colour (faction).
 	var catalog = app.open_catalog()
 	await process_frame
 	var pack = Library.new()
@@ -493,11 +539,17 @@ func _run() -> void:
 	catalog.apply_filter("green")
 	var greens = catalog.cards.filter(func(card): return card.visible).size()
 	var green_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
+	catalog.apply_filter("blue")
+	var blue_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
 	catalog.apply_filter("all")
-	if not _require(total == pack.heroes.size() + pack.cards.size() and total >= 144 and str(catalog.cards[0].definition.get("kind", "")) == "hero"
+	if not _require(total == pack.heroes.size() + pack.cards.size() and total >= 190 and str(catalog.cards[0].definition.get("kind", "")) == "hero"
 			and greens > 0 and greens < total and "treant_protector" in green_ids and "viper_strike" in green_ids and "duel" not in green_ids
 			and catalog.cards.all(func(card): return card.visible),
 			"The catalog lists every card (%d) and filters by colour (%d green)" % [total, greens]):
+		return
+	if not _require(["luna", "meepo", "eclipse", "barracks", "plague_ward", "self_sabotage"].all(func(card_id): return card_id in blue_ids)
+			and "hound_of_war" not in blue_ids and "duel" not in blue_ids,
+			"The blue (Wei) filter shows the M4 cards (%d blue)" % blue_ids.size()):
 		return
 	app.close_dialogs()
 	await process_frame
@@ -643,7 +695,7 @@ func _run() -> void:
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter)." % checks)
 	app.queue_free()
 	await process_frame
 	_restore_settings()
@@ -858,6 +910,11 @@ func _check_m2_review() -> bool:
 		return false
 	if not _require(EventText.t("BADGE_LOCK_ONE") != "BADGE_LOCK_ONE" and UiKit.t_n("BADGE_CHARGES", 2) == EventText.t("BADGE_CHARGES", {"n": 2}),
 			"Singular and plural mark strings exist"):
+		return false
+	# M4: a hacked card's note quotes the text the hack added (the holder's own information).
+	var hack_text = Library.loc("fx_hack_spell", "grant_0")
+	if not _require(not hack_text.is_empty() and screen.hand.note_text(2).find(EventText.t("EV_CHANGE_GRANT", {"text": hack_text})) != -1,
+			"A hacked card's note shows the added text (%s)" % screen.hand.note_text(2)):
 		return false
 	AnimationQueue.instant = false
 	_mouse(screen.hand_card_point(2))

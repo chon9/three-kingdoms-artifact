@@ -32,6 +32,12 @@ const IMPROVEMENT_CAP = 16
 ## resolving from its look-back snapshot) reaches the hero in the Fountain
 ## (false: it fizzles like every other op on a unit that left play).
 const MODIFY_REACHES_DEAD_HEROES = true
+## RQ-29: a summoned hero (Divided We Stand's Meepo) joins its owner's roster,
+## so when it dies it goes to the Fountain and is redeployed later, as the
+## glossary says of every hero ("returns to the Fountain to be redeployed
+## later"; nothing exempts summoned ones). false: it stays outside the roster
+## and leaves the game when it dies (the default before M4).
+const SUMMONED_HEROES_JOIN_ROSTER = true
 const ZONE_RANK = {"unit": 0, "item": 1, "improvement": 2, "deed": 3, "snapshot": 0}
 
 # --- Randomness (D1: the only functions that touch e.rng) ---------------------------
@@ -502,7 +508,8 @@ static func _snapshot(e, units: Array) -> Array:
 	return snapshots
 
 ## Removes the dying (spec §4.3): bounty to the opponent, attackers released,
-## heroes to the Fountain, creeps and summoned heroes out of the game.
+## roster heroes (summoned ones included, RQ-29) to the Fountain, creeps out
+## of the game.
 static func _remove(e, dying: Dictionary, snapshots: Array) -> void:
 	var lanes: Dictionary = {}
 	for unit in dying.units:

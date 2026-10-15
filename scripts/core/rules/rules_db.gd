@@ -31,7 +31,7 @@ static func compile(card: Dictionary) -> Dictionary:
 		"status": str(normalized.get("status", "")), "token": bool(normalized.get("token", false)),
 		"rq": normalized.get("rq", []), "params": {}, "keywords": {}, "play": {}, "enter": [],
 		"abilities": [], "grants": [], "host": {}, "events": {}, "grant_events": {}, "active": -1,
-		"auras": [], "static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0},
+		"auras": [], "static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0, "hack": 0, "mana": false},
 		"ability_static": {}, "uses": {}}
 	for key in normalized:
 		var value = normalized[key]
@@ -119,6 +119,8 @@ static func compile(card: Dictionary) -> Dictionary:
 				else:
 					out.active = index
 				out.ability_static[ability_id] = _static_value(compiled.get("ops", []))
+				# Read on the source ops: compiled selectors carry every key ("pick": null).
+				out.ability_static[ability_id]["random"] = _has_random(ability.get("ops", []))
 	var grants = normalized.get("grants", [])
 	if not grants is Array:
 		_err(report, id, "grants", "grants must be a list")
@@ -141,6 +143,7 @@ static func compile(card: Dictionary) -> Dictionary:
 		out.static = _static_value(out.play.get("ops", []))
 		out.static["initiative"] = bool(out.play.get("initiative", false))
 		out.static["polarity"] = _polarity(out.play.get("ops", []), out.grants)
+		out.static["hack_damage"] = _hack_damage(out.play.get("ops", []), out.grants)
 	out.static["random"] = _has_random(normalized)
 	var ai = normalized.get("ai", {})
 	if ai is Dictionary and ai.has("bias"):
@@ -851,7 +854,12 @@ static func _sel(value: Dictionary, path: String, scope: Dictionary, shorthand: 
 			_e(scope, path + ".kind", "kind %s is not valid for %s" % [str(source.kind), kind])
 		out.kind = str(source.kind)
 	if source.has("card"):
+		# Always a list of ids: Select tests membership with `in`, which on a
+		# String would be a substring test ("ecl" in "eclipse").
 		out.card = source.card if source.card is Array else [source.card]
+		for card_id in out.card:
+			if not card_id is String or str(card_id).is_empty():
+				_e(scope, path + ".card", "card is a card id or a list of card ids")
 	if source.has("color"):
 		if str(source.color) not in Vocab.COLORS:
 			_e(scope, path + ".color", "unknown color %s" % str(source.color))
@@ -1118,21 +1126,61 @@ static func _cond(value, path: String, scope: Dictionary) -> Dictionary:
 # --- Static analysis ------------------------------------------------------------
 
 ## The bot's static values of an op list (spec §9.2): constant draws for
-## "you", and how many opponent hand cards its locks hold back (the bot cannot
-## see them: its simulation has no opponent hand).
+## "you"; how many opponent hand cards its locks hold back and how many its
+## hacks change (the bot cannot see them: its simulation has no opponent
+## hand); whether it restores its own tower's mana (the evaluation has no
+## mana term, so the bot prices that from the simulated tower).
 static func _static_value(ops: Array) -> Dictionary:
 	var draw = 0
 	var locks = 0
+	var hacks = 0
+	var mana = false
 	for op in ops:
 		if str(op.get("op", "")) == "draw" and str(op.get("player", "you")) == "you" and op.get("n") is int:
 			draw += int(op.n)
-		elif str(op.get("op", "")) == "lock" and op.get("cards") is Dictionary:
-			# Compiled card selector: {"s": "cards", "player", "zone", "pick": n}.
-			var cards: Dictionary = op.cards
-			if str(cards.get("s", "")) == "cards" and str(cards.get("player", "")) == "opponent" \
-					and "hand" in cards.get("zone", []) and cards.get("pick") is int:
-				locks += int(cards.pick)
-	return {"draw": draw, "initiative": false, "random": false, "bias": 0.0, "lock": locks}
+		elif str(op.get("op", "")) == "lock" and _opponent_hand_pick(op.get("cards")) > 0:
+			locks += _opponent_hand_pick(op.cards)
+		elif str(op.get("op", "")) == "modify" and int(op.get("grant", -1)) >= 0 and _opponent_hand_pick(op.get("to")) > 0:
+			hacks += _opponent_hand_pick(op.to)
+		elif str(op.get("op", "")) == "mana" and op.has("restore") and _side_of(op.get("to")) == 1:
+			mana = true
+	return {"draw": draw, "initiative": false, "random": false, "bias": 0.0, "lock": locks, "hack": hacks, "mana": mana}
+
+## How many random opponent hand cards a compiled card selector picks
+## ({"s": "cards", "player": "opponent", "zone": [hand...], "pick": n}), else 0.
+static func _opponent_hand_pick(cards) -> int:
+	if not cards is Dictionary:
+		return 0
+	if str(cards.get("s", "")) == "cards" and str(cards.get("player", "")) == "opponent" \
+			and "hand" in cards.get("zone", []) and cards.get("pick") is int:
+		return int(cards.pick)
+	return 0
+
+## The tower damage one hacked card deals to the player who plays it: the
+## constant tower_damage of the hack grants a play's ops attach to opponent
+## hand cards, on the bearer's own ("ally") towers (Self Sabotage).
+static func _hack_damage(ops: Array, grants: Array) -> int:
+	var total = 0
+	for op in ops:
+		if str(op.get("op", "")) != "modify" or _opponent_hand_pick(op.get("to")) <= 0:
+			continue
+		var index = int(op.get("grant", -1))
+		if index < 0 or index >= grants.size() or not grants[index] is Dictionary:
+			continue
+		total += _own_tower_damage(grants[index].get("ops", []))
+	return total
+
+static func _own_tower_damage(ops: Array) -> int:
+	var total = 0
+	for op in ops:
+		if not op is Dictionary:
+			continue
+		if str(op.get("op", "")) == "tower_damage" and op.get("amount") is int and _side_of(op.get("to")) == 1:
+			total += int(op.amount)
+		for nested in ["ops", "then", "else"]:
+			if op.get(nested) is Array:
+				total += _own_tower_damage(op[nested])
+	return total
 
 ## Compile-time polarity of each choice key of an op list (spec §9.4): +1
 ## when the ops harm the chosen unit (damage, condemn, a battle against it,

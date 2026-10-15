@@ -24,15 +24,21 @@ extends SceneTree
 ## "@n" reuses case n's board and {"base": "@n", ...} merges into it.
 ## Steps ("do"): {"play": card, "target": label, "destination": label |
 ## "tower", "lane": n, "position": n, "player": p, "as": label (names the
-## unit a creep play puts into the lane)}, {"ability": label |
-## "label.weapon"}, {"pass": p}, {"combat": true}, {"end_round": true,
-## "deploy": {hero label: lane}}, {"kill": [labels]}, {"draw": {"p1": n}}.
+## unit the play puts into a lane: the creep it plays, else the first unit
+## it summons)}, {"ability": label | "label.weapon"}, {"pass": p},
+## {"combat": true}, {"end_round": true, "deploy": {hero label: lane}},
+## {"kill": [labels]}, {"draw": {"p1": n}}; a deployment phase step by step:
+## {"begin_deployment": true}, {"plan": {hero label: lane}} (real, validated
+## deploy commands), {"reveal": true}.
 ## Expectations ("expect"): "label.<field>" (attack, armor, health,
 ## max_health, kw.<k>, stunned, silenced, disarmed, in_play, lane, slot,
 ## owner, cooldown, charges, items, ready_round, combat_target, arrow), "tower.<lane>.<p>.health" (and
 ## .ancient), "mana.<lane>.<p>", "max_mana.<lane>.<p>", "p<i>.gold",
-## "p<i>.hand" (ids, or a count), "p<i>.hand_state.<i>.lock", "initiative",
-## "lane", "winner", "units.<lane>.<p>[.<card>]" (a count of units),
+## "p<i>.hand" (ids, or a count), "p<i>.hand.<i>" (the card id at that
+## index, "" past the end), "p<i>.hand.<card>" (copies of that card in hand),
+## "p<i>.hand_state.<i>.lock" (null past the end),
+## "initiative", "lane", "winner", "units.<lane>.<p>[.<card>]" (a count of
+## units), "fountain.<p>[.<card>]" (a count of roster heroes out of the lanes),
 ## "events": {"has": [keys], "not": [keys]};
 ## "expect_legal" / "expect_illegal" (commands in step form), "expect_rate"
 ## ({key: [low, high]} over "seeds": {"from", "count"}), "expect_private"
@@ -164,6 +170,8 @@ func _truthy(value) -> bool:
 		return value
 	if value is int or value is float:
 		return value != 0
+	if value is Array or value is Dictionary or value is String:
+		return not value.is_empty()
 	return value != null
 
 # --- Boards ------------------------------------------------------------------------------
@@ -352,10 +360,14 @@ func _step(engine, labels: Dictionary, step: Dictionary) -> String:
 			before[int(unit.uid)] = true
 		var problem = _apply(engine, int(step.get("player", engine.state.active_player)), command)
 		if problem == "" and step.has("as"):
-			# "as": "<label>" names the unit the play put into a lane (a creep).
-			var placed: Array = Stats.all_units(engine).filter(func(unit): return not before.has(int(unit.uid)) and str(unit.card) == str(step.play) and int(unit.get("lane", -1)) >= 0)
+			# "as": "<label>" names the unit the play put into a lane: the
+			# creep it plays, else the first unit it summoned (canonical order).
+			var placed: Array = Stats.all_units(engine).filter(func(unit): return not before.has(int(unit.uid)) and int(unit.get("lane", -1)) >= 0)
+			var own: Array = placed.filter(func(unit): return str(unit.card) == str(step.play))
+			if not own.is_empty():
+				placed = own
 			if placed.is_empty():
-				return "as: the play put no %s into a lane" % step.play
+				return "as: the play put no unit into a lane"
 			labels[str(step.as)] = placed[0]
 		return problem
 	if step.has("ability"):
@@ -379,6 +391,34 @@ func _step(engine, labels: Dictionary, step: Dictionary) -> String:
 			engine.state.players[int(hero.owner)].plans[str(hero.uid)] = int(step.deploy[name])
 		for owner in engine.state.players:
 			owner.finished = true
+		engine._reveal_deployment()
+		engine._settle_transient()
+		return ""
+	if step.has("begin_deployment"):
+		# The round ends and the deployment phase begins (lane creeps
+		# published); "plan" then deploys heroes with real commands and
+		# "reveal" ends the phase, so a case can look in between.
+		engine._reset_transient()
+		engine._begin_deployment()
+		engine._settle_transient()
+		return ""
+	if step.has("plan"):
+		if str(engine.state.phase) != "deployment":
+			return "plan: not in a deployment phase"
+		for name in step.plan:
+			if not labels.has(name) or not labels[name].has("uid"):
+				return "plan: unknown hero label %s" % name
+			var hero: Dictionary = labels[name]
+			var problem = _apply(engine, int(hero.owner), {"type": "deploy", "unit": int(hero.uid), "lane": int(step.plan[name])})
+			if problem != "":
+				return problem
+		return ""
+	if step.has("reveal"):
+		if str(engine.state.phase) != "deployment":
+			return "reveal: not in a deployment phase"
+		for owner in engine.state.players:
+			owner.finished = true
+		engine._reset_transient()
 		engine._reveal_deployment()
 		engine._settle_transient()
 		return ""
@@ -556,15 +596,33 @@ func _read(engine, labels: Dictionary, key: String):
 				if unit != null and (parts.size() < 4 or str(unit.card) == parts[3]):
 					count += 1
 			return count
+		"fountain":
+			# "fountain.<p>[.<card>]" counts a side's roster heroes out of the lanes.
+			var count = 0
+			for hero in engine.state.players[int(parts[1])].roster:
+				if int(hero.get("lane", -1)) < 0 and (parts.size() < 3 or str(hero.card) == parts[2]):
+					count += 1
+			return count
 	if parts[0].begins_with("p") and parts[0].substr(1).is_valid_int() and parts.size() > 1:
 		var owner: Dictionary = engine.state.players[int(parts[0].substr(1))]
 		match parts[1]:
 			"gold":
 				return int(owner.gold)
 			"hand":
+				if parts.size() > 2 and parts[2].is_valid_int():
+					# "p<i>.hand.<index>": the card id there ("" past the end).
+					var at = int(parts[2])
+					return str(owner.hand[at]) if at >= 0 and at < owner.hand.size() else ""
+				if parts.size() > 2:
+					# "p<i>.hand.<card>": how many copies of that card are in hand.
+					return owner.hand.count(parts[2])
 				return owner.hand.duplicate()
 			"hand_state":
-				return owner.hand_state[int(parts[2])].get(parts[3], 0)
+				var index = int(parts[2]) if parts.size() > 2 else -1
+				var states: Array = owner.get("hand_state", [])
+				if index < 0 or index >= states.size() or parts.size() < 4:
+					return null
+				return states[index].get(parts[3], 0)
 			"deck":
 				return owner.deck.size()
 	if not labels.has(parts[0]):
@@ -614,6 +672,8 @@ func _read(engine, labels: Dictionary, key: String):
 	return "unknown field %s" % field
 
 func _same(have, want) -> bool:
+	if have == null or want == null:
+		return have == null and want == null
 	if want is Array and have is int:
 		return false
 	if want is Array and have is Array:

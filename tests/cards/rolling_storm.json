@@ -1,0 +1,13 @@
+{
+"card": "rolling_storm",
+"source_id": 10198,
+"text": "Deal 2 damage to all towers in all lanes.",
+"covers": ["play", "damage", "tower_damage", "all_towers"],
+"cases": [
+ {"name": "all six towers take 2 damage", "clause": 0, "tags": ["play", "damage", "tower_damage", "all_towers"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}}}, "do": [{"play": "rolling_storm"}], "expect": {"tower.0.0.health": 38, "tower.0.1.health": 38, "tower.1.0.health": 38, "tower.1.1.health": 38, "tower.2.0.health": 38, "tower.2.1.health": 38, "a.health": 4, "j.health": 8, "events": {"has": ["tower_damage"]}}},
+ {"name": "rq_46_a_lane_ancient_is_a_tower_and_takes_2", "clause": 0, "tags": ["edge", "all_towers", "RQ-46"], "board": {"base": "@0", "towers": {"1": {"p1": {"health": 80, "ancient": true}}}}, "do": [{"play": "rolling_storm"}], "expect": {"tower.1.1.health": 78, "tower.0.1.health": 38, "winner": -1}},
+ {"name": "tower armor reduces it", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"base": "@0", "improvements": {"0": {"p1": ["steel_reinforcement#r"]}}}, "do": [{"play": "rolling_storm"}], "expect": {"tower.0.1.health": 39, "tower.1.1.health": 38}},
+ {"name": "it can destroy the caster's own second tower: the opponent wins", "clause": 0, "tags": ["edge", "all_towers"], "board": {"base": "@0", "towers": {"1": {"p0": {"health": 80, "ancient": true}}, "0": {"p0": {"health": 2}}}}, "do": [{"play": "rolling_storm"}], "expect": {"tower.0.0.ancient": true, "winner": 1, "events": {"has": ["tower_fall", "win"]}}},
+ {"name": "both players losing their second tower at once is a draw", "clause": 0, "tags": ["edge", "all_towers"], "board": {"base": "@0", "towers": {"1": {"p0": {"health": 80, "ancient": true}, "p1": {"health": 80, "ancient": true}}, "0": {"p0": {"health": 2}, "p1": {"health": 2}}}}, "do": [{"play": "rolling_storm"}], "expect": {"winner": 2, "events": {"has": ["draw"]}}},
+ {"name": "units are not towers: no unit takes damage", "clause": 0, "tags": ["negative", "all_towers"], "board": {"base": "@0"}, "do": [{"play": "rolling_storm"}], "expect": {"a.health": 4, "events": {"not": ["damage"]}}}
+]}

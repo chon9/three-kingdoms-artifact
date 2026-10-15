@@ -7,7 +7,7 @@
 "consumables": ["healing_salve", "potion_of_knowledge", "town_portal_scroll", "fx_ticket"],
 "heroes": [
  {"id": "fx_kanna", "kind": "hero", "color": "blue", "attack": 2, "armor": 0, "health": 10, "status": "verified", "signature": "fx_lock_spell", "name": {"en": "Fixture Herald", "zh_CN": "传令官"}, "text": {"en": "Rally: your lane creeps deploy into this hero's lane.", "zh_CN": "集结：你的兵卒部署到此武将所在的路。"}, "ability_name": {"en": "Rally", "zh_CN": "集结"}, "abilities": [{"id": "rally", "kind": "aura", "affects": "you", "grant": {"rules": {"creep_lane": "self"}}}]},
- {"id": "fx_minion", "kind": "hero", "color": "blue", "attack": 3, "armor": 0, "health": 4, "status": "verified", "token": true, "name": {"en": "Shadow Guard", "zh_CN": "影卫"}, "text": {"en": "A summoned hero. It never returns from the Fountain.", "zh_CN": "召唤出的武将，阵亡后不再返回大营。"}}
+ {"id": "fx_minion", "kind": "hero", "color": "blue", "attack": 3, "armor": 0, "health": 4, "status": "verified", "token": true, "name": {"en": "Shadow Guard", "zh_CN": "影卫"}, "text": {"en": "A summoned hero. When it dies it returns to the Fountain like any hero.", "zh_CN": "召唤出的武将，阵亡后与其他武将一样返回大营。"}}
 ],
 "cards": [
  {"id": "fx_cleave_3", "kind": "creep", "color": "red", "status": "verified", "name": {"en": "Cleaving Brute", "zh_CN": "横扫兵"}, "text": {"en": "Cleave 3.", "zh_CN": "横扫3。"}, "cost": 2, "attack": 2, "armor": 0, "health": 6, "keywords": {"cleave": 3}},

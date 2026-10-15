@@ -1,0 +1,13 @@
+{
+"card": "fog_of_war",
+"source_id": 10377,
+"text": "Each enemy has a 50% chance of being disarmed this round.",
+"covers": ["play", "disarm", "random_chance", "all_enemies", "this_round"],
+"cases": [
+ {"name": "Each enemy has a 50% chance of being disarmed: a fixed seed", "clause": 0, "tags": ["play", "disarm", "all_enemies", "random_chance"], "seed": 1, "board": {"lanes": {"0": {"p0": ["jmuy#j", "melee_creep#m", "melee_creep#n"], "p1": ["keefe#k", "melee_creep#a", "melee_creep#b"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fog_of_war"}], "expect": {"k.disarmed": true, "a.disarmed": false, "b.disarmed": true, "events": {"has": ["status"]}}},
+ {"name": "each enemy rolls on its own, half of the time; allies and other lanes never", "clause": 0, "tags": ["random_chance", "disarm", "all_enemies"], "seeds": {"from": 1, "count": 400}, "board": "@0", "do": [{"play": "fog_of_war"}], "expect_rate": {"k.disarmed": [0.4, 0.6], "a.disarmed": [0.4, 0.6], "b.disarmed": [0.4, 0.6], "j.disarmed": [0.0, 0.0], "m.disarmed": [0.0, 0.0], "c.disarmed": [0.0, 0.0]}},
+ {"name": "allies and units in other lanes are never disarmed", "clause": 0, "tags": ["negative", "disarm", "all_enemies"], "seed": 1, "board": "@0", "do": [{"play": "fog_of_war"}], "expect": {"j.disarmed": false, "m.disarmed": false, "n.disarmed": false, "c.disarmed": false, "o.disarmed": false}},
+ {"name": "disarmed enemies do not attack in combat but are still attacked", "clause": 0, "tags": ["disarm"], "seed": 1, "board": "@0", "do": [{"play": "fog_of_war"}, {"combat": true}], "expect": {"j.health": 8, "k.health": 9, "m.health": 2, "a.health": 2, "n.health": 4, "b.health": 2, "tower.0.0.health": 40}},
+ {"name": "the disarm ends with the round", "clause": 0, "tags": ["edge", "this_round"], "seed": 1, "board": "@0", "do": [{"play": "fog_of_war"}, {"end_round": true}], "expect": {"k.disarmed": false, "b.disarmed": false}},
+ {"name": "with no enemy in the lane it can still be played and disarms nothing", "clause": 0, "tags": ["edge", "all_enemies"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": [null]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "fog_of_war"}], "expect": {"c.disarmed": false, "mana.0.0": 6, "events": {"not": ["status"]}}}
+]}

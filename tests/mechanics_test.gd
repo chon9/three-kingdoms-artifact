@@ -7,8 +7,9 @@ extends SceneTree
 ##   the Fountain;
 ## * hand state: locks and their decay, discard, add_card, card counters,
 ##   hacks (resolution order and privacy);
-## * zones: summon (roster: false heroes), move, swap, control, to_fountain,
-##   with the zone invariants after each;
+## * zones: summon (a summoned hero joins the roster and returns from the
+##   Fountain since M4, RQ-29), move, swap, control, to_fountain, with the
+##   zone invariants after each;
 ## * objects: improvements and their cap, item instances with triggers,
 ##   actives and charges, deeds; the rules layer (round_draw, forbid_play,
 ##   secret_shop_discount, creep_lane);
@@ -53,7 +54,7 @@ func _initialize() -> void:
 			print("%-36s %6d ms" % [test.get_method(), Time.get_ticks_msec() - started])
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d M2 and M3 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, objects, rules layer, blocking snapshots, RQ-54, granted-text events, preview_equals_combat on %d boards)." % [
+	print("%s: %d M2 to M4 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, summoned heroes returning (RQ-29), objects, rules layer, blocking snapshots, RQ-54, granted-text events, preview_equals_combat on %d boards)." % [
 		"PASS" if failures.is_empty() else "FAIL", checks, boards])
 	quit(0 if failures.is_empty() else 1)
 
@@ -879,7 +880,9 @@ func _test_summon_and_fountain() -> void:
 	if summoned.is_empty():
 		return
 	var minion: Dictionary = summoned[0]
-	_check(bool(minion.hero) and not bool(minion.roster) and engine.can_cast_colour(minion), "summon_2: a summoned hero is a non-roster hero whose colour counts")
+	var joins = Kernel.SUMMONED_HEROES_JOIN_ROSTER
+	_check(bool(minion.hero) and bool(minion.roster) == joins and engine.state.players[0].roster.has(minion) == joins
+		and engine.can_cast_colour(minion), "summon_2: rq_29_summoned_hero: a summoned hero's colour counts and it %s its owner's roster" % ("joins" if joins else "stays out of"))
 	_zones_ok(engine, "summon")
 	_hand(engine, 0, ["short_sword"])
 	engine.state.active_player = 0
@@ -887,9 +890,16 @@ func _test_summon_and_fountain() -> void:
 	var gold = int(engine.state.players[1].gold)
 	minion.health = 0
 	engine._clean_dead(0)
-	_check(int(minion.lane) == -1 and int(engine.state.players[1].gold) == gold + 5 and not engine.state.players[0].roster.has(minion),
-		"summon_4: rq_29_summoned_hero: a dead summoned hero pays hero bounty and leaves the game")
+	if joins:
+		_check(int(minion.lane) == -1 and int(engine.state.players[1].gold) == gold + 5 and engine.state.players[0].roster.has(minion)
+			and int(minion.ready_round) == int(engine.state.round) + 2 and int(minion.health) == int(minion.max_health),
+			"summon_4: rq_29_summoned_hero: a dead summoned hero pays hero bounty and goes to the Fountain, healed, ready in two rounds")
+	else:
+		_check(int(minion.lane) == -1 and int(engine.state.players[1].gold) == gold + 5 and not engine.state.players[0].roster.has(minion),
+			"summon_4: rq_29_summoned_hero: a dead summoned hero pays hero bounty and leaves the game")
 	_zones_ok(engine, "summoned death")
+	if joins:
+		_test_summoned_hero_returns()
 	engine = _engine()
 	var hero = engine.state.players[0].roster[0]
 	_rows(engine, 0, [[hero], ["melee_creep"]])
@@ -900,6 +910,45 @@ func _test_summon_and_fountain() -> void:
 	_check(int(hero.lane) == -1 and int(hero.ready_round) == int(engine.state.round) + 1 and int(engine.state.players[1].gold) == gold and hero.mods.is_empty(),
 		"to_fountain_1: a voluntary return pays no bounty, is ready next round and clears temporary effects")
 	_zones_ok(engine, "to_fountain")
+
+## RQ-29 (M4): a summoned hero that died sits in the Fountain like any roster
+## hero, keeps its items and permanent modifications, becomes ready two rounds
+## later, is offered for deployment, and enters the planned lane at the reveal.
+func _test_summoned_hero_returns() -> void:
+	var engine = _engine()
+	_caster(engine, 0, "blue")
+	_check(_play(engine, 0, "fx_summon_hero").ok, "rq_29_returns: Call a Champion plays")
+	var found = engine.state.lanes[0].units[0].filter(func(unit): return unit != null and str(unit.card) == "fx_minion")
+	if found.is_empty():
+		_check(false, "rq_29_returns: the hero was summoned")
+		return
+	var minion: Dictionary = found[0]
+	Zones.equip(engine, minion, "short_sword")
+	Kernel.modify(engine, minion, {"attack": 1}, {}, "", {"controller": 0, "card": ""})
+	var died_in = int(engine.state.round)
+	engine._reset_transient()
+	minion.health = 0
+	Kernel.pulse(engine)
+	engine._settle_transient()
+	_check(int(minion.lane) == -1 and minion.items.has("weapon") and int(minion.attack) == 4,
+		"rq_29_returns_1: in the Fountain the summoned hero keeps its item and its Modify")
+	var view = engine.player_view(1)
+	_check(view.players[0].roster.any(func(hero): return int(hero.uid) == int(minion.uid)),
+		"rq_29_returns_2: the opponent sees the summoned hero in the Fountain (the roster is public)")
+	for round_step in range(2):
+		engine._begin_deployment()
+		var offered = engine.legal_actions(0).any(func(action): return str(action.type) == "deploy" and int(action.unit) == int(minion.uid))
+		var ready = int(engine.state.round) >= died_in + 2
+		_check(offered == ready, "rq_29_returns_3: round %d: the summoned hero is %s for deployment" % [int(engine.state.round), "offered" if ready else "not yet offered"])
+		if ready:
+			engine.apply_action(0, {"type": "deploy", "unit": int(minion.uid), "lane": 2})
+		for owner in engine.state.players:
+			owner.finished = true
+		engine._reset_transient()
+		engine._reveal_deployment()
+		engine._settle_transient()
+	_check(int(minion.lane) == 2 and int(minion.health) == engine.max_health_of(minion), "rq_29_returns_4: the summoned hero is redeployed into its planned lane at full health")
+	_zones_ok(engine, "summoned hero redeployed")
 
 ## Moves (spec §3.7, CF-1, RQ-17, RQ-42).
 func _test_move() -> void:
@@ -987,7 +1036,7 @@ func _test_move() -> void:
 	_check(units.all(func(moved): return int(moved.lane) in [1, 2]) and _events(engine, "move").size() == 3, "cf1_random_other_set: a set moves one unit at a time, each to another lane")
 	_zones_ok(engine, "set move")
 
-## Swaps (RQ-30): arrows stay with positions; forced targets out of range end;
+## Swaps (RQ-30): arrows stay with positions, forced targets included;
 ## swapping is not entering (RQ-21).
 func _test_swap() -> void:
 	var engine = _engine()
@@ -1008,7 +1057,12 @@ func _test_swap() -> void:
 	engine = _engine()
 	made = _rows(engine, 0, [["melee_creep", null, "fx_cleave_3"], ["melee_creep", "melee_creep", "melee_creep"]])
 	made[0][0].combat_target = int(made[1][0].uid)
-	_check(Zones.swap(engine, made[0][0], made[0][2]) and int(made[0][0].combat_target) == -1, "swap_2: a forced target out of range ends")
+	made[1][1].combat_target = int(made[0][0].uid)
+	made[1][1].arrow = -1
+	_check(Zones.swap(engine, made[0][0], made[0][2]) and int(made[0][0].combat_target) == -1 and int(made[0][2].combat_target) == int(made[1][0].uid),
+		"rq_30_swap_forced: a forced target stays with its position; the unit swapped in attacks it")
+	_check(int(made[1][1].arrow) == -1 and int(made[1][1].combat_target) == int(made[0][2].uid),
+		"rq_30_swap_forced_enemy: an enemy forced at a swapped unit keeps its arrow and attacks the unit now in that position")
 	_zones_ok(engine, "swap with forced targets")
 	_check(not Zones.swap(engine, made[0][0], made[1][1]), "swap_3: units of different rows never swap")
 

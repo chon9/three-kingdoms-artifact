@@ -2971,7 +2971,7 @@
   "valve_text": "Play Effect: Give Relentless Zombie a Death Shield.",
   "zh_name": "敢死士",
   "en_name": "Dare-to-Die Men",
-  "zh_text": "出场效果：使敢死士获得免死。",
+  "zh_text": "出场效果：使敢死士获得免死护盾。",
   "en_text": "Play effect: give Dare-to-Die Men a death shield.",
   "rationale": "Han armies raised dare-to-die volunteers (敢死之士) who fought on after wounds that should have killed them: a cheap creep that cheats death once.",
   "art_subject": "A scarred Wei volunteer in battered lamellar with a broken spear, staggering back to his feet with grim resolve amid drifting smoke."
@@ -3925,7 +3925,7 @@
   "valve_text": "Active 1: Give a unit a Death Shield this round. May only be used if there is an allied green hero in this lane.",
   "zh_name": "吉人天相",
   "en_name": "Heaven Protects",
-  "zh_text": "天佑：本回合使一个单位获得免死。仅当本路中有友方绿色武将时可用。主动技能，冷却1。",
+  "zh_text": "天佑：本回合使一个单位获得免死护盾。仅当本路中有友方绿色武将时可用。主动技能，冷却1。",
   "en_text": "Heaven's Aid: give a unit a death shield this round. Only usable if there is an allied green hero in this lane. Active ability; cooldown 1.",
   "rationale": "An idiom for the fortunate escaping certain death, as Sun Quan repeatedly did; a green general must be present to call down that luck.",
   "art_subject": "A falling Wu soldier caught in a shaft of pale light as a spear meant for him snaps aside, beneath a small riverside shrine wrapped in incense smoke.",

@@ -84,7 +84,9 @@ var actions: Array = []
 ## card (the held hand card or null), mode (pending, drag, click), press,
 ## cross_lane, index (hand index or -1), zoomed (a lane step opened the
 ## overview)}. At step k the candidates are the distinct values of
-## plays[*][steps[k].key] among the plays that agree with `picked`.
+## plays[*][steps[k].key] among the plays that agree with `picked`; the two
+## keys of an unordered pair (a step with "pair", Friendly Fire) take their
+## values either way round, so either unit of a pair can be picked first.
 var hold: Dictionary = {}
 var _mouse: Vector2 = Vector2.ZERO
 var _hint_time: float = 0.0
@@ -225,6 +227,8 @@ func _layout() -> void:
 	# The fan spreads from the left edge to just short of the player panel.
 	hand.fan_left = 24.0
 	hand.fan_right = own_panel.position.x - 12.0
+	# A card's note goes left of the card rather than under the coin.
+	hand.note_right = coin.position.x - 8.0
 	hand.layout(false)
 	log_panel.size = Vector2(LogPanel.WIDTH, size.y - 150)
 	log_panel.position = Vector2(size.x - LogPanel.WIDTH - 12, 56)
@@ -1525,6 +1529,7 @@ func _card_states(view: Dictionary, viewer: int, new_actions: Array) -> Array:
 			notes.append(state.reason)
 		for badge in state.badges:
 			notes.append(UnitCard.badge_text(badge))
+		notes.append_array(_hack_texts(entry))
 		state["tooltip"] = "\n".join(notes)
 		states.append(state)
 	return states
@@ -1540,6 +1545,17 @@ static func _hand_badges(card_id: String, entry: Dictionary) -> Array:
 		out.append({"k": "charges", "v": int(entry.get("charges", printed if printed != null else 0))})
 	if not entry.get("hacks", []).is_empty():
 		out.append({"k": "hacked", "v": entry.hacks.size()})
+	return out
+
+## The text each hack added to a card in your hand ("<card>#<index>" grants,
+## spec §3.12), quoted as the log quotes granted text. Only the holder's view
+## has hacks, so this never reveals anything to the caster.
+static func _hack_texts(entry: Dictionary) -> Array:
+	var out: Array = []
+	for hack in entry.get("hacks", []):
+		var parts = str(hack).split("#")
+		if parts.size() == 2:
+			out.append(UiKit.t("EV_CHANGE_GRANT", {"text": Library.loc(parts[0], "grant_" + parts[1])}))
 	return out
 
 ## Lock rounds per card of the opponent's hand (public, spec §10.4).
@@ -1844,26 +1860,57 @@ func _current_step() -> Dictionary:
 func _matching_plays() -> Array:
 	var out: Array = []
 	for play in hold.get("plays", []):
-		var agrees = true
-		for key in hold.picked:
-			if not play.has(key) or int(play[key]) != int(hold.picked[key]):
-				agrees = false
-				break
-		if agrees:
+		if _agrees(play):
 			out.append(play)
 	return out
 
+## A command agrees with the picks so far; the two keys of an unordered pair
+## may hold the picked values either way round.
+func _agrees(play: Dictionary) -> bool:
+	for key in hold.picked:
+		var picked = int(hold.picked[key])
+		var other = _pair_of(str(key))
+		if other.is_empty():
+			if not play.has(key) or int(play[key]) != picked:
+				return false
+			continue
+		var values: Array = [int(play.get(key, -999)), int(play.get(other, -999))]
+		if not values.has(picked):
+			return false
+		if hold.picked.has(other) and (int(hold.picked[other]) == picked or not values.has(int(hold.picked[other]))):
+			return false
+	return true
+
+## The key that forms an unordered pair with `key` ("" when none).
+func _pair_of(key: String) -> String:
+	for step in hold.get("steps", []):
+		if str(step.get("pair", "")) == key:
+			return str(step.key)
+		if str(step.key) == key and not str(step.get("pair", "")).is_empty():
+			return str(step.pair)
+	return ""
+
 ## The current step's candidates: the distinct values of its key among the
-## agreeing commands, in their order.
+## agreeing commands, in their order. The first step of an unordered pair
+## offers both units of every pair; the second, the partners of the first pick.
 func _candidates() -> Array:
 	var step = _current_step()
 	var out: Array = []
 	if step.is_empty():
 		return out
+	var key = str(step.key)
+	var other = _pair_of(key)
 	for play in _matching_plays():
-		var value = int(play.get(str(step.key), -999))
-		if not out.has(value):
-			out.append(value)
+		var values: Array = [int(play.get(key, -999))]
+		if not other.is_empty():
+			if hold.picked.has(other):
+				var first = int(hold.picked[other])
+				values = [int(play.get(other, -999)) if int(play.get(key, -999)) == first else int(play.get(key, -999))]
+			else:
+				values.append(int(play.get(other, -999)))
+		for value in values:
+			if not out.has(value):
+				out.append(value)
 	return out
 
 ## The lane of a position step: an earlier lane choice, or the step's lane.

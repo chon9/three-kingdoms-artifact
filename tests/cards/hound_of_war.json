@@ -1,0 +1,9 @@
+{
+"card": "hound_of_war",
+"source_id": 10093,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "hound_of_war fights with its printed stats (2/0/1)", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["hound_of_war#h"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"h.in_play": false, "e.health": 2}},
+ {"name": "hound_of_war unblocked hits the tower for 2", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["hound_of_war#h", "melee_creep#m"], "p1": [null, "melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"h.attack": 2, "h.armor": 0, "h.health": 1, "tower.0.1.health": 38}}
+]}

@@ -1,0 +1,15 @@
+{
+"card": "skywrath_mage",
+"source_id": 10062,
+"text": "Concussive Shot: Give a hero and its allied neighbors -2 Armor this round.",
+"covers": ["active", "stat_armor", "temp_buff", "allied_neighbors", "hero", "this_round"],
+"cases": [
+ {"name": "Concussive Shot gives an enemy hero and its allied neighbors -2 Armor; cooldown 2", "clause": 0, "tags": ["active", "stat_armor", "temp_buff", "allied_neighbors", "hero"], "board": {"lanes": {"0": {"p0": [null, "skywrath_mage#s", null, null], "p1": ["melee_creep#a", "keefe#k", "bronze_legionnaire#b", "bronze_legionnaire#c"]}}}, "do": [{"ability": "s", "target": "k"}], "expect": {"k.armor": -1, "a.armor": -2, "b.armor": 0, "c.armor": 2, "s.cooldown": 2, "events": {"has": ["ability", "status"]}}},
+ {"name": "the -2 Armor ends with the round", "clause": 0, "tags": ["this_round"], "board": "@0", "do": [{"ability": "s", "target": "k"}, {"end_round": true}], "expect": {"k.armor": 1, "a.armor": 0, "b.armor": 2, "s.cooldown": 1}},
+ {"name": "negative Armor increases the damage the hero takes in combat", "clause": 0, "tags": ["stat_armor", "hero"], "board": "@0", "do": [{"ability": "s", "target": "k"}, {"combat": true}], "expect": {"k.health": 7}},
+ {"name": "Skywrath can target an allied hero; it is that hero's allied neighbor too", "clause": 0, "tags": ["edge", "hero", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "skywrath_mage#s", "melee_creep#m"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"ability": "s", "target": "j"}], "expect": {"j.armor": -2, "s.armor": -2, "m.armor": 0, "a.armor": 0}},
+ {"name": "a creep is not a legal target", "clause": 0, "tags": ["negative", "hero"], "board": "@0", "do": [], "expect_illegal": [{"ability": "s", "target": "a"}]},
+ {"name": "a hero in another lane is not a legal target", "clause": 0, "tags": ["negative", "hero"], "board": {"lanes": {"0": {"p0": ["skywrath_mage#s"], "p1": ["melee_creep#a"]}, "1": {"p0": ["melee_creep#m"], "p1": ["keefe#k"]}}}, "do": [], "expect_illegal": [{"ability": "s", "target": "k"}]},
+ {"name": "a silenced Skywrath Mage cannot use Concussive Shot", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"s": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "s", "target": "k"}]},
+ {"name": "Concussive Shot is on cooldown after use", "clause": 0, "tags": ["negative", "active"], "board": "@0", "do": [{"ability": "s", "target": "k"}], "expect_illegal": [{"ability": "s", "target": "k"}]}
+]}

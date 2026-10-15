@@ -1752,6 +1752,562 @@
 						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
 					},
 					"faction": "qun"
+				},
+				"crystal_maiden": {
+					"name": {
+						"en": "Xiahou Dun",
+						"zh_CN": "夏侯惇"
+					},
+					"text": {
+						"en": "Frugal Steward: after the first time an allied spell is played in each lane, restore {amount} mana to the tower in that lane.",
+						"zh_CN": "清俭：每一路中首次打出友方计策后，为该路的城楼恢复{amount}点军令。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Frugal Steward",
+						"zh_CN": "清俭"
+					}
+				},
+				"earthshaker": {
+					"name": {
+						"en": "Zhang Liao",
+						"zh_CN": "张辽"
+					},
+					"text": {
+						"en": "Sudden Raid: stun Zhang Liao's enemy neighbors this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "突袭：本回合眩晕张辽的敌方邻位单位。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Sudden Raid",
+						"zh_CN": "突袭"
+					}
+				},
+				"kanna": {
+					"name": {
+						"en": "Xun Yu",
+						"zh_CN": "荀彧"
+					},
+					"text": {
+						"en": "Kingmaker's Talent: allied Foot Soldiers deployed at random are deployed into Xun Yu's lane instead.",
+						"zh_CN": "王佐之才：随机部署的友方步卒改为部署至荀彧所在路。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Kingmaker's Talent",
+						"zh_CN": "王佐之才"
+					}
+				},
+				"luna": {
+					"name": {
+						"en": "Zhen Ji",
+						"zh_CN": "甄姬"
+					},
+					"text": {
+						"en": "Captivating Beauty: before the action phase, deal {amount} piercing damage to a random enemy and add a charge to three random Ode to the Luo Goddess cards in your hand or deck.",
+						"zh_CN": "倾国：行动阶段前，对随机一个敌方单位造成{amount}点穿透伤害，并为你手牌或牌组中随机三张《洛神赋》各增加1层充能。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Captivating Beauty",
+						"zh_CN": "倾国"
+					}
+				},
+				"meepo": {
+					"name": {
+						"en": "Xiahou Yuan",
+						"zh_CN": "夏侯渊"
+					},
+					"text": {
+						"en": "Lightning March: move Xiahou Yuan to an allied Xiahou Yuan's lane. Deal {amount} damage to the new enemy neighbors. Active ability; cooldown {ability_cooldown}.\nOne Root: Xiahou Yuan has Soulbound. (If Xiahou Yuan dies, other allied Xiahou Yuans in every lane also die.)",
+						"zh_CN": "神速：将夏侯渊移至另一名友方夏侯渊所在路，并对新的敌方邻位单位造成{amount}点伤害。主动技能，冷却{ability_cooldown}。\n同气连枝：夏侯渊具有同命（夏侯渊阵亡时，所有路中的其他友方夏侯渊也随之阵亡）。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Lightning March",
+						"zh_CN": "神速"
+					}
+				},
+				"ogre_magi": {
+					"name": {
+						"en": "Guo Jia",
+						"zh_CN": "郭嘉"
+					},
+					"text": {
+						"en": "Heaven's Envy: after you play a blue spell, there is a {chance}% chance to put a base copy of that card into your hand.",
+						"zh_CN": "天妒：你施放一张蓝色计策后，有{chance}%几率将该牌的基础副本置入你的手牌。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Heaven's Envy",
+						"zh_CN": "天妒"
+					}
+				},
+				"outworld_devourer": {
+					"name": {
+						"en": "Chen Gong",
+						"zh_CN": "陈宫"
+					},
+					"text": {
+						"en": "Clear Counsel: after you play a blue card, there is a {chance}% chance to restore {amount} mana.",
+						"zh_CN": "明策：你打出一张蓝色牌后，有{chance}%几率恢复{amount}点军令。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Clear Counsel",
+						"zh_CN": "明策"
+					}
+				},
+				"prellex": {
+					"name": {
+						"en": "Xu Chu",
+						"zh_CN": "许褚"
+					},
+					"text": {
+						"en": "Clan Militia: summon a Foot Soldier into Xu Chu's lane each deployment phase.",
+						"zh_CN": "乡勇：每个部署阶段，召唤一名步卒至许褚所在路。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Clan Militia",
+						"zh_CN": "乡勇"
+					}
+				},
+				"skywrath_mage": {
+					"name": {
+						"en": "Dian Wei",
+						"zh_CN": "典韦"
+					},
+					"text": {
+						"en": "Fierce Assault: give a hero and its allied neighbors -{armor_loss} armor this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "强袭：本回合使一名武将及其友方邻位单位-{armor_loss}护甲。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Fierce Assault",
+						"zh_CN": "强袭"
+					}
+				},
+				"venomancer": {
+					"name": {
+						"en": "Deng Ai",
+						"zh_CN": "邓艾"
+					},
+					"text": {
+						"en": "Military Farms: summon a Farm Soldier into Deng Ai's lane each deployment phase.",
+						"zh_CN": "屯田：每个部署阶段，召唤一名屯田兵至邓艾所在路。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Military Farms",
+						"zh_CN": "屯田"
+					}
+				},
+				"relentless_zombie": {
+					"name": {
+						"en": "Dare-to-Die Men",
+						"zh_CN": "敢死士"
+					},
+					"text": {
+						"en": "Play effect: give Dare-to-Die Men a death shield.",
+						"zh_CN": "出场效果：使敢死士获得免死护盾。"
+					},
+					"faction": "wei"
+				},
+				"satyr_magician": {
+					"name": {
+						"en": "Agrarian Colonel",
+						"zh_CN": "典农校尉"
+					},
+					"text": {
+						"en": "Open the Granary: fully restore your tower's mana. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "开仓调粮：完全恢复你城楼的军令。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Open the Granary",
+						"zh_CN": "开仓调粮"
+					}
+				},
+				"troll_soothsayer": {
+					"name": {
+						"en": "Guan Lu the Diviner",
+						"zh_CN": "管辂"
+					},
+					"text": {
+						"en": "Draw an extra card each round.",
+						"zh_CN": "你每回合额外摸一张牌。"
+					},
+					"faction": "wei"
+				},
+				"incarnation_of_selemene": {
+					"name": {
+						"en": "Cao Zhi",
+						"zh_CN": "曹植"
+					},
+					"text": {
+						"en": "Fully restore your tower's mana after you play any card.",
+						"zh_CN": "你每打出一张牌后，完全恢复你城楼的军令。"
+					},
+					"faction": "wei"
+				},
+				"diabolic_revelation": {
+					"name": {
+						"en": "Hair for a Head",
+						"zh_CN": "割发代首"
+					},
+					"text": {
+						"en": "Draw {cards} cards. Deal {amount} damage to allies in all lanes.",
+						"zh_CN": "摸{cards}张牌。对所有路中的友方单位造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"strafing_run": {
+					"name": {
+						"en": "Tiger-Leopard Charge",
+						"zh_CN": "虎豹骑冲阵"
+					},
+					"text": {
+						"en": "Deal {amount} damage to each enemy creep.",
+						"zh_CN": "对每个敌方兵卒造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"ventriloquy": {
+					"name": {
+						"en": "Provocation",
+						"zh_CN": "激将法"
+					},
+					"text": {
+						"en": "Choose a unit. It taunts.",
+						"zh_CN": "选择一个单位，使其嘲讽。"
+					},
+					"faction": "wei"
+				},
+				"cunning_plan": {
+					"name": {
+						"en": "Cut Beard, Shed Robe",
+						"zh_CN": "割须弃袍"
+					},
+					"text": {
+						"en": "Swap a unit with one of its allied neighbors. Draw a card.",
+						"zh_CN": "将一个单位与其一个友方邻位单位交换位置。摸一张牌。"
+					},
+					"faction": "wei"
+				},
+				"whispers_of_madness": {
+					"name": {
+						"en": "Killing in My Dreams",
+						"zh_CN": "梦中杀人"
+					},
+					"text": {
+						"en": "Stun an enemy this round and stun allied heroes in all lanes this round.",
+						"zh_CN": "本回合眩晕一个敌方单位，并眩晕所有路中的友方武将。"
+					},
+					"faction": "wei"
+				},
+				"at_any_cost": {
+					"name": {
+						"en": "Let Me Wrong the World",
+						"zh_CN": "宁我负人"
+					},
+					"text": {
+						"en": "Deal {amount} damage to every unit.",
+						"zh_CN": "对每个单位造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"better_late_than_never": {
+					"name": {
+						"en": "Xu Huang's Relief",
+						"zh_CN": "徐晃援樊"
+					},
+					"text": {
+						"en": "Summon a Foot Soldier into any lane.",
+						"zh_CN": "在任意一路中召唤一名步卒。"
+					},
+					"faction": "wei"
+				},
+				"buying_time": {
+					"name": {
+						"en": "Stalling Tactics",
+						"zh_CN": "缓兵之计"
+					},
+					"text": {
+						"en": "Give two random cards in your opponent's hand +{amount} lock.",
+						"zh_CN": "使对手手牌中随机两张牌+{amount}锁定。"
+					},
+					"faction": "wei"
+				},
+				"compel": {
+					"name": {
+						"en": "Lure the Tiger",
+						"zh_CN": "调虎离山"
+					},
+					"text": {
+						"en": "Choose a unit. Choose a combat target for it. Draw a card.",
+						"zh_CN": "选择一个单位，为其指定交战目标。摸一张牌。"
+					},
+					"faction": "wei"
+				},
+				"frostbite": {
+					"name": {
+						"en": "Eating His Own Eye",
+						"zh_CN": "拔矢啖睛"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit and disarm it this round.",
+						"zh_CN": "对一个单位造成{amount}点伤害，并使其本回合缴械。"
+					},
+					"faction": "wei"
+				},
+				"rolling_storm": {
+					"name": {
+						"en": "Heroes Over Plum Wine",
+						"zh_CN": "煮酒论英雄"
+					},
+					"text": {
+						"en": "Deal {amount} damage to all towers in all lanes.",
+						"zh_CN": "对所有路中的所有城楼造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"wrath_of_gold": {
+					"name": {
+						"en": "Thousand-Gold Bounty",
+						"zh_CN": "千金悬赏"
+					},
+					"text": {
+						"en": "Spend all your gold. Repeat once for each gold spent: deal {amount} damage to a random ally or enemy.",
+						"zh_CN": "花费你所有的金。每花费1金，重复一次：对一个随机友方或敌方单位造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"and_one_for_me": {
+					"name": {
+						"en": "Copy the Wooden Ox",
+						"zh_CN": "仿造木牛"
+					},
+					"text": {
+						"en": "Choose a hero. Put a base copy of a random item equipped by that hero into your hand.",
+						"zh_CN": "选择一名武将，将其装备的一件随机军备的基础副本置入你的手牌。"
+					},
+					"faction": "wei"
+				},
+				"arcane_assault": {
+					"name": {
+						"en": "Feint East, Strike West",
+						"zh_CN": "声东击西"
+					},
+					"text": {
+						"en": "Deal {amount} damage to the enemy tower. Draw a card. Get initiative.",
+						"zh_CN": "对敌方城楼造成{amount}点伤害。摸一张牌。获得先手。"
+					},
+					"faction": "wei"
+				},
+				"astral_imprisonment": {
+					"name": {
+						"en": "Catch and Release",
+						"zh_CN": "捉放曹"
+					},
+					"text": {
+						"en": "Stun a unit this round. Give it damage immunity this round.",
+						"zh_CN": "本回合眩晕一个单位，并使其本回合免疫伤害。"
+					},
+					"faction": "wei"
+				},
+				"divided_we_stand": {
+					"name": {
+						"en": "Split and Advance",
+						"zh_CN": "分兵疾进"
+					},
+					"text": {
+						"en": "Summon a Xiahou Yuan.",
+						"zh_CN": "召唤一名夏侯渊。"
+					},
+					"faction": "wei"
+				},
+				"fog_of_war": {
+					"name": {
+						"en": "Decoy Army",
+						"zh_CN": "虚张声势"
+					},
+					"text": {
+						"en": "Each enemy has a {chance}% chance of being disarmed this round.",
+						"zh_CN": "每个敌方单位各有{chance}%几率在本回合被缴械。"
+					},
+					"faction": "wei"
+				},
+				"prey_on_the_weak": {
+					"name": {
+						"en": "Tiger Against Wolf",
+						"zh_CN": "驱虎吞狼"
+					},
+					"text": {
+						"en": "Summon a Hungry Tiger for each damaged unit.",
+						"zh_CN": "每有一个受伤的单位，召唤一只饿虎。"
+					},
+					"faction": "wei"
+				},
+				"self_sabotage": {
+					"name": {
+						"en": "The Smudged Letter",
+						"zh_CN": "抹书间韩"
+					},
+					"text": {
+						"en": "Modify two random cards in your opponent's hand with \"Deal {amount} damage to a random allied tower in any lane.\"",
+						"zh_CN": "为对手手牌中随机两张牌附加：“对任意一路中一座随机友方城楼造成{amount}点伤害。”"
+					},
+					"faction": "wei",
+					"grants": [
+						{
+							"en": "Deal {amount} damage to a random allied tower in any lane.",
+							"zh_CN": "对任意一路中一座随机友方城楼造成{amount}点伤害。"
+						}
+					]
+				},
+				"sow_venom": {
+					"name": {
+						"en": "Garrison the Huai",
+						"zh_CN": "屯兵淮南"
+					},
+					"text": {
+						"en": "Summon two Farm Soldiers.",
+						"zh_CN": "召唤两名屯田兵。"
+					},
+					"faction": "wei"
+				},
+				"call_the_reserves": {
+					"name": {
+						"en": "Three-Day Forced March",
+						"zh_CN": "三日五百里"
+					},
+					"text": {
+						"en": "Summon two Foot Soldiers into any lane.",
+						"zh_CN": "在任意一路中召唤两名步卒。"
+					},
+					"faction": "wei"
+				},
+				"eclipse": {
+					"name": {
+						"en": "Ode to the Luo Goddess",
+						"zh_CN": "洛神赋"
+					},
+					"text": {
+						"en": "Repeat once for each charge: deal {amount} piercing damage to a random enemy.",
+						"zh_CN": "每有一层充能，重复一次：对一个随机敌方单位造成{amount}点穿透伤害。"
+					},
+					"faction": "wei"
+				},
+				"friendly_fire": {
+					"name": {
+						"en": "Two Tigers, One Prey",
+						"zh_CN": "二虎竞食"
+					},
+					"text": {
+						"en": "Choose two enemies. They battle each other.",
+						"zh_CN": "选择两个敌方单位，令它们相互交锋。"
+					},
+					"faction": "wei"
+				},
+				"lost_in_time": {
+					"name": {
+						"en": "Thousand-Li Petition",
+						"zh_CN": "千里请战"
+					},
+					"text": {
+						"en": "Give three random cards in your opponent's hand +{amount} lock.",
+						"zh_CN": "使对手手牌中随机三张牌+{amount}锁定。"
+					},
+					"faction": "wei"
+				},
+				"mystic_flare": {
+					"name": {
+						"en": "Hail of Short Halberds",
+						"zh_CN": "掷短戟"
+					},
+					"text": {
+						"en": "Deal {amount} damage divided evenly among a unit and its allied neighbors.",
+						"zh_CN": "将{amount}点伤害平均分配给一个单位及其友方邻位单位。"
+					},
+					"faction": "wei"
+				},
+				"remote_detonation": {
+					"name": {
+						"en": "Ambush on Ten Sides",
+						"zh_CN": "十面埋伏"
+					},
+					"text": {
+						"en": "Deal {amount} damage to each enemy across from an empty combat position.",
+						"zh_CN": "对每个正对空交战位置的敌方单位造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"echo_slam": {
+					"name": {
+						"en": "Liao Is Coming",
+						"zh_CN": "辽来止啼"
+					},
+					"text": {
+						"en": "Deal damage to each enemy equal to the number of enemies.",
+						"zh_CN": "对每个敌方单位造成等同于敌方单位数量的伤害。"
+					},
+					"faction": "wei"
+				},
+				"bolt_of_damocles": {
+					"name": {
+						"en": "Burning of Wuchao",
+						"zh_CN": "火烧乌巢"
+					},
+					"text": {
+						"en": "Deal {amount} damage to the enemy tower.",
+						"zh_CN": "对敌方城楼造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"ignite": {
+					"name": {
+						"en": "Ten Wins, Ten Losses",
+						"zh_CN": "十胜十败"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to each enemy before the action phase.",
+						"zh_CN": "行动阶段前，对每个敌方单位造成{amount}点穿透伤害。"
+					},
+					"faction": "wei"
+				},
+				"barracks": {
+					"name": {
+						"en": "Tiger Guard Camp",
+						"zh_CN": "虎卫营"
+					},
+					"text": {
+						"en": "Summon a Foot Soldier into this lane each deployment phase.",
+						"zh_CN": "每个部署阶段，召唤一名步卒至本路。"
+					},
+					"faction": "wei"
+				},
+				"hound_of_war": {
+					"name": {
+						"en": "Hungry Tiger",
+						"zh_CN": "饿虎"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "qun"
+				},
+				"plague_ward": {
+					"name": {
+						"en": "Farm Soldier",
+						"zh_CN": "屯田兵"
+					},
+					"text": {
+						"en": "Before the action phase, deal {amount} piercing damage to a random enemy neighbor of Farm Soldier.",
+						"zh_CN": "行动阶段前，对屯田兵的一个随机敌方邻位单位造成{amount}点穿透伤害。"
+					},
+					"faction": "wei"
 				}
 			},
 			"presets": {
@@ -1833,6 +2389,36 @@
 					"description": {
 						"en": "Sun Ce sweeps Jiangdong with Zhou Tai on guard and Xiao Qiao's care, while Jia Xu and Lü Bu cut down rival heroes.",
 						"zh_CN": "孙策横扫江东，周泰护驾、小乔照拂；贾诩与吕布斩除敌将。"
+					}
+				},
+				"bronze_sparrow_terrace": {
+					"name": {
+						"en": "Bronze Sparrow Terrace",
+						"zh_CN": "铜雀台"
+					},
+					"description": {
+						"en": "At Cao Cao's court in Ye, Guo Jia and Sima Yi turn every stratagem twice, Xiahou Dun keeps the orders flowing and Zhen Ji's ode gathers its strength.",
+						"zh_CN": "邺城曹营之中，郭嘉与司马懿计策连环，夏侯惇号令不绝，甄姬的《洛神赋》蓄势待发。"
+					}
+				},
+				"siege_of_xiapi": {
+					"name": {
+						"en": "Siege of Xiapi",
+						"zh_CN": "下邳之战"
+					},
+					"description": {
+						"en": "Lü Bu and Chen Gong hold Xiapi with Zhang Liao's raids, while Jia Xu's poisoned counsel and Xu Chu's Tiger Guards close the ring.",
+						"zh_CN": "吕布与陈宫据守下邳，张辽往来突袭；贾诩毒计、许褚虎卫步步合围。"
+					}
+				},
+				"longxi_struggle": {
+					"name": {
+						"en": "Struggle for Longxi",
+						"zh_CN": "陇右之争"
+					},
+					"description": {
+						"en": "Deng Ai's farm soldiers and Xiahou Yuan's swift columns crowd the frontier against Jiang Wei and Wei Yan, while Dian Wei hurls halberds at the front.",
+						"zh_CN": "邓艾的屯田兵与夏侯渊的神速之师布满边陲，对阵姜维与魏延；典韦阵前掷戟。"
 					}
 				}
 			}
@@ -3332,6 +3918,516 @@
 						"en": "Zombie: {attack} attack, {armor} armor, {health} health.",
 						"zh_CN": "僵尸：{attack}攻击，{armor}护甲，{health}生命。"
 					}
+				},
+				"crystal_maiden": {
+					"name": {
+						"en": "Crystal Maiden",
+						"zh_CN": "冰晶圣女"
+					},
+					"text": {
+						"en": "Arcane Aura: After the first time an allied spell is played in each lane, restore {amount} Mana to the tower in that lane.",
+						"zh_CN": "奥术灵气：在各兵线上首次打出友方法术后，该兵线上的塔恢复{amount}魔力。"
+					},
+					"ability_name": {
+						"en": "Arcane Aura",
+						"zh_CN": "奥术灵气"
+					}
+				},
+				"earthshaker": {
+					"name": {
+						"en": "Earthshaker",
+						"zh_CN": "撼地者"
+					},
+					"text": {
+						"en": "Fissure: Stun Earthshaker's enemy neighbors this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "沟壑：在本回合晕眩撼地者的敌方近邻。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Fissure",
+						"zh_CN": "沟壑"
+					}
+				},
+				"kanna": {
+					"name": {
+						"en": "Kanna",
+						"zh_CN": "卡娜"
+					},
+					"text": {
+						"en": "Bringer of Conquest: The random allied Melee Creeps are deployed into Kanna's lane.",
+						"zh_CN": "征服使者：将随机友方近战小兵部署至卡娜的兵线。"
+					},
+					"ability_name": {
+						"en": "Bringer of Conquest",
+						"zh_CN": "征服使者"
+					}
+				},
+				"luna": {
+					"name": {
+						"en": "Luna",
+						"zh_CN": "露娜"
+					},
+					"text": {
+						"en": "Lucent Beam: Before the action phase, deal {amount} piercing damage to a random enemy and add a charge to three random Eclipse cards in your hand or deck.",
+						"zh_CN": "月光：行动阶段前，对一个随机敌人造成{amount}透甲伤害，并使你手牌和牌组中的三张随机月蚀卡牌增加1能量。"
+					},
+					"ability_name": {
+						"en": "Lucent Beam",
+						"zh_CN": "月光"
+					}
+				},
+				"meepo": {
+					"name": {
+						"en": "Meepo",
+						"zh_CN": "米波"
+					},
+					"text": {
+						"en": "Poof: Move Meepo to an allied Meepo's lane. Deal {amount} damage to the new enemy neighbors. Active ability; cooldown {ability_cooldown}.\nUnited We Fall: Meepo has Soulbound. (If Meepo dies, other allied Meepos in every lane also die.)",
+						"zh_CN": "忽悠：将米波移至友方米波的兵线，对新的敌方近邻造成{amount}伤害。主动技能，冷却{ability_cooldown}。\n合则倒：米波具有灵魂束缚。（如果米波死亡，每条兵线上的所有其他友方米波也会死亡。）"
+					},
+					"ability_name": {
+						"en": "Poof",
+						"zh_CN": "忽悠"
+					}
+				},
+				"ogre_magi": {
+					"name": {
+						"en": "Ogre Magi",
+						"zh_CN": "食人魔魔法师"
+					},
+					"text": {
+						"en": "Multicast: After you play a blue spell, there is a {chance}% chance to put a base copy of that card into your hand.",
+						"zh_CN": "多重施法：打出一张蓝色法术后，有{chance}%几率将该卡牌的基础副本加入你的手牌。"
+					},
+					"ability_name": {
+						"en": "Multicast",
+						"zh_CN": "多重施法"
+					}
+				},
+				"outworld_devourer": {
+					"name": {
+						"en": "Outworld Devourer",
+						"zh_CN": "殁境神蚀者"
+					},
+					"text": {
+						"en": "Essence Aura: After you play a blue card, there is a {chance}% chance to restore {amount} Mana.",
+						"zh_CN": "精华灵气：打出一张蓝色卡牌后，有{chance}%几率恢复{amount}魔力。"
+					},
+					"ability_name": {
+						"en": "Essence Aura",
+						"zh_CN": "精华灵气"
+					}
+				},
+				"prellex": {
+					"name": {
+						"en": "Prellex",
+						"zh_CN": "普瑞蕾斯"
+					},
+					"text": {
+						"en": "Bringer of the Faithful: Summon a Melee Creep into Prellex's lane each deployment phase.",
+						"zh_CN": "信仰使者：每次部署阶段，召唤一名近战小兵至普瑞蕾斯的兵线。"
+					},
+					"ability_name": {
+						"en": "Bringer of the Faithful",
+						"zh_CN": "信仰使者"
+					}
+				},
+				"skywrath_mage": {
+					"name": {
+						"en": "Skywrath Mage",
+						"zh_CN": "天怒法师"
+					},
+					"text": {
+						"en": "Concussive Shot: Give a hero and its allied neighbors -{armor_loss} Armor this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "震荡光弹：在本回合使一名英雄及其友方近邻-{armor_loss}护甲。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Concussive Shot",
+						"zh_CN": "震荡光弹"
+					}
+				},
+				"venomancer": {
+					"name": {
+						"en": "Venomancer",
+						"zh_CN": "剧毒术士"
+					},
+					"text": {
+						"en": "Venomous Nature: Summon a Plague Ward into Venomancer's lane each deployment phase.",
+						"zh_CN": "剧毒本性：每次部署阶段，召唤一名瘟疫守卫至剧毒术士的兵线。"
+					},
+					"ability_name": {
+						"en": "Venomous Nature",
+						"zh_CN": "剧毒本性"
+					}
+				},
+				"relentless_zombie": {
+					"name": {
+						"en": "Relentless Zombie",
+						"zh_CN": "不屈僵尸"
+					},
+					"text": {
+						"en": "Play Effect: Give Relentless Zombie a Death Shield.",
+						"zh_CN": "出牌效果：使不屈僵尸获得免死护盾。"
+					}
+				},
+				"satyr_magician": {
+					"name": {
+						"en": "Satyr Magician",
+						"zh_CN": "萨特魔术师"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Fully restore your tower's Mana.",
+						"zh_CN": "主动{ability_cooldown}：使你的塔恢复全部魔力。"
+					},
+					"ability_name": {
+						"en": "Satyr Magician",
+						"zh_CN": "萨特魔术师"
+					}
+				},
+				"troll_soothsayer": {
+					"name": {
+						"en": "Troll Soothsayer",
+						"zh_CN": "巨魔占卜师"
+					},
+					"text": {
+						"en": "Draw an extra card each round.",
+						"zh_CN": "每回合多抽一张牌。"
+					}
+				},
+				"incarnation_of_selemene": {
+					"name": {
+						"en": "Incarnation of Selemene",
+						"zh_CN": "赛莉蒙妮的化身"
+					},
+					"text": {
+						"en": "Fully restore your tower's Mana after you play any card.",
+						"zh_CN": "打出任意卡牌后，你的塔恢复全部魔力。"
+					}
+				},
+				"diabolic_revelation": {
+					"name": {
+						"en": "Diabolic Revelation",
+						"zh_CN": "恶魔启示"
+					},
+					"text": {
+						"en": "Draw {cards} cards. Deal {amount} damage to allies in all lanes.",
+						"zh_CN": "抽{cards}张牌。对所有兵线上的友方单位造成{amount}伤害。"
+					}
+				},
+				"strafing_run": {
+					"name": {
+						"en": "Strafing Run",
+						"zh_CN": "低空扫射"
+					},
+					"text": {
+						"en": "Deal {amount} damage to each enemy creep.",
+						"zh_CN": "对每名敌方小兵各造成{amount}伤害。"
+					}
+				},
+				"ventriloquy": {
+					"name": {
+						"en": "Ventriloquy",
+						"zh_CN": "腹语术"
+					},
+					"text": {
+						"en": "Choose a unit. It taunts.",
+						"zh_CN": "选择一个单位，使其嘲讽。"
+					}
+				},
+				"cunning_plan": {
+					"name": {
+						"en": "Cunning Plan",
+						"zh_CN": "狡诈计谋"
+					},
+					"text": {
+						"en": "Swap a unit with one of its allied neighbors. Draw a card.",
+						"zh_CN": "将一个单位与其一个友方近邻互换位置。抽一张牌。"
+					}
+				},
+				"whispers_of_madness": {
+					"name": {
+						"en": "Whispers of Madness",
+						"zh_CN": "疯狂低语"
+					},
+					"text": {
+						"en": "Stun an enemy this round and stun allied heroes in all lanes this round.",
+						"zh_CN": "在本回合晕眩一名敌人并晕眩所有兵线上的友方英雄。"
+					}
+				},
+				"at_any_cost": {
+					"name": {
+						"en": "At Any Cost",
+						"zh_CN": "不惜代价"
+					},
+					"text": {
+						"en": "Deal {amount} damage to every unit.",
+						"zh_CN": "对每个单位造成{amount}伤害。"
+					}
+				},
+				"better_late_than_never": {
+					"name": {
+						"en": "Better Late Than Never",
+						"zh_CN": "为时未晚"
+					},
+					"text": {
+						"en": "Summon a Melee Creep into any lane.",
+						"zh_CN": "召唤一名近战小兵至任意兵线。"
+					}
+				},
+				"buying_time": {
+					"name": {
+						"en": "Buying Time",
+						"zh_CN": "拖延战术"
+					},
+					"text": {
+						"en": "Give two random cards in opponent's hand +{amount} Lock.",
+						"zh_CN": "使对手的两张随机手牌+{amount}锁定。"
+					}
+				},
+				"compel": {
+					"name": {
+						"en": "Compel",
+						"zh_CN": "勒令"
+					},
+					"text": {
+						"en": "Choose a unit. Choose a combat target for it. Draw a card.",
+						"zh_CN": "选择一个单位，为其选择一个战斗目标。抽一张牌。"
+					}
+				},
+				"frostbite": {
+					"name": {
+						"en": "Frostbite",
+						"zh_CN": "冰封禁制"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit and disarm it this round.",
+						"zh_CN": "对一个单位造成{amount}伤害，并在本回合使其缴械。"
+					}
+				},
+				"rolling_storm": {
+					"name": {
+						"en": "Rolling Storm",
+						"zh_CN": "奔腾风暴"
+					},
+					"text": {
+						"en": "Deal {amount} damage to all towers in all lanes.",
+						"zh_CN": "对所有兵线上的所有塔造成{amount}伤害。"
+					}
+				},
+				"wrath_of_gold": {
+					"name": {
+						"en": "Wrath of Gold",
+						"zh_CN": "金钱之怒"
+					},
+					"text": {
+						"en": "Spend all your gold. Repeat one time for each gold spent: Deal {amount} damage to a random ally or enemy.",
+						"zh_CN": "消耗你所有的金钱。每消耗1金钱，重复一次：对一个随机友方单位或敌人造成{amount}伤害。"
+					}
+				},
+				"and_one_for_me": {
+					"name": {
+						"en": "...And One For Me",
+						"zh_CN": "…我也来一个"
+					},
+					"text": {
+						"en": "Choose a hero. Put a base copy of a random item equipped by that hero into your hand.",
+						"zh_CN": "选择一个英雄，将该英雄装备的一件随机物品的基础副本加入你的手牌。"
+					}
+				},
+				"arcane_assault": {
+					"name": {
+						"en": "Arcane Assault",
+						"zh_CN": "奥术突袭"
+					},
+					"text": {
+						"en": "Deal {amount} damage to the enemy tower. Draw a card. Get initiative.",
+						"zh_CN": "对敌方塔造成{amount}伤害。抽一张牌。获得先手。"
+					}
+				},
+				"astral_imprisonment": {
+					"name": {
+						"en": "Astral Imprisonment",
+						"zh_CN": "星体禁锢"
+					},
+					"text": {
+						"en": "Stun a unit this round. Give that unit Damage Immunity this round.",
+						"zh_CN": "在本回合晕眩一个单位，并使该单位在本回合获得伤害免疫。"
+					}
+				},
+				"divided_we_stand": {
+					"name": {
+						"en": "Divided We Stand",
+						"zh_CN": "分则立"
+					},
+					"text": {
+						"en": "Summon a Meepo.",
+						"zh_CN": "召唤一名米波。"
+					}
+				},
+				"fog_of_war": {
+					"name": {
+						"en": "Fog of War",
+						"zh_CN": "战场迷雾"
+					},
+					"text": {
+						"en": "Each enemy has a {chance}% chance of being disarmed this round.",
+						"zh_CN": "在本回合，所有敌人有{chance}%几率被缴械。"
+					}
+				},
+				"prey_on_the_weak": {
+					"name": {
+						"en": "Prey on the Weak",
+						"zh_CN": "弱肉强食"
+					},
+					"text": {
+						"en": "Summon a Hound of War for every damaged unit.",
+						"zh_CN": "每有一个受伤的单位，就召唤一头战争猎犬。"
+					}
+				},
+				"self_sabotage": {
+					"name": {
+						"en": "Self Sabotage",
+						"zh_CN": "自我破坏"
+					},
+					"text": {
+						"en": "Modify two random cards in opponent's hand with \"Deal {amount} damage to a random allied tower in any lane.\"",
+						"zh_CN": "修改对手的两张随机手牌，使其获得“对任意兵线上的一座随机友方塔造成{amount}伤害”。"
+					},
+					"grants": [
+						{
+							"en": "Deal {amount} damage to a random allied tower in any lane.",
+							"zh_CN": "对任意兵线上的一座随机友方塔造成{amount}伤害。"
+						}
+					]
+				},
+				"sow_venom": {
+					"name": {
+						"en": "Sow Venom",
+						"zh_CN": "播撒烈毒"
+					},
+					"text": {
+						"en": "Summon two Plague Wards.",
+						"zh_CN": "召唤两名瘟疫守卫。"
+					}
+				},
+				"call_the_reserves": {
+					"name": {
+						"en": "Call the Reserves",
+						"zh_CN": "呼叫预备军"
+					},
+					"text": {
+						"en": "Summon two Melee Creeps into any lane.",
+						"zh_CN": "召唤两名近战小兵至任意兵线。"
+					}
+				},
+				"eclipse": {
+					"name": {
+						"en": "Eclipse",
+						"zh_CN": "月蚀"
+					},
+					"text": {
+						"en": "Repeat one time for each charge: Deal {amount} piercing damage to a random enemy.",
+						"zh_CN": "每有1能量重复一次：对一个随机敌人造成{amount}透甲伤害。"
+					}
+				},
+				"friendly_fire": {
+					"name": {
+						"en": "Friendly Fire",
+						"zh_CN": "误伤"
+					},
+					"text": {
+						"en": "Choose two enemies. They battle each other.",
+						"zh_CN": "选择两个敌人，让双方战斗。"
+					}
+				},
+				"lost_in_time": {
+					"name": {
+						"en": "Lost in Time",
+						"zh_CN": "迷失时空"
+					},
+					"text": {
+						"en": "Give three random cards in opponent's hand +{amount} Lock.",
+						"zh_CN": "使对手的三张随机手牌+{amount}锁定。"
+					}
+				},
+				"mystic_flare": {
+					"name": {
+						"en": "Mystic Flare",
+						"zh_CN": "神秘之耀"
+					},
+					"text": {
+						"en": "Deal {amount} damage evenly divided among a unit and its allied neighbors.",
+						"zh_CN": "造成{amount}伤害。由一个单位及其友方近邻平均分摊。"
+					}
+				},
+				"remote_detonation": {
+					"name": {
+						"en": "Remote Detonation",
+						"zh_CN": "遥控引爆"
+					},
+					"text": {
+						"en": "Deal {amount} damage to each enemy across from an empty combat position.",
+						"zh_CN": "对每个面对空白战斗位置的敌人造成{amount}伤害。"
+					}
+				},
+				"echo_slam": {
+					"name": {
+						"en": "Echo Slam",
+						"zh_CN": "回音击"
+					},
+					"text": {
+						"en": "Deal damage to each enemy equal to the number of enemies.",
+						"zh_CN": "对每个敌人造成伤害，数值为敌人的数量。"
+					}
+				},
+				"bolt_of_damocles": {
+					"name": {
+						"en": "Bolt of Damocles",
+						"zh_CN": "达摩克斯霹雳"
+					},
+					"text": {
+						"en": "Deal {amount} damage to the enemy tower.",
+						"zh_CN": "对敌方塔造成{amount}伤害。"
+					}
+				},
+				"ignite": {
+					"name": {
+						"en": "Ignite",
+						"zh_CN": "引燃"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to each enemy before the action phase.",
+						"zh_CN": "行动阶段前，对每个敌人造成{amount}透甲伤害。"
+					}
+				},
+				"barracks": {
+					"name": {
+						"en": "Barracks",
+						"zh_CN": "兵营"
+					},
+					"text": {
+						"en": "Summon a Melee Creep into this lane each deployment phase.",
+						"zh_CN": "每次部署阶段，召唤一名近战小兵至此兵线。"
+					}
+				},
+				"hound_of_war": {
+					"name": {
+						"en": "Hound of War",
+						"zh_CN": "战争猎犬"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "小兵：{attack}攻击，{armor}护甲，{health}体力。"
+					}
+				},
+				"plague_ward": {
+					"name": {
+						"en": "Plague Ward",
+						"zh_CN": "瘟疫守卫"
+					},
+					"text": {
+						"en": "Before the action phase, deal {amount} piercing damage to a random enemy neighbor of Plague Ward.",
+						"zh_CN": "行动阶段前，对瘟疫守卫的一个随机敌方近邻造成{amount}透甲伤害。"
+					}
 				}
 			},
 			"presets": {
@@ -3407,6 +4503,36 @@
 					"description": {
 						"en": "Magnus, Abaddon and Omniknight empower, shield and heal; Debbi and Phantom Assassin remove the heroes in their way.",
 						"zh_CN": "马格纳斯、亚巴顿与全能骑士强化、护盾并治疗；狡诈的黛比与幻影刺客除掉挡路的英雄。"
+					}
+				},
+				"bronze_sparrow_terrace": {
+					"name": {
+						"en": "Blue Eclipse",
+						"zh_CN": "蓝色月蚀"
+					},
+					"description": {
+						"en": "Luna charges Eclipses while Crystal Maiden and Ogre Magi refill mana and copy spells; J'Muy and Zeus add card draw and burn.",
+						"zh_CN": "露娜为月蚀充能，冰晶圣女与食人魔魔法师回复魔力、复制法术；睿智的姆伊与宙斯提供抽牌与灼烧。"
+					}
+				},
+				"siege_of_xiapi": {
+					"name": {
+						"en": "Blue / Black Ambush",
+						"zh_CN": "蓝黑伏击"
+					},
+					"description": {
+						"en": "Earthshaker and Outworld Devourer stun and imprison while Prellex's Barracks flood the lanes; Phantom Assassin and Debbi pick off heroes.",
+						"zh_CN": "撼地者与殁境神蚀者晕眩、禁锢敌军，普瑞蕾斯的兵营源源出兵；幻影刺客与狡诈的黛比收割英雄。"
+					}
+				},
+				"longxi_struggle": {
+					"name": {
+						"en": "Blue / Red Swarm",
+						"zh_CN": "蓝红人海"
+					},
+					"description": {
+						"en": "Venomancer's Plague Wards, Meepo's clones and Call the Reserves crowd the lanes; Skywrath Mage, Centaur Warrunner and Ursa finish what is left.",
+						"zh_CN": "剧毒术士的瘟疫守卫、米波的分身与呼叫预备军挤满兵线；天怒法师、半人马战行者与熊战士收拾残局。"
 					}
 				}
 			}

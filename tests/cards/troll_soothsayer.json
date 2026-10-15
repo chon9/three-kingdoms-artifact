@@ -1,0 +1,13 @@
+{
+"card": "troll_soothsayer",
+"source_id": 10138,
+"text": "Draw an extra card each round.",
+"covers": ["round_draw", "draw"],
+"cases": [
+ {"name": "draw an extra card at the start of the next round (3 instead of 2)", "clause": 0, "tags": ["round_draw", "draw"], "board": {"lanes": {"0": {"p0": ["troll_soothsayer#t"], "p1": ["melee_creep#m"]}}, "deck": {"p0": ["foresight", "slay", "hip_fire", "pick_off", "annihilation"], "p1": ["foresight", "slay", "hip_fire", "pick_off", "annihilation"]}}, "do": [{"end_round": true}], "expect": {"p0.hand": 3, "p0.deck": 2, "p1.hand": 2}},
+ {"name": "two Soothsayers draw two extra cards", "clause": 0, "tags": ["edge", "round_draw"], "board": {"base": "@0", "lanes": {"0": {"p0": ["troll_soothsayer#t", "troll_soothsayer#u"], "p1": ["melee_creep#m", null]}}}, "do": [{"end_round": true}], "expect": {"p0.hand": 4, "p1.hand": 2}},
+ {"name": "a Soothsayer that died before the round ends draws nothing extra", "clause": 0, "tags": ["negative", "round_draw"], "board": "@0", "do": [{"kill": ["t"]}, {"end_round": true}], "expect": {"t.in_play": false, "p0.hand": 2}},
+ {"name": "the opponent's Soothsayer gives you nothing", "clause": 0, "tags": ["negative", "draw"], "board": {"base": "@0", "lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["troll_soothsayer#t"]}}}, "do": [{"end_round": true}], "expect": {"p0.hand": 2, "p1.hand": 3}},
+ {"name": "it works from any lane", "clause": 0, "tags": ["edge", "round_draw"], "board": {"base": "@0", "lanes": {"0": {"p0": ["melee_creep#n"], "p1": ["melee_creep#m"]}, "2": {"p0": ["troll_soothsayer#t"], "p1": [null]}}}, "do": [{"end_round": true}], "expect": {"p0.hand": 3}},
+ {"name": "with too few cards in the deck only what is left is drawn", "clause": 0, "tags": ["edge", "draw"], "board": {"base": "@0", "deck": {"p0": ["foresight", "slay"], "p1": []}}, "do": [{"end_round": true}], "expect": {"p0.hand": 2, "p0.deck": 0}}
+]}

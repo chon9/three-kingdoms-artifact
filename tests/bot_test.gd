@@ -8,6 +8,10 @@ extends SceneTree
 ##   the best combinations per hand card by compile-time polarity, at most
 ##   PREFILTER_KEEP, in legal order;
 ## * Kanna's -1 lane creeps in the deployment choice (§9.6);
+## * M4: the static values of hacks (Self Sabotage) and mana restores (Satyr
+##   Magician's active), and random candidates averaged over seeds 1 to 3
+##   (§9.5; choose_action re-simulates the random contenders among the
+##   RANDOM_REFINE best candidates, never a pass or a draw-free simulation);
 ## * bot_purity: choosing never changes the live engine;
 ## * bot_hidden_swap: the other player's hidden state never changes a choice;
 ## * bot_budget: a decision on the dense fixture takes under 250 ms.
@@ -33,11 +37,12 @@ var bot = BotClass.new()
 
 func _initialize() -> void:
 	library = Library.from_file(FIXTURES, "rules_fixtures")
-	for test in [_test_evaluation_terms, _test_lock_term, _test_polarity, _test_prefilter, _test_kanna_deployment, _test_purity_and_swap, _test_budget]:
+	for test in [_test_evaluation_terms, _test_lock_term, _test_hack_term, _test_mana_term, _test_random_seeds, _test_polarity,
+			_test_prefilter, _test_kanna_deployment, _test_purity_and_swap, _test_budget]:
 		test.call()
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d bot checks (evaluation terms, polarity, prefilter, Kanna lanes, purity, hidden swap, budget)." % ["PASS" if failures.is_empty() else "FAIL", checks])
+	print("%s: %d bot checks (evaluation terms, locks, hacks, mana restores, random candidates over seeds 1-3, polarity, prefilter, Kanna lanes, purity, hidden swap, budget)." % ["PASS" if failures.is_empty() else "FAIL", checks])
 	quit(0 if failures.is_empty() else 1)
 
 func _check(condition: bool, message: String) -> void:
@@ -143,6 +148,138 @@ func _test_lock_term() -> void:
 		scores.append(bot._score_action(engine, view, 0, play, bot._evaluate(engine, view, 0)))
 	_check(is_equal_approx(scores[0] - scores[2], 0.6), "Locking two of five unlocked opponent cards scores +0.6 (%.2f)" % (scores[0] - scores[2]))
 	_check(is_equal_approx(scores[1] - scores[2], 0.3), "With one unlocked card left it scores +0.3 (%.2f)" % (scores[1] - scores[2]))
+
+## M4: hacks on hidden opponent cards (Self Sabotage) are priced from the
+## compiled static value: each hacked card deals its tower damage to the
+## opponent when played, up to the opponent's public hand size.
+func _test_hack_term() -> void:
+	var value: Dictionary = library.static_value("self_sabotage")
+	_check(int(value.get("hack", 0)) == 2 and int(value.get("hack_damage", 0)) == 6,
+		"Self Sabotage's static value hacks 2 cards for 6 tower damage each (%s)" % [value])
+	_check(int(library.static_value("buying_time").get("hack", 0)) == 0, "A lock is not a hack")
+	var engine = _engine()
+	_unit(engine, "jmuy", 0, 0)
+	engine.state.players[0].hand = ["self_sabotage"]
+	Zones.sync(engine)
+	var play: Dictionary = {}
+	for action in engine.legal_actions(0):
+		if str(action.type) == "play":
+			play = action
+	_check(not play.is_empty(), "Self Sabotage is playable on the hack board")
+	if play.is_empty():
+		return
+	var scores: Array = []
+	for cards in [0, 1, 5]:
+		engine.state.players[1].hand = []
+		for index in range(cards):
+			engine.state.players[1].hand.append("foresight")
+		engine.state.players[1].hand_state = []
+		Zones.sync(engine)
+		var view = engine.player_view(0)
+		scores.append(bot._score_action(engine, view, 0, play, bot._evaluate(engine, view, 0)))
+	_check(is_equal_approx(scores[1] - scores[0], 0.36) and is_equal_approx(scores[2] - scores[0], 0.72),
+		"Hacking 2 cards of 6 damage scores +0.36 with one opponent card and +0.72 with five (%.2f, %.2f)" % [scores[1] - scores[0], scores[2] - scores[0]])
+
+## M4: an action that restores its own tower's mana (Satyr Magician's
+## active) is worth the mana the dearest card in hand still needs.
+func _test_mana_term() -> void:
+	var static_value: Dictionary = library.rules("satyr_magician").get("ability_static", {}).get("magician", {})
+	_check(bool(static_value.get("mana", false)) and not bool(static_value.get("random", true)), "Satyr Magician's active restores mana and is not random (%s)" % [static_value])
+	var scores: Dictionary = {}
+	for hand in [["foresight"], ["fx_summon_hero", "incarnation_of_selemene"], []]:
+		var engine = _engine()
+		var satyr = _unit(engine, "satyr_magician", 0, 0)
+		engine.state.lanes[0].mana[0] = 2
+		engine.state.players[0].hand = hand
+		Zones.sync(engine)
+		var ability = {"type": "ability", "unit": int(satyr.uid)}
+		_check(ability in engine.legal_actions(0), "Satyr Magician's active is legal")
+		var view = engine.player_view(0)
+		scores[hand.size()] = bot._score_action(engine, view, 0, ability, bot._evaluate(engine, view, 0))
+	# Foresight costs 4 and Selemene 9 with 2 of 10 mana: 2 and 7 are missing.
+	_check(is_equal_approx(scores[1], 0.24) and is_equal_approx(scores[2], 0.84) and is_equal_approx(scores[0], 0.0),
+		"The restore is worth 0.12 per missing mana of the dearest card (%s)" % [scores])
+	var engine = _engine()
+	var satyr = _unit(engine, "satyr_magician", 0, 0)
+	engine.state.lanes[0].mana[0] = 2
+	engine.state.players[0].hand = ["incarnation_of_selemene"]
+	engine.state.first_pass = 1
+	Zones.sync(engine)
+	_check(bot.choose_action(engine, 0) == {"type": "ability", "unit": int(satyr.uid)}, "The bot restores its mana before it would pass with an unaffordable Selemene")
+
+## Spec §9.5 (M4): a random candidate is simulated with seeds 1, 2 and 3 and
+## averaged; a deterministic one with seed 1 only.
+func _test_random_seeds() -> void:
+	_check(bool(library.static_value("fog_of_war").random) and not bool(library.static_value("lightning_strike").random),
+		"Fog of War is a random card, Lightning Strike is not")
+	var engine = _engine()
+	_unit(engine, "jmuy", 0, 0)
+	for count in range(3):
+		_unit(engine, "fx_cleave_3", 1, 0)
+		_unit(engine, "melee_creep", 0, 0)
+	engine.state.players[0].hand = ["fog_of_war", "lightning_strike"]
+	Zones.sync(engine)
+	var view = engine.player_view(0)
+	var baseline = bot._evaluate(engine, view, 0)
+	for action in engine.legal_actions(0):
+		if str(action.type) != "play":
+			continue
+		var card_id = str(engine.state.players[0].hand[int(action.hand)])
+		var seeds: Array = BotClass.RANDOM_SEEDS.map(func(seed_value): return bot._simulated_score(engine, view, 0, action, baseline, int(seed_value)))
+		var static_value: Dictionary = library.static_value(card_id)
+		var cost = 0.7 + float(library.get_card(card_id).get("cost", 0)) * 0.12
+		var score = bot._score_action(engine, view, 0, action, baseline) + cost - float(static_value.bias)
+		if card_id == "fog_of_war":
+			_check(seeds[0] != seeds[1] or seeds[1] != seeds[2], "Fog of War's three seeds disarm different enemies (%s)" % [seeds])
+			_check(is_equal_approx(score, (seeds[0] + seeds[1] + seeds[2]) / 3.0), "A random card scores the average of seeds 1 to 3 (%.3f vs %s)" % [score, seeds])
+		else:
+			_check(score == seeds[0], "A deterministic card scores its seed-1 simulation (%.3f vs %.3f)" % [score, seeds[0]])
+	var digest = engine.state_digest()
+	var rng_state = engine.rng.state
+	bot.choose_action(engine, 0)
+	_check(engine.state_digest() == digest and engine.rng.state == rng_state, "Averaging over seeds leaves the live engine untouched")
+	# Within the decision budget (§13.6), choose_action re-simulates with the
+	# other seeds only the random candidates among the RANDOM_REFINE best, and
+	# never simulates pass (its score does not read a simulation).
+	engine = _engine()
+	engine._place(engine.state.players[0].roster[0], 0, 0)
+	for count in range(4):
+		_unit(engine, "melee_creep", 1, 0)
+	_unit(engine, "melee_creep", 0, 0)
+	engine.state.players[0].hand = ["fx_bounce_spell"]
+	Zones.sync(engine)
+	var candidates = engine.legal_actions(0)
+	var plays = candidates.filter(func(action): return str(action.type) == "play").size()
+	# The contenders: the RANDOM_REFINE best candidates by first-seed score;
+	# each random one that drew randomness costs two more simulations.
+	view = engine.player_view(0)
+	baseline = bot._evaluate(engine, view, 0)
+	var scored: Array = []
+	for index in range(candidates.size()):
+		var action: Dictionary = candidates[index]
+		var change = 0.0 if str(action.type) == "pass" else bot._simulated_score(engine, view, 0, action, baseline, 1)
+		var drew_random = str(action.type) != "pass" and bot._last_drew and bot._is_random(engine, view, 0, action)
+		scored.append([bot._static_score(engine, view, 0, action, change), index, drew_random])
+	scored.sort_custom(func(a, b): return a[0] > b[0] or (a[0] == b[0] and a[1] < b[1]))
+	var extra = 0
+	for entry in scored.slice(0, BotClass.RANDOM_REFINE):
+		if entry[2]:
+			extra += BotClass.RANDOM_SEEDS.size() - 1
+	var before = bot.simulations
+	bot.choose_action(engine, 0)
+	_check(plays > BotClass.RANDOM_REFINE and extra > 0 and bot.simulations - before == candidates.size() - 1 + extra,
+		"choose_action simulates every candidate but pass once and the random contenders twice more (%d simulations, %d extra)" % [bot.simulations - before, extra])
+	# A random pick from the opponent's hand draws nothing in the simulation
+	# (the hand is hidden, so empty there): one simulation is enough.
+	engine = _engine()
+	_unit(engine, "jmuy", 0, 0)
+	engine.state.players[0].hand = ["self_sabotage"]
+	engine.state.players[1].hand = ["foresight", "foresight", "foresight"]
+	Zones.sync(engine)
+	candidates = engine.legal_actions(0)
+	before = bot.simulations
+	bot.choose_action(engine, 0)
+	_check(bot.simulations - before == candidates.size() - 1, "A random card whose simulation draws no randomness is simulated once (%d simulations)" % (bot.simulations - before))
 
 ## Compile-time polarity of choices (spec §9.4).
 func _test_polarity() -> void:

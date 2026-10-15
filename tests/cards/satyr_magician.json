@@ -1,0 +1,14 @@
+{
+"card": "satyr_magician",
+"source_id": 10137,
+"text": "Active 1: Fully restore your tower's Mana.",
+"covers": ["active", "mana_restore", "allied_tower", "tower_mana"],
+"cases": [
+ {"name": "Active 1: fully restore your tower's Mana", "clause": 0, "tags": ["active", "mana_restore", "allied_tower", "tower_mana"], "board": {"lanes": {"0": {"p0": ["satyr_magician#s", "jmuy#j"], "p1": ["melee_creep#m", null]}}}, "do": [{"play": "thunderstorm"}, {"pass": 1}, {"ability": "s"}], "expect": {"mana.0.0": 10, "max_mana.0.0": 10, "s.cooldown": 1, "events": {"has": ["ability", "mana"]}}},
+ {"name": "on cooldown it cannot be used again this round", "clause": 0, "tags": ["negative", "active"], "board": "@0", "do": [{"play": "thunderstorm"}, {"pass": 1}, {"ability": "s"}, {"pass": 1}], "expect_illegal": [{"ability": "s"}]},
+ {"name": "cooldown 1: ready again next round", "clause": 0, "tags": ["edge", "active"], "board": "@0", "do": [{"play": "thunderstorm"}, {"pass": 1}, {"ability": "s"}, {"end_round": true}, {"pass": 1}], "expect": {"s.cooldown": 0}, "expect_legal": [{"ability": "s"}]},
+ {"name": "only your own tower: the opponent's spent Mana stays spent", "clause": 0, "tags": ["edge", "allied_tower"], "board": {"active_player": 1, "initiative": 1, "lanes": {"0": {"p0": ["satyr_magician#s", "jmuy#k"], "p1": ["jmuy#j", null]}}}, "do": [{"play": "lightning_strike", "player": 1}, {"ability": "s"}], "expect": {"mana.0.1": 8, "mana.0.0": 10}},
+ {"name": "a creep played this round can use it at once", "clause": 0, "tags": ["edge", "active", "mana_restore"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["melee_creep#m", null]}}}, "do": [{"play": "satyr_magician", "position": 1, "as": "s"}, {"pass": 1}, {"ability": "s"}], "expect": {"mana.0.0": 10, "s.cooldown": 1}},
+ {"name": "a silenced Satyr Magician cannot use it", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"s": ["silence"]}}, "do": [{"play": "thunderstorm"}, {"pass": 1}], "expect": {"mana.0.0": 4}, "expect_illegal": [{"ability": "s"}]},
+ {"name": "outside the active lane it cannot be used, so another lane's tower stays spent", "clause": 0, "tags": ["negative", "allied_tower"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#m"]}, "1": {"p0": ["satyr_magician#s"], "p1": ["melee_creep#n"]}}}, "do": [{"play": "thunderstorm"}, {"pass": 1}], "expect": {"mana.0.0": 4, "mana.1.0": 10}, "expect_illegal": [{"ability": "s"}]}
+]}

@@ -1,0 +1,13 @@
+{
+"card": "bolt_of_damocles",
+"source_id": 10353,
+"text": "Deal 20 damage to the enemy tower.",
+"covers": ["play", "damage", "tower_damage", "enemy_tower"],
+"cases": [
+ {"name": "Deal 20 damage to the enemy tower of this lane", "clause": 0, "tags": ["play", "damage", "tower_damage", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}}}, "do": [{"play": "bolt_of_damocles"}], "expect": {"tower.0.1.health": 20, "tower.0.0.health": 40, "tower.1.1.health": 40, "a.health": 4, "mana.0.0": 0, "events": {"has": ["tower_damage"]}}},
+ {"name": "a tower destroyed by it becomes an 80-health ancient with no overflow", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"base": "@0", "towers": {"0": {"p1": {"health": 15}}}}, "do": [{"play": "bolt_of_damocles"}], "expect": {"tower.0.1.ancient": true, "tower.0.1.health": 80, "winner": -1, "events": {"has": ["tower_fall"]}}},
+ {"name": "it hits a standing ancient", "clause": 0, "tags": ["edge", "enemy_tower"], "board": {"base": "@0", "towers": {"0": {"p1": {"health": 80, "ancient": true}}}}, "do": [{"play": "bolt_of_damocles"}], "expect": {"tower.0.1.health": 60}},
+ {"name": "destroying a second tower wins the game", "clause": 0, "tags": ["edge", "enemy_tower"], "board": {"base": "@0", "towers": {"1": {"p1": {"health": 80, "ancient": true}}, "0": {"p1": {"health": 20}}}}, "do": [{"play": "bolt_of_damocles"}], "expect": {"winner": 0, "events": {"has": ["tower_fall", "win"]}}},
+ {"name": "tower armor reduces it", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"base": "@0", "improvements": {"0": {"p1": ["steel_reinforcement#r"]}}}, "do": [{"play": "bolt_of_damocles"}], "expect": {"tower.0.1.health": 21}},
+ {"name": "with 9 mana it cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "mana": 9}, "do": [], "expect_illegal": [{"play": "bolt_of_damocles"}]}
+]}

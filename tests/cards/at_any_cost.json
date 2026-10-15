@@ -1,0 +1,11 @@
+{
+"card": "at_any_cost",
+"source_id": 10424,
+"text": "Deal 6 damage to every unit.",
+"covers": ["play", "damage", "all_units"],
+"cases": [
+ {"name": "every unit in the lane, allied and enemy, takes 6 damage", "clause": 0, "tags": ["play", "damage", "all_units"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "centaur_hunter#c", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#a", null]}}}, "do": [{"play": "at_any_cost"}], "expect": {"j.health": 2, "c.health": 2, "k.health": 6, "m.in_play": false, "a.in_play": false, "events": {"has": ["damage", "death"]}}},
+ {"name": "rq_02_each_dead_creep_pays_bounty_to_the_opponent_of_its_owner", "clause": 0, "tags": ["edge", "all_units", "RQ-02"], "board": "@0", "do": [{"play": "at_any_cost"}], "expect": {"p0.gold": 1, "p1.gold": 1}},
+ {"name": "rq_04_units_in_other_lanes_and_the_towers_are_untouched", "clause": 0, "tags": ["negative", "all_units", "RQ-04"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["keefe#k"]}, "1": {"p0": ["axe#x"], "p1": ["melee_creep#y"]}}}, "do": [{"play": "at_any_cost"}], "expect": {"j.health": 2, "k.health": 6, "x.health": 10, "y.health": 4, "tower.0.0.health": 40, "tower.0.1.health": 40}},
+ {"name": "Damage Immunity and armor protect", "clause": 0, "tags": ["edge", "damage"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "axe#x"], "p1": ["mazzie#z", "keefe#k"]}}, "give": {"j": ["damage_immunity"]}}, "do": [{"play": "at_any_cost"}], "expect": {"j.health": 8, "x.health": 6, "z.health": 3, "k.health": 6}}
+]}

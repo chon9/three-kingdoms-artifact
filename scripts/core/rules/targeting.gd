@@ -182,7 +182,8 @@ static func _action_turn(e, player: int) -> bool:
 		and str(e.state.phase) == "action" and int(e.state.active_player) == player
 
 ## The UI steps of a hand card ({"hand": i}) or an ability source ({"unit":
-## id}): [{"key", "type"[, "lane_key" | "lane"]}] in command order.
+## id}): [{"key", "type"[, "lane_key" | "lane"][, "pair"]}] in command order;
+## "pair" names the earlier key this step forms an unordered pair with.
 static func steps(e, source: Dictionary) -> Array:
 	var spec: Array = []
 	if source.has("hand"):
@@ -199,6 +200,11 @@ static func steps(e, source: Dictionary) -> Array:
 	var out: Array = []
 	for choice in spec:
 		var step = {"key": str(choice.key), "type": str(choice.get("type", "unit"))}
+		# An `after` choice makes an unordered pair with the choice it follows
+		# (Friendly Fire): legal_actions lists each pair once, in canonical
+		# order, and the UI lets either unit be picked first.
+		if choice.has("after") and str(choice.after).begins_with("$c."):
+			step["pair"] = str(choice.after).substr(3)
 		if step.type == "position":
 			var lane = choice.get("from", {}).get("lane") if choice.get("from") is Dictionary else null
 			if lane is String and str(lane).begins_with("$c."):

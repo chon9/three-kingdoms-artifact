@@ -1,0 +1,13 @@
+{
+"card": "sow_venom",
+"source_id": 10002,
+"text": "Summon two Plague Wards.",
+"covers": ["play", "summon", "permanent"],
+"cases": [
+ {"name": "Summon two Plague Wards into the active lane, for the caster", "clause": 0, "tags": ["play", "summon", "permanent"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#e"]}}}, "do": [{"play": "sow_venom"}], "expect": {"units.0.0.plague_ward": 2, "units.0.1.plague_ward": 0, "units.1.0.plague_ward": 0, "mana.0.0": 6, "events": {"has": ["summon"]}}},
+ {"name": "the wards are permanent: they stay after the round ends", "clause": 0, "tags": ["permanent"], "board": "@0", "do": [{"play": "sow_venom"}, {"end_round": true}], "expect": {"units.0.0.plague_ward": 2}},
+ {"name": "an empty own position is filled first, then a new position opens at an end", "clause": 0, "tags": ["edge", "summon"], "board": {"lanes": {"0": {"p0": ["jmuy#j", null], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"play": "sow_venom"}], "expect": {"units.0.0": 3, "units.0.0.plague_ward": 2, "e.health": 4, "f.health": 4}},
+ {"name": "no blue hero in the active lane: it cannot be cast", "clause": 0, "tags": ["negative"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#e"]}, "1": {"p0": ["jmuy#j"], "p1": []}}}, "do": [], "expect_illegal": [{"play": "sow_venom"}]},
+ {"name": "a silenced blue hero gives no colour: it cannot be cast", "clause": 0, "tags": ["negative"], "board": {"base": "@0", "give": {"j": ["silence"]}}, "do": [], "expect_illegal": [{"play": "sow_venom"}]},
+ {"name": "not enough mana (4): it cannot be cast", "clause": 0, "tags": ["negative"], "board": {"base": "@0", "mana": 3}, "do": [], "expect_illegal": [{"play": "sow_venom"}]}
+]}

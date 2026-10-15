@@ -122,6 +122,9 @@ NOT_COOLDOWN = r"(?<!Active )(?<!cooldown )(?<!冷却)(?<!主动)"
 ## A cost threshold ("costing 2 or less") is never a card parameter: the
 ## card_played filter's cost_max is a literal number.
 NOT_COST = r"(?!\s*or less)(?!或更低)(?!以下)"
+## A rate ("每有1能量", "per 1 charge": Eclipse's "for each charge") is never a
+## parameter either, even when it equals one (Eclipse prints 1 charge).
+NOT_RATE = r"(?<!每有)(?<!每)(?<!per )"
 
 
 def number(value, draft):
@@ -165,7 +168,7 @@ def placeholders(text, draft, notes, label):
     for name in candidate_params(draft):
         values.setdefault(int(draft[name]), []).append(name)
     for value, names in sorted(values.items(), key=lambda item: -len(str(item[0]))):
-        pattern = NOT_COOLDOWN + r"(?<![\d{])%d(?![\d}])" % value + NOT_COST
+        pattern = NOT_COOLDOWN + NOT_RATE + r"(?<![\d{])%d(?![\d}])" % value + NOT_COST
         if len(names) != 1:
             if re.search(pattern, text):
                 notes.append("%s: %d matches %s; left as a number" % (label, value, " and ".join(names)))
@@ -183,11 +186,39 @@ def ability_card(draft, tags_by_source, valve):
     return None, {}, {}
 
 
+def hero_abilities(draft, valve_card, tags_by_source, valve):
+    """Every Valve ability of a hero in Valve's order, as (the draft ability
+    with that "valve" id or None, its tags, its Valve card): Meepo has Poof
+    (an active) and United We Fall (a passive written as a keyword)."""
+    by_valve = {int(a["valve"]): a for a in draft.get("abilities", []) if "valve" in a}
+    out = []
+    for reference in valve_card.get("references", []):
+        if reference.get("ref_type") in ("active_ability", "passive_ability"):
+            source = int(reference["card_id"])
+            out.append((by_valve.get(source), tags_by_source.get(source, {}), valve.get(source, {})))
+    return out
+
+
+def with_cooldown_param(draft, notes):
+    """The M3 convention: an active's literal cooldown becomes the top-level
+    ability_cooldown parameter, read with {"param": "ability_cooldown"}."""
+    draft = json.loads(json.dumps(draft))
+    for ability in draft.get("abilities", []):
+        if ability.get("kind") == "active" and isinstance(ability.get("cooldown"), int) and "ability_cooldown" not in draft:
+            draft["ability_cooldown"] = ability["cooldown"]
+            ability["cooldown"] = {"param": "ability_cooldown"}
+            notes.append("cooldown %d of %s -> the ability_cooldown parameter" % (draft["ability_cooldown"], ability.get("id", "?")))
+    return draft
+
+
 def strip_marker(name):
-    return re.sub(r"\s*[（(][^）)]*[）)]\s*$", "", name or "").strip()
+    """The first ability name of a mapping entry without its marker:
+    "Lightning March (active 2); One Root (passive)" -> "Lightning March"."""
+    first = re.split(r"\s*[;；]\s*", name or "")[0]
+    return re.sub(r"\s*[（(][^）)]*[）)]\s*$", "", first).strip()
 
 
-def build_entry(root, draft, tags_entry, valve_card, ability, ability_tags, ability_valve, pack_ids, notes):
+def build_entry(root, draft, tags_entry, valve_card, ability, ability_tags, ability_valve, pack_ids, notes, abilities=None):
     entry = {"id": draft["id"], "source_id": draft["source_id"]}
     entry["name"] = valve_card.get("card_name", {}).get("english") or tags_entry.get("name") or draft["id"]
     entry["color"] = draft.get("color", "neutral")
@@ -196,7 +227,7 @@ def build_entry(root, draft, tags_entry, valve_card, ability, ability_tags, abil
     entry["image"] = "res://assets/classic_cards/%d_card.png" % int(draft["source_id"])
     if valve_card.get("illustrator"):
         entry["artist"] = valve_card["illustrator"]
-    text = classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_valve, "english")
+    text = classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_valve, "english", abilities)
     entry["text"] = placeholders(text, draft, notes, "classic en text")
     if ability is not None:
         entry["ability_name"] = ability_tags.get("name") or ability_valve.get("card_name", {}).get("english", "")
@@ -231,8 +262,13 @@ def build_entry(root, draft, tags_entry, valve_card, ability, ability_tags, abil
     return entry
 
 
-def classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_valve, language):
-    """Valve's card text; a hero's is its ability name, text and cooldown."""
+def classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_valve, language, abilities=None):
+    """Valve's card text; a hero's is its ability name, text and cooldown, for
+    each of its Valve abilities (`abilities`, see hero_abilities) in order."""
+    if draft["kind"] == "hero" and abilities:
+        parts = [classic_text(draft, tags_entry, valve_card, entry[0] if entry[0] is not None else {}, entry[1], entry[2], language)
+                 for entry in abilities]
+        return ("" if language != "english" else " ").join(part for part in parts if part)
     if draft["kind"] == "hero" and ability is not None:
         if language == "english":
             name = ability_tags.get("name") or ability_valve.get("card_name", {}).get("english", "")
@@ -254,7 +290,7 @@ def classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_v
     return strip_html(valve_card.get("card_text", {}).get(language, ""), chinese=True)
 
 
-def locale_entries(draft, mapping, tags_entry, valve_card, ability, ability_tags, ability_valve, notes):
+def locale_entries(draft, mapping, tags_entry, valve_card, ability, ability_tags, ability_valve, notes, abilities=None):
     tk = {}
     classic = {}
     if mapping:
@@ -271,9 +307,9 @@ def locale_entries(draft, mapping, tags_entry, valve_card, ability, ability_tags
     classic["name"] = {"en": names.get("english") or tags_entry.get("name") or draft["id"]}
     if names.get("schinese"):
         classic["name"]["zh_CN"] = names["schinese"]
-    classic["text"] = {"en": placeholders(classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_valve, "english"),
+    classic["text"] = {"en": placeholders(classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_valve, "english", abilities),
                                           draft, notes, "classic en text")}
-    zh = classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_valve, "schinese")
+    zh = classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_valve, "schinese", abilities)
     if zh:
         classic["text"]["zh_CN"] = placeholders(zh, draft, notes, "classic zh_CN text")
     if ability is not None:
@@ -363,10 +399,12 @@ def main():
         sys.exit("new_card: %s already exists" % spec_path)
 
     notes = []
+    draft = with_cooldown_param(draft, notes)
     ability, ability_tags, ability_valve = ability_card(draft, tags_by_source, valve)
+    abilities = hero_abilities(draft, valve_card, tags_by_source, valve) if draft["kind"] == "hero" else None
     pack_ids = {int(card["source_id"]): card["id"] for card in pack if "source_id" in card}
-    entry = build_entry(root, draft, tags_entry, valve_card, ability, ability_tags, ability_valve, pack_ids, notes)
-    tk, classic = locale_entries(draft, mapping.get(source_id), tags_entry, valve_card, ability, ability_tags, ability_valve, notes)
+    entry = build_entry(root, draft, tags_entry, valve_card, ability, ability_tags, ability_valve, pack_ids, notes, abilities)
+    tk, classic = locale_entries(draft, mapping.get(source_id), tags_entry, valve_card, ability, ability_tags, ability_valve, notes, abilities)
     spec = card_spec(draft, tags_entry)
 
     classic_data["heroes" if draft["kind"] == "hero" else "cards"].append(entry)
