@@ -302,14 +302,14 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
             {"op": "let", "name": "prev", "value": "$v.next"}]}]}
 ```
 
-**Read a value before condemning** (Lich, draft): `let` the attack first, because the target is gone after the Pulse.
+**Read a value before condemning** (Lich; Ravenous Mass sums its neighbors' Attack and current Health the same way, RQ-58): `let` the attack first, because the target is gone after the Pulse.
 ```json
 "ops": [{"op": "let", "name": "atk", "value": {"stat": "attack", "of": "$c.target"}},
         {"op": "condemn", "to": "$c.target"}, {"op": "draw", "player": "you", "n": 1},
         {"op": "if", "cond": {"cmp": ["$v.atk", ">=", {"param": "threshold"}]}, "then": [{"op": "draw", "player": "you", "n": 1}]}]
 ```
 
-**Charges on an improvement** (March of the Machines, draft):
+**Charges on an improvement** (March of the Machines; the `where` is checked when `before_action` fires, so at 0 charges it stays in play and does nothing):
 ```json
 "charges": 3,
 "abilities": [{"id": "march", "kind": "trigger", "on": "before_action", "where": {"cmp": [{"charges": "$self"}, ">", 0]},
@@ -317,9 +317,10 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
           {"op": "damage", "to": "enemies", "amount": {"param": "amount"}}]}]
 ```
 
-**Granted text** (Heartstopper Aura, draft): the granted trigger runs with the bearer as `$self` and the granting card's params.
+**Granted text** (Heartstopper Aura): the granted trigger runs with the bearer as `$self` and the granting card's params; its `id` names the grant in the log.
 ```json
-"grants": [{"kind": "trigger", "on": "before_action", "ops": [{"op": "damage", "to": "enemy_neighbors", "amount": 2, "piercing": true}]}],
+"amount": 2,
+"grants": [{"id": "heartstopper_aura", "kind": "trigger", "on": "before_action", "ops": [{"op": "damage", "to": "enemy_neighbors", "amount": {"param": "amount"}, "piercing": true}]}],
 "play": {"choices": [{"key": "target", "from": {"s": "units", "kind": "hero", "color": "black"}}], "ops": [{"op": "modify", "to": "$c.target", "grant": 0}]}
 ```
 
@@ -334,7 +335,7 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
 "abilities": [{"id": "deed", "kind": "aura", "affects": "you", "grant": {"rules": {"secret_shop_discount": 1}}}]
 ```
 
-**Lane, then position** (the fixture Redeploy; Ball Lightning and Divided We Stand move the same way): each choice narrows the next, and the UI asks for them one step at a time.
+**Lane, then position** (the fixture Redeploy; Ball Lightning moves the same way, with its allied black hero from the active lane, RQ-55): each choice narrows the next, and the UI asks for them one step at a time. Winter Wyvern's active asks for a position only: `{"key": "position", "from": {"s": "positions", "side": "ally", "lane": "self"}}`, then `{"op": "move", "unit": "$self", "position": "$c.position"}` (a same-lane move, CF-1).
 ```json
 "cross_lane": true,
 "play": {"choices": [{"key": "target", "from": {"s": "units", "side": "ally", "lane": "all"}}, {"key": "lane", "from": {"s": "lanes", "lane": "all"}},
@@ -342,7 +343,36 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
   "ops": [{"op": "move", "unit": "$c.target", "lane": "$c.lane", "position": "$c.position"}]}
 ```
 
-**A random other lane per unit** (Relentless Pursuit's bounce): `{"op": "move", "unit": "enemies", "lane": "random_other"}`.
+**A random other lane per unit** (Primal Roar, the stunned unit's allied neighbors): `{"op": "move", "unit": {"s": "units", "rel": {"allied_neighbors": "$c.target"}}, "lane": "random_other"}`.
+
+**A random hero to the chosen unit's lane, then a Pulse** (Relentless Pursuit; Cross Lane): `{"op": "move", "unit": {"s": "units", "side": "ally", "kind": "hero", "color": "black", "lane": "active", "pick": {"random": 1}}, "lane": "$c.target.lane"}`, then `pulse` and the damage.
+
+**A battle across lanes** (Gank; Cross Lane: the hero from the active lane, RQ-55, the other unit from any lane). Each unit's battle-damage reactions fire in its own lane (RQ-45).
+```json
+"cross_lane": true,
+"play": {"choices": [{"key": "target", "from": {"s": "units", "side": "ally", "kind": "hero", "color": "black"}},
+                     {"key": "destination", "from": {"s": "units", "lane": "all", "not": "$c.target"}}],
+  "ops": [{"op": "battle", "a": "$c.target", "b": "$c.destination"}]}
+```
+
+**Tower mana this round, and an aura on the enemy tower** (Mana Drain; Tyler Estate Censor; Arcane Censure is the permanent `modify`): mana changes move the exact base, floored only when read (CF-5, RQ-52).
+```json
+"play": {"ops": [{"op": "give", "to": "enemy_tower", "until": "round", "stats": {"mana": {"neg": {"param": "amount"}}}},
+                 {"op": "give", "to": "your_tower", "until": "round", "stats": {"mana": {"param": "amount"}}}]}
+"abilities": [{"id": "censor", "kind": "aura", "affects": "enemy_tower", "grant": {"mana": {"neg": {"param": "mana_loss"}}}}]
+```
+
+**An amount scaled by a count** (Dirty Deeds, one hit, RQ-56; Lodestone Demolition sums a stat instead, RQ-57; Assassin's Shadow's self aura counts its allies, itself included, RQ-50):
+```json
+"play": {"ops": [{"op": "tower_damage", "to": "enemy_tower", "amount": {"mul": [{"param": "amount"}, {"count": {"s": "improvements", "side": "enemy"}}]}}]}
+"abilities": [{"id": "shadow", "kind": "aura", "affects": "$self", "grant": {"attack": {"neg": {"mul": [{"count": "allies"}, {"param": "attack_per_ally"}]}}}}]
+```
+
+**Until its next combat, in any lane** (Storm Spirit): a `next_combat` entry ends with the unit's own lane's combat, follows it when it moves, and lasts into the next round when given after that combat.
+```json
+"abilities": [{"id": "overload", "kind": "trigger", "on": "card_played", "lane": "any", "filter": {"player": "you", "color": "black"},
+  "ops": [{"op": "give", "to": "$self", "stats": {"attack": {"param": "amount"}}, "until": "next_combat"}]}]
+```
 
 **Locks and hacks on the opponent's hand** (Self Sabotage, Claszureme Hourglass):
 ```json
@@ -393,7 +423,7 @@ The golden games (`tests/golden/`, data in `tests/data/goldens/`) replay 54 reco
 
 ## Testing tools
 
-- **Card specs** (`tests/cards/<id>.json`, run by `tests/card_specs_test.gd`, spec §13.1). Each case builds a board from a small DSL (`lanes` rows of `"card#label:hp=3:atk=2:arrow=-1:ready=2+item"` entries, `hand`, `deck`, `towers`, `improvements`, `fountain`, `mana`, `gold`, `hand_state`...), runs steps (`play`, with `"as": "<label>"` to name the creep a play puts into the lane, else the first unit it summons; `ability`; `pass`; `combat`; `end_round`, with `"deploy": {"<hero label>": lane}` to deploy heroes from the Fountain; a deployment phase step by step with `begin_deployment`, `"plan": {"<hero label>": lane}` (real deploy commands) and `reveal`; `kill`; `draw`) and checks `expect` fields (`<label>.attack`, `<label>.kw.siege`, `<label>.stunned`, `tower`, `p0.hand`, `p0.hand.<i>` (the card id there), `p0.hand.<card>` (copies of a card), `p0.hand_state.<i>.<field>` (null past the end), `units.<lane>.<p>[.<card>]` (a count of units), `fountain.<p>[.<card>]` (a count of roster heroes out of the lanes), `events` with `has`/`not`, `expect_legal`, `expect_illegal`, `expect_rate` (an empty list or string counts as false), `expect_private`). For an assertion the DSL cannot express, `"gd": "res://tests/cards/extra/<id>.gd"` names a RefCounted script whose `check(engine, labels)` returns failure messages (`tests/cards/extra/soul_of_spring.gd` checks the granted text in the log). The runner also checks the invariants after every step, that two runs give the same digest, that every event formats in both skins and locales, and that rejected commands change nothing. `--card <id>` runs one card.
+- **Card specs** (`tests/cards/<id>.json`, run by `tests/card_specs_test.gd`, spec §13.1). Each case builds a board from a small DSL (`lanes` rows of `"card#label:hp=3:atk=2:arrow=-1:ready=2+item"` entries, `hand`, `deck`, `towers`, `improvements`, `fountain`, `mana`, `gold`, `hand_state`...), runs steps (`play`, with `"as": "<label>"` to name the creep a play puts into the lane, else the first unit it summons; `ability`; `pass`; `combat`; `end_round`, with `"deploy": {"<hero label>": lane}` to deploy heroes from the Fountain; a deployment phase step by step with `begin_deployment`, `"plan": {"<hero label>": lane}` (real deploy commands) and `reveal`; `kill`; `draw`; `give`, statuses this round mid-case, as the board's `give` at setup) and checks `expect` fields (`<label>.attack`, `<label>.kw.siege`, `<label>.stunned`, `tower`, `p0.hand`, `p0.hand.<i>` (the card id there), `p0.hand.<card>` (copies of a card), `p0.hand_state.<i>.<field>` (null past the end), `units.<lane>.<p>[.<card>]` (a count of units), `fountain.<p>[.<card>]` (a count of roster heroes out of the lanes), `events` with `has`/`not`, `expect_legal`, `expect_illegal`, `expect_rate` (an empty list or string counts as false), `expect_private`). For an assertion the DSL cannot express, `"gd": "res://tests/cards/extra/<id>.gd"` names a RefCounted script whose `check(engine, labels)` returns failure messages (`tests/cards/extra/soul_of_spring.gd` checks the granted text in the log). The runner also checks the invariants after every step, that two runs give the same digest, that every event formats in both skins and locales, and that rejected commands change nothing. `--card <id>` runs one card.
 - **Meta tests** (`tests/rules_schema_test.gd`): every verified Classic card has a spec, its `text` equals `valve_text`, and its `covers` include the card's mechanics tags; `tools/coverage.py` maps Valve's verb and trigger tags to ops and events (`python -I -X utf8 tools/coverage.py` rewrites `tests/data/coverage.json`, `--check` only checks; the schema test compares the table's hash).
 - **The rules fixture pack** (`tests/fixtures/rules_fixtures.json`, loaded with `CardLibrary.from_file(path, "rules_fixtures")`): synthetic `fx_*` cards for every keyword, status, duration, zone op, improvement, item ability, deed and rules-layer grant. It is never in a preset or `PACKS` and is excluded from exports. `tests/mechanics_test.gd` runs the keyword matrix and the RQ cases on it, plus `preview_equals_combat` on 2,000 random boards.
 - **Fuzz** (`tests/fuzz_test.gd`, `--seeds 50` by default, `--nightly` for 2,000): random legal decks over both packs and the fixture pack, the bot against a random agent and itself, invariants after every step, mutated commands, hidden-information swaps, replay round trips and torture boards. Failing journals are saved under `res://.tools/fuzz_failures/`.
@@ -405,4 +435,4 @@ Nothing per card is needed: actives of units, items and improvements get buttons
 
 ## Not yet supported
 
-- The Classic cards beyond M1's 49, M3's red and green cards and M4's blue cards (with five heroes' signature improvements): black, items and the other improvements land in batches (spec §12, M5 to M7) once their mechanics exist, each with its spec.
+- The Classic cards beyond M1's 49, M3's red and green cards, M4's blue cards and M5's black cards (with seven heroes' signature improvements): items and the other improvements land in batches (spec §12, M6 and M7) once their mechanics exist, each with its spec. Chain Frost (RQ-16), Enough Magic! (RQ-20) and Kanna (RQ-22) ship as drafts until a reference match.

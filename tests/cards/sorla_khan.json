@@ -1,0 +1,15 @@
+{
+"card": "sorla_khan",
+"source_id": 10058,
+"text": "Warmonger: Sorla Khan deals +4 damage when attacking a tower.",
+"covers": ["continuous", "damage_bonus", "self"],
+"cases": [
+ {"name": "Warmonger: unblocked, Sorla Khan deals 8 + 4 to the tower", "clause": 0, "tags": ["continuous", "damage_bonus", "self"], "board": {"lanes": {"0": {"p0": ["sorla_khan#s"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"s.kw.bonus_tower": 4, "tower.0.1.health": 28, "events": {"has": ["combat"]}}},
+ {"name": "no bonus when attacking a creep", "clause": 0, "tags": ["negative", "damage_bonus"], "board": {"lanes": {"0": {"p0": ["sorla_khan#s"], "p1": ["marrowfell_brawler#b"]}}}, "do": [{"combat": true}], "expect": {"b.health": 8, "tower.0.1.health": 40}},
+ {"name": "no bonus when attacking a hero", "clause": 0, "tags": ["negative", "damage_bonus"], "board": {"lanes": {"0": {"p0": ["sorla_khan#s"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"k.health": 4}},
+ {"name": "the ancient is a tower too: it takes 12", "clause": 0, "tags": ["edge", "damage_bonus"], "board": {"base": "@0", "towers": {"0": {"p1": {"health": 80, "ancient": true}}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 68}},
+ {"name": "tower armor reduces the whole attack once (12 - 1)", "clause": 0, "tags": ["edge", "damage_bonus"], "board": {"base": "@0", "improvements": {"0": {"p1": ["steel_reinforcement#r"]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 29}},
+ {"name": "a disarmed Sorla Khan does not attack, so there is no bonus", "clause": 0, "tags": ["edge", "self"], "board": {"base": "@0", "give": {"s": ["disarm"]}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 40}},
+ {"name": "a silenced Sorla Khan keeps her passive (RQ-31)", "clause": 0, "tags": ["edge", "continuous"], "board": {"base": "@0", "give": {"s": ["silence"]}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 28}},
+ {"name": "with her Assault Ladders the bonuses add: 8 + 4 + 2", "clause": 0, "tags": ["edge", "damage_bonus"], "board": {"base": "@0", "improvements": {"0": {"p0": ["assault_ladders#l"]}}}, "do": [{"combat": true}], "expect": {"s.kw.bonus_tower": 6, "tower.0.1.health": 26}}
+]}

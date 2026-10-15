@@ -199,7 +199,9 @@ static func position_open(e, lane_index: int, owner: int, position: int) -> bool
 ## its arrow. Inside its own lane the slot is emptied without compacting, the
 ## unit is placed at `position` (computed with the mover still in place), stale
 ## forced targets end, then the lane compacts. A same-lane move without a
-## position, or onto a position that is no longer free, does nothing.
+## position, or onto a position that is no longer free, does nothing. Rolled
+## enemy arrows at the old slot reset to forward before the lane compacts, as
+## they do when it does not compact or the unit leaves the lane.
 ## Returns true when the unit moved.
 static func move(e, unit: Dictionary, to_lane: int, position) -> bool:
 	var from_lane = int(unit.get("lane", -1))
@@ -215,6 +217,9 @@ static func move(e, unit: Dictionary, to_lane: int, position) -> bool:
 		e.state.lanes[from_lane].units[owner][slot] = null
 		place(e, unit, to_lane, int(position))
 		clear_stale_targets(e, to_lane)
+		# A rolled diagonal arrow at the old slot resets before compaction: once
+		# that column compacts away its offset would point two positions over.
+		normalize_arrows(e, to_lane)
 		compact(e, to_lane)
 		if not e._deploying:
 			roll_arrow(e, unit)

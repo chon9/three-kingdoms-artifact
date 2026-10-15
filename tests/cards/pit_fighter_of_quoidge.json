@@ -1,0 +1,16 @@
+{
+"card": "pit_fighter_of_quoidge",
+"source_id": 10083,
+"text": "Modify Pit Fighter of Quoidge with +2 Attack after an allied neighbor dies.",
+"covers": ["ally_death", "modify", "stat_attack", "self", "permanent"],
+"cases": [
+ {"name": "+2 Attack after an allied neighbor dies", "clause": 0, "tags": ["ally_death", "modify", "stat_attack", "self", "permanent"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", "pit_fighter_of_quoidge#f", "melee_creep#b"], "p1": ["melee_creep#x", "melee_creep#y", "melee_creep#z"]}}}, "do": [{"kill": ["a"]}], "expect": {"a.in_play": false, "f.attack": 4, "f.health": 8, "events": {"has": ["trigger", "mod"]}}},
+ {"name": "both neighbors dying at once give +2 each", "clause": 0, "tags": ["edge", "ally_death", "stat_attack"], "board": "@0", "do": [{"kill": ["a", "b"]}], "expect": {"f.attack": 6}},
+ {"name": "an ally that is not its neighbor does not count", "clause": 0, "tags": ["negative", "ally_death"], "board": {"lanes": {"0": {"p0": ["melee_creep#m", "melee_creep#a", "pit_fighter_of_quoidge#f"], "p1": ["melee_creep#x", "melee_creep#y", "melee_creep#z"]}}}, "do": [{"kill": ["m"]}], "expect": {"f.attack": 2, "m.in_play": false}},
+ {"name": "an enemy neighbor's death does not count", "clause": 0, "tags": ["negative", "ally_death"], "board": "@0", "do": [{"kill": ["y"]}], "expect": {"f.attack": 2, "y.in_play": false}},
+ {"name": "rq_43_simultaneous_death: dying together with that neighbor gives nothing", "clause": 0, "tags": ["edge", "ally_death", "RQ-43"], "board": "@0", "do": [{"kill": ["f", "a"]}], "expect": {"f.in_play": false, "events": {"not": ["mod"]}}},
+ {"name": "the Attack is permanent: it lasts past the round end", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"kill": ["a"]}, {"end_round": true}], "expect": {"f.attack": 4}},
+ {"name": "a neighbor killed in combat counts", "clause": 0, "tags": ["edge", "ally_death"], "board": {"lanes": {"0": {"p0": ["pit_fighter_of_quoidge#f", "melee_creep#a:hp=2"], "p1": ["melee_creep#x", "melee_creep#y"]}}}, "do": [{"combat": true}], "expect": {"a.in_play": false, "f.attack": 4, "f.health": 6}},
+ {"name": "a neighbor condemned by Ravenous Mass counts", "clause": 0, "tags": ["edge", "ally_death"], "board": {"lanes": {"0": {"p0": ["pit_fighter_of_quoidge#f", "zombie#z", "ravenous_mass#r"], "p1": ["melee_creep#x", "melee_creep#y", "melee_creep#w"]}}}, "do": [{"ability": "r"}], "expect": {"z.in_play": false, "f.attack": 4, "r.attack": 3, "r.max_health": 3}},
+ {"name": "a silenced Pit Fighter still gains it (a passive, RQ-31)", "clause": 0, "tags": ["edge", "ally_death", "RQ-31"], "board": {"base": "@0", "give": {"f": ["silence"]}}, "do": [{"kill": ["a"]}], "expect": {"f.attack": 4}}
+]}

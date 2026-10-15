@@ -151,7 +151,8 @@ static func _consider(e, found: Array, kind: String, payload: Dictionary, abilit
 		zone: int, position: int, index: int, id: int) -> void:
 	var source_lane = int(ctx.get("lane", -1))
 	if kind in Vocab.LANE_EVENTS and str(ability.get("lane", "self")) == "self":
-		if int(payload.get("lane", -2)) != source_lane:
+		# "lanes": a battle between units of two lanes is heard in both (Gank).
+		if int(payload.get("lane", -2)) != source_lane and source_lane not in payload.get("lanes", []):
 			return
 	var check = ctx.duplicate()
 	check["event"] = payload

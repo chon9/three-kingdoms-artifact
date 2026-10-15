@@ -27,7 +27,8 @@ extends SceneTree
 ## unit the play puts into a lane: the creep it plays, else the first unit
 ## it summons)}, {"ability": label | "label.weapon"}, {"pass": p},
 ## {"combat": true}, {"end_round": true, "deploy": {hero label: lane}},
-## {"kill": [labels]}, {"draw": {"p1": n}}; a deployment phase step by step:
+## {"kill": [labels]}, {"draw": {"p1": n}}, {"give": {label: ["stun", ...]}}
+## (statuses this round, mid-case); a deployment phase step by step:
 ## {"begin_deployment": true}, {"plan": {hero label: lane}} (real, validated
 ## deploy commands), {"reveal": true}.
 ## Expectations ("expect"): "label.<field>" (attack, armor, health,
@@ -420,6 +421,19 @@ func _step(engine, labels: Dictionary, step: Dictionary) -> String:
 			owner.finished = true
 		engine._reset_transient()
 		engine._reveal_deployment()
+		engine._settle_transient()
+		return ""
+	if step.has("give"):
+		# "give": {label: [statuses]} gives statuses this round mid-case, as the
+		# board's "give" does at setup: a stunned or silenced unit in a lane
+		# whose action phase has not begun yet (a granted before-action trigger).
+		engine._reset_transient()
+		for name in step.give:
+			if not labels.has(name) or not labels[name].has("uid"):
+				return "give: unknown unit label %s" % name
+			for status in step.give[name]:
+				Kernel.give(engine, labels[name], {}, {str(status): 1}, "", "round", {"controller": 1 - int(labels[name].get("owner", 0)), "card": ""})
+		Kernel.pulse(engine)
 		engine._settle_transient()
 		return ""
 	if step.has("kill"):

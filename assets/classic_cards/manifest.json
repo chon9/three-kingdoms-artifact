@@ -1331,6 +1331,293 @@
       "artist": "JiHun Lee",
       "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10003_large_english.428779af26292f057ab75a08b065850588cf61ce.png",
       "local_file": "10003_card.png"
+    },
+    {
+      "id": 10058,
+      "name": "Sorla Khan",
+      "artist": "Tyler Jacobson",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10058_large_english.bc8edede0e958a9c60bf151cb8d0da7b3080334d.png",
+      "local_file": "10058_card.png"
+    },
+    {
+      "id": 10177,
+      "name": "Assault Ladders",
+      "artist": "Tyler Jacobson",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10177_large_english.948f1e620ce85420665d12621471ead4185a2ba2.png",
+      "local_file": "10177_card.png"
+    },
+    {
+      "id": 10025,
+      "name": "Tinker",
+      "artist": "James Paick",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10025_large_english.b388d9bcc0b1212ebee4a98677589be78020a004.png",
+      "local_file": "10025_card.png"
+    },
+    {
+      "id": 10291,
+      "name": "March of the Machines",
+      "artist": "James Paick",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10291_large_english.1851d9d30e5efcb59ef9ab95a090bcdd27e84139.png",
+      "local_file": "10291_card.png"
+    },
+    {
+      "id": 10060,
+      "name": "Lion",
+      "artist": "Stepan Alekseev",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10060_large_english.77d466a9c6d80b1485209043de8a05e2fe4f0012.png",
+      "local_file": "10060_card.png"
+    },
+    {
+      "id": 10275,
+      "name": "Mana Drain",
+      "artist": "Stepan Alekseev",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10275_large_english.5997c3baced544baaa63f22a3a81416c922eb3c5.png",
+      "local_file": "10275_card.png"
+    },
+    {
+      "id": 10078,
+      "name": "Tyler Estate Censor",
+      "artist": "James Paick",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10078_large_english.e8e7e615e3cf1223c561685e92d6d150532ab8e8.png",
+      "local_file": "10078_card.png"
+    },
+    {
+      "id": 10295,
+      "name": "Arcane Censure",
+      "artist": "Alix Branwyn",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10295_large_english.f5bd5e4e7749b085d35e5dd0d9f59e335f0646af.png",
+      "local_file": "10295_card.png"
+    },
+    {
+      "id": 10310,
+      "name": "Oglodi Catapult",
+      "artist": "Mark Winters",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10310_large_english.1d56b51b9028224db6ff6edb421fe4026d87ec12.png",
+      "local_file": "10310_card.png"
+    },
+    {
+      "id": 10092,
+      "name": "Oglodi Vandal",
+      "artist": "JiHun Lee",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10092_large_english.d159092be5cfb631386b47680752cb1d9b274482.png",
+      "local_file": "10092_card.png"
+    },
+    {
+      "id": 10314,
+      "name": "Dirty Deeds",
+      "artist": "Forrest Imel",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10314_large_english.283e86ef4b377c7f22aa55c0781446d18be4201b.png",
+      "local_file": "10314_card.png"
+    },
+    {
+      "id": 10268,
+      "name": "Lodestone Demolition",
+      "artist": "Darek Zabrocki",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10268_large_english.21ecc3db4a25f6636c3159d35ba49c353431c94f.png",
+      "local_file": "10268_card.png"
+    },
+    {
+      "id": 10050,
+      "name": "Sniper",
+      "artist": "Forrest Imel",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10050_large_english.21ad237425cc9eb7b76b2a2d6bbf63913281a3b8.png",
+      "local_file": "10050_card.png"
+    },
+    {
+      "id": 10272,
+      "name": "Assassinate",
+      "artist": "Forrest Imel",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10272_large_english.d4993a3030e2a5dbeca6c97396f4f5818de556ac.png",
+      "local_file": "10272_card.png"
+    },
+    {
+      "id": 10038,
+      "name": "Lich",
+      "artist": "Wisnu Tan",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10038_large_english.cbc393ff341db8d489019a02a4593b41325716c3.png",
+      "local_file": "10038_card.png"
+    },
+    {
+      "id": 10318,
+      "name": "Chain Frost",
+      "artist": "Wisnu Tan",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10318_large_english.7df5e216d8befd1baa106c4b514fe0513c6a5182.png",
+      "local_file": "10318_card.png"
+    },
+    {
+      "id": 10059,
+      "name": "Necrophos",
+      "artist": "Kieran Yanner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10059_large_english.207654d5396dfc715bdeaa28367007346653110c.png",
+      "local_file": "10059_card.png"
+    },
+    {
+      "id": 10274,
+      "name": "Heartstopper Aura",
+      "artist": "Kieran Yanner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10274_large_english.ffd2ffab9cf2629204b15a5b2c7a1d850d568b91.png",
+      "local_file": "10274_card.png"
+    },
+    {
+      "id": 10270,
+      "name": "Grazing Shot",
+      "artist": "Kieran Yanner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10270_large_english.f0a76224de3f36c7d279d288a89dc985e19f591b.png",
+      "local_file": "10270_card.png"
+    },
+    {
+      "id": 10083,
+      "name": "Pit Fighter of Quoidge",
+      "artist": "Daarken",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10083_large_english.4ad7efe3f45ccebdd3f8536eeb3718bb368bed3a.png",
+      "local_file": "10083_card.png"
+    },
+    {
+      "id": 10116,
+      "name": "Ravenous Mass",
+      "artist": "Mike Azevedo",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10116_large_english.0cc693b888c77f2cbd00221013bda3db030e417d.png",
+      "local_file": "10116_card.png"
+    },
+    {
+      "id": 10023,
+      "name": "Bounty Hunter",
+      "artist": "E.M. Gist",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10023_large_english.d8627eaefd31a0094c0a0939a43f5b0cb41c0c73.png",
+      "local_file": "10023_card.png"
+    },
+    {
+      "id": 10416,
+      "name": "Track",
+      "artist": "E.M. Gist",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10416_large_english.ad92eab0620a56e25b3967ee929968a7ea4b69d5.png",
+      "local_file": "10416_card.png"
+    },
+    {
+      "id": 10322,
+      "name": "Payday",
+      "artist": "JiHun Lee",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10322_large_english.9a294a2a4507212f9390c05da2065cf4d9af805a.png",
+      "local_file": "10322_card.png"
+    },
+    {
+      "id": 10115,
+      "name": "Ravenhook",
+      "artist": "Heonhwa Choe",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10115_large_english.1e68808501e8cfb039544987605d03c786cf6b9c.png",
+      "local_file": "10115_card.png"
+    },
+    {
+      "id": 10018,
+      "name": "Bloodseeker",
+      "artist": "Lake Hurwitz",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10018_large_english.a2161fe42c13586300210ebe79c438e70310cc32.png",
+      "local_file": "10018_card.png"
+    },
+    {
+      "id": 10289,
+      "name": "Blood Rage",
+      "artist": "Lake Hurwitz",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10289_large_english.8d2e1651ac514930ffce77a99e9aed6298e873b2.png",
+      "local_file": "10289_card.png"
+    },
+    {
+      "id": 10328,
+      "name": "Gank",
+      "artist": "Yongjae Choi",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10328_large_english.6e8db7b41a780eac3a434da13ad22e8ed466fdd7.png",
+      "local_file": "10328_card.png"
+    },
+    {
+      "id": 10332,
+      "name": "Murder Plot",
+      "artist": "Kieran Yanner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10332_large_english.666b07b5f9cdc47ea15ea63f687ab413cca82042.png",
+      "local_file": "10332_card.png"
+    },
+    {
+      "id": 10129,
+      "name": "Assassin's Apprentice",
+      "artist": "David Palumbo",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10129_large_english.0dff50721422f024352447bdf129de8266195db3.png",
+      "local_file": "10129_card.png"
+    },
+    {
+      "id": 10077,
+      "name": "Sister of the Veil",
+      "artist": "Anthony Palumbo",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10077_large_english.824ee793588d27e89dbdc097a95ee59d7a09e95c.png",
+      "local_file": "10077_card.png"
+    },
+    {
+      "id": 10538,
+      "name": "Ball Lightning",
+      "artist": "JiHun Lee",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10538_large_english.75d4751826bb0db38b4a46a563b0e2f1219cd4f5.png",
+      "local_file": "10538_card.png"
+    },
+    {
+      "id": 10536,
+      "name": "Storm Spirit",
+      "artist": "JiHun Lee",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10536_large_english.84ce7ce30da364c6110edaf1fb60a56f16a6c001.png",
+      "local_file": "10536_card.png"
+    },
+    {
+      "id": 10011,
+      "name": "Winter's Curse",
+      "artist": "Sung Choi",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10011_large_english.2c8a35237e50a9283a211a3f626af86f97118845.png",
+      "local_file": "10011_card.png"
+    },
+    {
+      "id": 10010,
+      "name": "Winter Wyvern",
+      "artist": "Sung Choi",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10010_large_english.87fc976d89e586be6df0b10b0023847829bc803d.png",
+      "local_file": "10010_card.png"
+    },
+    {
+      "id": 10399,
+      "name": "Relentless Pursuit",
+      "artist": "Stepan Alekseev",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10399_large_english.7ea57b2a54ec2595624762f3e0c6d4d052130062.png",
+      "local_file": "10399_card.png"
+    },
+    {
+      "id": 10404,
+      "name": "The Cover of Night",
+      "artist": "Michael Kommark",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10404_large_english.825ec8a894c8b049d937c2dfbabc1d14ef115f99.png",
+      "local_file": "10404_card.png"
+    },
+    {
+      "id": 10361,
+      "name": "Coordinated Assault",
+      "artist": "Wisnu Tan",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10361_large_english.10b5e5591d5751cbcae29e485e0c40c4ba89140e.png",
+      "local_file": "10361_card.png"
+    },
+    {
+      "id": 10415,
+      "name": "Collateral Damage",
+      "artist": "JiHun Lee",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10415_large_english.26a26fa7b94f2f36f0a01dac1e0521de88658388.png",
+      "local_file": "10415_card.png"
+    },
+    {
+      "id": 10086,
+      "name": "Disciple of Nevermore",
+      "artist": "Lius Lasahido",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10086_large_english.29fd3260c73b53b09c4a7d3020341111fad99cb1.png",
+      "local_file": "10086_card.png"
+    },
+    {
+      "id": 10085,
+      "name": "Assassin's Shadow",
+      "artist": "Daniel Romanovsky",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10085_large_english.cd928cdc0611623b76019790e303bc4ab02ef299.png",
+      "local_file": "10085_card.png"
     }
   ]
 }

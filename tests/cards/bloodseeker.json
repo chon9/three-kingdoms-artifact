@@ -1,0 +1,15 @@
+{
+"card": "bloodseeker",
+"source_id": 10018,
+"text": "Blood Bath: Fully heal Bloodseeker after a unit blocking it dies.",
+"covers": ["blocker_death", "full_heal", "self"],
+"cases": [
+ {"name": "Blood Bath: the unit blocking Bloodseeker dies to a spell, and he is fully healed", "clause": 0, "tags": ["blocker_death", "full_heal", "self"], "board": {"lanes": {"0": {"p0": ["bloodseeker#b:hp=2"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "hip_fire", "target": "c"}], "expect": {"c.in_play": false, "b.health": 7, "events": {"has": ["trigger", "heal"]}}},
+ {"name": "in combat: he kills his blocker and heals the damage it dealt", "clause": 0, "tags": ["blocker_death", "full_heal"], "board": {"lanes": {"0": {"p0": ["bloodseeker#b:hp=5"], "p1": ["melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"c.in_play": false, "b.health": 7}},
+ {"name": "an enemy that is not blocking him dies: no heal", "clause": 0, "tags": ["negative", "blocker_death"], "board": {"lanes": {"0": {"p0": ["bloodseeker#b:hp=2", null], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"play": "hip_fire", "target": "d"}], "expect": {"d.in_play": false, "b.health": 2, "events": {"not": ["heal"]}}},
+ {"name": "the blocker is his combat target: with the position across empty, the diagonal unit his arrow points at blocks him", "clause": 0, "tags": ["edge", "blocker_death"], "board": {"lanes": {"0": {"p0": ["bloodseeker#b:hp=2:arrow=1", null], "p1": [null, "melee_creep#d"]}}}, "do": [{"play": "hip_fire", "target": "d"}], "expect": {"d.in_play": false, "b.health": 7}},
+ {"name": "rq_05: a stunned Bloodseeker is still blocked by his combat target, so he still heals (a passive)", "clause": 0, "tags": ["edge", "blocker_death", "RQ-05"], "board": {"lanes": {"0": {"p0": ["bloodseeker#b:hp=2", "debbi#e"], "p1": ["melee_creep#c", null]}}, "give": {"b": ["stun"]}}, "do": [{"play": "hip_fire", "target": "c"}], "expect": {"c.in_play": false, "b.health": 7}},
+ {"name": "rq_43: when Bloodseeker dies in the same combat as his blocker, Blood Bath does nothing", "clause": 0, "tags": ["edge", "blocker_death", "RQ-43"], "board": {"lanes": {"0": {"p0": ["bloodseeker#b:hp=2"], "p1": ["melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"c.in_play": false, "b.in_play": false, "events": {"not": ["heal", "trigger"]}}},
+ {"name": "an allied unit dying in front of an enemy is not his blocker: no heal", "clause": 0, "tags": ["negative", "blocker_death"], "board": {"lanes": {"0": {"p0": ["bloodseeker#b:hp=2", "melee_creep#m"], "p1": ["melee_creep#c", "axe#x"]}}}, "do": [{"play": "hip_fire", "target": "m"}], "expect": {"m.in_play": false, "b.health": 2}},
+ {"name": "a blocker in another lane is not his: no heal from a death elsewhere", "clause": 0, "tags": ["negative", "blocker_death"], "board": {"lanes": {"0": {"p0": ["debbi#e"], "p1": ["melee_creep#d"]}, "1": {"p0": ["bloodseeker#b:hp=2"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "hip_fire", "target": "d"}], "expect": {"d.in_play": false, "b.health": 2}}
+]}

@@ -1,0 +1,12 @@
+{
+"card": "dirty_deeds",
+"source_id": 10314,
+"text": "Deal 2 damage to the enemy tower for each of its improvements.",
+"covers": ["play", "damage", "scaling_x", "tower_damage", "all_enemy_improvements", "enemy_tower"],
+"cases": [
+ {"name": "three enemy improvements: 6 damage to the enemy tower", "clause": 0, "tags": ["play", "damage", "scaling_x", "tower_damage", "all_enemy_improvements", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "improvements": {"0": {"p1": ["ignite#a", "barracks#b", "ignite#d"]}}}, "do": [{"play": "dirty_deeds"}], "expect": {"tower.0.1.health": 34, "a.in_play": true, "events": {"has": ["tower_damage"]}}},
+ {"name": "no enemy improvements: no damage", "clause": 0, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "dirty_deeds"}], "expect": {"tower.0.1.health": 40}},
+ {"name": "your own improvements and enemy improvements in other lanes do not count", "clause": 0, "tags": ["negative", "all_enemy_improvements"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "improvements": {"0": {"p0": ["ignite#a", "ignite#b"]}, "1": {"p1": ["ignite#d"]}}}, "do": [{"play": "dirty_deeds"}], "expect": {"tower.0.1.health": 40, "tower.1.1.health": 40}},
+ {"name": "rq_56_one_hit: one hit of 2 per improvement, reduced once by tower armor: 6 - 1 with a Steel Reinforcement", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "improvements": {"0": {"p1": ["steel_reinforcement#r", "ignite#a", "ignite#d"]}}}, "do": [{"play": "dirty_deeds"}], "expect": {"tower.0.1.health": 35}},
+ {"name": "without a black hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "lanes": {"0": {"p0": ["axe#x"], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "dirty_deeds"}]}
+]}

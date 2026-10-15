@@ -1,0 +1,13 @@
+{
+"card": "lodestone_demolition",
+"source_id": 10268,
+"text": "Deal damage to the enemy tower equal to the total Armor on enemies.",
+"covers": ["play", "damage", "scaling_x", "tower_damage", "count_enemies", "enemy_tower"],
+"cases": [
+ {"name": "enemies with 2 + 2 + 0 Armor: 4 damage to the enemy tower", "clause": 0, "tags": ["play", "damage", "scaling_x", "tower_damage", "count_enemies", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["lion#l", null, null], "p1": ["axe#x", "bronze_legionnaire#b", "melee_creep#c"]}, "1": {"p0": [null], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "lodestone_demolition"}], "expect": {"tower.0.1.health": 36, "x.health": 10, "events": {"has": ["tower_damage"]}}},
+ {"name": "Armor from items and auras counts (Leather Armor on Axe: 3 + 2)", "clause": 0, "tags": ["edge", "count_enemies"], "board": {"base": "@0", "lanes": {"0": {"p0": ["lion#l", null, null], "p1": ["axe#x+leather_armor", "bronze_legionnaire#b", "melee_creep#c"]}, "1": {"p0": [null], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "lodestone_demolition"}], "expect": {"tower.0.1.health": 35}},
+ {"name": "rq_04: allied Armor and enemies in other lanes do not count", "clause": 0, "tags": ["negative", "count_enemies", "RQ-04"], "board": {"lanes": {"0": {"p0": ["lion#l", "bronze_legionnaire#m"], "p1": ["melee_creep#c", "melee_creep#d"]}, "1": {"p0": [null], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "lodestone_demolition"}], "expect": {"tower.0.1.health": 40, "tower.1.1.health": 40}},
+ {"name": "tower armor reduces it (4 - 1)", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"base": "@0", "improvements": {"0": {"p1": ["steel_reinforcement#r"]}}}, "do": [{"play": "lodestone_demolition"}], "expect": {"tower.0.1.health": 37}},
+ {"name": "rq_57_negative_armor: negative Armor lowers the total; a total below 0 deals no damage", "clause": 0, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": ["lion#l", null], "p1": ["axe#x", "melee_creep#c:arm=-3"]}}}, "do": [{"play": "lodestone_demolition"}], "expect": {"tower.0.1.health": 40}},
+ {"name": "without a black hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["axe#x"]}}}, "do": [], "expect_illegal": [{"play": "lodestone_demolition"}]}
+]}

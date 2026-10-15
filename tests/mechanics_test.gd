@@ -18,7 +18,9 @@ extends SceneTree
 ## * regressions for the M2 review findings (fix_* names);
 ## * the engine capabilities added with the M3 cards (m3_* and rq_54_* names):
 ##   the `blocking` death snapshot, a Modify reaching a hero that died in the
-##   same command, and granted text in mod/status events.
+##   same command, and granted text in mod/status events;
+## * the one added with the M5 cards (m5_* names): battle-damage reactions
+##   across a battle between two lanes (Gank).
 ## Options (after --): --boards N (default 2000) for preview_equals_combat.
 
 const EngineClass = preload("res://scripts/core/match_engine.gd")
@@ -47,14 +49,14 @@ func _initialize() -> void:
 			_test_silence, _test_disarm, _test_rapid_deployment, _test_soulbound, _test_tower_stats, _test_durations,
 			_test_purge_and_fountain, _test_locks, _test_add_card_and_counters, _test_hacks, _test_summon_and_fountain,
 			_test_move, _test_swap, _test_control, _test_zone_fuzz, _test_improvements, _test_items, _test_deeds,
-			_test_rules_layer, _test_creep_lane, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_m3_engine, _test_preview_equals_combat]:
+			_test_rules_layer, _test_creep_lane, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_m3_engine, _test_m5_engine, _test_preview_equals_combat]:
 		var started = Time.get_ticks_msec()
 		test.call()
 		if args.has("--timing"):
 			print("%-36s %6d ms" % [test.get_method(), Time.get_ticks_msec() - started])
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d M2 to M4 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, summoned heroes returning (RQ-29), objects, rules layer, blocking snapshots, RQ-54, granted-text events, preview_equals_combat on %d boards)." % [
+	print("%s: %d M2 to M5 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, summoned heroes returning (RQ-29), objects, rules layer, blocking snapshots, RQ-54, granted-text events, cross-lane battle reactions, preview_equals_combat on %d boards)." % [
 		"PASS" if failures.is_empty() else "FAIL", checks, boards])
 	quit(0 if failures.is_empty() else 1)
 
@@ -1667,6 +1669,62 @@ func _test_m3_engine() -> void:
 		var text = EventText.format(mods[0])
 		_check(text.find("After you play a card costing 2 or less") != -1 and text.find("none") == -1,
 			"m3_grant_event_3: the log shows the granted text: %s" % text)
+
+## The engine capability added with the M5 cards (EFFECT_SYSTEM_SPEC.md §12,
+## M5 as built): a battle between units of two lanes (Gank) reaches the
+## battle-damage reactions of both units, each listening in its own lane. The
+## battle_damage payload then names both lanes ("lanes"); combat and
+## same-lane battles carry none, so nothing else changes.
+func _test_m5_engine() -> void:
+	var ctx = {"controller": 0, "card": ""}
+	# Taker: Acid Shell in lane 1 (disarmed, so it does not hit back) is
+	# battled by a hero from lane 0 and weakens it.
+	var engine = _engine()
+	var hero: Dictionary = engine.state.players[0].roster[0]
+	var printed_attack = int(hero.attack)
+	var printed_armor = int(hero.armor)
+	_rows(engine, 0, [[hero], [null]])
+	var shell: Dictionary = _rows(engine, 1, [[null], ["fx_corrode_creep"]])[1][0]
+	Kernel.give(engine, shell, {}, {"disarm": 1}, "", "round", {"controller": 0, "card": ""})
+	engine._reset_transient()
+	Combat.battle(engine, hero, [shell], ctx)
+	var queued: Array = engine._queue.filter(func(item): return str(item.ability.get("id", "")) == "corrode")
+	_check(queued.size() == 1 and Array(queued[0].event.get("lanes", [])) == [0, 1] and int(queued[0].event.lane) == 0,
+		"m5_cross_lane_battle_1: the battle_damage event keeps the attacker's lane and names both lanes (%s)" % [queued.map(func(item): return item.event)])
+	Kernel.pulse(engine)
+	engine._settle_transient()
+	_check(engine.attack_of(hero) == printed_attack - 1 and int(hero.lane) == 0,
+		"m5_cross_lane_battle_2: a taker reaction in the other lane fires (attack %d, printed %d)" % [engine.attack_of(hero), printed_attack])
+	# Dealer: Armor Breaker in lane 2 hits back the hero from lane 0.
+	engine = _engine()
+	hero = engine.state.players[0].roster[0]
+	_rows(engine, 0, [[hero], [null]])
+	var breaker: Dictionary = _rows(engine, 2, [[null], ["fx_maul_creep"]])[1][0]
+	engine._reset_transient()
+	Combat.battle(engine, hero, [breaker], ctx)
+	Kernel.pulse(engine)
+	engine._settle_transient()
+	_check(engine.armor_of(hero) == printed_armor - 1,
+		"m5_cross_lane_battle_3: a dealer reaction in the other lane fires (armor %d, printed %d)" % [engine.armor_of(hero), printed_armor])
+	_check(Invariants.violations(engine).is_empty(), "m5_cross_lane_battle: invariants hold: %s" % [Invariants.violations(engine)])
+	# The same battle inside one lane: unchanged, and no "lanes".
+	engine = _engine()
+	hero = engine.state.players[0].roster[0]
+	shell = _rows(engine, 0, [[hero, null], [null, "fx_corrode_creep"]])[1][1]
+	Kernel.give(engine, shell, {}, {"disarm": 1}, "", "round", {"controller": 0, "card": ""})
+	engine._reset_transient()
+	Combat.battle(engine, hero, [shell], ctx)
+	queued = engine._queue.filter(func(item): return str(item.ability.get("id", "")) == "corrode")
+	_check(queued.size() == 1 and not queued[0].event.has("lanes"), "m5_cross_lane_battle_4: a same-lane battle carries no lanes")
+	Kernel.pulse(engine)
+	engine._settle_transient()
+	_check(engine.attack_of(hero) == printed_attack - 1, "m5_cross_lane_battle_5: a same-lane reaction still fires")
+	# A combat-phase hit carries no "lanes" either (the units share the lane).
+	engine = _engine()
+	hero = engine.state.players[0].roster[0]
+	_rows(engine, 0, [[hero], ["fx_corrode_creep"]])
+	_combat(engine)
+	_check(engine.attack_of(hero) == printed_attack - 1 or int(hero.lane) == -1, "m5_cross_lane_battle_6: combat reactions are unchanged")
 
 ## On random fixture boards (keywords, statuses, items, improvements), the
 ## combat preview's damage, healing, deaths and tower damage equal what the

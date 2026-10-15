@@ -1,0 +1,14 @@
+{
+"card": "oglodi_vandal",
+"source_id": 10092,
+"text": "Play Effect: Deal 4 damage to the enemy tower.",
+"covers": ["play_effect", "damage", "tower_damage", "enemy_tower"],
+"cases": [
+ {"name": "Play Effect: 4 damage to the enemy tower of its lane", "clause": 0, "tags": ["play_effect", "damage", "tower_damage", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["lion#l", null], "p1": ["melee_creep#c", null]}}}, "do": [{"play": "oglodi_vandal", "position": 1, "as": "v"}], "expect": {"tower.0.1.health": 36, "v.in_play": true, "events": {"has": ["tower_damage"]}}},
+ {"name": "tower armor reduces it", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"base": "@0", "improvements": {"0": {"p1": ["steel_reinforcement#r"]}}}, "do": [{"play": "oglodi_vandal", "position": 1}], "expect": {"tower.0.1.health": 37}},
+ {"name": "it hits a standing ancient", "clause": 0, "tags": ["edge", "enemy_tower"], "board": {"base": "@0", "towers": {"0": {"p1": {"health": 80, "ancient": true}}}}, "do": [{"play": "oglodi_vandal", "position": 1}], "expect": {"tower.0.1.health": 76}},
+ {"name": "a 3-health tower falls and becomes an 80-health ancient (no overflow)", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"base": "@0", "towers": {"0": {"p1": {"health": 3}}}}, "do": [{"play": "oglodi_vandal", "position": 1}], "expect": {"tower.0.1.ancient": true, "tower.0.1.health": 80}},
+ {"name": "your tower and other lanes' towers are not damaged", "clause": 0, "tags": ["negative", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["lion#l", null], "p1": ["melee_creep#c", null]}}}, "do": [{"play": "oglodi_vandal", "position": 1}], "expect": {"tower.0.0.health": 40, "tower.1.1.health": 40}},
+ {"name": "without a black hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "play_effect"], "board": {"lanes": {"0": {"p0": ["axe#x", null], "p1": ["melee_creep#c", null]}, "1": {"p0": ["lion#l"], "p1": [null]}}}, "do": [], "expect_illegal": [{"play": "oglodi_vandal", "position": 1}]},
+ {"name": "with 3 Mana it cannot be played", "clause": 0, "tags": ["negative", "play_effect"], "board": {"base": "@0", "mana": 3}, "do": [], "expect_illegal": [{"play": "oglodi_vandal", "position": 1}]}
+]}

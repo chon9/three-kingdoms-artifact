@@ -1,0 +1,14 @@
+{
+"card": "arcane_censure",
+"source_id": 10295,
+"text": "Modify the enemy tower with -1 Mana.",
+"covers": ["play", "modify", "mana_change", "enemy_tower", "tower_mana", "permanent"],
+"cases": [
+ {"name": "the enemy tower has 1 less maximum and current Mana", "clause": 0, "tags": ["play", "modify", "mana_change", "enemy_tower", "tower_mana"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": 5}, "do": [{"play": "arcane_censure"}], "expect": {"max_mana.0.1": 4, "mana.0.1": 4, "mana.0.0": 1, "events": {"has": ["mod"]}}},
+ {"name": "permanent: it is still there in later rounds", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": 5}, "do": [{"play": "arcane_censure"}, {"end_round": true}, {"end_round": true}], "expect": {"max_mana.0.1": 6, "mana.0.1": 6}},
+ {"name": "your tower and other lanes' towers are unaffected", "clause": 0, "tags": ["negative", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": 5}, "do": [{"play": "arcane_censure"}], "expect": {"max_mana.0.0": 5, "max_mana.1.1": 5}},
+ {"name": "two Censures give -2", "clause": 0, "tags": ["edge", "modify"], "board": {"base": "@0", "hand": {"p0": ["arcane_censure", "arcane_censure"]}, "mana": 8}, "do": [{"play": "arcane_censure"}, {"pass": 1}, {"play": "arcane_censure"}], "expect": {"max_mana.0.1": 6}},
+ {"name": "it adds to a Tyler Estate Censor's -1", "clause": 0, "tags": ["edge", "tower_mana"], "board": {"lanes": {"0": {"p0": ["lion#l", "tyler_estate_censor#t"], "p1": ["melee_creep#c", null]}}, "mana": 5}, "do": [{"play": "arcane_censure"}, {"kill": ["t"]}], "expect": {"max_mana.0.1": 4, "mana.0.1": 4}},
+ {"name": "cf_5: at 0 maximum Mana the -1 is kept: the tower stays at 0 next round", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": {"0": [5, 0]}}, "do": [{"play": "arcane_censure"}, {"end_round": true}], "expect": {"max_mana.0.1": 0, "mana.0.1": 0}},
+ {"name": "without a black hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["axe#x"], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "arcane_censure"}]}
+]}

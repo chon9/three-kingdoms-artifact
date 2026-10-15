@@ -1,0 +1,16 @@
+{
+"card": "tyler_estate_censor",
+"source_id": 10078,
+"text": "The enemy tower has -1 Mana.",
+"covers": ["continuous", "mana_change", "enemy_tower", "tower_mana"],
+"cases": [
+ {"name": "played, the Censor gives the enemy tower -1 maximum and current Mana", "clause": 0, "tags": ["continuous", "mana_change", "enemy_tower", "tower_mana"], "board": {"lanes": {"0": {"p0": ["lion#l", null], "p1": ["melee_creep#c", "melee_creep#e"]}}, "mana": 5}, "do": [{"play": "tyler_estate_censor", "position": 1, "as": "t"}], "expect": {"max_mana.0.1": 4, "mana.0.1": 4, "max_mana.0.0": 5, "mana.0.0": 1, "t.in_play": true}},
+ {"name": "rq_52: the Mana comes back when the Censor leaves play", "clause": 0, "tags": ["edge", "continuous", "RQ-52"], "board": {"lanes": {"0": {"p0": ["lion#l", "tyler_estate_censor#t"], "p1": ["melee_creep#c", "melee_creep#e"]}}, "mana": 5}, "do": [{"kill": ["t"]}], "expect": {"max_mana.0.1": 5, "mana.0.1": 5}},
+ {"name": "rq_52: at 0 Mana the tower gets its Mana back when the Censor dies", "clause": 0, "tags": ["edge", "tower_mana", "RQ-52"], "board": {"base": "@1", "mana": 1}, "do": [{"kill": ["t"]}], "expect": {"max_mana.0.1": 1, "mana.0.1": 1}},
+ {"name": "your tower and the towers of other lanes are unaffected", "clause": 0, "tags": ["negative", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["lion#l", "tyler_estate_censor#t"], "p1": ["melee_creep#c", "melee_creep#e"]}}, "mana": 5}, "do": [], "expect": {"max_mana.0.1": 4, "max_mana.0.0": 5, "max_mana.1.1": 5, "max_mana.2.1": 5}},
+ {"name": "next round the enemy maximum grows from 5 to 6, minus 1", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["lion#l", "tyler_estate_censor#t"], "p1": ["melee_creep#c", "melee_creep#e"]}}, "mana": 5}, "do": [{"end_round": true}], "expect": {"max_mana.0.1": 5, "mana.0.1": 5}},
+ {"name": "two Censors give -2", "clause": 0, "tags": ["edge", "mana_change"], "board": {"lanes": {"0": {"p0": ["lion#l", "tyler_estate_censor#t", "tyler_estate_censor#u"], "p1": ["melee_creep#c", null, null]}}, "mana": 5}, "do": [], "expect": {"max_mana.0.1": 3, "mana.0.1": 3}},
+ {"name": "cf_5: Mana never goes below 0, and the maximum is exact when one of two Censors dies", "clause": 0, "tags": ["edge", "tower_mana"], "board": {"lanes": {"0": {"p0": ["lion#l", "tyler_estate_censor#t", "tyler_estate_censor#u"], "p1": ["melee_creep#c", null, null]}}, "mana": 1}, "do": [{"kill": ["t"]}], "expect": {"max_mana.0.1": 0, "mana.0.1": 0}},
+ {"name": "the opponent's Censor lowers your tower's Mana", "clause": 0, "tags": ["edge", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["tyler_estate_censor#t"]}}, "mana": 5}, "do": [], "expect": {"max_mana.0.0": 4, "mana.0.0": 4, "max_mana.0.1": 5}},
+ {"name": "rq_31: a silenced or stunned Censor keeps its passive", "clause": 0, "tags": ["edge", "continuous"], "board": {"base": "@1", "give": {"t": ["stun"]}}, "do": [], "expect": {"max_mana.0.1": 4}}
+]}

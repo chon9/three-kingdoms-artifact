@@ -1,0 +1,19 @@
+{
+"card": "necrophos",
+"source_id": 10059,
+"text": "Sadist: Modify Necrophos with +1 Health after an enemy neighbor dies.",
+"covers": ["enemy_death", "modify", "stat_health", "self", "permanent"],
+"cases": [
+ {"name": "Sadist: +1 Health after the enemy across dies", "clause": 0, "tags": ["enemy_death", "modify", "stat_health", "self", "permanent"], "board": {"lanes": {"0": {"p0": [null, "necrophos#n", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"kill": ["b"]}], "expect": {"b.in_play": false, "n.max_health": 7, "n.health": 7, "events": {"has": ["trigger", "mod"]}}},
+ {"name": "a diagonal enemy neighbor counts", "clause": 0, "tags": ["enemy_death", "self"], "board": "@0", "do": [{"kill": ["a"]}], "expect": {"n.max_health": 7, "n.health": 7}},
+ {"name": "two enemy neighbors dying at once give +1 each", "clause": 0, "tags": ["edge", "enemy_death", "stat_health"], "board": "@0", "do": [{"kill": ["a", "c"]}], "expect": {"n.max_health": 8, "n.health": 8}},
+ {"name": "an enemy that is not its neighbor does not count", "clause": 0, "tags": ["negative", "enemy_death"], "board": {"lanes": {"0": {"p0": [null, null, "necrophos#n", null, null], "p1": ["melee_creep#d", "melee_creep#a", "melee_creep#b", "melee_creep#c", "melee_creep#e"]}}}, "do": [{"kill": ["d", "e"]}], "expect": {"n.max_health": 6, "d.in_play": false}},
+ {"name": "an allied neighbor's death does not count", "clause": 0, "tags": ["negative", "enemy_death"], "board": {"lanes": {"0": {"p0": ["melee_creep#m", "necrophos#n"], "p1": ["melee_creep#a", "melee_creep#b"]}}}, "do": [{"kill": ["m"]}], "expect": {"n.max_health": 6, "m.in_play": false}},
+ {"name": "rq_43_simultaneous_death: dying together with that enemy gives nothing", "clause": 0, "tags": ["edge", "enemy_death", "RQ-43"], "board": "@0", "do": [{"kill": ["n", "b"]}], "expect": {"n.in_play": false, "n.max_health": 6, "fountain.0.necrophos": 1}},
+ {"name": "the Health is permanent: it lasts past the round and through the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"kill": ["b"]}, {"end_round": true}, {"kill": ["n"]}], "expect": {"n.in_play": false, "n.max_health": 7}},
+ {"name": "it gains the Health when it kills the enemy across in combat", "clause": 0, "tags": ["edge", "enemy_death", "stat_health"], "board": {"lanes": {"0": {"p0": ["necrophos#n"], "p1": ["melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"c.in_play": false, "n.max_health": 7, "n.health": 5}},
+ {"name": "an enemy neighbor killed by a spell counts", "clause": 0, "tags": ["edge", "enemy_death"], "board": {"lanes": {"0": {"p0": ["necrophos#n", null], "p1": ["zombie#z", "melee_creep#c"]}}}, "do": [{"play": "grazing_shot", "target": "z"}], "expect": {"z.in_play": false, "n.max_health": 7, "n.health": 7}},
+ {"name": "a silenced Necrophos still gains it (a passive, RQ-31)", "clause": 0, "tags": ["edge", "enemy_death", "RQ-31"], "board": {"base": "@0", "give": {"n": ["silence"]}}, "do": [{"kill": ["b"]}], "expect": {"n.max_health": 7}},
+ {"name": "a stunned Necrophos still gains it", "clause": 0, "tags": ["edge", "enemy_death"], "board": {"base": "@0", "give": {"n": ["stun"]}}, "do": [{"kill": ["b"]}], "expect": {"n.max_health": 7}},
+ {"name": "an enemy dying in another lane does not count", "clause": 0, "tags": ["negative", "enemy_death", "RQ-03"], "board": {"lanes": {"0": {"p0": ["necrophos#n"], "p1": ["melee_creep#a"]}, "1": {"p0": ["melee_creep#m"], "p1": ["melee_creep#b"]}}}, "do": [{"kill": ["b"]}], "expect": {"n.max_health": 6}}
+]}

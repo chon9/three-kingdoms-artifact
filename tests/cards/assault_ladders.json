@@ -1,0 +1,15 @@
+{
+"card": "assault_ladders",
+"source_id": 10177,
+"text": "Allies deal +2 damage when attacking a tower.",
+"covers": ["continuous", "damage_bonus", "all_allies"],
+"cases": [
+ {"name": "played into lane 1 from lane 0, allies there deal +2 when attacking the tower (2+2 and 4+2)", "clause": 0, "tags": ["continuous", "damage_bonus", "all_allies"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#a"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#m", "untested_grunt#g"], "p1": [null, null]}}}, "do": [{"play": "assault_ladders", "lane": 1}, {"pass": 1}, {"pass": 0}, {"combat": true}], "expect": {"m.kw.bonus_tower": 2, "g.kw.bonus_tower": 2, "tower.1.1.health": 30, "events": {"has": ["improvement", "combat"]}}},
+ {"name": "no bonus against units", "clause": 0, "tags": ["negative", "damage_bonus"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#a"], "p1": ["marrowfell_brawler#b"]}}, "improvements": {"0": {"p0": ["assault_ladders#l"]}}}, "do": [{"combat": true}], "expect": {"b.health": 10, "tower.0.1.health": 40}},
+ {"name": "allies in other lanes get no bonus", "clause": 0, "tags": ["negative", "all_allies"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#a"], "p1": [null]}}, "improvements": {"1": {"p0": ["assault_ladders#l"]}}}, "do": [{"combat": true}], "expect": {"a.kw.bonus_tower": 0, "tower.0.1.health": 34}},
+ {"name": "enemies get no bonus against your tower", "clause": 0, "tags": ["negative", "all_allies"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#a", null], "p1": ["melee_creep#c", "melee_creep#e"]}}, "improvements": {"0": {"p0": ["assault_ladders#l"]}}}, "do": [{"combat": true}], "expect": {"e.kw.bonus_tower": 0, "tower.0.0.health": 38}},
+ {"name": "two Assault Ladders stack (+4)", "clause": 0, "tags": ["edge", "damage_bonus"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#a"], "p1": [null]}}, "improvements": {"0": {"p0": ["assault_ladders#l", "assault_ladders#k"]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 30}},
+ {"name": "a creep that enters the lane later gets the bonus too", "clause": 0, "tags": ["edge", "all_allies"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#a", null], "p1": [null, null]}}, "improvements": {"0": {"p0": ["assault_ladders#l"]}}}, "do": [{"play": "untested_grunt", "position": 1, "as": "g"}, {"pass": 1}, {"pass": 0}], "expect": {"g.kw.bonus_tower": 2, "tower.0.1.health": 26}},
+ {"name": "Siege is not an attack on the tower: a blocked Thunderhide Pack deals only its Siege 6", "clause": 0, "tags": ["edge", "damage_bonus"], "board": {"lanes": {"0": {"p0": ["thunderhide_pack#t"], "p1": ["marrowfell_brawler#b"]}}, "improvements": {"0": {"p0": ["assault_ladders#l"]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 34}},
+ {"name": "without a black hero in the active lane it cannot be played, in any lane", "clause": 0, "tags": ["negative", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#x"], "p1": [null]}, "1": {"p0": ["debbi#d"], "p1": [null]}}}, "do": [], "expect_illegal": [{"play": "assault_ladders", "lane": 0}, {"play": "assault_ladders", "lane": 1}]}
+]}

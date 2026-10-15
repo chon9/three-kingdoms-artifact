@@ -383,6 +383,26 @@ func _run() -> void:
 		return
 	_engine()._remove_from_lane(seer)
 	_engine()._remove_from_lane(seer_ally)
+	# --- Winter Wyvern's Arctic Burn: an ability whose only step is a position (M5) ---
+	var wyvern = Zones.summon(_engine(), "winter_wyvern", 0, 0)
+	var wyvern_ally = Zones.summon(_engine(), "melee_creep", 0, 0)
+	_focus_player_zero([])
+	await _settle()
+	var wyvern_point = screen.ability_point(int(wyvern.uid))
+	if not _require(wyvern_point != Vector2.ZERO, "Winter Wyvern shows an ability badge"):
+		return
+	_click(wyvern_point)
+	var wyvern_ghosts: Array = screen.board.lanes[0].ghost_slots
+	if not _require(screen.current_step_type() == "position" and not wyvern_ghosts.is_empty(),
+			"Arctic Burn asks for an empty combat position in Winter Wyvern's lane (%d ghost positions)" % wyvern_ghosts.size()):
+		return
+	_click(screen.slot_point(int(wyvern_ghosts.back().position)))
+	await _settle()
+	if not _require(int(wyvern.lane) == 0 and int(wyvern.cooldown) > 0 and _engine().attack_of(wyvern) == int(wyvern.attack) + 4,
+			"Clicking a ghost position moves Winter Wyvern there, gives +4 Attack and starts the cooldown"):
+		return
+	_engine()._remove_from_lane(wyvern)
+	_engine()._remove_from_lane(wyvern_ally)
 	# --- Friendly Fire: an unordered pair, either unit picked first (M4) -----------
 	var fodder: Array = []
 	for count in range(3):
@@ -541,6 +561,8 @@ func _run() -> void:
 	var green_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
 	catalog.apply_filter("blue")
 	var blue_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
+	catalog.apply_filter("black")
+	var black_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
 	catalog.apply_filter("all")
 	if not _require(total == pack.heroes.size() + pack.cards.size() and total >= 190 and str(catalog.cards[0].definition.get("kind", "")) == "hero"
 			and greens > 0 and greens < total and "treant_protector" in green_ids and "viper_strike" in green_ids and "duel" not in green_ids
@@ -550,6 +572,10 @@ func _run() -> void:
 	if not _require(["luna", "meepo", "eclipse", "barracks", "plague_ward", "self_sabotage"].all(func(card_id): return card_id in blue_ids)
 			and "hound_of_war" not in blue_ids and "duel" not in blue_ids,
 			"The blue (Wei) filter shows the M4 cards (%d blue)" % blue_ids.size()):
+		return
+	if not _require(["sorla_khan", "lich", "winter_wyvern", "chain_frost", "assault_ladders", "march_of_the_machines", "ravenous_mass", "gank"].all(func(card_id): return card_id in black_ids)
+			and "eclipse" not in black_ids and "duel" not in black_ids,
+			"The black (Qun) filter shows the M5 cards, the draft Chain Frost included (%d black)" % black_ids.size()):
 		return
 	app.close_dialogs()
 	await process_frame
@@ -695,7 +721,7 @@ func _run() -> void:
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter)." % checks)
 	app.queue_free()
 	await process_frame
 	_restore_settings()

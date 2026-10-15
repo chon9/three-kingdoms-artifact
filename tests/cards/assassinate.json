@@ -1,0 +1,15 @@
+{
+"card": "assassinate",
+"source_id": 10272,
+"text": "Deal 10 piercing damage to a unit in any lane.",
+"covers": ["play", "piercing_damage", "unit"],
+"cases": [
+ {"name": "Deal 10 piercing damage to a unit in another lane", "clause": 0, "tags": ["play", "piercing_damage", "unit"], "board": {"lanes": {"0": {"p0": ["sniper#s"], "p1": ["melee_creep#c"]}, "2": {"p0": ["melee_creep#m"], "p1": ["tidehunter#t"]}}}, "do": [{"play": "assassinate", "target": "t"}], "expect": {"t.health": 8, "c.health": 4, "mana.0.0": 3, "mana.2.0": 10, "initiative": 1, "events": {"has": ["damage"]}}},
+ {"name": "piercing: armor does not reduce it", "clause": 0, "tags": ["edge", "piercing_damage"], "board": {"lanes": {"0": {"p0": ["sniper#s"], "p1": ["mazzie#z"]}}}, "do": [{"play": "assassinate", "target": "z"}], "expect": {"z.in_play": false, "p0.gold": 5, "fountain.1.mazzie": 1}},
+ {"name": "a unit in the active lane, an allied one included", "clause": 0, "tags": ["edge", "unit"], "board": {"lanes": {"0": {"p0": ["sniper#s", "thunderhide_pack#t"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"play": "assassinate", "target": "t"}], "expect": {"t.health": 4}},
+ {"name": "it needs a black hero in the active lane, not in the target's lane", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#c"]}, "2": {"p0": ["sniper#s"], "p1": ["tidehunter#t"]}}}, "expect_illegal": [{"play": "assassinate", "target": "t"}, {"play": "assassinate", "target": "c"}]},
+ {"name": "a stunned black hero cannot be used to cast it", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "give": {"s": ["stun"]}}, "expect_illegal": [{"play": "assassinate", "target": "t"}]},
+ {"name": "a unit with Damage Immunity takes nothing", "clause": 0, "tags": ["negative", "piercing_damage"], "board": {"base": "@0", "give": {"t": ["damage_immunity"]}}, "do": [{"play": "assassinate", "target": "t"}], "expect": {"t.health": 18, "mana.0.0": 3}},
+ {"name": "a Death Shield saves the target at 1 health", "clause": 0, "tags": ["edge", "piercing_damage"], "board": {"lanes": {"0": {"p0": ["sniper#s"], "p1": ["phantom_assassin#p"]}}, "give": {"p": ["death_shield"]}}, "do": [{"play": "assassinate", "target": "p"}], "expect": {"p.in_play": true, "p.health": 1, "events": {"has": ["shield"]}}},
+ {"name": "without 7 mana in the active lane it cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "mana": {"0": [6, 10], "1": [10, 10], "2": [10, 10]}}, "expect_illegal": [{"play": "assassinate", "target": "t"}]}
+]}

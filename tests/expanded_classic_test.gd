@@ -23,9 +23,10 @@ func _initialize() -> void:
 	_matchup_matrix()
 	_m3_presets()
 	_m4_presets()
+	_m5_presets()
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3 and M4 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
+	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3, M4 and M5 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
 	quit(0 if failures.is_empty() else 1)
 
 func _check(condition: bool, message: String) -> void:
@@ -68,11 +69,12 @@ func _profiles() -> void:
 	var engine = MatchEngine.new()
 	# M1 migrated 49 definitions (10 heroes, 39 cards); M3 adds the 92 red and
 	# green cards plus three heroes' signature improvements; M4 the 44 blue
-	# cards plus two heroes' signature improvements, Barracks and Ignite
-	# (EFFECT_SYSTEM_SPEC.md §12).
-	_check(engine.library.heroes.size() == 38 and engine.library.cards.size() == 152,
-		"190 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
-	_check(engine.library.presets().size() == 11, "Eleven playable deck presets (%d)" % engine.library.presets().size())
+	# cards plus two heroes' signature improvements, Barracks and Ignite; M5
+	# the 39 black cards plus two heroes' signature improvements, Assault
+	# Ladders and March of the Machines (EFFECT_SYSTEM_SPEC.md §12).
+	_check(engine.library.heroes.size() == 48 and engine.library.cards.size() == 183,
+		"231 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
+	_check(engine.library.presets().size() == 14, "Fourteen playable deck presets (%d)" % engine.library.presets().size())
 	for profile in engine.library.presets():
 		_check(engine.library.validate_preset(profile).ok, "Preset passes card/hero/signature validation")
 		_check(engine.library.match_deck(profile.id).size() == 40, "Preset main deck has forty cards")
@@ -329,6 +331,7 @@ func _matchup_matrix() -> void:
 const ORIGINAL_PRESETS = ["starter", "green_assault", "blue_black_control"]
 const M3_PRESETS = ["sun_liu_alliance", "northern_expedition", "gathering_of_champions", "ruxu_standoff", "little_conqueror"]
 const M4_PRESETS = ["bronze_sparrow_terrace", "siege_of_xiapi", "longxi_struggle"]
+const M5_PRESETS = ["fengyi_pavilion", "hulao_pass", "yellow_turban_rebellion"]
 
 ## M3 acceptance 5 (EFFECT_SYSTEM_SPEC.md §12): every preset added with the
 ## red and green cards validates, and bot-vs-bot matches with it terminate
@@ -355,12 +358,12 @@ func _m3_presets() -> void:
 ## M4 acceptance 5: the presets added with the blue cards (mono-blue,
 ## blue/black, blue/red) validate, are built from new blue cards and heroes,
 ## and their bot matches terminate within 1,500 steps for 6 seeds against
-## every preset in turn, aligned, formatted and replayable.
+## every preset of M1 to M4 in turn (their pool when they landed), aligned,
+## formatted and replayable.
 func _m4_presets() -> void:
 	var library = MatchEngine.Library.new()
 	var legacy = Legacy.new()
-	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
-	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS, "The presets are the original three, the M3 five and the M4 three, in order (%s)" % [all_ids])
+	var all_ids: Array = ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS
 	var pairs: Dictionary = {}
 	for index in range(M4_PRESETS.size()):
 		var preset_id = str(M4_PRESETS[index])
@@ -380,6 +383,47 @@ func _m4_presets() -> void:
 		_preset_matches(preset_id, index, all_ids, "M4")
 	for pair in ["blue", "black/blue", "blue/red"]:
 		_check(pairs.has(pair), "An M4 preset covers %s" % pair)
+
+## M5 acceptance 5: the presets added with the black cards (mono-black,
+## black/red, black/blue) validate, are built from new black cards and
+## heroes, and their bot matches terminate within 1,500 steps for 6 seeds
+## against every preset in turn, aligned, formatted and replayable. Between
+## them they play every deckable M5 card (Chain Frost is a draft, RQ-16, so
+## Lich cannot fill a deck).
+func _m5_presets() -> void:
+	var library = MatchEngine.Library.new()
+	var legacy = Legacy.new()
+	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
+	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS,
+		"The presets are the original three, the M3 five, the M4 three and the M5 three, in order (%s)" % [all_ids])
+	var pairs: Dictionary = {}
+	var played: Dictionary = {}
+	for index in range(M5_PRESETS.size()):
+		var preset_id = str(M5_PRESETS[index])
+		var preset = library.preset(preset_id)
+		_check(not preset.is_empty() and library.validate_preset(preset).ok, "Preset %s validates" % preset_id)
+		if preset.is_empty():
+			continue
+		pairs[_colour_pair(library, preset)] = true
+		var black_cards = preset.cards.keys().filter(func(card_id): return not legacy.cards.has(str(card_id)) and str(library.get_card(str(card_id)).get("color", "")) == "black")
+		for card_id in black_cards:
+			played[str(card_id)] = true
+		# New black heroes (Debbi and Phantom Assassin are M1's).
+		var black_heroes: Array = []
+		for hero_id in preset.heroes:
+			if str(library.definition(str(hero_id)).get("color", "")) == "black" and str(hero_id) not in ["debbi", "phantom_assassin"]:
+				black_heroes.append(hero_id)
+		_check(black_cards.size() >= 10 and black_heroes.size() >= 2,
+			"Preset %s is built from new black cards (%d) and heroes (%d)" % [preset_id, black_cards.size(), black_heroes.size()])
+		_preset_matches(preset_id, index, all_ids, "M5")
+	for pair in ["black", "black/red", "black/blue"]:
+		_check(pairs.has(pair), "An M5 preset covers %s" % pair)
+	var missing: Array = []
+	for card_id in library.cards:
+		var card: Dictionary = library.cards[card_id]
+		if str(card.get("color", "")) == "black" and not legacy.cards.has(str(card_id)) and library._deckable(str(card_id)) and not played.has(str(card_id)):
+			missing.append(card_id)
+	_check(missing.is_empty(), "The M5 presets play every deckable new black card (missing %s)" % [missing])
 
 ## The sorted hero colours of a preset, "a/b" (or one colour).
 func _colour_pair(library, preset: Dictionary) -> String:

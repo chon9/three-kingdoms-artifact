@@ -194,7 +194,10 @@ static func resolve(e, lane_index: int) -> void:
 	e._check_winner()
 
 ## Writes round_log.hits and emits battle_damage for every hit above 0
-## (RQ-32, RQ-45; CF-4).
+## (RQ-32, RQ-45; CF-4). A battle between units of two lanes (Gank) also
+## carries "lanes", both lanes ascending: a unit's battle-damage reactions
+## belong to the unit, so a lane-scoped listener in either lane hears it
+## (Kernel._consider). Combat and same-lane battles carry no "lanes".
 static func _record_hits(e, strikes: Array, lane_index: int, in_combat: bool) -> void:
 	for strike in strikes:
 		if int(strike[2]) <= 0:
@@ -205,8 +208,19 @@ static func _record_hits(e, strikes: Array, lane_index: int, in_combat: bool) ->
 				var victim = Select.resolve_unit(e, int(strike[1]))
 				kind = "hero" if bool(victim.get("hero", false)) else "creep"
 			e.state.round_log.hits.append([int(strike[0]), kind])
-		Kernel.emit(e, "battle_damage", {"source": strike[0], "target": strike[1], "amount": int(strike[2]),
-			"lane": lane_index, "in_combat": in_combat, "part": str(strike[3])})
+		var payload = {"source": strike[0], "target": strike[1], "amount": int(strike[2]),
+			"lane": lane_index, "in_combat": in_combat, "part": str(strike[3])}
+		if not in_combat and strike[0] is int and strike[1] is int:
+			var lanes: Array = []
+			for uid in [int(strike[0]), int(strike[1])]:
+				var unit = Select.resolve_unit(e, uid)
+				var lane = int(unit.get("lane", -1)) if not unit.is_empty() else -1
+				if lane >= 0 and lane not in lanes:
+					lanes.append(lane)
+			if lanes.size() > 1:
+				lanes.sort()
+				payload["lanes"] = lanes
+		Kernel.emit(e, "battle_damage", payload)
 
 ## Read-only forecast for the board and the bot: unit_damage (uid string to
 ## total), tower_damage ([p0, p1]), heal, dies and strikes.

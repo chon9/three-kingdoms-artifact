@@ -1,0 +1,16 @@
+{
+"card": "assassins_shadow",
+"source_id": 10085,
+"text": "Siege 5. Assassin's Shadow has -2 Attack for each ally.",
+"covers": ["continuous", "scaling_x", "siege", "stat_attack", "all_allies", "self"],
+"cases": [
+ {"name": "Siege 5: when blocked it also deals 5 damage to the enemy tower", "clause": 0, "tags": ["continuous", "siege"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa", null], "p1": ["melee_creep#a", "melee_creep#b"]}}}, "do": [{"play": "assassins_shadow", "position": 1, "as": "s"}, {"combat": true}], "expect": {"s.kw.siege": 5, "tower.0.1.health": 35, "b.in_play": false}},
+ {"name": "no siege when unblocked (RQ-07)", "clause": 0, "tags": ["edge", "siege"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa", "assassins_shadow#s"], "p1": ["melee_creep#a", null]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 29}},
+ {"name": "-2 Attack for each ally: Phantom Assassin, a Melee Creep and itself give 9", "clause": 1, "tags": ["continuous", "all_allies", "self", "scaling_x", "stat_attack"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa", "melee_creep#m", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "assassins_shadow", "position": 2, "as": "s"}], "expect": {"s.attack": 9}},
+ {"name": "rq_50_shadow_counts_itself: alone it has 13 Attack", "clause": 1, "tags": ["edge", "self", "RQ-50"], "board": {"lanes": {"0": {"p0": ["assassins_shadow#s"], "p1": ["melee_creep#a"]}}}, "do": [], "expect": {"s.attack": 13}},
+ {"name": "enemies and allies in other lanes do not count (RQ-04)", "clause": 1, "tags": ["negative", "all_allies"], "board": {"lanes": {"0": {"p0": ["assassins_shadow#s"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}, "1": {"p0": ["melee_creep#x", "melee_creep#y"], "p1": [null, null]}}}, "do": [], "expect": {"s.attack": 13}},
+ {"name": "it updates continuously: an ally dying raises it", "clause": 1, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": ["assassins_shadow#s", "melee_creep#m", "melee_creep#n"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"kill": ["m"]}], "expect": {"s.attack": 11}},
+ {"name": "an ally arriving lowers it", "clause": 1, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": ["assassins_shadow#s", "phantom_assassin#pa"], "p1": ["melee_creep#a", "melee_creep#b"]}}}, "do": [{"play": "untested_grunt", "position": 2, "as": "g"}], "expect": {"s.attack": 9}},
+ {"name": "Attack never goes below 0 (8 allies)", "clause": 1, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["assassins_shadow#s", "melee_creep#m1", "melee_creep#m2", "melee_creep#m3", "melee_creep#m4", "melee_creep#m5", "melee_creep#m6", "melee_creep#m7"], "p1": ["melee_creep#a"]}}}, "do": [], "expect": {"s.attack": 0}},
+ {"name": "with Disciple of Nevermore: -6 for three allies, +2 from the Disciple", "clause": 1, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["assassins_shadow#s", "disciple_of_nevermore#d", "phantom_assassin#pa"], "p1": ["melee_creep#a"]}}}, "do": [], "expect": {"s.attack": 11, "s.armor": -2}}
+]}

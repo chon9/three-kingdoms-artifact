@@ -615,7 +615,7 @@ RULES_QUESTIONS = [
      "Does not trigger: damage must actually be dealt (> 0 after armor, not prevented by immunity).",
      "Glossary DCG_Glossary_BattleDamage. Confidence: medium."),
     ("RQ-33", "Cross Lane cards.",
-     "Use mana and a hero of the card's colour from the active lane, but the target / destination may be any lane. All improvements are cross lane. 'in all lanes' effects are global but NOT cross lane (still need the coloured hero in the active lane).",
+     "Use mana and a hero of the card's colour from the active lane, but the target / destination may be any lane. All improvements are cross lane. 'in all lanes' effects are global but NOT cross lane (still need the coloured hero in the active lane). Decided in M5 (RQ-55, medium confidence): a unit the text names without a lane (Gank's, Ball Lightning's and The Cover of Night's allied black hero) is in the active lane; only the part written 'in any lane' or 'another lane' reaches other lanes.",
      "Glossary DCG_Glossary_Inspect_Crosslane, DCG_Glossary_Improvement. Confidence: high."),
     ("RQ-34", "Improvements per lane.",
      "Each lane holds at most 16 improvements; a 17th destroys a random existing one. Improvements are not units and occupy no combat position.",

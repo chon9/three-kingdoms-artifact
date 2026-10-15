@@ -1,0 +1,14 @@
+{
+"card": "oglodi_catapult",
+"source_id": 10310,
+"text": "Deal 2 piercing damage to the enemy tower before the action phase.",
+"covers": ["before_action", "piercing_damage", "tower_damage", "enemy_tower"],
+"cases": [
+ {"name": "before lane 1's action phase it deals 2 to the enemy tower there", "clause": 0, "tags": ["before_action", "piercing_damage", "tower_damage", "enemy_tower"], "board": {"active_lane": 0, "lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}, "1": {"p0": ["oglodi_catapult#o"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"lane": 1, "tower.1.1.health": 38, "events": {"has": ["trigger", "tower_damage"]}}},
+ {"name": "piercing: tower armor does not reduce it", "clause": 0, "tags": ["edge", "piercing_damage"], "board": {"base": "@0", "improvements": {"1": {"p1": ["steel_reinforcement#r"]}}}, "do": [{"combat": true}], "expect": {"tower.1.1.health": 38}},
+ {"name": "it fires again each round", "clause": 0, "tags": ["edge", "before_action"], "board": {"lanes": {"0": {"p0": ["oglodi_catapult#o"], "p1": [null]}}}, "do": [{"end_round": true}, {"end_round": true}], "expect": {"tower.0.1.health": 36}},
+ {"name": "a stunned Catapult still fires (a passive, RQ-31)", "clause": 0, "tags": ["edge", "before_action"], "board": {"base": "@0", "give": {"o": ["stun"]}}, "do": [{"combat": true}], "expect": {"tower.1.1.health": 38}},
+ {"name": "your tower and other lanes' towers are not damaged", "clause": 0, "tags": ["negative", "enemy_tower"], "board": {"active_lane": 0, "lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}, "1": {"p0": ["oglodi_catapult#o"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"tower.1.0.health": 40, "tower.2.1.health": 40}},
+ {"name": "played into a lane whose action phase has begun, it waits for the next one", "clause": 0, "tags": ["negative", "before_action"], "board": {"lanes": {"0": {"p0": ["lion#l", null], "p1": ["melee_creep#c", null]}}}, "do": [{"play": "oglodi_catapult", "position": 1, "as": "o"}], "expect": {"tower.0.1.health": 40, "o.in_play": true}},
+ {"name": "a 2-health tower falls to it and becomes an 80-health ancient", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"base": "@0", "towers": {"1": {"p1": {"health": 2}}}}, "do": [{"combat": true}], "expect": {"tower.1.1.ancient": true, "tower.1.1.health": 80}}
+]}

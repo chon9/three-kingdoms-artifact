@@ -1,0 +1,13 @@
+{
+"card": "mana_drain",
+"source_id": 10275,
+"text": "Give the enemy tower -2 Mana this round and give your tower +2 Mana this round.",
+"covers": ["play", "mana_change", "temp_buff", "allied_tower", "enemy_tower", "tower_mana", "this_round"],
+"cases": [
+ {"name": "the enemy tower has -2 Mana and yours +2 this round (5 - 2 cost + 2 = 5 of 7)", "clause": 0, "tags": ["play", "mana_change", "temp_buff", "allied_tower", "enemy_tower", "tower_mana"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": 5}, "do": [{"play": "mana_drain"}], "expect": {"max_mana.0.0": 7, "mana.0.0": 5, "max_mana.0.1": 3, "mana.0.1": 3, "events": {"has": ["status"]}}},
+ {"name": "both changes end with the round", "clause": 0, "tags": ["edge", "this_round"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": 5}, "do": [{"play": "mana_drain"}, {"end_round": true}], "expect": {"max_mana.0.0": 6, "mana.0.0": 6, "max_mana.0.1": 6, "mana.0.1": 6}},
+ {"name": "the gained Mana can be spent at once: with exactly 2 Mana, a second Mana Drain is playable", "clause": 0, "tags": ["edge", "allied_tower"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": 2, "hand": {"p0": ["mana_drain", "mana_drain"]}}, "do": [{"play": "mana_drain"}, {"pass": 1}], "expect": {"mana.0.0": 2, "max_mana.0.1": 0}, "expect_legal": [{"play": "mana_drain"}]},
+ {"name": "an enemy tower with 1 Mana goes to 0, not below; it grows normally next round", "clause": 0, "tags": ["edge", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": {"0": [5, 1]}}, "do": [{"play": "mana_drain"}, {"end_round": true}], "expect": {"max_mana.0.1": 2, "mana.0.1": 2}},
+ {"name": "other lanes' towers are unaffected", "clause": 0, "tags": ["negative", "tower_mana"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#c"]}}, "mana": 5}, "do": [{"play": "mana_drain"}], "expect": {"max_mana.1.0": 5, "max_mana.1.1": 5, "max_mana.2.0": 5}},
+ {"name": "without a black hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["axe#x"], "p1": ["melee_creep#c"]}, "1": {"p0": ["lion#l"], "p1": [null]}}}, "do": [], "expect_illegal": [{"play": "mana_drain"}]}
+]}

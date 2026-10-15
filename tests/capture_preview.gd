@@ -31,7 +31,15 @@ extends SceneTree
 ## m4_hack_note_zh, m4_inspect (a new blue hero), m4_inspect_zh, m4_catalog
 ## (the catalog filtered to blue / Wei), m4_catalog_zh, m4_catalog_classic,
 ## m4_decks (the new presets in the deck dialog) and m4_decks_zh.
-## Pass --size=1280x720 to check the smaller window.
+## M5 (black cards, the black presets): m5_lane (Fengyi Pavilion against the
+## Yellow Turban Rebellion, new black cards in hand), m5_lane_zh,
+## m5_lane_classic, m5_lane_classic_zh, m5_hand (a new card lifted),
+## m5_hand_zh, m5_inspect (a new black hero), m5_inspect_zh, m5_catalog (the
+## catalog filtered to black / Qun), m5_catalog_zh, m5_catalog_classic,
+## m5_catalog_classic_zh, m5_decks (the new presets in the deck dialog) and
+## m5_decks_zh.
+## Pass --size=1280x720 to check the smaller window, --out=res://dir/ to save
+## the shots elsewhere.
 
 const MainScene = preload("res://scenes/main.tscn")
 const Settings = preload("res://scripts/core/game_settings.gd")
@@ -53,6 +61,10 @@ const M4_SHOTS = ["m4_lane", "m4_lane_zh", "m4_lane_classic", "m4_lane_classic_z
 	"m4_hack_note_zh", "m4_inspect", "m4_inspect_zh", "m4_catalog", "m4_catalog_zh", "m4_catalog_classic", "m4_decks", "m4_decks_zh"]
 ## New blue cards for the M4 hand; the last one carries a Self Sabotage hack.
 const M4_HAND = ["eclipse", "mystic_flare", "friendly_fire", "incarnation_of_selemene", "lost_in_time", "barracks", "echo_slam"]
+const M5_SHOTS = ["m5_lane", "m5_lane_zh", "m5_lane_classic", "m5_lane_classic_zh", "m5_hand", "m5_hand_zh", "m5_inspect",
+	"m5_inspect_zh", "m5_catalog", "m5_catalog_zh", "m5_catalog_classic", "m5_catalog_classic_zh", "m5_decks", "m5_decks_zh"]
+## New black cards for the M5 hand (EFFECT_SYSTEM_SPEC.md Appendix A).
+const M5_HAND = ["gank", "winters_curse", "coordinated_assault", "assassins_shadow", "the_cover_of_night", "march_of_the_machines", "heartstopper_aura"]
 const OUT = "res://.tools/shots/"
 const SEED = 20482
 
@@ -62,11 +74,16 @@ var only: Array = []
 var saved: Array = []
 var window_size = Vector2i(1440, 900)
 var suffix = ""
+var out_dir = OUT
 
 func _initialize() -> void:
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--only="):
 			only = argument.trim_prefix("--only=").split(",")
+		if argument.begins_with("--out="):
+			out_dir = argument.trim_prefix("--out=")
+			if not out_dir.ends_with("/"):
+				out_dir += "/"
 		if argument.begins_with("--size="):
 			var parts = argument.trim_prefix("--size=").split("x")
 			window_size = Vector2i(int(parts[0]), int(parts[1]))
@@ -89,8 +106,8 @@ func _shot(shot_name: String) -> void:
 	await _frames(2)
 	await RenderingServer.frame_post_draw
 	var image = root.get_texture().get_image()
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
-	var result = image.save_png(OUT + shot_name + suffix + ".png")
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	var result = image.save_png(out_dir + shot_name + suffix + ".png")
 	saved.append("%s (%s)" % [shot_name + suffix, error_string(result)])
 
 func _wait(seconds: float) -> void:
@@ -215,6 +232,7 @@ func _run() -> void:
 	await _capture_m2()
 	await _capture_m3()
 	await _capture_m4()
+	await _capture_m5()
 	print("Shots: ", ", ".join(saved))
 	app.queue_free()
 	await process_frame
@@ -872,6 +890,128 @@ func _capture_m4() -> void:
 			app.set_locale("zh_CN")
 			await _wait(0.6)
 			await _shot("m4_decks_zh")
+			app.set_locale("en")
+		app.close_dialogs()
+		await _wait(0.2)
+
+## M5: a mid-game lane between two of the black presets, new black cards in
+## hand, a new black hero inspected, the catalog filtered to black (Qun) in
+## both skins and the new presets in the deck dialog.
+func _capture_m5() -> void:
+	if not M5_SHOTS.any(func(shot): return _wanted(shot)):
+		return
+	var screen = app.screen
+	app.set_locale("en")
+	app.set_skin("three_kingdoms")
+	app.deck_selections = ["fengyi_pavilion", "yellow_turban_rebellion"]
+	app.controller.current_seed = SEED + 53
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	AnimationQueue.instant = true
+	var reached = _advance(_busy_lane, 1500)
+	var engine = app.controller.engine
+	print("M5 state: ", reached, " round ", engine.state.round, " lane ", engine.state.lane)
+	engine.state.players[0].hand = M5_HAND.duplicate()
+	engine.state.players[0].hand_state = []
+	Zones.sync(engine)
+	var lane_index = int(engine.state.lane)
+	_publish()
+	await _idle()
+	AnimationQueue.instant = false
+	screen.view_lane(lane_index)
+	_mouse(screen.size * 0.5 + Vector2(0, 40))
+	await _wait(0.8)
+	await _shot("m5_lane")
+	if _wanted("m5_lane_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.3)
+		await _shot("m5_lane_zh")
+		app.set_locale("en")
+		await _wait(0.2)
+	if _wanted("m5_lane_classic") or _wanted("m5_lane_classic_zh"):
+		app.set_skin("classic")
+		await _wait(0.4)
+		await _shot("m5_lane_classic")
+		if _wanted("m5_lane_classic_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m5_lane_classic_zh")
+			app.set_locale("en")
+		app.set_skin("three_kingdoms")
+		await _wait(0.3)
+	if _wanted("m5_hand") or _wanted("m5_hand_zh"):
+		_mouse(screen.hand_card_point(0))
+		await _wait(0.9)
+		await _shot("m5_hand")
+		if _wanted("m5_hand_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m5_hand_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.4)
+	if _wanted("m5_inspect") or _wanted("m5_inspect_zh"):
+		var hero_uid = -1
+		var black = ["winter_wyvern", "bloodseeker", "storm_spirit", "tinker", "sniper", "lion", "necrophos"]
+		for lane in engine.state.lanes:
+			for unit in lane.units[0] + lane.units[1]:
+				if unit != null and unit.hero and str(unit.card) in black and hero_uid == -1:
+					hero_uid = int(unit.uid)
+		if hero_uid == -1:
+			for unit in engine.state.lanes[lane_index].units[0]:
+				if unit != null and unit.hero:
+					hero_uid = int(unit.uid)
+		screen.inspect_unit(hero_uid)
+		await _wait(0.5)
+		await _shot("m5_inspect")
+		if _wanted("m5_inspect_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m5_inspect_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		screen.inspect.close()
+		await _wait(0.2)
+	if _wanted("m5_catalog") or _wanted("m5_catalog_zh") or _wanted("m5_catalog_classic") or _wanted("m5_catalog_classic_zh"):
+		var catalog = app.open_catalog()
+		await _frames(3)
+		catalog.apply_filter("black")
+		await _wait(0.8)
+		await _shot("m5_catalog")
+		if _wanted("m5_catalog_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			catalog.apply_filter("black")
+			await _wait(0.6)
+			await _shot("m5_catalog_zh")
+			app.set_locale("en")
+			await _wait(0.3)
+		if _wanted("m5_catalog_classic") or _wanted("m5_catalog_classic_zh"):
+			app.set_skin("classic")
+			await _wait(0.6)
+			catalog.apply_filter("black")
+			await _wait(0.6)
+			await _shot("m5_catalog_classic")
+			if _wanted("m5_catalog_classic_zh"):
+				app.set_locale("zh_CN")
+				await _wait(0.6)
+				catalog.apply_filter("black")
+				await _wait(0.6)
+				await _shot("m5_catalog_classic_zh")
+				app.set_locale("en")
+			app.set_skin("three_kingdoms")
+		app.close_dialogs()
+		await _wait(0.2)
+	if _wanted("m5_decks") or _wanted("m5_decks_zh"):
+		app.deck_selections = ["fengyi_pavilion", "hulao_pass"]
+		app.open_decks()
+		await _wait(0.8)
+		await _shot("m5_decks")
+		if _wanted("m5_decks_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			await _shot("m5_decks_zh")
 			app.set_locale("en")
 		app.close_dialogs()
 		await _wait(0.2)

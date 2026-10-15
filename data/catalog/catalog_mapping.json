@@ -2506,7 +2506,7 @@
   "valve_text": "Give a hero +10 Bounty until it dies.",
   "zh_name": "讨曹檄文",
   "en_name": "Proclamation Against Cao",
-  "zh_text": "使一名武将+10悬赏，直至其阵亡。",
+  "zh_text": "使一名武将+10赏金，直至其阵亡。",
   "en_text": "Give a hero +10 bounty until it dies.",
   "rationale": "Yuan Shao's signature. Chen Lin's proclamation for Yuan Shao promised a marquisate and fifty million cash for Cao Cao's head: a price on the target until it dies.",
   "art_subject": "Yuan Shao in gilded armour holding up a long proclamation scroll (no legible text) before massed banners, heralds riding off with copies in every direction.",
@@ -4284,7 +4284,7 @@
   "valve_text": "Equipped hero has +4 Health and -3 Bounty.",
   "zh_name": "丹书铁券",
   "en_name": "Iron Pardon Tablet",
-  "zh_text": "装备者+4体力、-3悬赏。",
+  "zh_text": "装备者+4体力、-3赏金。",
   "en_text": "Equipped hero gains +4 health and -3 bounty.",
   "rationale": "The Han iron tablet inscribed in cinnabar that pardoned its holder: with a lower price on his head, the hero is worth less gold to the enemy.",
   "art_subject": "A curved iron tablet inlaid with red cinnabar patterns (no legible script), resting on silk inside an open wooden case."

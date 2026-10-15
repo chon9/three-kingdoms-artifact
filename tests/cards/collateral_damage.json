@@ -1,0 +1,16 @@
+{
+"card": "collateral_damage",
+"source_id": 10415,
+"text": "Modify a black hero with +3 Siege.",
+"covers": ["play", "modify", "siege", "colour_hero", "permanent"],
+"cases": [
+ {"name": "Modify a black hero with +3 Siege", "clause": 0, "tags": ["play", "modify", "siege", "colour_hero", "permanent"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "collateral_damage", "target": "pa"}], "expect": {"pa.kw.siege": 3, "events": {"has": ["mod"]}}},
+ {"name": "the siege hits the enemy tower when it is blocked", "clause": 0, "tags": ["siege"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "collateral_damage", "target": "pa"}, {"combat": true}], "expect": {"tower.0.1.health": 37, "c.in_play": false}},
+ {"name": "a hero of another colour or a creep is not a target", "clause": 0, "tags": ["negative", "colour_hero"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa", "keefe#k", "melee_creep#m"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "collateral_damage", "target": "k"}, {"play": "collateral_damage", "target": "m"}]},
+ {"name": "without a black hero in the lane it cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["debbi#db"]}}}, "do": [], "expect_illegal": [{"play": "collateral_damage", "target": "db"}]},
+ {"name": "permanent: it survives the round end and the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "collateral_damage", "target": "pa"}, {"kill": ["pa"]}, {"end_round": true}], "expect": {"pa.in_play": false, "pa.kw.siege": 3}},
+ {"name": "two copies stack", "clause": 0, "tags": ["edge", "siege"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "collateral_damage", "target": "pa"}, {"pass": 1}, {"play": "collateral_damage", "target": "pa"}], "expect": {"pa.kw.siege": 6}},
+ {"name": "an enemy black hero can be the target", "clause": 0, "tags": ["edge", "colour_hero"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa"], "p1": ["debbi#db"]}}}, "do": [{"play": "collateral_damage", "target": "db"}], "expect": {"db.kw.siege": 3}},
+ {"name": "Purge by the opponent removes it", "clause": 0, "tags": ["edge", "modify"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa"], "p1": ["rix#g"]}}}, "do": [{"play": "collateral_damage", "target": "pa"}, {"play": "cleansing_rite", "target": "pa", "player": 1}], "expect": {"pa.kw.siege": 0, "events": {"has": ["purge"]}}},
+ {"name": "no siege when unblocked: the hero hits the tower (RQ-07)", "clause": 0, "tags": ["edge", "siege"], "board": {"lanes": {"0": {"p0": ["phantom_assassin#pa"], "p1": [null]}}}, "do": [{"play": "collateral_damage", "target": "pa"}, {"combat": true}], "expect": {"tower.0.1.health": 34}}
+]}

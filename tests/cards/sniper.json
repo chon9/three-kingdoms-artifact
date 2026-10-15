@@ -1,0 +1,17 @@
+{
+"card": "sniper",
+"source_id": 10050,
+"text": "Headshot: Deal 5 damage to a unit.",
+"covers": ["active", "damage", "unit"],
+"cases": [
+ {"name": "Headshot: deal 5 damage to a unit", "clause": 0, "tags": ["active", "damage", "unit"], "board": {"lanes": {"0": {"p0": ["sniper#s"], "p1": ["phantom_assassin#p"]}}}, "do": [{"ability": "s", "target": "p"}], "expect": {"p.health": 3, "s.cooldown": 3, "initiative": 1, "events": {"has": ["ability", "damage"]}}},
+ {"name": "armor reduces it (not piercing)", "clause": 0, "tags": ["negative", "damage"], "board": {"lanes": {"0": {"p0": ["sniper#s"], "p1": ["axe#a"]}}}, "do": [{"ability": "s", "target": "a"}], "expect": {"a.health": 7}},
+ {"name": "it kills a creep, whose bounty goes to Sniper's player", "clause": 0, "tags": ["edge", "damage", "unit"], "board": {"lanes": {"0": {"p0": ["sniper#s"], "p1": ["melee_creep#c"]}}}, "do": [{"ability": "s", "target": "c"}], "expect": {"c.in_play": false, "p0.gold": 1, "events": {"has": ["death"]}}},
+ {"name": "an allied unit can be the target (bounty to the opponent, RQ-02)", "clause": 0, "tags": ["edge", "unit", "RQ-02"], "board": {"lanes": {"0": {"p0": ["sniper#s", "melee_creep#m"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"ability": "s", "target": "m"}], "expect": {"m.in_play": false, "p1.gold": 1, "c.health": 4}},
+ {"name": "a unit in another lane is not a target", "clause": 0, "tags": ["negative", "unit", "RQ-04"], "board": {"lanes": {"0": {"p0": ["sniper#s"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#m"], "p1": ["melee_creep#d"]}}}, "expect_illegal": [{"ability": "s", "target": "d"}], "expect_legal": [{"ability": "s", "target": "c"}]},
+ {"name": "a silenced Sniper cannot use Headshot", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"s": ["silence"]}}, "expect_illegal": [{"ability": "s", "target": "p"}]},
+ {"name": "a stunned Sniper cannot use Headshot", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"s": ["stun"]}}, "expect_illegal": [{"ability": "s", "target": "p"}]},
+ {"name": "cooldown 3: not ready for the next two rounds, ready on the third", "clause": 0, "tags": ["edge", "active"], "board": {"lanes": {"0": {"p0": ["sniper#s"], "p1": ["thunderhide_pack#t"]}}}, "do": [{"ability": "s", "target": "t"}, {"end_round": true}, {"end_round": true}, {"pass": 1}], "expect": {"s.cooldown": 1, "t.health": 9}, "expect_illegal": [{"ability": "s", "target": "t"}]},
+ {"name": "after three round ends Headshot is ready again", "clause": 0, "tags": ["edge", "active"], "board": "@7", "do": [{"ability": "s", "target": "t"}, {"end_round": true}, {"end_round": true}, {"end_round": true}, {"pass": 1}], "expect": {"s.cooldown": 0}, "expect_legal": [{"ability": "s", "target": "t"}]},
+ {"name": "a unit with Damage Immunity takes nothing", "clause": 0, "tags": ["negative", "damage"], "board": {"base": "@0", "give": {"p": ["damage_immunity"]}}, "do": [{"ability": "s", "target": "p"}], "expect": {"p.health": 8, "s.cooldown": 3}}
+]}

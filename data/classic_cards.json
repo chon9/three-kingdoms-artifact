@@ -1495,6 +1495,490 @@
         "RQ-49"
       ],
       "valve_text": "Venomous Nature: Summon a Plague Ward into Venomancer's lane each deployment phase."
+    },
+    {
+      "id": "sorla_khan",
+      "source_id": 10058,
+      "name": "Sorla Khan",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10058_card.png",
+      "artist": "Tyler Jacobson",
+      "text": "Warmonger: Sorla Khan deals +{tower_bonus} damage when attacking a tower.",
+      "ability_name": "Warmonger",
+      "signature": "assault_ladders",
+      "attack": 8,
+      "armor": 0,
+      "health": 6,
+      "tower_bonus": 4,
+      "status": "verified",
+      "keywords": {
+        "bonus_tower": {
+          "param": "tower_bonus"
+        }
+      },
+      "valve_text": "Warmonger: Sorla Khan deals +4 damage when attacking a tower."
+    },
+    {
+      "id": "tinker",
+      "source_id": 10025,
+      "name": "Tinker",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10025_card.png",
+      "artist": "James Paick",
+      "text": "Laser: Deal {amount} damage to a unit and disarm it this round. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Laser",
+      "signature": "march_of_the_machines",
+      "attack": 7,
+      "armor": 0,
+      "health": 5,
+      "amount": 3,
+      "ability_cooldown": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "laser",
+          "kind": "active",
+          "valve": 10435,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "to": "$c.target",
+              "amount": {
+                "param": "amount"
+              }
+            },
+            {
+              "op": "give",
+              "to": "$c.target",
+              "until": "round",
+              "keywords": {
+                "disarm": 1
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Laser: Deal 3 damage to a unit and disarm it this round."
+    },
+    {
+      "id": "lion",
+      "source_id": 10060,
+      "name": "Lion",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10060_card.png",
+      "artist": "Stepan Alekseev",
+      "text": "Finger of Death: Deal {amount} piercing damage to a unit. Quicken (reduce cooldown by 1, but not below 1). Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Finger of Death",
+      "signature": "mana_drain",
+      "attack": 6,
+      "armor": 0,
+      "health": 5,
+      "amount": 8,
+      "ability_cooldown": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "finger_of_death",
+          "kind": "active",
+          "valve": 10449,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "quicken": true,
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "to": "$c.target",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-25"
+      ],
+      "valve_text": "Finger of Death: Deal 8 piercing damage to a unit. Quicken (reduce cooldown by 1, but not below 1)."
+    },
+    {
+      "id": "sniper",
+      "source_id": 10050,
+      "name": "Sniper",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10050_card.png",
+      "artist": "Forrest Imel",
+      "text": "Headshot: Deal {amount} damage to a unit. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Headshot",
+      "signature": "assassinate",
+      "attack": 5,
+      "armor": 0,
+      "health": 6,
+      "amount": 5,
+      "ability_cooldown": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "headshot",
+          "kind": "active",
+          "valve": 10446,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "to": "$c.target",
+              "amount": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Headshot: Deal 5 damage to a unit."
+    },
+    {
+      "id": "lich",
+      "source_id": 10038,
+      "name": "Lich",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10038_card.png",
+      "artist": "Wisnu Tan",
+      "text": "Sacrifice: Condemn another ally and draw a card. If that ally has {threshold} or more Attack, draw an extra card. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Sacrifice",
+      "signature": "chain_frost",
+      "attack": 5,
+      "armor": 0,
+      "health": 9,
+      "threshold": 6,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "sacrifice",
+          "kind": "active",
+          "valve": 10440,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "other_allies"
+            }
+          ],
+          "ops": [
+            {
+              "op": "let",
+              "name": "atk",
+              "value": {
+                "stat": "attack",
+                "of": "$c.target"
+              }
+            },
+            {
+              "op": "condemn",
+              "to": "$c.target"
+            },
+            {
+              "op": "draw",
+              "player": "you",
+              "n": 1
+            },
+            {
+              "op": "if",
+              "cond": {
+                "cmp": [
+                  "$v.atk",
+                  ">=",
+                  {
+                    "param": "threshold"
+                  }
+                ]
+              },
+              "then": [
+                {
+                  "op": "draw",
+                  "player": "you",
+                  "n": 1
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-02"
+      ],
+      "valve_text": "Sacrifice: Condemn another ally and draw a card. If that ally has 6 or more Attack, draw an extra card."
+    },
+    {
+      "id": "necrophos",
+      "source_id": 10059,
+      "name": "Necrophos",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10059_card.png",
+      "artist": "Kieran Yanner",
+      "text": "Sadist: Modify Necrophos with +{sadist_health} Health after an enemy neighbor dies.",
+      "ability_name": "Sadist",
+      "signature": "heartstopper_aura",
+      "attack": 5,
+      "armor": 0,
+      "health": 6,
+      "sadist_health": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "sadist",
+          "kind": "trigger",
+          "valve": 10517,
+          "on": "unit_died",
+          "filter": {
+            "was": "enemy_neighbor"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "max_health": {
+                  "param": "sadist_health"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-43"
+      ],
+      "valve_text": "Sadist: Modify Necrophos with +1 Health after an enemy neighbor dies."
+    },
+    {
+      "id": "bounty_hunter",
+      "source_id": 10023,
+      "name": "Bounty Hunter",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10023_card.png",
+      "artist": "E.M. Gist",
+      "text": "Jinada: Before the action phase, there is a {chance}% chance to give Bounty Hunter +{amount} Attack this round.",
+      "ability_name": "Jinada",
+      "signature": "track",
+      "attack": 7,
+      "armor": 0,
+      "health": 7,
+      "chance": 50,
+      "amount": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "jinada",
+          "kind": "trigger",
+          "valve": 10499,
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "chance",
+              "pct": {
+                "param": "chance"
+              },
+              "then": [
+                {
+                  "op": "give",
+                  "to": "$self",
+                  "until": "round",
+                  "stats": {
+                    "attack": {
+                      "param": "amount"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "valve_text": "Jinada: Before the action phase, there is a 50% chance to give Bounty Hunter +4 Attack this round."
+    },
+    {
+      "id": "bloodseeker",
+      "source_id": 10018,
+      "name": "Bloodseeker",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10018_card.png",
+      "artist": "Lake Hurwitz",
+      "text": "Blood Bath: Fully heal Bloodseeker after a unit blocking it dies.",
+      "ability_name": "Blood Bath",
+      "signature": "blood_rage",
+      "attack": 7,
+      "armor": 0,
+      "health": 7,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "blood_bath",
+          "kind": "trigger",
+          "valve": 10496,
+          "on": "unit_died",
+          "filter": {
+            "was": "blocker"
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "to": "$self",
+              "amount": "full"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-43"
+      ],
+      "valve_text": "Blood Bath: Fully heal Bloodseeker after a unit blocking it dies."
+    },
+    {
+      "id": "storm_spirit",
+      "source_id": 10536,
+      "name": "Storm Spirit",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10536_card.png",
+      "artist": "JiHun Lee",
+      "text": "Overload: Give Storm Spirit +{amount} Attack until end of its next combat phase after you play a black card in any lane.",
+      "ability_name": "Overload",
+      "signature": "ball_lightning",
+      "attack": 4,
+      "armor": 0,
+      "health": 6,
+      "amount": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "overload",
+          "kind": "trigger",
+          "valve": 10537,
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "color": "black"
+          },
+          "lane": "any",
+          "ops": [
+            {
+              "op": "give",
+              "to": "$self",
+              "stats": {
+                "attack": {
+                  "param": "amount"
+                }
+              },
+              "until": "next_combat"
+            }
+          ]
+        }
+      ],
+      "valve_text": "Overload: Give Storm Spirit +2 Attack until end of its next combat phase after you play a black card in any lane."
+    },
+    {
+      "id": "winter_wyvern",
+      "source_id": 10010,
+      "name": "Winter Wyvern",
+      "color": "black",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10010_card.png",
+      "artist": "Sung Choi",
+      "text": "Arctic Burn: Move Winter Wyvern to an empty combat position and give it +{amount} Attack this round. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Arctic Burn",
+      "signature": "winters_curse",
+      "attack": 6,
+      "armor": 0,
+      "health": 6,
+      "amount": 4,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "arctic_burn",
+          "kind": "active",
+          "valve": 10430,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "position",
+              "from": {
+                "s": "positions",
+                "side": "ally",
+                "lane": "self"
+              }
+            }
+          ],
+          "ops": [
+            {
+              "op": "move",
+              "unit": "$self",
+              "position": "$c.position"
+            },
+            {
+              "op": "give",
+              "to": "$self",
+              "stats": {
+                "attack": {
+                  "param": "amount"
+                }
+              },
+              "until": "round"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-42"
+      ],
+      "valve_text": "Arctic Burn: Move Winter Wyvern to an empty combat position and give it +4 Attack this round."
     }
   ],
   "cards": [
@@ -6791,6 +7275,1386 @@
         }
       ],
       "valve_text": "Before the action phase, deal 2 piercing damage to a random enemy neighbor of Plague Ward."
+    },
+    {
+      "id": "assault_ladders",
+      "source_id": 10177,
+      "name": "Assault Ladders",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10177_card.png",
+      "artist": "Tyler Jacobson",
+      "text": "Allies deal +{tower_bonus} damage when attacking a tower.",
+      "cross_lane": true,
+      "tower_bonus": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "ladders",
+          "kind": "aura",
+          "affects": "allies",
+          "grant": {
+            "bonus_tower": {
+              "param": "tower_bonus"
+            }
+          }
+        }
+      ],
+      "valve_text": "Allies deal +2 damage when attacking a tower."
+    },
+    {
+      "id": "march_of_the_machines",
+      "source_id": 10291,
+      "name": "March of the Machines",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10291_card.png",
+      "artist": "James Paick",
+      "text": "Before the action phase, if there are charges on March of the Machines, remove one and deal {amount} damage to the enemy tower and {amount} damage to each enemy.",
+      "cross_lane": true,
+      "amount": 2,
+      "charges": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "march",
+          "kind": "trigger",
+          "on": "before_action",
+          "where": {
+            "cmp": [
+              {
+                "charges": "$self"
+              },
+              ">",
+              0
+            ]
+          },
+          "ops": [
+            {
+              "op": "charges",
+              "on": "$self",
+              "add": -1
+            },
+            {
+              "op": "tower_damage",
+              "to": "enemy_tower",
+              "amount": {
+                "param": "amount"
+              }
+            },
+            {
+              "op": "damage",
+              "to": "enemies",
+              "amount": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-01",
+        "RQ-27"
+      ],
+      "valve_text": "Before the action phase, if there are charges on March of the Machines, remove one and deal 2 damage to the enemy tower and 2 damage to each enemy."
+    },
+    {
+      "id": "mana_drain",
+      "source_id": 10275,
+      "name": "Mana Drain",
+      "color": "black",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10275_card.png",
+      "artist": "Stepan Alekseev",
+      "text": "Give the enemy tower -{amount} Mana this round and give your tower +{amount} Mana this round.",
+      "amount": 2,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "give",
+            "to": "enemy_tower",
+            "until": "round",
+            "stats": {
+              "mana": {
+                "neg": {
+                  "param": "amount"
+                }
+              }
+            }
+          },
+          {
+            "op": "give",
+            "to": "your_tower",
+            "until": "round",
+            "stats": {
+              "mana": {
+                "param": "amount"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Give the enemy tower -2 Mana this round and give your tower +2 Mana this round."
+    },
+    {
+      "id": "tyler_estate_censor",
+      "source_id": 10078,
+      "name": "Tyler Estate Censor",
+      "color": "black",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10078_card.png",
+      "artist": "James Paick",
+      "text": "The enemy tower has -{mana_loss} Mana.",
+      "attack": 2,
+      "armor": 0,
+      "health": 8,
+      "mana_loss": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "censor",
+          "kind": "aura",
+          "affects": "enemy_tower",
+          "grant": {
+            "mana": {
+              "neg": {
+                "param": "mana_loss"
+              }
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-52"
+      ],
+      "valve_text": "The enemy tower has -1 Mana."
+    },
+    {
+      "id": "arcane_censure",
+      "source_id": 10295,
+      "name": "Arcane Censure",
+      "color": "black",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10295_card.png",
+      "artist": "Alix Branwyn",
+      "text": "Modify the enemy tower with -{mana_loss} Mana.",
+      "mana_loss": 1,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "modify",
+            "to": "enemy_tower",
+            "stats": {
+              "mana": {
+                "neg": {
+                  "param": "mana_loss"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify the enemy tower with -1 Mana."
+    },
+    {
+      "id": "oglodi_catapult",
+      "source_id": 10310,
+      "name": "Oglodi Catapult",
+      "color": "black",
+      "kind": "creep",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10310_card.png",
+      "artist": "Mark Winters",
+      "text": "Deal {amount} piercing damage to the enemy tower before the action phase.",
+      "attack": 0,
+      "armor": 0,
+      "health": 4,
+      "amount": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "catapult",
+          "kind": "trigger",
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "tower_damage",
+              "to": "enemy_tower",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "valve_text": "Deal 2 piercing damage to the enemy tower before the action phase."
+    },
+    {
+      "id": "oglodi_vandal",
+      "source_id": 10092,
+      "name": "Oglodi Vandal",
+      "color": "black",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10092_card.png",
+      "artist": "JiHun Lee",
+      "text": "Play Effect: Deal {amount} damage to the enemy tower.",
+      "attack": 4,
+      "armor": 0,
+      "health": 4,
+      "amount": 4,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "tower_damage",
+            "to": "enemy_tower",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Play Effect: Deal 4 damage to the enemy tower."
+    },
+    {
+      "id": "dirty_deeds",
+      "source_id": 10314,
+      "name": "Dirty Deeds",
+      "color": "black",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10314_card.png",
+      "artist": "Forrest Imel",
+      "text": "Deal {amount} damage to the enemy tower for each of its improvements.",
+      "amount": 2,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "tower_damage",
+            "to": "enemy_tower",
+            "amount": {
+              "mul": [
+                {
+                  "param": "amount"
+                },
+                {
+                  "count": {
+                    "s": "improvements",
+                    "side": "enemy"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-56"
+      ],
+      "valve_text": "Deal 2 damage to the enemy tower for each of its improvements."
+    },
+    {
+      "id": "lodestone_demolition",
+      "source_id": 10268,
+      "name": "Lodestone Demolition",
+      "color": "black",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10268_card.png",
+      "artist": "Darek Zabrocki",
+      "text": "Deal damage to the enemy tower equal to the total Armor on enemies.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "tower_damage",
+            "to": "enemy_tower",
+            "amount": {
+              "sum": "enemies",
+              "stat": "armor"
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-04",
+        "RQ-57"
+      ],
+      "valve_text": "Deal damage to the enemy tower equal to the total Armor on enemies."
+    },
+    {
+      "id": "assassinate",
+      "source_id": 10272,
+      "name": "Assassinate",
+      "color": "black",
+      "kind": "spell",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10272_card.png",
+      "artist": "Forrest Imel",
+      "text": "Deal {amount} piercing damage to a unit in any lane.",
+      "amount": 10,
+      "cross_lane": true,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "lane": "all"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "damage",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            },
+            "piercing": true
+          }
+        ]
+      },
+      "valve_text": "Deal 10 piercing damage to a unit in any lane."
+    },
+    {
+      "id": "chain_frost",
+      "source_id": 10318,
+      "name": "Chain Frost",
+      "color": "black",
+      "kind": "spell",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10318_card.png",
+      "artist": "Wisnu Tan",
+      "text": "Deal {amount} damage to a unit. Repeat {repeat} times: Deal {amount} damage to a random unit to its left or right. Get initiative.",
+      "amount": 3,
+      "repeat": 7,
+      "status": "draft",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "damage",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            }
+          },
+          {
+            "op": "let",
+            "name": "prev",
+            "value": "$c.target"
+          },
+          {
+            "op": "repeat",
+            "times": {
+              "param": "repeat"
+            },
+            "ops": [
+              {
+                "op": "pulse"
+              },
+              {
+                "op": "let",
+                "name": "next",
+                "value": {
+                  "s": "units",
+                  "rel": {
+                    "allied_neighbors": "$v.prev"
+                  },
+                  "pick": {
+                    "random": 1
+                  }
+                }
+              },
+              {
+                "op": "if",
+                "cond": {
+                  "empty": "$v.next"
+                },
+                "then": [
+                  {
+                    "op": "break"
+                  }
+                ]
+              },
+              {
+                "op": "damage",
+                "to": "$v.next",
+                "amount": {
+                  "param": "amount"
+                }
+              },
+              {
+                "op": "let",
+                "name": "prev",
+                "value": "$v.next"
+              }
+            ]
+          }
+        ],
+        "initiative": true
+      },
+      "rq": [
+        "RQ-15",
+        "RQ-16"
+      ],
+      "valve_text": "Deal 3 damage to a unit. Repeat 7 times: Deal 3 damage to a random unit to its left or right. | Get initiative."
+    },
+    {
+      "id": "heartstopper_aura",
+      "source_id": 10274,
+      "name": "Heartstopper Aura",
+      "color": "black",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10274_card.png",
+      "artist": "Kieran Yanner",
+      "text": "Modify a black hero with \"Deal {amount} piercing damage to this hero's enemy neighbors before the action phase.\"",
+      "amount": 2,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "black"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "id": "heartstopper_aura",
+          "kind": "trigger",
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "damage",
+              "to": "enemy_neighbors",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-12",
+        "RQ-13"
+      ],
+      "valve_text": "Modify a black hero with \"Deal 2 piercing damage to this hero's enemy neighbors before the action phase.\""
+    },
+    {
+      "id": "grazing_shot",
+      "source_id": 10270,
+      "name": "Grazing Shot",
+      "color": "black",
+      "kind": "spell",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10270_card.png",
+      "artist": "Kieran Yanner",
+      "text": "Deal {amount} damage to a unit in any lane.",
+      "amount": 2,
+      "cross_lane": true,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "lane": "all"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "damage",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Deal 2 damage to a unit in any lane."
+    },
+    {
+      "id": "pit_fighter_of_quoidge",
+      "source_id": 10083,
+      "name": "Pit Fighter of Quoidge",
+      "color": "black",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10083_card.png",
+      "artist": "Daarken",
+      "text": "Modify Pit Fighter of Quoidge with +{pit_attack} Attack after an allied neighbor dies.",
+      "pit_attack": 2,
+      "attack": 2,
+      "armor": 0,
+      "health": 8,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "pit_fight",
+          "kind": "trigger",
+          "on": "unit_died",
+          "filter": {
+            "was": "allied_neighbor"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "attack": {
+                  "param": "pit_attack"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-43"
+      ],
+      "valve_text": "Modify Pit Fighter of Quoidge with +2 Attack after an allied neighbor dies."
+    },
+    {
+      "id": "ravenous_mass",
+      "source_id": 10116,
+      "name": "Ravenous Mass",
+      "color": "black",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10116_card.png",
+      "artist": "Mike Azevedo",
+      "text": "Active {ability_cooldown}: Condemn Ravenous Mass's allied neighbors. Modify Ravenous Mass with their Attack and Health.",
+      "ability_name": "Ravenous Mass",
+      "ability_cooldown": 1,
+      "attack": 1,
+      "armor": 0,
+      "health": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "devour",
+          "kind": "active",
+          "valve": 10459,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "let",
+              "name": "eaten",
+              "value": "allied_neighbors"
+            },
+            {
+              "op": "let",
+              "name": "atk",
+              "value": {
+                "sum": "$v.eaten",
+                "stat": "attack"
+              }
+            },
+            {
+              "op": "let",
+              "name": "hp",
+              "value": {
+                "sum": "$v.eaten",
+                "stat": "health"
+              }
+            },
+            {
+              "op": "condemn",
+              "to": "$v.eaten"
+            },
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "attack": "$v.atk",
+                "max_health": "$v.hp"
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-58"
+      ],
+      "valve_text": "Active 1: Condemn Ravenous Mass's allied neighbors. Modify Ravenous Mass with their Attack and Health."
+    },
+    {
+      "id": "track",
+      "source_id": 10416,
+      "name": "Track",
+      "color": "black",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10416_card.png",
+      "artist": "E.M. Gist",
+      "bounty": 10,
+      "text": "Give a hero +{bounty} Bounty until it dies.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "death",
+            "keywords": {
+              "bounty": {
+                "param": "bounty"
+              }
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-02",
+        "RQ-13"
+      ],
+      "valve_text": "Give a hero +10 Bounty until it dies."
+    },
+    {
+      "id": "payday",
+      "source_id": 10322,
+      "name": "Payday",
+      "color": "black",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10322_card.png",
+      "artist": "JiHun Lee",
+      "text": "Double your gold.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "gold",
+            "player": "you",
+            "add": {
+              "gold": "you"
+            }
+          }
+        ]
+      },
+      "valve_text": "Double your gold."
+    },
+    {
+      "id": "ravenhook",
+      "source_id": 10115,
+      "name": "Ravenhook",
+      "color": "black",
+      "kind": "creep",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10115_card.png",
+      "artist": "Heonhwa Choe",
+      "text": "Active {ability_cooldown}: Condemn a random item equipped by the unit blocking Ravenhook. Get gold equal to the base cost of that item.",
+      "ability_name": "Ravenhook",
+      "ability_cooldown": 1,
+      "attack": 3,
+      "armor": 0,
+      "health": 6,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "ravenhook",
+          "kind": "active",
+          "valve": 10524,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "let",
+              "name": "item",
+              "value": {
+                "s": "items",
+                "rel": {
+                  "equipped_on": "blocker"
+                },
+                "pick": {
+                  "random": 1
+                }
+              }
+            },
+            {
+              "op": "condemn",
+              "to": "$v.item"
+            },
+            {
+              "op": "gold",
+              "player": "you",
+              "add": {
+                "price": "$v.item"
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Active 1: Condemn a random item equipped by the unit blocking Ravenhook. Get gold equal to the base cost of that item."
+    },
+    {
+      "id": "blood_rage",
+      "source_id": 10289,
+      "name": "Blood Rage",
+      "color": "black",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10289_card.png",
+      "artist": "Lake Hurwitz",
+      "attack": 4,
+      "text": "Silence a unit this round. Give that unit +{attack} Attack this round.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "round",
+            "keywords": {
+              "silence": 1
+            }
+          },
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "round",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Silence a unit this round. Give that unit +4 Attack this round."
+    },
+    {
+      "id": "gank",
+      "source_id": 10328,
+      "name": "Gank",
+      "color": "black",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10328_card.png",
+      "artist": "Yongjae Choi",
+      "cross_lane": true,
+      "text": "Choose an allied black hero. Choose another unit in any lane. They battle each other.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "black"
+            }
+          },
+          {
+            "key": "destination",
+            "from": {
+              "s": "units",
+              "lane": "all",
+              "not": "$c.target"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "battle",
+            "a": "$c.target",
+            "b": "$c.destination"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-06",
+        "RQ-55"
+      ],
+      "valve_text": "Choose an allied black hero. Choose another unit in any lane. They battle each other."
+    },
+    {
+      "id": "murder_plot",
+      "source_id": 10332,
+      "name": "Murder Plot",
+      "color": "black",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10332_card.png",
+      "artist": "Kieran Yanner",
+      "attack": 8,
+      "text": "Give a black hero +{attack} Attack this round. Choose a combat target for it.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "black"
+            }
+          },
+          {
+            "key": "destination",
+            "combat_target_of": "$c.target"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "round",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            }
+          },
+          {
+            "op": "retarget",
+            "unit": "$c.target",
+            "to": "$c.destination"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-19"
+      ],
+      "valve_text": "Give a black hero +8 Attack this round. Choose a combat target for it."
+    },
+    {
+      "id": "assassins_apprentice",
+      "source_id": 10129,
+      "name": "Assassin's Apprentice",
+      "color": "black",
+      "kind": "creep",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10129_card.png",
+      "artist": "David Palumbo",
+      "text": "Active {ability_cooldown}: Choose a combat target for Assassin's Apprentice.",
+      "ability_name": "Assassin's Apprentice",
+      "ability_cooldown": 1,
+      "attack": 3,
+      "armor": 0,
+      "health": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "apprentice",
+          "kind": "active",
+          "valve": 10543,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "destination",
+              "combat_target_of": "$self"
+            }
+          ],
+          "ops": [
+            {
+              "op": "retarget",
+              "unit": "$self",
+              "to": "$c.destination"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-19"
+      ],
+      "valve_text": "Active 1: Choose a combat target for Assassin's Apprentice."
+    },
+    {
+      "id": "sister_of_the_veil",
+      "source_id": 10077,
+      "name": "Sister of the Veil",
+      "color": "black",
+      "kind": "creep",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10077_card.png",
+      "artist": "Anthony Palumbo",
+      "text": "Active {ability_cooldown}: Choose a combat target for Sister of the Veil.",
+      "ability_name": "Sister of the Veil",
+      "ability_cooldown": 1,
+      "attack": 4,
+      "armor": 0,
+      "health": 5,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "veil",
+          "kind": "active",
+          "valve": 10454,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "destination",
+              "combat_target_of": "$self"
+            }
+          ],
+          "ops": [
+            {
+              "op": "retarget",
+              "unit": "$self",
+              "to": "$c.destination"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-19"
+      ],
+      "valve_text": "Active 1: Choose a combat target for Sister of the Veil."
+    },
+    {
+      "id": "ball_lightning",
+      "source_id": 10538,
+      "name": "Ball Lightning",
+      "color": "black",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10538_card.png",
+      "artist": "JiHun Lee",
+      "text": "Move an allied black hero to an empty combat position in any lane.",
+      "cross_lane": true,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "black"
+            }
+          },
+          {
+            "key": "lane",
+            "from": {
+              "s": "lanes",
+              "lane": "all"
+            }
+          },
+          {
+            "key": "position",
+            "from": {
+              "s": "positions",
+              "side": "ally",
+              "lane": "$c.lane"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "move",
+            "unit": "$c.target",
+            "lane": "$c.lane",
+            "position": "$c.position"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-33",
+        "RQ-42",
+        "RQ-55"
+      ],
+      "valve_text": "Move an allied black hero to an empty combat position in any lane."
+    },
+    {
+      "id": "winters_curse",
+      "source_id": 10011,
+      "name": "Winter's Curse",
+      "color": "black",
+      "kind": "spell",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10011_card.png",
+      "artist": "Sung Choi",
+      "text": "Disarm a unit until end of round. That unit's allied neighbors battle it.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "keywords": {
+              "disarm": 1
+            },
+            "until": "round"
+          },
+          {
+            "op": "pulse"
+          },
+          {
+            "op": "battle",
+            "a": "$c.target",
+            "b": {
+              "s": "units",
+              "rel": {
+                "allied_neighbors": "$c.target"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Disarm a unit until end of round. That unit's allied neighbors battle it."
+    },
+    {
+      "id": "relentless_pursuit",
+      "source_id": 10399,
+      "name": "Relentless Pursuit",
+      "color": "black",
+      "kind": "spell",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10399_card.png",
+      "artist": "Stepan Alekseev",
+      "text": "Choose a unit in another lane. Move a random allied black hero from this lane to that lane. Deal {amount} damage to the chosen unit.",
+      "cross_lane": true,
+      "amount": 2,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "lane": "other"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "move",
+            "unit": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "black",
+              "lane": "active",
+              "pick": {
+                "random": 1
+              }
+            },
+            "lane": "$c.target.lane"
+          },
+          {
+            "op": "pulse"
+          },
+          {
+            "op": "damage",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Choose a unit in another lane. Move a random allied black hero from this lane to that lane. Deal 2 damage to the chosen unit."
+    },
+    {
+      "id": "the_cover_of_night",
+      "source_id": 10404,
+      "name": "The Cover of Night",
+      "color": "black",
+      "kind": "spell",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10404_card.png",
+      "artist": "Michael Kommark",
+      "text": "Move an allied black hero to another lane. Give that hero +{attack} Attack and +{siege} Siege until end of its next combat phase.",
+      "cross_lane": true,
+      "attack": 4,
+      "siege": 7,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "black"
+            }
+          },
+          {
+            "key": "lane",
+            "from": {
+              "s": "lanes",
+              "not": "$c.target.lane"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "move",
+            "unit": "$c.target",
+            "lane": "$c.lane"
+          },
+          {
+            "op": "give",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            },
+            "keywords": {
+              "siege": {
+                "param": "siege"
+              }
+            },
+            "until": "next_combat"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-17",
+        "RQ-33",
+        "RQ-55"
+      ],
+      "valve_text": "Move an allied black hero to another lane. Give that hero +4 Attack and +7 Siege until end of its next combat phase."
+    },
+    {
+      "id": "coordinated_assault",
+      "source_id": 10361,
+      "name": "Coordinated Assault",
+      "color": "black",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10361_card.png",
+      "artist": "Wisnu Tan",
+      "text": "Modify a black hero with \"After you play a black card, give this hero and its allied neighbors +{amount} Attack this round.\"",
+      "amount": 2,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "black"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "color": "black"
+          },
+          "ops": [
+            {
+              "op": "give",
+              "to": [
+                "$self",
+                "allied_neighbors"
+              ],
+              "stats": {
+                "attack": {
+                  "param": "amount"
+                }
+              },
+              "until": "round"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-44"
+      ],
+      "valve_text": "Modify a black hero with \"After you play a black card, give this hero and its allied neighbors +2 Attack this round.\""
+    },
+    {
+      "id": "collateral_damage",
+      "source_id": 10415,
+      "name": "Collateral Damage",
+      "color": "black",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10415_card.png",
+      "artist": "JiHun Lee",
+      "text": "Modify a black hero with +{siege} Siege.",
+      "siege": 3,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "black"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "keywords": {
+              "siege": {
+                "param": "siege"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a black hero with +3 Siege."
+    },
+    {
+      "id": "disciple_of_nevermore",
+      "source_id": 10086,
+      "name": "Disciple of Nevermore",
+      "color": "black",
+      "kind": "creep",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10086_card.png",
+      "artist": "Lius Lasahido",
+      "text": "Other allies have +{ally_attack} Attack and -{ally_armor_loss} Armor.",
+      "attack": 4,
+      "armor": -2,
+      "health": 4,
+      "ally_attack": 2,
+      "ally_armor_loss": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "disciple",
+          "kind": "aura",
+          "affects": "other_allies",
+          "grant": {
+            "attack": {
+              "param": "ally_attack"
+            },
+            "armor": {
+              "neg": {
+                "param": "ally_armor_loss"
+              }
+            }
+          }
+        }
+      ],
+      "valve_text": "Other allies have +2 Attack and -2 Armor.",
+      "rq": [
+        "RQ-04"
+      ]
+    },
+    {
+      "id": "assassins_shadow",
+      "source_id": 10085,
+      "name": "Assassin's Shadow",
+      "color": "black",
+      "kind": "creep",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10085_card.png",
+      "artist": "Daniel Romanovsky",
+      "text": "Siege {siege}. Assassin's Shadow has -{attack_per_ally} Attack for each ally.",
+      "attack": 15,
+      "armor": 0,
+      "health": 5,
+      "siege": 5,
+      "attack_per_ally": 2,
+      "status": "verified",
+      "keywords": {
+        "siege": {
+          "param": "siege"
+        }
+      },
+      "abilities": [
+        {
+          "id": "shadow",
+          "kind": "aura",
+          "affects": "$self",
+          "grant": {
+            "attack": {
+              "neg": {
+                "mul": [
+                  {
+                    "count": "allies"
+                  },
+                  {
+                    "param": "attack_per_ally"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-04",
+        "RQ-50"
+      ],
+      "valve_text": "Siege 5. Assassin's Shadow has -2 Attack for each ally."
     }
   ],
   "deck": {
@@ -7248,6 +9112,121 @@
         "travelers_cloak": 2,
         "broadsword": 1,
         "claymore": 1
+      }
+    },
+    {
+      "id": "fengyi_pavilion",
+      "name": "Black Hunt",
+      "description": "Winter Wyvern, Bloodseeker and Storm Spirit move, curse and pick their battles; Phantom Assassin and Debbi finish the heroes they catch.",
+      "heroes": [
+        "bloodseeker",
+        "phantom_assassin",
+        "winter_wyvern",
+        "storm_spirit",
+        "debbi"
+      ],
+      "cards": {
+        "winters_curse": 3,
+        "blood_rage": 3,
+        "coup_de_grace": 3,
+        "ball_lightning": 3,
+        "no_accident": 3,
+        "gank": 3,
+        "murder_plot": 2,
+        "coordinated_assault": 2,
+        "the_cover_of_night": 1,
+        "relentless_pursuit": 2,
+        "collateral_damage": 1,
+        "assassins_apprentice": 3,
+        "sister_of_the_veil": 2,
+        "disciple_of_nevermore": 2,
+        "untested_grunt": 3,
+        "hip_fire": 2,
+        "slay": 2
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "broadsword": 2,
+        "claymore": 1
+      }
+    },
+    {
+      "id": "hulao_pass",
+      "name": "Black / Red Siege",
+      "description": "Sorla Khan and Bounty Hunter bring Assault Ladders, catapults and gold-hungry creeps against the towers; Sven, Keefe and Axe fight in front.",
+      "heroes": [
+        "sorla_khan",
+        "axe",
+        "bounty_hunter",
+        "sven",
+        "keefe"
+      ],
+      "cards": {
+        "track": 3,
+        "assault_ladders": 3,
+        "gods_strength": 3,
+        "fighting_instinct": 3,
+        "berserkers_call": 3,
+        "oglodi_catapult": 3,
+        "oglodi_vandal": 2,
+        "dirty_deeds": 1,
+        "lodestone_demolition": 1,
+        "payday": 2,
+        "ravenhook": 2,
+        "assassins_shadow": 1,
+        "pit_fighter_of_quoidge": 2,
+        "poised_to_strike": 2,
+        "combat_training": 2,
+        "bronze_legionnaire": 2,
+        "stonehall_elite": 2,
+        "legion_standard_bearer": 2,
+        "defensive_stance": 1
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "broadsword": 2,
+        "claymore": 1
+      }
+    },
+    {
+      "id": "yellow_turban_rebellion",
+      "name": "Black / Blue Sharpshooters",
+      "description": "Tinker, Lion and Sniper shoot down units with their abilities while March of the Machines and Necrophos wear the lane down; Zeus strikes every enemy hero.",
+      "heroes": [
+        "tinker",
+        "sniper",
+        "zeus",
+        "lion",
+        "necrophos"
+      ],
+      "cards": {
+        "march_of_the_machines": 3,
+        "mana_drain": 3,
+        "heartstopper_aura": 3,
+        "assassinate": 3,
+        "thundergods_wrath": 3,
+        "arcane_censure": 2,
+        "tyler_estate_censor": 2,
+        "grazing_shot": 3,
+        "ravenous_mass": 2,
+        "pit_fighter_of_quoidge": 2,
+        "oglodi_catapult": 2,
+        "untested_grunt": 3,
+        "hip_fire": 2,
+        "pick_off": 1,
+        "slay": 2,
+        "lightning_strike": 2,
+        "tower_barrage": 2
+      },
+      "items": {
+        "leather_armor": 3,
+        "travelers_cloak": 3,
+        "short_sword": 2,
+        "broadsword": 1
       }
     }
   ]

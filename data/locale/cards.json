@@ -2308,6 +2308,525 @@
 						"zh_CN": "行动阶段前，对屯田兵的一个随机敌方邻位单位造成{amount}点穿透伤害。"
 					},
 					"faction": "wei"
+				},
+				"sorla_khan": {
+					"name": {
+						"en": "Sun Jian",
+						"zh_CN": "孙坚"
+					},
+					"text": {
+						"en": "Raider's Bane: Sun Jian deals +{tower_bonus} damage when attacking a tower.",
+						"zh_CN": "破虏：孙坚攻击城楼时，额外造成{tower_bonus}点伤害。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Raider's Bane",
+						"zh_CN": "破虏"
+					}
+				},
+				"assault_ladders": {
+					"name": {
+						"en": "First into Luoyang",
+						"zh_CN": "先登洛阳"
+					},
+					"text": {
+						"en": "Allies deal +{tower_bonus} damage when attacking a tower.",
+						"zh_CN": "友方单位攻击城楼时额外造成{tower_bonus}点伤害。"
+					},
+					"faction": "qun"
+				},
+				"tinker": {
+					"name": {
+						"en": "Zhang Jiao",
+						"zh_CN": "张角"
+					},
+					"text": {
+						"en": "Heaven's Thunder: deal {amount} damage to a unit and disarm it this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "雷击：对一个单位造成{amount}点伤害，并在本回合使其缴械。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Heaven's Thunder",
+						"zh_CN": "雷击"
+					}
+				},
+				"march_of_the_machines": {
+					"name": {
+						"en": "Yellow Heaven Rises",
+						"zh_CN": "黄天当立"
+					},
+					"text": {
+						"en": "Before the action phase, if Yellow Heaven Rises has charges, remove one and deal {amount} damage to the enemy tower and {amount} damage to each enemy.",
+						"zh_CN": "行动阶段前，若黄天当立有充能，移除1层充能，并对敌方城楼和每个敌方单位各造成{amount}点伤害。"
+					},
+					"faction": "qun"
+				},
+				"lion": {
+					"name": {
+						"en": "Zuo Ci",
+						"zh_CN": "左慈"
+					},
+					"text": {
+						"en": "Dunjia Scripture: deal {amount} piercing damage to a unit. Quicken (reduce cooldown by 1, but not below 1). Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "遁甲天书：对一个单位造成{amount}点穿透伤害。加速（冷却减少1，但不低于1）。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Dunjia Scripture",
+						"zh_CN": "遁甲天书"
+					}
+				},
+				"mana_drain": {
+					"name": {
+						"en": "Toying with Cao Cao",
+						"zh_CN": "掷杯戏曹"
+					},
+					"text": {
+						"en": "Give the enemy tower -{amount} mana this round and give your tower +{amount} mana this round.",
+						"zh_CN": "本回合使敌方城楼-{amount}军令，你的城楼+{amount}军令。"
+					},
+					"faction": "qun"
+				},
+				"tyler_estate_censor": {
+					"name": {
+						"en": "Palace Eunuch",
+						"zh_CN": "小黄门"
+					},
+					"text": {
+						"en": "The enemy tower has -{mana_loss} mana.",
+						"zh_CN": "敌方城楼-{mana_loss}军令。"
+					},
+					"faction": "qun"
+				},
+				"arcane_censure": {
+					"name": {
+						"en": "Cut the Supply Line",
+						"zh_CN": "截断粮道"
+					},
+					"text": {
+						"en": "Permanently give the enemy tower -{mana_loss} mana.",
+						"zh_CN": "永久使敌方城楼-{mana_loss}军令。"
+					},
+					"faction": "qun"
+				},
+				"oglodi_catapult": {
+					"name": {
+						"en": "Stone Slingers",
+						"zh_CN": "投石兵"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to the enemy tower before the action phase.",
+						"zh_CN": "行动阶段前，对敌方城楼造成{amount}点穿透伤害。"
+					},
+					"faction": "qun"
+				},
+				"oglodi_vandal": {
+					"name": {
+						"en": "White Wave Bandits",
+						"zh_CN": "白波贼"
+					},
+					"text": {
+						"en": "Play effect: deal {amount} damage to the enemy tower.",
+						"zh_CN": "出场效果：对敌方城楼造成{amount}点伤害。"
+					},
+					"faction": "qun"
+				},
+				"dirty_deeds": {
+					"name": {
+						"en": "Torch the Works",
+						"zh_CN": "纵火焚营"
+					},
+					"text": {
+						"en": "Deal {amount} damage to the enemy tower for each of its improvements.",
+						"zh_CN": "敌方城楼每有一个营建，对其造成{amount}点伤害。"
+					},
+					"faction": "qun"
+				},
+				"lodestone_demolition": {
+					"name": {
+						"en": "Spears Turned Inward",
+						"zh_CN": "临阵倒戈"
+					},
+					"text": {
+						"en": "Deal damage to the enemy tower equal to the total armor of all enemies.",
+						"zh_CN": "对敌方城楼造成伤害，数值等于所有敌方单位的护甲之和。"
+					},
+					"faction": "qun"
+				},
+				"sniper": {
+					"name": {
+						"en": "Lady Zhurong",
+						"zh_CN": "祝融"
+					},
+					"text": {
+						"en": "Flying Knives: deal {amount} damage to a unit. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "飞刀：对一个单位造成{amount}点伤害。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Flying Knives",
+						"zh_CN": "飞刀"
+					}
+				},
+				"assassinate": {
+					"name": {
+						"en": "Blade of the Fire God",
+						"zh_CN": "火神之刃"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to a unit in any lane.",
+						"zh_CN": "对任意一路中的一个单位造成{amount}点穿透伤害。"
+					},
+					"faction": "qun"
+				},
+				"lich": {
+					"name": {
+						"en": "Meng Huo",
+						"zh_CN": "孟获"
+					},
+					"text": {
+						"en": "Blood the Banner: condemn another ally and draw a card. If that ally has {threshold} or more attack, draw an extra card. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "祭旗：处斩另一个友方单位并摸一张牌。若该单位攻击不低于{threshold}，额外摸一张牌。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Blood the Banner",
+						"zh_CN": "祭旗"
+					}
+				},
+				"chain_frost": {
+					"name": {
+						"en": "Seven Captures",
+						"zh_CN": "七擒七纵"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit. Repeat {repeat} times: deal {amount} damage to a random unit to its left or right. Get initiative.",
+						"zh_CN": "对一个单位造成{amount}点伤害。重复{repeat}次：对其左侧或右侧的一个随机单位造成{amount}点伤害。获得先手。"
+					},
+					"faction": "qun"
+				},
+				"necrophos": {
+					"name": {
+						"en": "Hua Tuo",
+						"zh_CN": "华佗"
+					},
+					"text": {
+						"en": "Five Animals Play: permanently give Hua Tuo +{sadist_health} health after an enemy neighbor dies.",
+						"zh_CN": "五禽戏：一个敌方邻位单位阵亡后，永久使华佗+{sadist_health}体力。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Five Animals Play",
+						"zh_CN": "五禽戏"
+					}
+				},
+				"heartstopper_aura": {
+					"name": {
+						"en": "Mafei Powder",
+						"zh_CN": "麻沸散"
+					},
+					"text": {
+						"en": "Permanently give a black hero \"Before the action phase, deal {amount} piercing damage to this hero's enemy neighbors.\"",
+						"zh_CN": "永久使一名黑色武将获得：“行动阶段前，对此武将的敌方邻位单位造成{amount}点穿透伤害。”"
+					},
+					"faction": "qun",
+					"grants": [
+						{
+							"en": "Before the action phase, deal {amount} piercing damage to this hero's enemy neighbors.",
+							"zh_CN": "行动阶段前，对此武将的敌方邻位单位造成{amount}点穿透伤害。"
+						}
+					]
+				},
+				"grazing_shot": {
+					"name": {
+						"en": "Stray Arrow",
+						"zh_CN": "流矢"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit in any lane.",
+						"zh_CN": "对任意一路中的一个单位造成{amount}点伤害。"
+					},
+					"faction": "qun"
+				},
+				"pit_fighter_of_quoidge": {
+					"name": {
+						"en": "Grieving Host",
+						"zh_CN": "哀兵"
+					},
+					"text": {
+						"en": "Permanently give Grieving Host +{pit_attack} attack after an allied neighbor dies.",
+						"zh_CN": "一个友方邻位单位阵亡后，永久使哀兵+{pit_attack}攻击。"
+					},
+					"faction": "qun"
+				},
+				"ravenous_mass": {
+					"name": {
+						"en": "Starving Horde",
+						"zh_CN": "饥军"
+					},
+					"text": {
+						"en": "Devour: condemn Starving Horde's allied neighbors. Permanently give Starving Horde their attack and health. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "吞并：处斩饥军的友方邻位单位，并永久使饥军获得它们的攻击和体力。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Devour",
+						"zh_CN": "吞并"
+					}
+				},
+				"bounty_hunter": {
+					"name": {
+						"en": "Yuan Shao",
+						"zh_CN": "袁绍"
+					},
+					"text": {
+						"en": "Wild Volley: before the action phase, there is a {chance}% chance to give Yuan Shao +{amount} attack this round.",
+						"zh_CN": "乱击：行动阶段前，有{chance}%几率使袁绍本回合+{amount}攻击。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Wild Volley",
+						"zh_CN": "乱击"
+					}
+				},
+				"track": {
+					"name": {
+						"en": "Proclamation Against Cao",
+						"zh_CN": "讨曹檄文"
+					},
+					"text": {
+						"en": "Give a hero +{bounty} bounty until it dies.",
+						"zh_CN": "使一名武将+{bounty}赏金，直至其阵亡。"
+					},
+					"faction": "qun"
+				},
+				"payday": {
+					"name": {
+						"en": "Debased Coinage",
+						"zh_CN": "铸小钱"
+					},
+					"text": {
+						"en": "Double your gold.",
+						"zh_CN": "使你的金翻倍。"
+					},
+					"faction": "qun"
+				},
+				"ravenhook": {
+					"name": {
+						"en": "Black Mountain Raider",
+						"zh_CN": "黑山贼"
+					},
+					"text": {
+						"en": "Highway Robbery: condemn a random item equipped by the unit blocking Black Mountain Raider. Get gold equal to that item's base cost. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "拦路剪径：处斩阻挡黑山贼的单位所装备的一件随机军备，并获得等同于该军备基础价格的金。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Highway Robbery",
+						"zh_CN": "拦路剪径"
+					}
+				},
+				"bloodseeker": {
+					"name": {
+						"en": "Dong Zhuo",
+						"zh_CN": "董卓"
+					},
+					"text": {
+						"en": "Tyranny: fully heal Dong Zhuo after a unit blocking him dies.",
+						"zh_CN": "暴虐：阻挡董卓的单位阵亡后，完全恢复董卓的体力。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Tyranny",
+						"zh_CN": "暴虐"
+					}
+				},
+				"blood_rage": {
+					"name": {
+						"en": "Wine Pools, Meat Forests",
+						"zh_CN": "酒池肉林"
+					},
+					"text": {
+						"en": "Silence a unit this round. Give it +{attack} attack this round.",
+						"zh_CN": "本回合使一个单位沉默，并使其+{attack}攻击。"
+					},
+					"faction": "qun"
+				},
+				"gank": {
+					"name": {
+						"en": "Ambush at Mount Xian",
+						"zh_CN": "岘山伏击"
+					},
+					"text": {
+						"en": "Choose an allied black hero. Choose another unit in any lane. They battle each other.",
+						"zh_CN": "选择一名友方黑色武将，再选择任意一路中的另一个单位，令二者相互交锋。"
+					},
+					"faction": "qun"
+				},
+				"murder_plot": {
+					"name": {
+						"en": "Belt Edict",
+						"zh_CN": "衣带诏"
+					},
+					"text": {
+						"en": "Give a black hero +{attack} attack this round. Choose a combat target for it.",
+						"zh_CN": "本回合使一名黑色武将+{attack}攻击，并为其指定交战目标。"
+					},
+					"faction": "qun"
+				},
+				"assassins_apprentice": {
+					"name": {
+						"en": "Young Knight-Errant",
+						"zh_CN": "游侠儿"
+					},
+					"text": {
+						"en": "Marked Target: choose a combat target for Young Knight-Errant. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "受命行刺：为游侠儿指定交战目标。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Marked Target",
+						"zh_CN": "受命行刺"
+					}
+				},
+				"sister_of_the_veil": {
+					"name": {
+						"en": "Zhao E the Avenger",
+						"zh_CN": "赵娥"
+					},
+					"text": {
+						"en": "Blood Debt: choose a combat target for Zhao E the Avenger. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "手刃仇人：为赵娥指定交战目标。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Blood Debt",
+						"zh_CN": "手刃仇人"
+					}
+				},
+				"ball_lightning": {
+					"name": {
+						"en": "Raid on Xiaopei",
+						"zh_CN": "急袭小沛"
+					},
+					"text": {
+						"en": "Move an allied black hero to an empty combat position in any lane.",
+						"zh_CN": "将一名友方黑色武将移至任意一路中的一个空交战位置。"
+					},
+					"faction": "qun"
+				},
+				"storm_spirit": {
+					"name": {
+						"en": "Gao Shun",
+						"zh_CN": "高顺"
+					},
+					"text": {
+						"en": "Never Repelled: after you play a black card in any lane, give Gao Shun +{amount} attack until the end of his next combat phase.",
+						"zh_CN": "攻无不破：你在任意路中打出一张黑色牌后，使高顺+{amount}攻击，直至其下一个交战阶段结束。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Never Repelled",
+						"zh_CN": "攻无不破"
+					}
+				},
+				"winters_curse": {
+					"name": {
+						"en": "Estrangement",
+						"zh_CN": "离间"
+					},
+					"text": {
+						"en": "Disarm a unit until the end of the round. Its allied neighbors battle it.",
+						"zh_CN": "本回合使一个单位缴械。其友方邻位单位与其交锋。"
+					},
+					"faction": "qun"
+				},
+				"winter_wyvern": {
+					"name": {
+						"en": "Diaochan",
+						"zh_CN": "貂蝉"
+					},
+					"text": {
+						"en": "Moon-Shy Beauty: move Diaochan to an empty combat position and give her +{amount} attack this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "闭月：将貂蝉移至一个空的交战位置，本回合貂蝉+{amount}攻击。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Moon-Shy Beauty",
+						"zh_CN": "闭月"
+					}
+				},
+				"relentless_pursuit": {
+					"name": {
+						"en": "Hunt the Fleeing",
+						"zh_CN": "追亡逐北"
+					},
+					"text": {
+						"en": "Choose a unit in another lane. Move a random allied black hero from this lane to that lane. Deal {amount} damage to the chosen unit.",
+						"zh_CN": "选择另一路中的一个单位。将本路中一名随机友方黑色武将移至该路，并对所选单位造成{amount}点伤害。"
+					},
+					"faction": "qun"
+				},
+				"the_cover_of_night": {
+					"name": {
+						"en": "Silent Night Raid",
+						"zh_CN": "衔枚夜袭"
+					},
+					"text": {
+						"en": "Move an allied black hero to another lane. Give it +{attack} attack and +{siege} siege until the end of its next combat phase.",
+						"zh_CN": "将一名友方黑色武将移至另一路。直至其下一个交战阶段结束，使其+{attack}攻击、+{siege}攻城。"
+					},
+					"faction": "qun"
+				},
+				"coordinated_assault": {
+					"name": {
+						"en": "Eighteen Lords",
+						"zh_CN": "十八路诸侯"
+					},
+					"text": {
+						"en": "Permanently give a black hero \"After you play a black card, give this hero and its allied neighbors +{amount} attack this round.\"",
+						"zh_CN": "永久使一名黑色武将获得：“你打出一张黑色牌后，本回合使此武将及其友方邻位单位+{amount}攻击。”"
+					},
+					"faction": "qun",
+					"grants": [
+						{
+							"en": "After you play a black card, give this hero and its allied neighbors +{amount} attack this round.",
+							"zh_CN": "你打出一张黑色牌后，本回合使此武将及其友方邻位单位+{amount}攻击。"
+						}
+					]
+				},
+				"collateral_damage": {
+					"name": {
+						"en": "Let Them Plunder",
+						"zh_CN": "纵兵劫掠"
+					},
+					"text": {
+						"en": "Permanently give a black hero +{siege} siege.",
+						"zh_CN": "永久使一名黑色武将+{siege}攻城。"
+					},
+					"faction": "qun"
+				},
+				"disciple_of_nevermore": {
+					"name": {
+						"en": "Taiping Preacher",
+						"zh_CN": "太平道人"
+					},
+					"text": {
+						"en": "Other allies have +{ally_attack} attack and -{ally_armor_loss} armor.",
+						"zh_CN": "其他友方单位+{ally_attack}攻击、-{ally_armor_loss}护甲。"
+					},
+					"faction": "qun"
+				},
+				"assassins_shadow": {
+					"name": {
+						"en": "Xu Gong's Avengers",
+						"zh_CN": "许贡门客"
+					},
+					"text": {
+						"en": "Siege {siege}. Xu Gong's Avengers have -{attack_per_ally} attack for each ally.",
+						"zh_CN": "攻城{siege}。每有一个友方单位，许贡门客-{attack_per_ally}攻击。"
+					},
+					"faction": "qun"
 				}
 			},
 			"presets": {
@@ -2419,6 +2938,36 @@
 					"description": {
 						"en": "Deng Ai's farm soldiers and Xiahou Yuan's swift columns crowd the frontier against Jiang Wei and Wei Yan, while Dian Wei hurls halberds at the front.",
 						"zh_CN": "邓艾的屯田兵与夏侯渊的神速之师布满边陲，对阵姜维与魏延；典韦阵前掷戟。"
+					}
+				},
+				"fengyi_pavilion": {
+					"name": {
+						"en": "Fengyi Pavilion",
+						"zh_CN": "凤仪亭"
+					},
+					"description": {
+						"en": "At Fengyi Pavilion Diaochan turns Lü Bu against Dong Zhuo; Gao Shun's raids and Jia Xu's schemes make every lane an ambush.",
+						"zh_CN": "凤仪亭中，貂蝉离间吕布与董卓；高顺奔袭、贾诩设谋，三路处处伏兵。"
+					}
+				},
+				"hulao_pass": {
+					"name": {
+						"en": "Battle of Hulao Pass",
+						"zh_CN": "虎牢关之战"
+					},
+					"description": {
+						"en": "Yuan Shao's coalition storms the passes: Sun Jian is first up the ladders, Liu Bei, Guan Yu and Zhang Fei charge, and stone throwers batter the walls.",
+						"zh_CN": "袁绍盟军强攻关隘：孙坚先登，刘备、关羽、张飞冲阵，投石兵猛轰城楼。"
+					}
+				},
+				"yellow_turban_rebellion": {
+					"name": {
+						"en": "Yellow Turban Rebellion",
+						"zh_CN": "黄巾起义"
+					},
+					"description": {
+						"en": "Zhang Jiao calls down Heaven's thunder as Yellow Heaven Rises; Zuo Ci's arts, Lady Zhurong's flying knives and Hua Tuo's powder strike the generals, and Sima Yi's lightning finishes them.",
+						"zh_CN": "张角呼风唤雷，黄天当立；左慈的遁甲、祝融的飞刀与华佗的麻沸散专攻敌将，司马懿再以天雷收尾。"
 					}
 				}
 			}
@@ -4428,6 +4977,484 @@
 						"en": "Before the action phase, deal {amount} piercing damage to a random enemy neighbor of Plague Ward.",
 						"zh_CN": "行动阶段前，对瘟疫守卫的一个随机敌方近邻造成{amount}透甲伤害。"
 					}
+				},
+				"sorla_khan": {
+					"name": {
+						"en": "Sorla Khan",
+						"zh_CN": "索尔拉可汗"
+					},
+					"text": {
+						"en": "Warmonger: Sorla Khan deals +{tower_bonus} damage when attacking a tower.",
+						"zh_CN": "好战者：索尔拉可汗攻击塔时，造成+{tower_bonus}伤害。"
+					},
+					"ability_name": {
+						"en": "Warmonger",
+						"zh_CN": "好战者"
+					}
+				},
+				"assault_ladders": {
+					"name": {
+						"en": "Assault Ladders",
+						"zh_CN": "攻城梯"
+					},
+					"text": {
+						"en": "Allies deal +{tower_bonus} damage when attacking a tower.",
+						"zh_CN": "友方单位攻击塔时，造成+{tower_bonus}伤害。"
+					}
+				},
+				"tinker": {
+					"name": {
+						"en": "Tinker",
+						"zh_CN": "修补匠"
+					},
+					"text": {
+						"en": "Laser: Deal {amount} damage to a unit and disarm it this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "激光：对一个单位造成{amount}伤害，并在本回合使其缴械。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Laser",
+						"zh_CN": "激光"
+					}
+				},
+				"march_of_the_machines": {
+					"name": {
+						"en": "March of the Machines",
+						"zh_CN": "机械行军"
+					},
+					"text": {
+						"en": "Before the action phase, if there are charges on March of the Machines, remove one and deal {amount} damage to the enemy tower and {amount} damage to each enemy.",
+						"zh_CN": "行动阶段前，如果机械行军有能量，移除1能量，对敌方塔和所有敌人各造成{amount}伤害。"
+					}
+				},
+				"lion": {
+					"name": {
+						"en": "Lion",
+						"zh_CN": "莱恩"
+					},
+					"text": {
+						"en": "Finger of Death: Deal {amount} piercing damage to a unit. Quicken (reduce cooldown by 1, but not below 1). Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "死亡之指：对一个单位造成{amount}透甲伤害。加速（减少1冷却，但不会低于1）。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Finger of Death",
+						"zh_CN": "死亡之指"
+					}
+				},
+				"mana_drain": {
+					"name": {
+						"en": "Mana Drain",
+						"zh_CN": "法力吸取"
+					},
+					"text": {
+						"en": "Give the enemy tower -{amount} Mana this round and give your tower +{amount} Mana this round.",
+						"zh_CN": "在本回合使敌方塔-{amount}魔力，并使你的塔+{amount}魔力。"
+					}
+				},
+				"tyler_estate_censor": {
+					"name": {
+						"en": "Tyler Estate Censor",
+						"zh_CN": "泰勒庄园巡检"
+					},
+					"text": {
+						"en": "The enemy tower has -{mana_loss} Mana.",
+						"zh_CN": "敌方塔-{mana_loss}魔力。"
+					}
+				},
+				"arcane_censure": {
+					"name": {
+						"en": "Arcane Censure",
+						"zh_CN": "奥术谴责"
+					},
+					"text": {
+						"en": "Modify the enemy tower with -{mana_loss} Mana.",
+						"zh_CN": "修改敌方塔，使其-{mana_loss}魔力。"
+					}
+				},
+				"oglodi_catapult": {
+					"name": {
+						"en": "Oglodi Catapult",
+						"zh_CN": "高地人投石器"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to the enemy tower before the action phase.",
+						"zh_CN": "行动阶段前，对敌方塔造成{amount}透甲伤害。"
+					}
+				},
+				"oglodi_vandal": {
+					"name": {
+						"en": "Oglodi Vandal",
+						"zh_CN": "高地人破坏者"
+					},
+					"text": {
+						"en": "Play Effect: Deal {amount} damage to the enemy tower.",
+						"zh_CN": "出牌效果：对敌方塔造成{amount}伤害。"
+					}
+				},
+				"dirty_deeds": {
+					"name": {
+						"en": "Dirty Deeds",
+						"zh_CN": "肮脏勾当"
+					},
+					"text": {
+						"en": "Deal {amount} damage to the enemy tower for each of its improvements.",
+						"zh_CN": "敌方塔每有一个强化就受{amount}伤害。"
+					}
+				},
+				"lodestone_demolition": {
+					"name": {
+						"en": "Lodestone Demolition",
+						"zh_CN": "磁石爆破"
+					},
+					"text": {
+						"en": "Deal damage to the enemy tower equal to the total Armor on enemies.",
+						"zh_CN": "对敌方塔造成伤害，数值为敌人护甲的总和。"
+					}
+				},
+				"sniper": {
+					"name": {
+						"en": "Sniper",
+						"zh_CN": "狙击手"
+					},
+					"text": {
+						"en": "Headshot: Deal {amount} damage to a unit. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "爆头：对一个单位造成{amount}伤害。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Headshot",
+						"zh_CN": "爆头"
+					}
+				},
+				"assassinate": {
+					"name": {
+						"en": "Assassinate",
+						"zh_CN": "暗杀"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to a unit in any lane.",
+						"zh_CN": "对任意兵线上的一个单位造成{amount}透甲伤害。"
+					}
+				},
+				"lich": {
+					"name": {
+						"en": "Lich",
+						"zh_CN": "巫妖"
+					},
+					"text": {
+						"en": "Sacrifice: Condemn another ally and draw a card. If that ally has {threshold} or more Attack, draw an extra card. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "献祭：惩处另一个友方单位并抽一张牌。如果该友方单位的攻击为{threshold}或以上，则多抽一张牌。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Sacrifice",
+						"zh_CN": "献祭"
+					}
+				},
+				"chain_frost": {
+					"name": {
+						"en": "Chain Frost",
+						"zh_CN": "连环霜冻"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit. Repeat {repeat} times: Deal {amount} damage to a random unit to its left or right. Get initiative.",
+						"zh_CN": "对一个单位造成{amount}伤害。重复{repeat}次：对其左侧或右侧的一个随机单位造成{amount}伤害。获得先手。"
+					}
+				},
+				"necrophos": {
+					"name": {
+						"en": "Necrophos",
+						"zh_CN": "瘟疫法师"
+					},
+					"text": {
+						"en": "Sadist: Modify Necrophos with +{sadist_health} Health after an enemy neighbor dies.",
+						"zh_CN": "施虐之心：一个敌方近邻死亡后，修改瘟疫法师，使其+{sadist_health}生命。"
+					},
+					"ability_name": {
+						"en": "Sadist",
+						"zh_CN": "施虐之心"
+					}
+				},
+				"heartstopper_aura": {
+					"name": {
+						"en": "Heartstopper Aura",
+						"zh_CN": "竭心灵气"
+					},
+					"text": {
+						"en": "Modify a black hero with \"Deal {amount} piercing damage to this hero's enemy neighbors before the action phase.\"",
+						"zh_CN": "修改一名黑色英雄，使其获得“行动阶段前，对此英雄的敌方近邻造成{amount}透甲伤害。”"
+					},
+					"grants": [
+						{
+							"en": "Deal {amount} piercing damage to this hero's enemy neighbors before the action phase.",
+							"zh_CN": "行动阶段前，对此英雄的敌方近邻造成{amount}透甲伤害。"
+						}
+					]
+				},
+				"grazing_shot": {
+					"name": {
+						"en": "Grazing Shot",
+						"zh_CN": "擦肩之矢"
+					},
+					"text": {
+						"en": "Deal {amount} damage to a unit in any lane.",
+						"zh_CN": "对任意兵线上的一个单位造成{amount}伤害。"
+					}
+				},
+				"pit_fighter_of_quoidge": {
+					"name": {
+						"en": "Pit Fighter of Quoidge",
+						"zh_CN": "囚尸岭绝命斗士"
+					},
+					"text": {
+						"en": "Modify Pit Fighter of Quoidge with +{pit_attack} Attack after an allied neighbor dies.",
+						"zh_CN": "一个友方近邻死亡后，修改囚尸岭绝命斗士，使其+{pit_attack}攻击。"
+					}
+				},
+				"ravenous_mass": {
+					"name": {
+						"en": "Ravenous Mass",
+						"zh_CN": "贪婪众生"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Condemn Ravenous Mass's allied neighbors. Modify Ravenous Mass with their Attack and Health.",
+						"zh_CN": "主动{ability_cooldown}：惩处贪婪众生的友方近邻。修改贪婪众生，使其获得那些单位的攻击和生命。"
+					},
+					"ability_name": {
+						"en": "Ravenous Mass",
+						"zh_CN": "贪婪众生"
+					}
+				},
+				"bounty_hunter": {
+					"name": {
+						"en": "Bounty Hunter",
+						"zh_CN": "赏金猎人"
+					},
+					"text": {
+						"en": "Jinada: Before the action phase, there is a {chance}% chance to give Bounty Hunter +{amount} Attack this round.",
+						"zh_CN": "忍术：行动阶段前，赏金猎人在本回合有{chance}%几率+{amount}攻击。"
+					},
+					"ability_name": {
+						"en": "Jinada",
+						"zh_CN": "忍术"
+					}
+				},
+				"track": {
+					"name": {
+						"en": "Track",
+						"zh_CN": "追踪术"
+					},
+					"text": {
+						"en": "Give a hero +{bounty} Bounty until it dies.",
+						"zh_CN": "使一名英雄+{bounty}赏金，直至其死亡为止。"
+					}
+				},
+				"payday": {
+					"name": {
+						"en": "Payday",
+						"zh_CN": "发薪日"
+					},
+					"text": {
+						"en": "Double your gold.",
+						"zh_CN": "你的金钱加倍。"
+					}
+				},
+				"ravenhook": {
+					"name": {
+						"en": "Ravenhook",
+						"zh_CN": "勾财黑鸦"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Condemn a random item equipped by the unit blocking Ravenhook. Get gold equal to the base cost of that item.",
+						"zh_CN": "主动{ability_cooldown}：惩处阻挡勾财黑鸦的单位装备的一件随机物品。获得与该物品基础价格相等的金钱。"
+					},
+					"ability_name": {
+						"en": "Ravenhook",
+						"zh_CN": "勾财黑鸦"
+					}
+				},
+				"bloodseeker": {
+					"name": {
+						"en": "Bloodseeker",
+						"zh_CN": "血魔"
+					},
+					"text": {
+						"en": "Blood Bath: Fully heal Bloodseeker after a unit blocking it dies.",
+						"zh_CN": "屠戮：当阻挡其前的单位死亡后，完整治疗血魔。"
+					},
+					"ability_name": {
+						"en": "Blood Bath",
+						"zh_CN": "屠戮"
+					}
+				},
+				"blood_rage": {
+					"name": {
+						"en": "Blood Rage",
+						"zh_CN": "血之狂暴"
+					},
+					"text": {
+						"en": "Silence a unit this round. Give that unit +{attack} Attack this round.",
+						"zh_CN": "在本回合沉默一个单位，并使该单位+{attack}攻击。"
+					}
+				},
+				"gank": {
+					"name": {
+						"en": "Gank",
+						"zh_CN": "偷袭"
+					},
+					"text": {
+						"en": "Choose an allied black hero. Choose another unit in any lane. They battle each other.",
+						"zh_CN": "选择一名友方黑色英雄和任意兵线上的另一个单位，让双方战斗。"
+					}
+				},
+				"murder_plot": {
+					"name": {
+						"en": "Murder Plot",
+						"zh_CN": "杀戮阴谋"
+					},
+					"text": {
+						"en": "Give a black hero +{attack} Attack this round. Choose a combat target for it.",
+						"zh_CN": "在本回合使一名黑色英雄+{attack}攻击。为其选择一个战斗目标。"
+					}
+				},
+				"assassins_apprentice": {
+					"name": {
+						"en": "Assassin's Apprentice",
+						"zh_CN": "刺客学徒"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Choose a combat target for Assassin's Apprentice.",
+						"zh_CN": "主动{ability_cooldown}：为刺客学徒选择一个战斗目标。"
+					},
+					"ability_name": {
+						"en": "Assassin's Apprentice",
+						"zh_CN": "刺客学徒"
+					}
+				},
+				"sister_of_the_veil": {
+					"name": {
+						"en": "Sister of the Veil",
+						"zh_CN": "魅影之纱刺客"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Choose a combat target for Sister of the Veil.",
+						"zh_CN": "主动{ability_cooldown}：为魅影之纱刺客选择一个战斗目标。"
+					},
+					"ability_name": {
+						"en": "Sister of the Veil",
+						"zh_CN": "魅影之纱刺客"
+					}
+				},
+				"ball_lightning": {
+					"name": {
+						"en": "Ball Lightning",
+						"zh_CN": "球状闪电"
+					},
+					"text": {
+						"en": "Move an allied black hero to an empty combat position in any lane.",
+						"zh_CN": "将一名友方黑色英雄移至任意兵线上的一个空白战斗位置。"
+					}
+				},
+				"storm_spirit": {
+					"name": {
+						"en": "Storm Spirit",
+						"zh_CN": "风暴之灵"
+					},
+					"text": {
+						"en": "Overload: Give Storm Spirit +{amount} Attack until end of its next combat phase after you play a black card in any lane.",
+						"zh_CN": "超负荷：在任意兵线上打出一张黑色卡牌后，使风暴之灵+{amount}攻击，直至其下个战斗阶段结束为止。"
+					},
+					"ability_name": {
+						"en": "Overload",
+						"zh_CN": "超负荷"
+					}
+				},
+				"winters_curse": {
+					"name": {
+						"en": "Winter's Curse",
+						"zh_CN": "寒冬诅咒"
+					},
+					"text": {
+						"en": "Disarm a unit until end of round. That unit's allied neighbors battle it.",
+						"zh_CN": "缴械一个单位直至回合结束为止。使该单位的友方近邻与其战斗。"
+					}
+				},
+				"winter_wyvern": {
+					"name": {
+						"en": "Winter Wyvern",
+						"zh_CN": "寒冬飞龙"
+					},
+					"text": {
+						"en": "Arctic Burn: Move Winter Wyvern to an empty combat position and give it +{amount} Attack this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "严寒烧灼：将寒冬飞龙移至一个空白战斗位置，并使其在本回合+{amount}攻击。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Arctic Burn",
+						"zh_CN": "严寒烧灼"
+					}
+				},
+				"relentless_pursuit": {
+					"name": {
+						"en": "Relentless Pursuit",
+						"zh_CN": "穷追不舍"
+					},
+					"text": {
+						"en": "Choose a unit in another lane. Move a random allied black hero from this lane to that lane. Deal {amount} damage to the chosen unit.",
+						"zh_CN": "选择另一条兵线上的一个单位，将一名随机友方黑色英雄从此兵线移至该兵线，并对选定单位造成{amount}伤害。"
+					}
+				},
+				"the_cover_of_night": {
+					"name": {
+						"en": "The Cover of Night",
+						"zh_CN": "夜色掩护"
+					},
+					"text": {
+						"en": "Move an allied black hero to another lane. Give that hero +{attack} Attack and +{siege} Siege until end of its next combat phase.",
+						"zh_CN": "将一名友方黑色英雄移至另一条兵线。使该英雄+{attack}攻击和+{siege}攻城，直至其下个战斗阶段结束为止。"
+					}
+				},
+				"coordinated_assault": {
+					"name": {
+						"en": "Coordinated Assault",
+						"zh_CN": "联手突袭"
+					},
+					"text": {
+						"en": "Modify a black hero with \"After you play a black card, give this hero and its allied neighbors +{amount} Attack this round.\"",
+						"zh_CN": "修改一名黑色英雄，使其获得“打出一张黑色卡牌后，在本回合此英雄及其友方近邻+{amount}攻击”。"
+					},
+					"grants": [
+						{
+							"en": "After you play a black card, give this hero and its allied neighbors +{amount} Attack this round.",
+							"zh_CN": "打出一张黑色卡牌后，在本回合此英雄及其友方近邻+{amount}攻击。"
+						}
+					]
+				},
+				"collateral_damage": {
+					"name": {
+						"en": "Collateral Damage",
+						"zh_CN": "连带伤害"
+					},
+					"text": {
+						"en": "Modify a black hero with +{siege} Siege.",
+						"zh_CN": "修改一名黑色英雄，使其+{siege}攻城。"
+					}
+				},
+				"disciple_of_nevermore": {
+					"name": {
+						"en": "Disciple of Nevermore",
+						"zh_CN": "奈文摩尔的信徒"
+					},
+					"text": {
+						"en": "Other allies have +{ally_attack} Attack and -{ally_armor_loss} Armor.",
+						"zh_CN": "其他友方单位+{ally_attack}攻击和-{ally_armor_loss}护甲。"
+					}
+				},
+				"assassins_shadow": {
+					"name": {
+						"en": "Assassin's Shadow",
+						"zh_CN": "刺客暗影"
+					},
+					"text": {
+						"en": "Siege {siege}. Assassin's Shadow has -{attack_per_ally} Attack for each ally.",
+						"zh_CN": "攻城{siege}。每有一个友方单位，刺客暗影-{attack_per_ally}攻击。"
+					}
 				}
 			},
 			"presets": {
@@ -4533,6 +5560,36 @@
 					"description": {
 						"en": "Venomancer's Plague Wards, Meepo's clones and Call the Reserves crowd the lanes; Skywrath Mage, Centaur Warrunner and Ursa finish what is left.",
 						"zh_CN": "剧毒术士的瘟疫守卫、米波的分身与呼叫预备军挤满兵线；天怒法师、半人马战行者与熊战士收拾残局。"
+					}
+				},
+				"fengyi_pavilion": {
+					"name": {
+						"en": "Black Hunt",
+						"zh_CN": "黑色猎杀"
+					},
+					"description": {
+						"en": "Winter Wyvern, Bloodseeker and Storm Spirit move, curse and pick their battles; Phantom Assassin and Debbi finish the heroes they catch.",
+						"zh_CN": "寒冬飞龙、血魔与风暴之灵随意移动、诅咒并挑选战斗对象；幻影刺客与狡诈的黛比解决落单的英雄。"
+					}
+				},
+				"hulao_pass": {
+					"name": {
+						"en": "Black / Red Siege",
+						"zh_CN": "黑红攻城"
+					},
+					"description": {
+						"en": "Sorla Khan and Bounty Hunter bring Assault Ladders, catapults and gold-hungry creeps against the towers; Sven, Keefe and Axe fight in front.",
+						"zh_CN": "索尔拉可汗与赏金猎人带着攻城梯、投石器与贪财的小兵进攻防御塔；斯温、勇者基弗与斧王冲在前方。"
+					}
+				},
+				"yellow_turban_rebellion": {
+					"name": {
+						"en": "Black / Blue Sharpshooters",
+						"zh_CN": "黑蓝神射"
+					},
+					"description": {
+						"en": "Tinker, Lion and Sniper shoot down units with their abilities while March of the Machines and Necrophos wear the lane down; Zeus strikes every enemy hero.",
+						"zh_CN": "修补匠、莱恩与狙击手以技能精准击杀单位，机械行军与瘟疫法师消耗兵线；宙斯打击所有敌方英雄。"
 					}
 				}
 			}

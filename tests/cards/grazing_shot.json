@@ -1,0 +1,13 @@
+{
+"card": "grazing_shot",
+"source_id": 10270,
+"text": "Deal 2 damage to a unit in any lane.",
+"covers": ["play", "damage", "unit"],
+"cases": [
+ {"name": "Deal 2 damage to a unit in another lane", "clause": 0, "tags": ["play", "damage", "unit"], "board": {"lanes": {"0": {"p0": ["necrophos#n"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#m"], "p1": ["melee_creep#d"]}}}, "do": [{"play": "grazing_shot", "target": "d"}], "expect": {"d.health": 2, "c.health": 4, "mana.0.0": 9, "mana.1.0": 10, "initiative": 1, "events": {"has": ["damage"]}}},
+ {"name": "armor reduces it", "clause": 0, "tags": ["negative", "damage"], "board": {"lanes": {"0": {"p0": ["necrophos#n"], "p1": ["axe#a"]}}}, "do": [{"play": "grazing_shot", "target": "a"}], "expect": {"a.health": 10}},
+ {"name": "it kills a 2-health unit in the active lane", "clause": 0, "tags": ["edge", "damage", "unit"], "board": {"lanes": {"0": {"p0": ["necrophos#n"], "p1": ["zombie#z"]}}}, "do": [{"play": "grazing_shot", "target": "z"}], "expect": {"z.in_play": false, "p0.gold": 1}},
+ {"name": "it needs a black hero in the active lane", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}, "1": {"p0": ["necrophos#n"], "p1": ["melee_creep#d"]}}}, "expect_illegal": [{"play": "grazing_shot", "target": "d"}, {"play": "grazing_shot", "target": "c"}]},
+ {"name": "a silenced black hero cannot be used to cast it", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "give": {"n": ["silence"]}}, "expect_illegal": [{"play": "grazing_shot", "target": "d"}]},
+ {"name": "a unit with Damage Immunity takes nothing", "clause": 0, "tags": ["negative", "damage"], "board": {"base": "@0", "give": {"d": ["damage_immunity"]}}, "do": [{"play": "grazing_shot", "target": "d"}], "expect": {"d.health": 4, "mana.0.0": 9}}
+]}

@@ -1,0 +1,12 @@
+{
+"card": "payday",
+"source_id": 10322,
+"text": "Double your gold.",
+"covers": ["play", "gold_double", "player_gold"],
+"cases": [
+ {"name": "Double your gold: 7 becomes 14", "clause": 0, "tags": ["play", "gold_double", "player_gold"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["axe#x"]}}, "gold": {"p0": 7, "p1": 5}}, "do": [{"play": "payday"}], "expect": {"p0.gold": 14, "p1.gold": 5, "events": {"has": ["gold"]}}},
+ {"name": "with no gold there is nothing to double", "clause": 0, "tags": ["edge", "gold_double"], "board": {"base": "@0", "gold": {"p0": 0, "p1": 5}}, "do": [{"play": "payday"}], "expect": {"p0.gold": 0, "p1.gold": 5, "events": {"not": ["gold"]}}},
+ {"name": "two Paydays quadruple it", "clause": 0, "tags": ["edge", "gold_double"], "board": {"base": "@0", "gold": {"p0": 3, "p1": 5}}, "do": [{"play": "payday"}, {"pass": 1}, {"play": "payday"}], "expect": {"p0.gold": 12}},
+ {"name": "the opponent's Payday doubles only the opponent's gold", "clause": 0, "tags": ["edge", "player_gold"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["debbi#d"]}}, "active_player": 1, "initiative": 1, "gold": {"p0": 7, "p1": 5}}, "do": [{"play": "payday", "player": 1}], "expect": {"p0.gold": 7, "p1.gold": 10}},
+ {"name": "without a black hero in the lane it cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["debbi#d"]}, "1": {"p0": ["debbi#e"], "p1": ["keefe#k"]}}, "gold": {"p0": 7}}, "do": [], "expect_illegal": [{"play": "payday"}]}
+]}

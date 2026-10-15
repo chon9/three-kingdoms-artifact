@@ -1,6 +1,6 @@
 # Full catalog mapping (Three Kingdoms skin)
 
-This file maps every Artifact Classic card that was not in the first release (254 cards) to its Three Kingdoms name. The 49 cards of that release are not repeated. Since milestones M3 and M4, 141 of the 254 are in the game (every red, green and blue hero, creep and spell, plus the signature improvements of Mazzie, Pugna, Enchantress, Prellex and Ogre Magi); their text in `data/locale/cards.json` comes from this mapping, with numbers as `{placeholders}`. Mechanics and numbers are Valve's final post-patch values; only names, text and art change.
+This file maps every Artifact Classic card that was not in the first release (254 cards) to its Three Kingdoms name. The 49 cards of that release are not repeated. Since milestones M3 to M5, 182 of the 254 are in the game (every red, green, blue and black hero, creep and spell, plus the signature improvements of Mazzie, Pugna, Enchantress, Prellex, Ogre Magi, Sorla Khan and Tinker); their text in `data/locale/cards.json` comes from this mapping, with numbers as `{placeholders}`. Mechanics and numbers are Valve's final post-patch values; only names, text and art change.
 
 The full data (zh/en rules text, Valve's text, ability names, art subject) is in `data/catalog/catalog_mapping.json`. This table is the readable summary.
 
@@ -41,7 +41,7 @@ Valve's remaining heroes are red 10, blue 10, green 8 and black 10, but the rese
 | Disarm | 缴械 |
 | Taunt | 嘲讽 |
 | Lock | 锁定 |
-| Bounty | 悬赏 |
+| Bounty | 赏金 |
 | Soulbound | 同命 |
 | Quicken | 加速 |
 | Purge | 驱散 |

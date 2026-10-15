@@ -1,0 +1,14 @@
+{
+"card": "bounty_hunter",
+"source_id": 10023,
+"text": "Jinada: Before the action phase, there is a 50% chance to give Bounty Hunter +4 Attack this round.",
+"covers": ["before_action", "random_chance", "stat_attack", "temp_buff", "self", "this_round"],
+"cases": [
+ {"name": "Jinada: before Bounty Hunter's lane's action phase, a successful roll gives him +4 Attack this round", "clause": 0, "tags": ["before_action", "random_chance", "stat_attack", "temp_buff", "self", "this_round"], "board": {"active_lane": 0, "lanes": {"1": {"p0": ["bounty_hunter#b"], "p1": ["axe#x"]}}}, "do": [{"combat": true}], "expect": {"lane": 1, "b.attack": 11, "x.attack": 6, "events": {"has": ["trigger", "status"]}}, "seed": 1},
+ {"name": "a failed roll gives nothing", "clause": 0, "tags": ["edge", "random_chance"], "board": {"active_lane": 0, "lanes": {"1": {"p0": ["bounty_hunter#b"], "p1": ["axe#x"]}}}, "do": [{"combat": true}], "expect": {"lane": 1, "b.attack": 7, "events": {"has": ["trigger"], "not": ["status"]}}, "seed": 4},
+ {"name": "the chance is 50%: with +4 Attack his 11 damage kills an 8-health Axe through 2 armor, with 7 it does not", "clause": 0, "tags": ["random_chance", "stat_attack"], "board": {"active_lane": 0, "lanes": {"1": {"p0": ["bounty_hunter#b"], "p1": ["axe#x:hp=8"]}}}, "do": [{"combat": true}, {"combat": true}], "expect_rate": {"x.in_play": [0.4, 0.6], "b.in_play": [1, 1]}, "seeds": {"from": 1, "count": 200}},
+ {"name": "the +4 Attack ends with the round", "clause": 0, "tags": ["edge", "this_round", "temp_buff"], "board": {"active_lane": 0, "lanes": {"1": {"p0": ["bounty_hunter#b"], "p1": ["axe#x"]}}}, "do": [{"combat": true}, {"end_round": true}], "expect": {"lane": 0, "b.attack": 7}, "seed": 1},
+ {"name": "rq_03 lane scope: Bounty Hunter in another lane does not roll before this lane's action phase", "clause": 0, "tags": ["negative", "before_action", "RQ-03"], "board": {"active_lane": 0, "lanes": {"1": {"p0": [null], "p1": ["axe#x"]}, "2": {"p0": ["bounty_hunter#b"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"lane": 1, "b.attack": 7, "events": {"not": ["trigger", "status"]}}, "seed": 1},
+ {"name": "Bounty Hunter in the Fountain does not roll", "clause": 0, "tags": ["negative", "before_action"], "board": {"active_lane": 0, "lanes": {"1": {"p0": [null], "p1": ["axe#x"]}}, "fountain": {"p0": ["bounty_hunter#b"]}}, "do": [{"combat": true}], "expect": {"b.attack": 7, "events": {"not": ["trigger", "status"]}}, "seed": 1},
+ {"name": "rq_31: a silenced Bounty Hunter still rolls: Jinada is not an active ability", "clause": 0, "tags": ["edge", "before_action", "RQ-31"], "board": {"base": "@0", "give": {"b": ["silence"]}}, "do": [{"combat": true}], "expect": {"b.attack": 11, "b.silenced": true}, "seed": 1}
+]}
