@@ -1,0 +1,13 @@
+{
+"card": "kraken_shell",
+"source_id": 10290,
+"text": "Modify a red hero with +1 Armor. | Get initiative.",
+"covers": ["play", "get_initiative", "modify", "stat_armor", "colour_hero", "permanent"],
+"cases": [
+ {"name": "Modify a red hero with +1 Armor", "clause": 0, "tags": ["play", "modify", "stat_armor", "colour_hero"], "board": {"lanes": {"0": {"p0": ["tidehunter#t", "jmuy#j"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "kraken_shell", "target": "t"}], "expect": {"t.armor": 2, "events": {"has": ["mod"]}}},
+ {"name": "an enemy red hero is a legal target too", "clause": 0, "tags": ["colour_hero"], "board": "@0", "do": [{"play": "kraken_shell", "target": "x"}], "expect": {"x.armor": 3}},
+ {"name": "a hero of another colour or a creep is not a target", "clause": 0, "tags": ["negative", "colour_hero"], "board": "@0", "do": [], "expect_illegal": [{"play": "kraken_shell", "target": "j"}, {"play": "kraken_shell", "target": "c"}]},
+ {"name": "the Armor survives the Fountain and the round end", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "kraken_shell", "target": "t"}, {"end_round": true}, {"kill": ["t"]}], "expect": {"t.armor": 2, "t.in_play": false}},
+ {"name": "Get initiative: the caster acts again", "clause": 1, "tags": ["get_initiative"], "board": "@0", "do": [{"play": "kraken_shell", "target": "t"}], "expect": {"initiative": 0}},
+ {"name": "a card without it hands the initiative over", "clause": 1, "tags": ["negative", "get_initiative"], "board": "@0", "do": [{"play": "viscous_nasal_goo", "target": "x"}], "expect": {"initiative": 1}}
+]}

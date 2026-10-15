@@ -1,0 +1,11 @@
+{
+"card": "steel_reinforcement",
+"source_id": 10179,
+"text": "Your tower has +1 Armor.",
+"covers": ["continuous", "stat_armor", "allied_tower"],
+"cases": [
+ {"name": "Your tower has +1 Armor: an unblocked creep deals 1 less", "clause": 0, "tags": ["continuous", "stat_armor", "allied_tower"], "board": {"lanes": {"0": {"p0": ["mazzie#u", null], "p1": [null, "melee_creep#e"]}}}, "do": [{"play": "steel_reinforcement", "lane": 0}, {"combat": true}], "expect": {"tower.0.0.health": 39, "tower.0.1.health": 34}},
+ {"name": "a Steel Reinforcement in another lane armors only that lane's tower", "clause": 0, "tags": ["negative", "allied_tower"], "board": {"lanes": {"0": {"p0": ["mazzie#u", null], "p1": [null, "melee_creep#e"]}}}, "do": [{"play": "steel_reinforcement", "lane": 1}, {"combat": true}], "expect": {"tower.0.0.health": 38}},
+ {"name": "the Armor also reduces Siege", "clause": 0, "tags": ["edge", "stat_armor"], "board": {"lanes": {"0": {"p0": ["mazzie#u"], "p1": ["thunderhide_pack#t"]}}}, "do": [{"play": "steel_reinforcement", "lane": 0}, {"combat": true}], "expect": {"tower.0.0.health": 35}},
+ {"name": "two of them stack", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["mazzie#u", null], "p1": [null, "melee_creep#e"]}}}, "do": [{"play": "steel_reinforcement", "lane": 0}, {"pass": 1}, {"play": "steel_reinforcement", "lane": 0}, {"combat": true}], "expect": {"tower.0.0.health": 40}}
+]}

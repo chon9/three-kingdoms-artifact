@@ -574,7 +574,7 @@ An ability with `"lane": "any"` triggers wherever its source is: Storm Spirit, C
 | Event | Keys |
 |---|---|
 | `card_played` | `player`, `kind`, `not_kind`, `color`, `cost_max` |
-| `unit_died`, `death` | `side`, `kind`, `card`, and `was`. `was` is one of `allied_neighbor`, `enemy_neighbor` or `blocker`: `$host` was in the snapshot's `neighbors` or `enemy_neighbors` list, or the dead unit was `$host`'s combat target (`$host.uid ∈ $e.attackers`). |
+| `unit_died`, `death` | `side`, `kind`, `card`, and `was`. `was` is one of `allied_neighbor`, `enemy_neighbor` or `blocker`: `$host` was in the snapshot's `neighbors` or `enemy_neighbors` list, or the dead unit was `$host`'s combat target (`$host.uid ∈ $e.blocking`; `blocking` lists every enemy aimed at the dead unit, stunned or disarmed ones included, while `attackers` leaves those out, RQ-05; M3 as built). |
 | `battle_damage` | `role` (`dealer` \| `taker`, relative to `$host`), `target_kind` (`unit` \| `hero` \| `creep` \| `tower`), `source_kind` (`unit` \| `tower`) **[CF-6]**, `in_combat`. Viper ("When a unit deals battle damage to Viper") is `{"role": "taker", "source_kind": "unit"}`; the equivalent `where: {"is": "$e.source", "in": {"s": "units", "lane": "all"}}` stays valid |
 | `unit_entered` | `side`, `how` |
 | `improvement_entered` | `side` |
@@ -794,7 +794,7 @@ static func emit(e, kind: String, payload: Dictionary) -> void:
 
 ```json
 {"uid": 57, "card": "pit_fighter_of_quoidge", "owner": 0, "hero": false, "color": "black", "lane": 1, "slot": 2,
- "neighbors": [55, 61], "enemy_neighbors": [12, 14], "target": 12, "attackers": [12],
+ "neighbors": [55, 61], "enemy_neighbors": [12, 14], "target": 12, "attackers": [12], "blocking": [12],
  "items": {}, "attack": 4, "armor": 0, "max_health": 8, "kw": {"bounty": 1},
  "cause": {"src": 1000123, "p": 1}}
 ```
@@ -804,10 +804,11 @@ static func emit(e, kind: String, payload: Dictionary) -> void:
 | `neighbors` | Allied left and right uids |
 | `enemy_neighbors` | The three uids across |
 | `target` | The dead unit's combat target: a uid, or 0 for the tower |
-| `attackers` | Uids of units whose combat target was the dead unit |
+| `attackers` | Uids of units whose combat target was the dead unit and that could attack (not stunned or disarmed, RQ-05) |
+| `blocking` | Uids of every unit whose combat target was the dead unit, stunned or disarmed ones included: the units it was blocking, read by `was: blocker` (M3) |
 | `cause` | The last damage or condemn source. Best effort; no Classic card reads it |
 
-The snapshot is also stored in `e._lookback[uid]` for the rest of the command.
+The snapshot is also stored in `e._lookback[uid]` for the rest of the command. Ops on a snapshot fizzle, with one exception: a `modify` on the snapshot of a roster hero reaches the hero in the Fountain, since heroes keep modifications through death and a Pulse processes reactive abilities before it destroys units (RQ-54, `MODIFY_REACHES_DEAD_HEROES`; M3 as built).
 
 `_remove` processes the dying units by lane, then owner, then slot. This is exactly the order `_clean_dead` uses today; deaths keep this order rather than the selector order of D2. For each unit:
 1. Align the lane.
@@ -2181,6 +2182,23 @@ Each card lands in the milestone where all its mechanics exist. The lists are in
 | **M6 Items** | 40 | Ability buttons on item icons; Book of the Dead; Golden Ticket privacy; Shop Deed with negative prices (RQ-26, RQ-41); Claszureme Hourglass timing and privacy (round draw before placement, RQ-51); Apotheosis Blade Lethal against immunity and shield; Phase Boots arrows (RQ-30); Blink Dagger and Nyctasha's Guard moves (one roll per enemy neighbor, CF-1); Ravenhook's gold equal to the condemned item's price (CF-3); Jasper Daggers Equip Effect purge; Stonehall granted stacking; Secret Shop and consumable pools updated in `classic_cards.json` |
 | **M7 Improvements** | 39 | The 16 cap (RQ-47); The Tyler Estate with Tyler Estate Censor and Mana Drain below 0 maximum mana, then each removed in turn (CF-5); The Oath's forbid with `REASON_FORBIDDEN`; Howling Mind's symmetric draw; Glyph of Confusion stunning deployment entrants (RQ-21); Watchtower on enemy improvements; Bitter Enemies (RQ-27 closed by Valve data, CF-8); Trebuchets' piercing damage against Steel Reinforcement's armor; Path of the X lane scope (RQ-03); Unearthed Secrets' round log; Revtel Investments condemning itself; Unsupervised Artillery and Cheating Death `requires` |
 
+#### M3 as built: deviations from this plan
+
+- **Cards.** All 92 M3 cards ship, each with its spec in `tests/cards/`; all are `verified` except Enough Magic! (`draft`, RQ-20, §5.27). Three M7 improvements ship early as heroes' signatures: Steel Reinforcement (Mazzie), Nether Ward (Pugna) and Verdant Refuge (Enchantress). Without them those heroes could never fill a deck (`validate_preset` needs three copies of a pack card as each hero's signature). All improvements are Cross Lane (glossary), so the implicit any-lane choice of §3.2 is right for them. Card `text` fields of the new cards are Valve's text with `{placeholders}` (as `tools/new_card.py` writes it), not the paraphrases of the 49 migrated cards.
+- **RQ-48 decided.** Centaur Hunter is a token (Valve's data). Green Assault plays three Satyr Duelists instead, so the 10 matchup goldens that use it were re-recorded (`starter_vs_green_assault_*`, `green_assault_vs_*`, `blue_black_control_vs_green_assault_*`); the other 44 golden games are byte-identical.
+- **Engine.**
+  - Death snapshots record `blocking`, every enemy aimed at the dead unit, stunned or disarmed ones included; `was: blocker` reads it (§3.8, §4.3). It read `attackers`, which leaves those out since the M2 review (RQ-05), so a stunned or disarmed Bristleback or Stonehall Elite missed its trigger.
+  - RQ-54: a `modify` on the look-back snapshot of a roster hero reaches the hero in the Fountain (`MODIFY_REACHES_DEAD_HEROES`), as heroes keep modifications through death (Viper, Ursa, Hellbear Crippler, Loyal Beast).
+  - `mod` and `status` events of a grant carry `ab` (`"<card>#<index>"`), and `EventText` quotes the granted text (`EV_CHANGE_GRANT`); the log read "gives X none".
+  - `validate_preset` rejects a hero without a signature card in the pack instead of crashing; the fuzz deck builder skips such heroes.
+  - No golden changed with these, and none changed with the new cards themselves.
+- **Bot.** The compile-time polarity (§9.4) estimates expressions (`neg`, `half`, `add`, `sub`, `mul`, `min`, `max`; a board read counts as positive), so Rend Armor, Routed and Steal Strength read as harmful whatever their encoding, and judges granted text by what it does for its bearer (Viper Strike harms; Soul of Spring, Defend the Weak, Heroic Resolve and Allseeing One's Favor help).
+- **Spec runner (§13.1).** `as` on a play step, `deploy` on `end_round`, the `units.<lane>.<p>[.<card>]` count, and the `gd` escape (`check(engine, labels)` returns failure messages).
+- **Presets (acceptance 5).** Five presets, one per colour pair with red or green: Sun–Liu Alliance (red/green), Northern Expedition (red/blue), A Gathering of Champions (red/black), Standoff at Ruxu (green/blue) and The Little Conqueror (green/black). Each has 5 heroes, 40 main cards and 9 items, and holds signature cards only with their heroes. `expanded_classic_test` plays each for 6 seeds against every preset in turn (each ends within 1,500 steps and round-trips through a replay); the golden matrix stays the original three presets.
+- **Tests.** `expanded_classic_test` counts 28 heroes, 116 cards and 8 presets; `differential_test` compares only the migrated definitions, with board creeps, equipment and hands from the frozen legacy pack and decks from presets both packs define identically; `mechanics_test` adds two fixtures (`fx_grudge_creep`, `fx_corrode_creep`) for the engine changes; `ui_smoke` checks Dark Seer's unit-then-lane ability and the catalog (every definition, colour filters).
+- **UI.** The catalog lists heroes first, then cards by colour, kind and cost, with colour (faction) filters. New cards without Three Kingdoms art show the generated placeholder.
+- **Fonts.** The subsets were rebuilt (`tools/build_fonts.py`) for the characters the new names use.
+
 ---
 
 ## 13. Testing
@@ -2238,22 +2256,22 @@ Each card lands in the milestone where all its mechanics exist. The lists are in
 
 | Step | Meaning |
 |---|---|
-| `{"play": "card", "target": "label", "destination": "label" \| "tower", "lane": n, "position": n}` | The runner puts the card in hand if needed |
+| `{"play": "card", "target": "label", "destination": "label" \| "tower", "lane": n, "position": n, "as": "label"}` | The runner puts the card in hand if needed; `as` names the creep the play puts into the lane (M3) |
 | `{"ability": "label"}`, `{"ability": "label.weapon"}`, `{"ability": "improvement_label"}` | Activate an ability, plus choice keys |
 | `{"pass": p}` | One pass |
 | `{"combat": true}` | Both players pass |
-| `{"end_round": true}` | `_begin_deployment`, then an empty reveal |
+| `{"end_round": true, "deploy": {"label": lane}}` | `_begin_deployment`, then the reveal; `deploy` plans heroes from the Fountain into lanes (M3) |
 | `{"kill": [labels]}` | Health 0, then a Pulse; a test-only helper |
 | `{"draw": {"p1": 1}}` | Draw |
 
 **Expectations:**
 - `"label.field"`, where the field is one of `attack`, `armor`, `health`, `max_health` (derived), `kw.<k>`, `stunned`, `silenced`, `disarmed`, `in_play`, `lane`, `slot`, `owner`, `cooldown`, `charges`.
-- `"tower.<lane>.<p>.health"`, `"mana.<lane>.<p>"`, `"p<i>.gold"`, `"p<i>.hand"`, `"p<i>.hand_state.<i>.lock"`, `"initiative"`, `"winner"`.
+- `"tower.<lane>.<p>.health"`, `"mana.<lane>.<p>"`, `"p<i>.gold"`, `"p<i>.hand"`, `"p<i>.hand_state.<i>.lock"`, `"initiative"`, `"winner"`, `"units.<lane>.<p>[.<card>]"` (a count of units, M3).
 - `"events": {"has": [...], "not": [...]}`.
 - `expect_legal` / `expect_illegal`: lists of commands.
 - `expect_rate`: probability bounds over `seeds`.
 - `expect_private`: `{"viewer": 1, "absent": ["eclipse"]}`.
-- `"gd": "res://tests/cards/extra/<id>.gd"`: an optional escape for assertions the DSL cannot express.
+- `"gd": "res://tests/cards/extra/<id>.gd"`: an optional escape for assertions the DSL cannot express: a RefCounted script whose `check(engine, labels)` returns failure messages (implemented in M3; `soul_of_spring.gd`).
 
 **The runner also, automatically:**
 - checks every global invariant (§13.3) after every step;
@@ -2385,11 +2403,13 @@ These add to RQ-01..36 in MECHANICS.md. Each decision lives in one place and has
 | RQ-45 | What is battle damage? | Attack, cleave, retaliate and siege hits; siege counts as tower battle damage | `Combat.plan` parts | `rq_45_battle_damage_parts` |
 | RQ-46 | Does "a random allied tower in any lane" include a lane's ancient? | Yes: the standing structure of each lane | `towers` selector | `rq_46_ancient_is_tower` |
 | RQ-47 | Is the improvement cap per side or per lane? | 16 per side of a lane (refines RQ-34) | `Zones.add_improvement` | `rq_47_improvement_cap` |
-| RQ-48 | Centaur Hunter is a Valve token, but the green_assault preset uses it as a 5-mana creep | Keep it until presets are revised in M3; Spring the Trap summons the token | `classic_cards.json` | `rq_48_centaur_hunter` |
+| RQ-48 | Centaur Hunter is a Valve token, but the green_assault preset uses it as a 5-mana creep | Decided in M3: a token, as in Valve's data; Green Assault plays Satyr Duelist instead (golden matchups of that preset re-recorded); Spring the Trap summons the token | `classic_cards.json` | `rq_48_summons` (Spring the Trap spec) |
 | RQ-49 | Is round 1's initial placement a "deployment phase" for Venomancer, Prellex (and, if ever in play, Barracks)? The glossary puts deployment "in between rounds"; Valve's texts say "each deployment phase" | Yes, low confidence: `start()` runs the deployment hooks after placement (CF-7). One constant flips it | `ROUND1_DEPLOYMENT_HOOKS` in `kernel.gd` | `rq_49_round1_deployment` |
 | RQ-50 | Does "for each ally" (Assassin's Shadow) count the unit itself? | Yes: `allies` includes the source, unlike "other allies" (Drow, Disciple of Nevermore) | Assassin's Shadow entry (`allies` vs `other_allies`) | `rq_50_shadow_counts_itself` |
 | RQ-51 | Does Claszureme Hourglass lock the round-draw cards when its host is redeployed in the same deployment? | No: the round draw happens before placement (CF-9); a host already in a lane locks both cards | `_reveal_deployment` order | `rq_51_hourglass_round_draw` |
 | RQ-52 | Losing a −Mana effect while the tower has 0 current mana: does current mana rise? | Yes: current mana follows the effective change in maximum (as Stars Align's expiry does); the maximum itself is exact (CF-5) | `Stats.settle` | `rq_52_mana_floor` |
+| RQ-53 | Is a hero not yet deployed (heroes 4 and 5 before rounds 2 and 3) "at the Fountain" (Routed)? | Yes, low confidence: `lane: "fountain"` selects every roster hero out of the lanes | `Select` | `rq_53_undeployed_heroes_are_at_the_fountain` |
+| RQ-54 | Does a Modify reach a hero that died earlier in the same command (Viper, Ursa, Hellbear Crippler, Loyal Beast hitting a hero that dies)? | Yes: heroes keep modifications through death and a Pulse processes reactive abilities before it destroys units (glossary); other ops on a unit that left play fizzle | `MODIFY_REACHES_DEAD_HEROES` in `kernel.gd` | `rq_54_*` |
 
 Existing RQs that this design pins explicitly:
 
@@ -2470,6 +2490,7 @@ The complexity score from MECHANICS.md is in parentheses. Tokens ship with the c
 - Blue: Aghanim's Sanctum, Barracks, Conflagration, Ignite, Messenger Rookery (3 each), Fractured Timeline, Howling Mind, Path of the Wise, Watchtower (4 each), Glyph of Confusion (5).
 - Green: Verdant Refuge (2), Altar of the Mad Moon, Mist of Avernus, Path of the Dreamer, Selemene's Favor (3 each), Cheating Death, Homefield Advantage, Unearthed Secrets (4 each).
 - Red: Steel Reinforcement (2), Temple of War (2), Burning Oil, Nether Ward, The Omexe Arena (3 each), Grand Melee (4), Path of the Bold (4).
+- Shipped early with M3 as heroes' signatures: Steel Reinforcement, Nether Ward and Verdant Refuge.
 
 ---
 

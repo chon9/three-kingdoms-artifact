@@ -140,7 +140,7 @@ static func compile(card: Dictionary) -> Dictionary:
 	if not out.play.is_empty():
 		out.static = _static_value(out.play.get("ops", []))
 		out.static["initiative"] = bool(out.play.get("initiative", false))
-		out.static["polarity"] = _polarity(out.play.get("ops", []))
+		out.static["polarity"] = _polarity(out.play.get("ops", []), out.grants)
 	out.static["random"] = _has_random(normalized)
 	var ai = normalized.get("ai", {})
 	if ai is Dictionary and ai.has("bias"):
@@ -1143,15 +1143,15 @@ const HELPFUL_KEYWORDS = ["siege", "cleave", "retaliate", "regeneration", "bount
 	"lethal", "lethal_creeps", "lethal_heroes", "damage_immunity", "rapid_deployment", "death_shield"]
 const HARMFUL_KEYWORDS = ["stun", "silence", "disarm"]
 
-static func _polarity(ops: Array) -> Dictionary:
+static func _polarity(ops: Array, grants: Array = []) -> Dictionary:
 	var totals: Dictionary = {}
-	_add_polarity(ops, totals)
+	_add_polarity(ops, totals, grants)
 	var out: Dictionary = {}
 	for key in totals:
 		out[key] = signi(int(totals[key]))
 	return out
 
-static func _add_polarity(ops: Array, totals: Dictionary) -> void:
+static func _add_polarity(ops: Array, totals: Dictionary, grants: Array = []) -> void:
 	for op in ops:
 		if not op is Dictionary:
 			continue
@@ -1174,22 +1174,118 @@ static func _add_polarity(ops: Array, totals: Dictionary) -> void:
 				sign = -1
 				fields = ["unit"]
 			"modify", "give":
-				var value = 0
-				for stat in op.get("stats", {}):
-					value += int(op.stats[stat]) if op.stats[stat] is int else 1
-				for keyword in op.get("keywords", {}):
-					if keyword in HARMFUL_KEYWORDS:
-						value -= 1
-					elif keyword in HELPFUL_KEYWORDS:
-						value += 1
-				sign = -signi(value)
+				sign = -signi(_helpfulness(op, grants))
 				fields = ["to"]
 		for field in fields:
 			for key in _choice_keys(op.get(field)):
 				totals[key] = int(totals.get(key, 0)) + sign
 		for nested in ["ops", "then", "else"]:
 			if op.get(nested) is Array:
-				_add_polarity(op[nested], totals)
+				_add_polarity(op[nested], totals, grants)
+
+## How much a modify/give helps the object it changes: stat changes by their
+## estimated value (a negative value or {"neg": X} harms), helpful keywords +1,
+## hindering statuses -1, and granted text by what it does for its bearer.
+static func _helpfulness(op: Dictionary, grants: Array) -> int:
+	var value = 0
+	for stat in op.get("stats", {}):
+		value += _estimate(op.stats[stat])
+	for keyword in op.get("keywords", {}):
+		var amount = signi(_estimate(op.keywords[keyword]))
+		if keyword in HARMFUL_KEYWORDS:
+			value -= amount
+		elif keyword in HELPFUL_KEYWORDS:
+			value += amount
+	var grant = int(op.get("grant", -1))
+	if grant >= 0 and grant < grants.size() and grants[grant] is Dictionary:
+		value -= _grant_polarity(grants[grant])
+	return value
+
+## A compile-time estimate of an expression's value, for its sign: numbers
+## are exact, a read of the board (a stat, a count, gold) counts as +1, and
+## neg, half, add, sub, mul, min and max combine their parts.
+static func _estimate(value) -> int:
+	if value is int:
+		return value
+	if not value is Dictionary:
+		return 1
+	if value.has("neg"):
+		return -_estimate(value.neg)
+	if value.has("half"):
+		var half = _estimate(value.half)
+		return int(half / 2.0) if absi(half) >= 2 else half
+	for key in ["add", "sub", "mul", "min", "max"]:
+		if value.has(key) and value[key] is Array and not value[key].is_empty():
+			var parts: Array = value[key].map(func(part): return _estimate(part))
+			match key:
+				"add":
+					return parts.reduce(func(total, part): return total + part, 0)
+				"sub":
+					return int(parts[0]) - int(parts[1]) if parts.size() > 1 else int(parts[0])
+				"mul":
+					return int(parts[0]) * int(parts[1]) if parts.size() > 1 else int(parts[0])
+				"min":
+					return parts.min()
+				"max":
+					return parts.max()
+	return 1
+
+## Whether granted text helps (-1) or harms (+1) the object that bears it:
+## an aura by its grant on the bearer's side (an aura over enemies counts the
+## other way round), a trigger by the sum of what its ops do to the bearer's
+## side (damage there harms, damage to the enemy side helps, and so on).
+static func _grant_polarity(ability: Dictionary) -> int:
+	match str(ability.get("kind", "")):
+		"aura":
+			var value = 0
+			for stat in ability.get("stats", {}):
+				value += _estimate(ability.stats[stat])
+			for keyword in ability.get("keywords", {}):
+				value += signi(_estimate(ability.keywords[keyword])) * (1 if keyword in HELPFUL_KEYWORDS else 0)
+			return -signi(value * _side_of(ability.get("affects")))
+		"trigger", "active":
+			return -signi(_benefit(ability.get("ops", [])))
+	return 0
+
+## The benefit of granted ops to the bearer's side (see _grant_polarity).
+static func _benefit(ops: Array) -> int:
+	var total = 0
+	for op in ops:
+		if not op is Dictionary:
+			continue
+		match str(op.get("op", "")):
+			"damage", "damage_split", "condemn", "tower_damage":
+				total -= _side_of(op.get("to"))
+			"heal", "tower_heal":
+				total += _side_of(op.get("to"))
+			"modify", "give":
+				total += signi(_helpfulness(op, [])) * _side_of(op.get("to"))
+			"draw", "gold":
+				total += 1 if str(op.get("player", "you")) == "you" else -1
+		for nested in ["ops", "then", "else"]:
+			if op.get(nested) is Array:
+				total += _benefit(op[nested])
+	return total
+
+## +1 when a compiled set is the bearer's side ($self, $host, allies, the
+## allied neighbors, your tower), -1 for the enemy side, 0 when unknown.
+static func _side_of(value) -> int:
+	if value is String:
+		return 1 if str(value) in ["$self", "$host"] else 0
+	if value is Array:
+		return _side_of(value[0]) if not value.is_empty() else 0
+	if value is Dictionary:
+		if str(value.get("side", "")) == "ally":
+			return 1
+		if str(value.get("side", "")) == "enemy":
+			return -1
+		var relation = value.get("rel")
+		if relation is Dictionary:
+			if relation.has("allied_neighbors") or relation.has("equipped_on"):
+				return 1
+			if relation.has("enemy_neighbors") or relation.has("blocker") or relation.has("attackers") or relation.has("across"):
+				return -1
+	return 0
 
 ## The choice keys a set refers to directly ("$c.target", or a list holding it).
 static func _choice_keys(value) -> Array:

@@ -1,0 +1,11 @@
+{
+"card": "raze",
+"source_id": 10305,
+"text": "Condemn all enemy improvements.",
+"covers": ["play", "condemn", "all_enemy_improvements"],
+"cases": [
+ {"name": "Raze condemns every enemy improvement in the lane", "clause": 0, "tags": ["play", "condemn", "all_enemy_improvements"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#m"]}}, "improvements": {"0": {"p0": ["fx_tower_guard#own"], "p1": ["fx_tower_guard#i1", "fx_countdown#i2"]}, "1": {"p1": ["fx_tower_guard#far"]}}}, "do": [{"play": "raze"}], "expect": {"i1.in_play": false, "i2.in_play": false, "events": {"has": ["condemn", "improvement_gone"]}}},
+ {"name": "rq_04_raze_stays_in_the_active_lane: own improvements and other lanes are untouched", "clause": 0, "tags": ["edge", "RQ-04", "all_enemy_improvements"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#m"]}}, "improvements": {"0": {"p0": ["fx_tower_guard#own"], "p1": ["fx_tower_guard#i1", "fx_countdown#i2"]}, "1": {"p1": ["fx_tower_guard#far"]}}}, "do": [{"play": "raze"}], "expect": {"own.in_play": true, "far.in_play": true}},
+ {"name": "with no enemy improvement Raze still resolves and condemns nothing", "clause": 0, "tags": ["edge", "condemn"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#m"]}}, "improvements": {"0": {"p0": ["fx_tower_guard#own"]}}}, "do": [{"play": "raze"}], "expect": {"own.in_play": true, "events": {"has": ["play"], "not": ["condemn"]}}},
+ {"name": "without a red hero in the lane Raze cannot be played", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["melee_creep#m"]}}, "improvements": {"0": {"p0": ["fx_tower_guard#own"], "p1": ["fx_tower_guard#i1", "fx_countdown#i2"]}, "1": {"p1": ["fx_tower_guard#far"]}}}, "do": [], "expect_illegal": [{"play": "raze"}]}
+]}

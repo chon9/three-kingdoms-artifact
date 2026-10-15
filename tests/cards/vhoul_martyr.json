@@ -1,0 +1,12 @@
+{
+"card": "vhoul_martyr",
+"source_id": 10107,
+"text": "Death Effect: Modify allies with +1 Attack and +1 Health.",
+"covers": ["self_death", "modify", "stat_attack", "stat_health", "all_allies", "permanent"],
+"cases": [
+ {"name": "Death Effect: Modify allies with +1 Attack and +1 Health", "clause": 0, "tags": ["self_death", "modify", "stat_attack", "stat_health", "all_allies", "permanent"], "board": {"lanes": {"0": {"p0": ["rix#h", "vhoul_martyr#v", "melee_creep#m"], "p1": ["melee_creep#a", null, null]}, "1": {"p0": ["melee_creep#o"], "p1": [null]}}}, "do": [{"kill": ["v"]}], "expect": {"h.attack": 4, "h.max_health": 8, "h.health": 8, "m.attack": 3, "m.max_health": 5, "m.health": 5, "events": {"has": ["death", "trigger", "mod"]}}},
+ {"name": "enemies and allies in other lanes are not modified", "clause": 0, "tags": ["negative", "all_allies"], "board": "@0", "do": [{"kill": ["v"]}], "expect": {"a.attack": 2, "a.max_health": 4, "o.attack": 2, "o.max_health": 4}},
+ {"name": "it fires when the Martyr dies in combat", "clause": 0, "tags": ["self_death"], "board": {"lanes": {"0": {"p0": ["rix#h", "vhoul_martyr#v", "melee_creep#m"], "p1": [null, "centaur_hunter#c", null]}}}, "do": [{"combat": true}], "expect": {"v.in_play": false, "h.attack": 4, "m.attack": 3, "m.max_health": 5}},
+ {"name": "rq_43_same_pulse: allies dying in the same Pulse are not modified", "clause": 0, "tags": ["edge", "rq_43", "self_death"], "board": "@0", "do": [{"kill": ["v", "m"]}], "expect": {"m.in_play": false, "h.attack": 4, "h.max_health": 8}},
+ {"name": "the Modify is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"kill": ["v"]}, {"end_round": true}], "expect": {"h.attack": 4, "m.max_health": 5}}
+]}

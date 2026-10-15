@@ -1,0 +1,12 @@
+{
+"card": "smeevil_blacksmith",
+"source_id": 10079,
+"text": "Play Effect: Modify a random allied hero with +1 Armor.",
+"covers": ["play_effect", "modify", "stat_armor", "random_allied_hero", "permanent"],
+"cases": [
+ {"name": "Play Effect: Modify the allied hero with +1 Armor", "clause": 0, "tags": ["play_effect", "modify", "stat_armor", "random_allied_hero", "permanent"], "board": {"lanes": {"0": {"p0": ["rix#h", null, "melee_creep#m"], "p1": ["melee_creep#a", null, "melee_creep#b"]}, "1": {"p0": ["drow#w"], "p1": [null]}}}, "do": [{"play": "smeevil_blacksmith", "position": -1}], "expect": {"h.armor": 1, "m.armor": 0, "w.armor": 0, "events": {"has": ["mod"]}}},
+ {"name": "enemy heroes are never picked", "clause": 0, "tags": ["negative", "random_allied_hero"], "board": {"lanes": {"0": {"p0": ["rix#h", null], "p1": ["lycan#e", null]}}}, "do": [{"play": "smeevil_blacksmith", "position": -1}], "expect": {"h.armor": 1, "e.armor": 0}},
+ {"name": "each of two allied heroes is picked about half of the time", "clause": 0, "tags": ["random_allied_hero"], "board": {"lanes": {"0": {"p0": ["rix#h", null, "lycan#l"], "p1": [null, null, null]}}}, "do": [{"play": "smeevil_blacksmith", "position": -1}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"h.armor": [0.4, 0.6], "l.armor": [0.4, 0.6]}},
+ {"name": "a fixed seed picks exactly one hero", "clause": 0, "tags": ["edge", "random_allied_hero"], "board": "@2", "do": [{"play": "smeevil_blacksmith", "position": -1}], "expect": {"h.armor": 1, "l.armor": 0}, "seed": 1},
+ {"name": "the Armor is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "smeevil_blacksmith", "position": -1}, {"end_round": true}], "expect": {"h.armor": 1}}
+]}

@@ -1,0 +1,18 @@
+{
+"card": "caught_unprepared",
+"source_id": 10396,
+"text": "Stun a hero until they equip an item.",
+"covers": ["play", "stun", "hero", "until_equip"],
+"cases": [
+ {"name": "Stun a hero until they equip an item", "clause": 0, "tags": ["play", "stun", "hero", "until_equip"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}, {"combat": true}], "expect": {"x.stunned": true, "r.health": 7, "x.health": 9}},
+ {"name": "a creep is not a target", "clause": 0, "tags": ["negative", "hero"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "caught_unprepared", "target": "c"}]},
+ {"name": "rq_35_across_rounds: the stun outlasts the round", "clause": 0, "tags": ["edge", "until_equip", "rq_35"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}, {"end_round": true}, {"end_round": true}], "expect": {"x.stunned": true}},
+ {"name": "rq_35_equip_while_stunned: equipping an item ends the stun", "clause": 0, "tags": ["edge", "until_equip", "rq_35"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}, {"play": "short_sword", "target": "x", "player": 1}], "expect": {"x.stunned": false, "x.attack": 8}},
+ {"name": "rq_35_fountain: the Fountain ends the stun", "clause": 0, "tags": ["edge", "until_equip", "rq_35"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}, {"kill": ["x"]}], "expect": {"x.in_play": false, "x.stunned": false}},
+ {"name": "an item equipped before does not end it", "clause": 0, "tags": ["negative", "until_equip"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x+short_sword", "melee_creep#c"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}], "expect": {"x.stunned": true}},
+ {"name": "another hero equipping does not end it", "clause": 0, "tags": ["negative", "until_equip"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "rix#q"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}, {"play": "short_sword", "target": "q", "player": 1}], "expect": {"x.stunned": true}},
+ {"name": "a consumable is not an equipped item: the stun stays", "clause": 0, "tags": ["negative", "until_equip", "rq_35"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}, {"play": "healing_salve", "target": "x", "player": 1}], "expect": {"x.stunned": true}},
+ {"name": "the stunned hero gives no colour", "clause": 0, "tags": ["edge", "stun"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}], "expect_illegal": [{"play": "combat_training", "target": "x", "player": 1}]},
+ {"name": "the stunned hero cannot use its active ability", "clause": 0, "tags": ["edge", "stun"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["chen#ch", "melee_creep#c"]}}}, "do": [{"play": "caught_unprepared", "target": "ch"}], "expect_illegal": [{"ability": "ch", "target": "m", "player": 1}]},
+ {"name": "the opponent's Purge ends it", "clause": 0, "tags": ["edge", "until_equip"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["axe#x", "rix#q"]}}}, "do": [{"play": "caught_unprepared", "target": "x"}, {"play": "cleansing_rite", "target": "x", "player": 1}], "expect": {"x.stunned": false}}
+]}

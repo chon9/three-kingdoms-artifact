@@ -1,0 +1,15 @@
+{
+"card": "rebel_instigator",
+"source_id": 10084,
+"text": "After the combat phase, if Rebel Instigator dealt battle damage to a creep this round, summon a Rebel Instigator.",
+"covers": ["after_combat", "summon", "self", "permanent"],
+"cases": [
+ {"name": "it dealt battle damage to a creep: a Rebel Instigator is summoned for its owner", "clause": 0, "tags": ["after_combat", "summon", "self", "permanent"], "board": {"lanes": {"0": {"p0": ["rebel_instigator#r", null], "p1": ["melee_creep#m", "melee_creep#d:atk=0:arrow=-1"]}}}, "do": [{"combat": true}], "expect": {"events": {"has": ["summon"]}, "r.health": 1, "m.health": 2, "d.arrow": 0}},
+ {"name": "damage dealt only to a hero does not count", "clause": 0, "tags": ["negative", "after_combat"], "board": {"lanes": {"0": {"p0": ["rebel_instigator#r"], "p1": ["keefe#k:atk=1"]}}}, "do": [{"combat": true}], "expect": {"k.health": 10, "r.health": 2, "events": {"not": ["summon"]}}},
+ {"name": "damage dealt only to the tower does not count", "clause": 0, "tags": ["negative", "summon"], "board": {"lanes": {"0": {"p0": ["rebel_instigator#r"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 38, "events": {"not": ["summon"]}}},
+ {"name": "rq_45_no_damage_after_armor: a creep whose armor absorbs the attack was dealt no battle damage", "clause": 0, "tags": ["edge", "RQ-45", "after_combat"], "board": {"lanes": {"0": {"p0": ["rebel_instigator#r"], "p1": ["melee_creep#m:arm=2"]}}}, "do": [{"combat": true}], "expect": {"m.health": 4, "r.health": 1, "events": {"not": ["summon"]}}},
+ {"name": "an Instigator that dies in the combat summons nothing", "clause": 0, "tags": ["edge", "self"], "board": {"lanes": {"0": {"p0": ["rebel_instigator#r:hp=2"], "p1": ["melee_creep#m"]}}}, "do": [{"combat": true}], "expect": {"r.in_play": false, "m.health": 2, "events": {"not": ["summon"]}}},
+ {"name": "rq_17_copy_takes_a_random_end_of_a_full_row", "clause": 0, "tags": ["edge", "summon", "RQ-17"], "board": {"lanes": {"0": {"p0": ["rebel_instigator#r"], "p1": ["melee_creep#m"]}}}, "do": [{"combat": true}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"r.slot": [0.38, 0.62]}},
+ {"name": "another lane's combat phase does not trigger it", "clause": 0, "tags": ["edge", "after_combat"], "board": {"lanes": {"0": {"p0": ["melee_creep#c"], "p1": ["melee_creep#e"]}, "1": {"p0": ["rebel_instigator#r"], "p1": ["melee_creep#m"]}}}, "do": [{"combat": true}], "expect": {"events": {"not": ["summon"]}}},
+ {"name": "the next lane's combat phase does not trigger it a second time", "clause": 0, "tags": ["edge", "after_combat"], "board": {"lanes": {"0": {"p0": ["rebel_instigator#r", null], "p1": ["melee_creep#m", "melee_creep#d:atk=0:arrow=-1"]}}}, "do": [{"combat": true}, {"combat": true}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"r.slot": [0.0, 0.0], "d.arrow": [0.0, 0.0]}}
+]}

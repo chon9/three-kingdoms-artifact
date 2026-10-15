@@ -2,7 +2,10 @@ extends SceneTree
 ## Differential test (EFFECT_SYSTEM_SPEC.md §12, M1.2): for every migrated
 ## definition (49 Classic, 22 training) the rules engine must behave exactly
 ## like the frozen legacy engine (tests/legacy/, the hand-written effect
-## switch it replaced). Each seeded fixture builds the same random board in
+## switch it replaced). Cards added after the migration (M3 on) are not in the
+## frozen data, so the definitions, board creeps, equipment and hand cards come
+## from the legacy pack, and the decks only from presets both packs define
+## identically. Each seeded fixture builds the same random board in
 ## both engines with the definition on the board or in hand, then plays random
 ## legal actions (favouring that card). After every step the legal actions,
 ## the model-independent projection (tests/golden/golden_games.gd), the random
@@ -31,7 +34,7 @@ func _initialize() -> void:
 	var definitions = 0
 	var steps = 0
 	for pack in PACKS:
-		var library = EngineClass.Library.new(pack)
+		var library = Legacy.Library.new(pack)
 		var ids: Array = []
 		for hero in library.heroes:
 			ids.append(str(hero.id))
@@ -75,8 +78,11 @@ func _fixture(pack: String, card_id: String, index: int) -> Dictionary:
 	modern.library = EngineClass.Library.new(pack)
 	var decks = ["starter", "starter"]
 	if pack == "artifact_classic_decks_v2":
-		var presets = ["starter", "green_assault", "blue_black_control"]
-		decks = [presets[rng.randi_range(0, 2)], presets[rng.randi_range(0, 2)]]
+		var presets: Array = []
+		for preset in legacy.library.presets():
+			if JSON.stringify(preset) == JSON.stringify(modern.library.preset(str(preset.id))):
+				presets.append(str(preset.id))
+		decks = [presets[rng.randi_range(0, presets.size() - 1)], presets[rng.randi_range(0, presets.size() - 1)]]
 	var game_seed = rng.randi_range(1, 1000000)
 	legacy.start(game_seed, decks)
 	modern.start(game_seed, decks)
@@ -92,8 +98,8 @@ func _fixture(pack: String, card_id: String, index: int) -> Dictionary:
 	var active_lane = rng.randi_range(0, 2)
 	# Random units in every lane: roster heroes and pack creeps.
 	var creeps: Array = []
-	for id in modern.library.cards:
-		if str(modern.library.cards[id].get("kind", "")) == "creep":
+	for id in legacy.library.cards:
+		if str(legacy.library.cards[id].get("kind", "")) == "creep":
 			creeps.append(str(id))
 	var used_heroes = [{}, {}]
 	for lane_index in range(3):
@@ -130,8 +136,8 @@ func _fixture(pack: String, card_id: String, index: int) -> Dictionary:
 			_place_both(legacy, modern, legacy.state.players[side].roster[hero_index], roster[hero_index], active_lane, rng)
 	# Equipment on some heroes, then random damage.
 	var equipment: Array = []
-	for id in modern.library.cards:
-		var card = modern.library.cards[id]
+	for id in legacy.library.cards:
+		var card = legacy.library.cards[id]
 		if str(card.get("kind", "")) == "item" and card.has("slot") and not card.get("consumable", false):
 			equipment.append(str(id))
 	for lane_index in range(3):
@@ -143,7 +149,7 @@ func _fixture(pack: String, card_id: String, index: int) -> Dictionary:
 					continue
 				if bool(old.hero) and rng.randi_range(0, 2) == 0 and not equipment.is_empty():
 					var item_id = equipment[rng.randi_range(0, equipment.size() - 1)]
-					var slot_name = str(modern.library.cards[item_id].slot)
+					var slot_name = str(legacy.library.cards[item_id].slot)
 					old.items[slot_name] = item_id
 					EngineClass.Zones.equip(modern, new, item_id)
 	EngineClass.Stats.settle(modern)
@@ -160,7 +166,7 @@ func _fixture(pack: String, card_id: String, index: int) -> Dictionary:
 				new.health = health
 				new["hp_seen"] = modern.max_health_of(new)
 	# Hands: the card under test (spells and items) plus a few pack cards.
-	var playable: Array = modern.library.cards.keys().filter(func(id): return str(id) != "melee_creep")
+	var playable: Array = legacy.library.cards.keys().filter(func(id): return str(id) != "melee_creep")
 	for side in range(2):
 		var hand: Array = []
 		if side == 0 and kind not in ["hero", "creep"]:

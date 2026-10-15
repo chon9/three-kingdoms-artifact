@@ -1,0 +1,19 @@
+{
+"card": "sucker_punch",
+"source_id": 10350,
+"text": "Stun a unit blocking an allied red hero this round. Deal 2 damage to that unit.",
+"covers": ["play", "damage", "stun", "blocker", "unit", "this_round"],
+"cases": [
+ {"name": "Stun a unit blocking an allied red hero this round", "clause": 0, "tags": ["play", "stun", "blocker", "this_round"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["centaur_hunter#c"]}}}, "do": [{"play": "sucker_punch", "target": "c"}], "expect": {"c.stunned": true, "k.stunned": false, "events": {"has": ["status"]}}},
+ {"name": "the stunned blocker deals no combat damage", "clause": 0, "tags": ["stun"], "board": "@0", "do": [{"play": "sucker_punch", "target": "c"}, {"combat": true}], "expect": {"k.health": 11, "c.in_play": false}},
+ {"name": "the stun ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "sucker_punch", "target": "c"}, {"end_round": true}], "expect": {"c.stunned": false}},
+ {"name": "a unit blocking a hero of another colour is not a target", "clause": 0, "tags": ["negative", "blocker"], "board": {"lanes": {"0": {"p0": ["keefe#k", "jmuy#j"], "p1": ["centaur_hunter#c", "melee_creep#m"]}}}, "do": [], "expect_legal": [{"play": "sucker_punch", "target": "c"}], "expect_illegal": [{"play": "sucker_punch", "target": "m"}]},
+ {"name": "the blocker is the hero's combat target, also on a diagonal", "clause": 0, "tags": ["edge", "blocker"], "board": {"lanes": {"0": {"p0": ["keefe#k:arrow=1", null, null], "p1": [null, "centaur_hunter#c", "melee_creep#a"]}}}, "do": [{"play": "sucker_punch", "target": "c"}], "expect": {"c.stunned": true, "c.health": 6}, "expect_illegal": [{"play": "sucker_punch", "target": "a"}]},
+ {"name": "my unit blocking an enemy red hero is not a target", "clause": 0, "tags": ["negative", "blocker"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["melee_creep#e", "axe#x"]}}}, "do": [], "expect_legal": [{"play": "sucker_punch", "target": "e"}], "expect_illegal": [{"play": "sucker_punch", "target": "m"}, {"play": "sucker_punch", "target": "x"}]},
+ {"name": "an unblocked red hero gives no target, so it cannot be cast", "clause": 0, "tags": ["negative", "blocker"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": [null, "melee_creep#e"]}}}, "do": [], "expect_illegal": [{"play": "sucker_punch", "target": "e"}, {"play": "sucker_punch", "target": "k"}]},
+ {"name": "a stunned red hero still counts as blocked when another red hero casts it", "clause": 0, "tags": ["edge", "blocker"], "board": {"lanes": {"0": {"p0": ["keefe#k", "axe#a"], "p1": ["centaur_hunter#c", "melee_creep#m"]}}, "give": {"k": ["stun"]}}, "do": [{"play": "sucker_punch", "target": "c"}], "expect": {"c.stunned": true}},
+ {"name": "a silenced red hero cannot cast it", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "give": {"k": ["silence"]}}, "do": [], "expect_illegal": [{"play": "sucker_punch", "target": "c"}]},
+ {"name": "Deal 2 damage to that unit", "clause": 1, "tags": ["play", "damage", "unit"], "board": "@0", "do": [{"play": "sucker_punch", "target": "c"}], "expect": {"c.health": 6, "events": {"has": ["damage"]}}},
+ {"name": "armor reduces the damage, the stun still lands", "clause": 1, "tags": ["edge", "damage"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "sucker_punch", "target": "o"}], "expect": {"o.health": 7, "o.stunned": true}},
+ {"name": "the damage can kill the blocker", "clause": 1, "tags": ["damage", "unit"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c:hp=2"]}}}, "do": [{"play": "sucker_punch", "target": "c"}], "expect": {"c.in_play": false, "p0.gold": 1}}
+]}

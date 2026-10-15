@@ -1,0 +1,8 @@
+{
+"card": "magnus",
+"source_id": 10067,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "magnus fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["magnus#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.health": 8, "u.attack": 4, "u.armor": 1, "e.in_play": false}}
+]}

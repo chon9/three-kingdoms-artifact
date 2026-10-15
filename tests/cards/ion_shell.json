@@ -1,0 +1,15 @@
+{
+"card": "ion_shell",
+"source_id": 10281,
+"text": "Modify a unit with +3 Retaliate.",
+"covers": ["play", "modify", "retaliate", "unit", "permanent"],
+"cases": [
+ {"name": "Modify a unit with +3 Retaliate", "clause": 0, "tags": ["play", "modify", "retaliate", "unit", "permanent"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "ion_shell", "target": "m"}], "expect": {"m.kw.retaliate": 3, "events": {"has": ["mod"]}}},
+ {"name": "the retaliate hits the attacker in combat", "clause": 0, "tags": ["edge", "retaliate"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "ion_shell", "target": "m"}, {"combat": true}], "expect": {"m.health": 2, "c.in_play": false}},
+ {"name": "the modification is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "ion_shell", "target": "m"}, {"end_round": true}], "expect": {"m.kw.retaliate": 3}},
+ {"name": "two Ion Shells stack", "clause": 0, "tags": ["edge", "retaliate"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "ion_shell", "target": "m"}, {"pass": 1}, {"play": "ion_shell", "target": "m"}], "expect": {"m.kw.retaliate": 6}},
+ {"name": "it survives the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "ion_shell", "target": "ds"}, {"kill": ["ds"]}], "expect": {"ds.in_play": false, "ds.kw.retaliate": 3}},
+ {"name": "the opponent's Purge removes it", "clause": 0, "tags": ["negative", "modify"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["rix#q", "melee_creep#c"]}}}, "do": [{"play": "ion_shell", "target": "ds"}, {"play": "cleansing_rite", "target": "ds", "player": 1}], "expect": {"ds.kw.retaliate": 0}},
+ {"name": "an enemy unit can be the target", "clause": 0, "tags": ["edge", "unit"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "ion_shell", "target": "c"}], "expect": {"c.kw.retaliate": 3}},
+ {"name": "without an allied green hero it cannot be played", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "ion_shell", "target": "m"}]}
+]}

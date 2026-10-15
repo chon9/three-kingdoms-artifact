@@ -1,0 +1,16 @@
+{
+"card": "allseeing_ones_favor",
+"source_id": 10348,
+"text": "Modify a green hero with \"Allies have +2 Regeneration.\"",
+"covers": ["continuous", "play", "grant_text", "modify", "regeneration", "all_allies", "colour_hero", "permanent"],
+"cases": [
+ {"name": "Modify a green hero with the granted text", "clause": 0, "tags": ["play", "modify", "grant_text", "colour_hero", "permanent"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "omniknight#o", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "allseeing_ones_favor", "target": "o"}], "expect": {"o.kw.regeneration": 2, "events": {"has": ["mod"]}}},
+ {"name": "a hero of another colour and a creep are not targets", "clause": 0, "tags": ["negative", "colour_hero"], "board": {"lanes": {"0": {"p0": ["omniknight#o", "keefe#k", "melee_creep#m"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "allseeing_ones_favor", "target": "k"}, {"play": "allseeing_ones_favor", "target": "m"}]},
+ {"name": "the modification is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "allseeing_ones_favor", "target": "o"}, {"end_round": true}], "expect": {"o.kw.regeneration": 2, "l.kw.regeneration": 2}},
+ {"name": "an enemy green hero can receive it; its own allies benefit", "clause": 0, "tags": ["edge", "colour_hero"], "board": {"lanes": {"0": {"p0": ["omniknight#o", "melee_creep#m"], "p1": ["treant_protector#t", "melee_creep#e"]}}}, "do": [{"play": "allseeing_ones_favor", "target": "t"}], "expect": {"t.kw.regeneration": 2, "e.kw.regeneration": 2, "m.kw.regeneration": 0, "o.kw.regeneration": 0}},
+ {"name": "Allies have +2 Regeneration", "clause": 1, "tags": ["continuous", "regeneration", "all_allies"], "board": "@0", "do": [{"play": "allseeing_ones_favor", "target": "o"}], "expect": {"l.kw.regeneration": 2, "r.kw.regeneration": 2, "o.kw.regeneration": 2, "b.kw.regeneration": 0}},
+ {"name": "allies in another lane do not get it", "clause": 1, "tags": ["negative", "all_allies"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "omniknight#o", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}, "1": {"p0": ["melee_creep#x"], "p1": ["melee_creep#y"]}}}, "do": [{"play": "allseeing_ones_favor", "target": "o"}], "expect": {"x.kw.regeneration": 0, "l.kw.regeneration": 2}},
+ {"name": "two copies stack", "clause": 1, "tags": ["edge", "regeneration"], "board": "@0", "do": [{"play": "allseeing_ones_favor", "target": "o"}, {"pass": 1}, {"play": "allseeing_ones_favor", "target": "o"}], "expect": {"l.kw.regeneration": 4}},
+ {"name": "the granted aura stops while its hero is dead", "clause": 1, "tags": ["edge", "continuous"], "board": "@0", "do": [{"play": "allseeing_ones_favor", "target": "o"}, {"kill": ["o"]}], "expect": {"o.in_play": false, "l.kw.regeneration": 0}},
+ {"name": "the allies regenerate in combat", "clause": 1, "tags": ["edge", "regeneration"], "board": "@0", "do": [{"play": "allseeing_ones_favor", "target": "o"}, {"combat": true}], "expect": {"l.health": 4, "r.health": 4}}
+]}

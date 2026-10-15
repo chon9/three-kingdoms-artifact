@@ -1,0 +1,13 @@
+{
+"card": "divine_intervention",
+"source_id": 10338,
+"text": "Give allies Damage Immunity this round.",
+"covers": ["play", "damage_immunity", "all_allies", "this_round"],
+"cases": [
+ {"name": "Give allies Damage Immunity this round", "clause": 0, "tags": ["play", "damage_immunity", "all_allies", "this_round"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}, "1": {"p0": ["chen#ch"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "divine_intervention"}], "expect": {"r.kw.damage_immunity": 1, "m.kw.damage_immunity": 1, "events": {"has": ["status"]}}},
+ {"name": "immune allies take no combat damage and still deal theirs", "clause": 0, "tags": ["edge", "damage_immunity"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}, "1": {"p0": ["chen#ch"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "divine_intervention"}, {"combat": true}], "expect": {"r.health": 7, "m.health": 4, "x.health": 9, "e.health": 2}},
+ {"name": "enemies and allies in other lanes are not immune", "clause": 0, "tags": ["negative", "all_allies"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}, "1": {"p0": ["chen#ch"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "divine_intervention"}], "expect": {"e.kw.damage_immunity": 0, "x.kw.damage_immunity": 0, "ch.kw.damage_immunity": 0}},
+ {"name": "the immunity ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}, "1": {"p0": ["chen#ch"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "divine_intervention"}, {"end_round": true}], "expect": {"r.kw.damage_immunity": 0}},
+ {"name": "immune allies take no spell damage", "clause": 0, "tags": ["edge", "damage_immunity"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["zeus#z", "melee_creep#e"]}}}, "do": [{"play": "divine_intervention"}, {"play": "thunderstorm", "player": 1}], "expect": {"r.health": 7, "m.health": 4}},
+ {"name": "the opponent's Purge removes the immunity", "clause": 0, "tags": ["negative", "damage_immunity"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["rix#q", "melee_creep#e"]}}}, "do": [{"play": "divine_intervention"}, {"play": "aphotic_shield", "target": "m", "player": 1}], "expect": {"m.kw.damage_immunity": 0, "r.kw.damage_immunity": 1}}
+]}

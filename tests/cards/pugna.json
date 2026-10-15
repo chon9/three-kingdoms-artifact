@@ -1,0 +1,16 @@
+{
+"card": "pugna",
+"source_id": 10048,
+"text": "Nether Blast: Condemn a random enemy improvement.",
+"covers": ["active", "condemn", "random_enemy_improvement"],
+"cases": [
+ {"name": "Nether Blast condemns the enemy improvement and starts its cooldown", "clause": 0, "tags": ["active", "condemn", "random_enemy_improvement"], "board": {"lanes": {"0": {"p0": ["pugna#p"], "p1": ["melee_creep#m"]}}, "improvements": {"0": {"p1": ["fx_tower_guard#i"]}}}, "do": [{"ability": "p"}], "expect": {"i.in_play": false, "p.cooldown": 3, "events": {"has": ["ability", "condemn", "improvement_gone"]}}},
+ {"name": "each of two enemy improvements is the one condemned half of the time", "clause": 0, "tags": ["random_enemy_improvement"], "board": {"lanes": {"0": {"p0": ["pugna#p"], "p1": ["melee_creep#m"]}}, "improvements": {"0": {"p1": ["fx_tower_guard#i1", "fx_countdown#i2"]}}}, "do": [{"ability": "p"}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"i1.in_play": [0.38, 0.62], "i2.in_play": [0.38, 0.62]}},
+ {"name": "with seed 1 exactly one of two enemy improvements is condemned", "clause": 0, "tags": ["random_enemy_improvement", "condemn"], "board": "@1", "do": [{"ability": "p"}], "expect": {"i1.in_play": false, "i2.in_play": true, "events": {"has": ["condemn"]}}, "seed": 1},
+ {"name": "Pugna's own improvements are never chosen", "clause": 0, "tags": ["edge", "random_enemy_improvement"], "board": {"lanes": {"0": {"p0": ["pugna#p"], "p1": ["melee_creep#m"]}}, "improvements": {"0": {"p0": ["fx_tower_guard#own"], "p1": ["fx_countdown#i"]}}}, "do": [{"ability": "p"}], "expect": {"own.in_play": true, "i.in_play": false}},
+ {"name": "rq_04_nether_blast_stays_in_pugnas_lane: an enemy improvement in another lane is untouched", "clause": 0, "tags": ["edge", "RQ-04", "random_enemy_improvement"], "board": {"lanes": {"0": {"p0": ["pugna#p"], "p1": ["melee_creep#m"]}}, "improvements": {"1": {"p1": ["fx_tower_guard#far"]}}}, "do": [{"ability": "p"}], "expect": {"far.in_play": true, "p.cooldown": 3, "events": {"not": ["condemn"]}}},
+ {"name": "a silenced Pugna cannot use Nether Blast", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"p": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "p"}]},
+ {"name": "a stunned Pugna cannot use Nether Blast", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"p": ["stun"]}}, "do": [], "expect_illegal": [{"ability": "p"}]},
+ {"name": "Pugna outside the active lane cannot use it", "clause": 0, "tags": ["negative", "active"], "board": {"active_lane": 1, "lanes": {"0": {"p0": ["pugna#p"], "p1": ["melee_creep#m"]}, "1": {"p0": ["axe#a"], "p1": [null]}}, "improvements": {"0": {"p1": ["fx_tower_guard#i"]}}}, "do": [], "expect_illegal": [{"ability": "p"}]},
+ {"name": "the cooldown ticks down each round", "clause": 0, "tags": ["edge", "active"], "board": "@0", "do": [{"ability": "p"}, {"end_round": true}], "expect": {"p.cooldown": 2}}
+]}

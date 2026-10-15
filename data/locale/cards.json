@@ -583,6 +583,1175 @@
 						"zh_CN": "本回合沉默一个单位。"
 					},
 					"faction": "wu"
+				},
+				"beastmaster": {
+					"name": {
+						"en": "Huang Yueying",
+						"zh_CN": "黄月英"
+					},
+					"text": {
+						"en": "Clockwork Beast: summon a Wooden Beast. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "巧造木兽：召唤一头木兽。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Clockwork Beast",
+						"zh_CN": "巧造木兽"
+					}
+				},
+				"bristleback": {
+					"name": {
+						"en": "Huang Zhong",
+						"zh_CN": "黄忠"
+					},
+					"text": {
+						"en": "Dingjun Mountain: permanently give Huang Zhong +{brawler_armor} armor after a hero blocking him dies.",
+						"zh_CN": "定军山：阻挡黄忠的武将阵亡后，永久使黄忠+{brawler_armor}护甲。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Dingjun Mountain",
+						"zh_CN": "定军山"
+					}
+				},
+				"centaur_warrunner": {
+					"name": {
+						"en": "Jiang Wei",
+						"zh_CN": "姜维"
+					},
+					"text": {
+						"en": "Gall Like a Bushel: Jiang Wei has +{retaliate} retaliate.",
+						"zh_CN": "胆大如斗：姜维+{retaliate}反击。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Gall Like a Bushel",
+						"zh_CN": "胆大如斗"
+					}
+				},
+				"legion_commander": {
+					"name": {
+						"en": "Ma Chao",
+						"zh_CN": "马超"
+					},
+					"text": {
+						"en": "Divine Might: Ma Chao has +{retaliate} retaliate.",
+						"zh_CN": "神威：马超+{retaliate}反击。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Divine Might",
+						"zh_CN": "神威"
+					}
+				},
+				"mazzie": {
+					"name": {
+						"en": "Sun Shangxiang",
+						"zh_CN": "孙尚香"
+					},
+					"text": {
+						"en": "Sun Shangxiang has no active or passive ability.",
+						"zh_CN": "孙尚香没有主动或被动技能。"
+					},
+					"faction": "shu"
+				},
+				"pugna": {
+					"name": {
+						"en": "Zhuge Liang",
+						"zh_CN": "诸葛亮"
+					},
+					"text": {
+						"en": "See Through: condemn a random enemy improvement. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "看破：处斩一个随机的敌方营建。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "See Through",
+						"zh_CN": "看破"
+					}
+				},
+				"sven": {
+					"name": {
+						"en": "Liu Bei",
+						"zh_CN": "刘备"
+					},
+					"text": {
+						"en": "Twin Swords: Liu Bei has +X cleave, where X is half his attack.",
+						"zh_CN": "双股剑：刘备+X横扫，X为其攻击的一半。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Twin Swords",
+						"zh_CN": "双股剑"
+					}
+				},
+				"tidehunter": {
+					"name": {
+						"en": "Pang Tong",
+						"zh_CN": "庞统"
+					},
+					"text": {
+						"en": "Chained Warships: stun Pang Tong's enemy neighbors this round. Each other enemy has a {chance}% chance of being stunned this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "铁索连舟：本回合眩晕庞统的敌方邻位单位，其他每个敌方单位各有{chance}%几率在本回合被眩晕。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Chained Warships",
+						"zh_CN": "铁索连舟"
+					}
+				},
+				"timbersaw": {
+					"name": {
+						"en": "Zhao Yun",
+						"zh_CN": "赵云"
+					},
+					"text": {
+						"en": "Dragon's Courage: Zhao Yun has +{armor_per_attacker} armor for each of his attackers. Zhao Yun's attackers have -{attacker_armor_loss} armor.",
+						"zh_CN": "龙胆：每有一个单位攻击赵云，赵云+{armor_per_attacker}护甲。攻击赵云的单位-{attacker_armor_loss}护甲。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Dragon's Courage",
+						"zh_CN": "龙胆"
+					}
+				},
+				"ursa": {
+					"name": {
+						"en": "Wei Yan",
+						"zh_CN": "魏延"
+					},
+					"text": {
+						"en": "Reckless Fury: when Wei Yan deals battle damage to a unit, permanently give that unit -{armor_loss} armor.",
+						"zh_CN": "狂骨：魏延对一个单位造成战斗伤害时，永久使该单位-{armor_loss}护甲。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Reckless Fury",
+						"zh_CN": "狂骨"
+					}
+				},
+				"abaddon": {
+					"name": {
+						"en": "Zhou Tai",
+						"zh_CN": "周泰"
+					},
+					"text": {
+						"en": "Unbowed: fully heal Zhou Tai and give him damage immunity this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "不屈：完全恢复周泰的体力，本回合周泰免疫伤害。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Unbowed",
+						"zh_CN": "不屈"
+					}
+				},
+				"chen": {
+					"name": {
+						"en": "Lu Su",
+						"zh_CN": "鲁肃"
+					},
+					"text": {
+						"en": "Forge Alliance: get control of an enemy creep. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "缔盟：获得一名敌方兵卒的控制权。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Forge Alliance",
+						"zh_CN": "缔盟"
+					}
+				},
+				"dark_seer": {
+					"name": {
+						"en": "Taishi Ci",
+						"zh_CN": "太史慈"
+					},
+					"text": {
+						"en": "Break Out for Aid: move another ally to another lane. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "突围请援：将另一个友方单位移至另一路。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Break Out for Aid",
+						"zh_CN": "突围请援"
+					}
+				},
+				"enchantress": {
+					"name": {
+						"en": "Da Qiao",
+						"zh_CN": "大乔"
+					},
+					"text": {
+						"en": "Peerless Grace: Da Qiao has +{regeneration} regeneration. Da Qiao's allied neighbors have +{regeneration} regeneration.",
+						"zh_CN": "国色：大乔+{regeneration}再生。大乔的友方邻位单位+{regeneration}再生。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Peerless Grace",
+						"zh_CN": "国色"
+					}
+				},
+				"magnus": {
+					"name": {
+						"en": "Sun Ce",
+						"zh_CN": "孙策"
+					},
+					"text": {
+						"en": "Sun Ce has no active or passive ability.",
+						"zh_CN": "孙策没有主动或被动技能。"
+					},
+					"faction": "wu"
+				},
+				"omniknight": {
+					"name": {
+						"en": "Xiao Qiao",
+						"zh_CN": "小乔"
+					},
+					"text": {
+						"en": "Heavenly Fragrance: heal a unit {amount}. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "天香：为一个单位恢复{amount}点体力。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Heavenly Fragrance",
+						"zh_CN": "天香"
+					}
+				},
+				"treant_protector": {
+					"name": {
+						"en": "Lu Xun",
+						"zh_CN": "陆逊"
+					},
+					"text": {
+						"en": "Hold the Line: Lu Xun's allied neighbors have +{neighbor_armor} armor.",
+						"zh_CN": "坚守：陆逊的友方邻位单位+{neighbor_armor}护甲。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Hold the Line",
+						"zh_CN": "坚守"
+					}
+				},
+				"viper": {
+					"name": {
+						"en": "Huang Gai",
+						"zh_CN": "黄盖"
+					},
+					"text": {
+						"en": "Iron Whip: when a unit deals battle damage to Huang Gai, permanently give that unit -{attack_loss} attack.",
+						"zh_CN": "铁鞭：一个单位对黄盖造成战斗伤害时，永久使该单位-{attack_loss}攻击。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Iron Whip",
+						"zh_CN": "铁鞭"
+					}
+				},
+				"hellbear_crippler": {
+					"name": {
+						"en": "Snare-Rope Troops",
+						"zh_CN": "绊马索兵"
+					},
+					"text": {
+						"en": "When Snare-Rope Troops deal battle damage to a unit, permanently give that unit -{attack_loss} attack.",
+						"zh_CN": "绊马索兵对一个单位造成战斗伤害时，永久使该单位-{attack_loss}攻击。"
+					},
+					"faction": "shu"
+				},
+				"mercenary_exiles": {
+					"name": {
+						"en": "Dongzhou Exiles",
+						"zh_CN": "东州兵"
+					},
+					"text": {
+						"en": "Empty the Purse: spend all your gold, then permanently give Dongzhou Exiles +X attack and +X health, where X is half the gold spent. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "倾囊募兵：花费你所有的金，然后永久使东州兵+X攻击、+X体力，X为所花费金的一半。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "shu",
+					"ability_name": {
+						"en": "Empty the Purse",
+						"zh_CN": "倾囊募兵"
+					}
+				},
+				"legion_standard_bearer": {
+					"name": {
+						"en": "Yamen Standard Bearer",
+						"zh_CN": "牙门旗手"
+					},
+					"text": {
+						"en": "Yamen Standard Bearer's allied neighbors have +{neighbor_attack} attack.",
+						"zh_CN": "牙门旗手的友方邻位单位+{neighbor_attack}攻击。"
+					},
+					"faction": "shu"
+				},
+				"rebel_instigator": {
+					"name": {
+						"en": "Zhuo Volunteers",
+						"zh_CN": "涿郡义兵"
+					},
+					"text": {
+						"en": "After the combat phase, if Zhuo Volunteers dealt battle damage to a creep this round, summon a Zhuo Volunteers.",
+						"zh_CN": "交战阶段后，若涿郡义兵本回合对兵卒造成了战斗伤害，召唤一支涿郡义兵。"
+					},
+					"faction": "shu"
+				},
+				"smeevil_armsmaster": {
+					"name": {
+						"en": "Pu Yuan's Smiths",
+						"zh_CN": "蒲元刀匠"
+					},
+					"text": {
+						"en": "Play effect: permanently give a random allied hero +{hero_attack} attack.",
+						"zh_CN": "出场效果：永久使一名随机友方武将+{hero_attack}攻击。"
+					},
+					"faction": "shu"
+				},
+				"stonehall_elite": {
+					"name": {
+						"en": "Tiger-Step Elite",
+						"zh_CN": "虎步军"
+					},
+					"text": {
+						"en": "Permanently give Tiger-Step Elite +{growth_attack} attack and +{growth_health} health after a unit blocking it dies.",
+						"zh_CN": "阻挡虎步军的单位阵亡后，永久使虎步军+{growth_attack}攻击、+{growth_health}体力。"
+					},
+					"faction": "shu"
+				},
+				"cursed_satyr": {
+					"name": {
+						"en": "Lu River Veterans",
+						"zh_CN": "泸水残兵"
+					},
+					"text": {
+						"en": "Summon a Ghost Soldier for your opponent after the combat phase.",
+						"zh_CN": "交战阶段后，为你的对手召唤一名阴兵。"
+					},
+					"faction": "shu"
+				},
+				"ogre_corpse_tosser": {
+					"name": {
+						"en": "Repeating Crossbowmen",
+						"zh_CN": "连弩手"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to the enemy tower after an allied Foot Soldier dies.",
+						"zh_CN": "一名友方步卒阵亡后，对敌方城楼造成{amount}点穿透伤害。"
+					},
+					"faction": "shu"
+				},
+				"red_mist_pillager": {
+					"name": {
+						"en": "Xiliang Iron Cavalry",
+						"zh_CN": "西凉铁骑"
+					},
+					"text": {
+						"en": "After the combat phase, if Xiliang Iron Cavalry dealt battle damage to a tower this round, summon a Xiliang Iron Cavalry.",
+						"zh_CN": "交战阶段后，若西凉铁骑本回合对城楼造成了战斗伤害，召唤一支西凉铁骑。"
+					},
+					"faction": "shu"
+				},
+				"keenfolk_golem": {
+					"name": {
+						"en": "Wooden Ox",
+						"zh_CN": "木牛流马"
+					},
+					"text": {
+						"en": "Play effect: discard your hand.",
+						"zh_CN": "出场效果：弃置你的所有手牌。"
+					},
+					"faction": "shu"
+				},
+				"marrowfell_brawler": {
+					"name": {
+						"en": "Banshun Shieldmen",
+						"zh_CN": "板楯蛮"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "shu"
+				},
+				"double_edge": {
+					"name": {
+						"en": "Nine Northern Campaigns",
+						"zh_CN": "九伐中原"
+					},
+					"text": {
+						"en": "Give a red hero +{attack} attack and {armor} armor this round.",
+						"zh_CN": "本回合使一名红色武将+{attack}攻击、{armor}护甲。"
+					},
+					"faction": "shu"
+				},
+				"fight_through_the_pain": {
+					"name": {
+						"en": "Fu Tong's Rearguard",
+						"zh_CN": "傅彤断后"
+					},
+					"text": {
+						"en": "Give a red hero +{armor} armor this round. Get initiative.",
+						"zh_CN": "本回合使一名红色武将+{armor}护甲。获得先手。"
+					},
+					"faction": "shu"
+				},
+				"kraken_shell": {
+					"name": {
+						"en": "Leiyang Verdicts",
+						"zh_CN": "耒阳断案"
+					},
+					"text": {
+						"en": "Permanently give a red hero +{armor} armor. Get initiative.",
+						"zh_CN": "永久使一名红色武将+{armor}护甲。获得先手。"
+					},
+					"faction": "shu"
+				},
+				"new_orders": {
+					"name": {
+						"en": "Zhang Song's Map",
+						"zh_CN": "张松献图"
+					},
+					"text": {
+						"en": "Choose an ally. Choose a combat target for it.",
+						"zh_CN": "选择一个友方单位，为其指定交战目标。"
+					},
+					"faction": "shu"
+				},
+				"poised_to_strike": {
+					"name": {
+						"en": "Trailing-Blade Feint",
+						"zh_CN": "拖刀计"
+					},
+					"text": {
+						"en": "Give a red hero +{attack} attack this round.",
+						"zh_CN": "本回合使一名红色武将+{attack}攻击。"
+					},
+					"faction": "shu"
+				},
+				"duel": {
+					"name": {
+						"en": "Night Duel at Jiameng",
+						"zh_CN": "夜战葭萌关"
+					},
+					"text": {
+						"en": "Choose an allied red hero and another unit. They battle each other.",
+						"zh_CN": "选择一名友方红色武将与另一个单位，令二者相互交锋。"
+					},
+					"faction": "shu"
+				},
+				"heroic_resolve": {
+					"name": {
+						"en": "Liao Hua Leads",
+						"zh_CN": "廖化先锋"
+					},
+					"text": {
+						"en": "Permanently give a red hero \"After you play a non-item card costing 2 or less, permanently give this hero +{amount} health.\"",
+						"zh_CN": "永久使一名红色武将获得：“你打出费用不高于2的非军备卡牌后，永久使此武将+{amount}体力。”"
+					},
+					"faction": "shu",
+					"grants": [
+						{
+							"en": "After you play a non-item card costing 2 or less, permanently give this hero +{amount} health.",
+							"zh_CN": "你打出费用不高于2的非军备卡牌后，永久使此武将+{amount}体力。"
+						}
+					]
+				},
+				"pick_a_fight": {
+					"name": {
+						"en": "Scolding Wang Lang",
+						"zh_CN": "骂死王朗"
+					},
+					"text": {
+						"en": "Choose an allied hero. It taunts. Choose a combat target for it.",
+						"zh_CN": "选择一名友方武将，使其嘲讽，并为其指定交战目标。"
+					},
+					"faction": "shu"
+				},
+				"rising_anger": {
+					"name": {
+						"en": "Tiger's Cubs",
+						"zh_CN": "虎父无犬子"
+					},
+					"text": {
+						"en": "Permanently give a red hero \"After you play a non-item card costing 2 or less, permanently give this hero +{amount} attack.\"",
+						"zh_CN": "永久使一名红色武将获得：“你打出费用不高于2的非军备卡牌后，永久使此武将+{amount}攻击。”"
+					},
+					"faction": "shu",
+					"grants": [
+						{
+							"en": "After you play a non-item card costing 2 or less, permanently give this hero +{amount} attack.",
+							"zh_CN": "你打出费用不高于2的非军备卡牌后，永久使此武将+{amount}攻击。"
+						}
+					]
+				},
+				"whirling_death": {
+					"name": {
+						"en": "Seven Charges Through",
+						"zh_CN": "七进七出"
+					},
+					"text": {
+						"en": "Choose an allied red hero. Deal {amount} damage to its enemy neighbors and give them -{attack_loss} attack this round.",
+						"zh_CN": "选择一名友方红色武将，对其敌方邻位单位造成{amount}点伤害，并使它们本回合-{attack_loss}攻击。"
+					},
+					"faction": "shu"
+				},
+				"rend_armor": {
+					"name": {
+						"en": "Coiled Serpent Valley",
+						"zh_CN": "盘蛇谷"
+					},
+					"text": {
+						"en": "Permanently give a unit -X armor, where X is its armor.",
+						"zh_CN": "永久使一个单位-X护甲，X为其护甲值。"
+					},
+					"faction": "shu"
+				},
+				"smash_their_defenses": {
+					"name": {
+						"en": "Taking Wakou Pass",
+						"zh_CN": "智取瓦口"
+					},
+					"text": {
+						"en": "Condemn an improvement. Draw a card.",
+						"zh_CN": "处斩一个营建。摸一张牌。"
+					},
+					"faction": "shu"
+				},
+				"spot_weakness": {
+					"name": {
+						"en": "Fa Zheng's Signal",
+						"zh_CN": "法正举旗"
+					},
+					"text": {
+						"en": "Give a hero and its allied neighbors pierce this round. Draw a card.",
+						"zh_CN": "本回合使一名武将及其友方邻位单位获得穿透。摸一张牌。"
+					},
+					"faction": "shu"
+				},
+				"clear_the_deck": {
+					"name": {
+						"en": "Five Tiger Generals",
+						"zh_CN": "五虎上将"
+					},
+					"text": {
+						"en": "Give allied heroes +{cleave} cleave this round.",
+						"zh_CN": "本回合使所有友方武将+{cleave}横扫。"
+					},
+					"faction": "shu"
+				},
+				"crippling_blow": {
+					"name": {
+						"en": "Win Their Hearts",
+						"zh_CN": "攻心为上"
+					},
+					"text": {
+						"en": "Permanently give a hero {attack} attack.",
+						"zh_CN": "永久使一名武将{attack}攻击。"
+					},
+					"faction": "shu"
+				},
+				"enrage": {
+					"name": {
+						"en": "Hold Hanzhong",
+						"zh_CN": "镇守汉中"
+					},
+					"text": {
+						"en": "Give a red hero +{attack} attack and +{armor} armor this round.",
+						"zh_CN": "本回合使一名红色武将+{attack}攻击、+{armor}护甲。"
+					},
+					"faction": "shu"
+				},
+				"sucker_punch": {
+					"name": {
+						"en": "Turnback Spear",
+						"zh_CN": "回马枪"
+					},
+					"text": {
+						"en": "Stun a unit blocking an allied red hero this round. Deal {amount} damage to that unit.",
+						"zh_CN": "本回合眩晕一个阻挡友方红色武将的单位，并对其造成{amount}点伤害。"
+					},
+					"faction": "shu"
+				},
+				"tresdins_standards": {
+					"name": {
+						"en": "Restore the Han",
+						"zh_CN": "兴复汉室"
+					},
+					"text": {
+						"en": "Permanently give a red hero \"After you play a red card, give this hero and its allied neighbors +{attack} attack and +{armor} armor this round.\"",
+						"zh_CN": "永久使一名红色武将获得：“你打出红色牌后，本回合使此武将及其友方邻位单位+{attack}攻击、+{armor}护甲。”"
+					},
+					"faction": "shu",
+					"grants": [
+						{
+							"en": "After you play a red card, give this hero and its allied neighbors +{attack} attack and +{armor} armor this round.",
+							"zh_CN": "你打出红色牌后，本回合使此武将及其友方邻位单位+{attack}攻击、+{armor}护甲。"
+						}
+					]
+				},
+				"viscous_nasal_goo": {
+					"name": {
+						"en": "Fierce Bow",
+						"zh_CN": "烈弓"
+					},
+					"text": {
+						"en": "Permanently give a unit -{armor_loss} armor.",
+						"zh_CN": "永久使一个单位-{armor_loss}护甲。"
+					},
+					"faction": "shu"
+				},
+				"enough_magic": {
+					"name": {
+						"en": "Ere the Wine Cools",
+						"zh_CN": "温酒斩华雄"
+					},
+					"text": {
+						"en": "Proceed to the combat phase.",
+						"zh_CN": "立即进入交战阶段。"
+					},
+					"faction": "shu"
+				},
+				"raze": {
+					"name": {
+						"en": "Fire at Bowang",
+						"zh_CN": "火烧博望"
+					},
+					"text": {
+						"en": "Condemn all enemy improvements.",
+						"zh_CN": "处斩所有敌方营建。"
+					},
+					"faction": "shu"
+				},
+				"gods_strength": {
+					"name": {
+						"en": "Lament of Idle Thighs",
+						"zh_CN": "髀肉之叹"
+					},
+					"text": {
+						"en": "Permanently give a red hero +{attack} attack.",
+						"zh_CN": "永久使一名红色武将+{attack}攻击。"
+					},
+					"faction": "shu"
+				},
+				"routed": {
+					"name": {
+						"en": "Chicken Rib",
+						"zh_CN": "鸡肋"
+					},
+					"text": {
+						"en": "Permanently give enemy heroes at the Fountain -X attack, where X is half their attack. Permanently give them \"Your tower has -{mana_loss} mana.\"",
+						"zh_CN": "永久使大营中的敌方武将-X攻击，X为其攻击的一半。并永久使它们获得：“你的城楼-{mana_loss}军令。”"
+					},
+					"faction": "shu",
+					"grants": [
+						{
+							"en": "Your tower has -{mana_loss} mana.",
+							"zh_CN": "你的城楼-{mana_loss}军令。"
+						}
+					]
+				},
+				"primal_roar": {
+					"name": {
+						"en": "Fire Beasts Break Ranks",
+						"zh_CN": "火兽破阵"
+					},
+					"text": {
+						"en": "Stun a unit blocking an allied red hero this round. Move that unit's allied neighbors to random other lanes.",
+						"zh_CN": "本回合眩晕一个阻挡友方红色武将的单位，并将该单位的友方邻位单位随机移至其他路。"
+					},
+					"faction": "shu"
+				},
+				"spring_the_trap": {
+					"name": {
+						"en": "Flying Army Descends",
+						"zh_CN": "飞军天降"
+					},
+					"text": {
+						"en": "Summon two Wudang Flying Army into any lane.",
+						"zh_CN": "在任意一路中召唤两支无当飞军。"
+					},
+					"faction": "shu"
+				},
+				"time_of_triumph": {
+					"name": {
+						"en": "Peach Garden Oath",
+						"zh_CN": "桃园结义"
+					},
+					"text": {
+						"en": "Permanently give allied heroes +{amount} attack, +{amount} armor, +{amount} health, +{amount} cleave, +{amount} retaliate and +{amount} siege.",
+						"zh_CN": "永久使所有友方武将+{amount}攻击、+{amount}护甲、+{amount}体力、+{amount}横扫、+{amount}反击、+{amount}攻城。"
+					},
+					"faction": "shu"
+				},
+				"nether_ward": {
+					"name": {
+						"en": "Turn the Tables",
+						"zh_CN": "将计就计"
+					},
+					"text": {
+						"en": "After your opponent plays a spell, deal {amount} damage to the enemy tower.",
+						"zh_CN": "对手施放计策后，对敌方城楼造成{amount}点伤害。"
+					},
+					"faction": "shu"
+				},
+				"steel_reinforcement": {
+					"name": {
+						"en": "Lady Sun's Fort",
+						"zh_CN": "孙夫人城"
+					},
+					"text": {
+						"en": "Your tower has +{tower_armor} armor.",
+						"zh_CN": "你的城楼+{tower_armor}护甲。"
+					},
+					"faction": "shu"
+				},
+				"vhoul_martyr": {
+					"name": {
+						"en": "Danyang Diehards",
+						"zh_CN": "丹阳兵"
+					},
+					"text": {
+						"en": "Death effect: permanently give allies +{death_attack} attack and +{death_health} health.",
+						"zh_CN": "阵亡效果：永久使所有友方单位+{death_attack}攻击、+{death_health}体力。"
+					},
+					"faction": "wu"
+				},
+				"rebel_decoy": {
+					"name": {
+						"en": "Zu Mao",
+						"zh_CN": "祖茂"
+					},
+					"text": {
+						"en": "Swapped Headscarf: swap Zu Mao with another ally. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "换帻诱敌：将祖茂与另一个友方单位交换位置。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Swapped Headscarf",
+						"zh_CN": "换帻诱敌"
+					}
+				},
+				"rampaging_hellbear": {
+					"name": {
+						"en": "Shanyue Berserkers",
+						"zh_CN": "山越蛮兵"
+					},
+					"text": {
+						"en": "Permanently give Shanyue Berserkers +{combat_growth_attack} attack after the combat phase.",
+						"zh_CN": "交战阶段后，永久使山越蛮兵+{combat_growth_attack}攻击。"
+					},
+					"faction": "wu"
+				},
+				"roseleaf_druid": {
+					"name": {
+						"en": "Lu Clan Retainers",
+						"zh_CN": "陆家部曲"
+					},
+					"text": {
+						"en": "Your tower has +{amount} mana.",
+						"zh_CN": "你的城楼+{amount}军令。"
+					},
+					"faction": "wu"
+				},
+				"satyr_duelist": {
+					"name": {
+						"en": "Wu Hook Duelist",
+						"zh_CN": "吴钩剑客"
+					},
+					"text": {
+						"en": "Permanently give Wu Hook Duelist +{combat_growth_attack} attack after the combat phase.",
+						"zh_CN": "交战阶段后，永久使吴钩剑客+{combat_growth_attack}攻击。"
+					},
+					"faction": "wu"
+				},
+				"selfish_cleric": {
+					"name": {
+						"en": "Yue Shaman",
+						"zh_CN": "越巫"
+					},
+					"text": {
+						"en": "Fully heal Yue Shaman after the combat phase.",
+						"zh_CN": "交战阶段后，完全恢复越巫的体力。"
+					},
+					"faction": "wu"
+				},
+				"smeevil_blacksmith": {
+					"name": {
+						"en": "Wu-Yue Armorsmith",
+						"zh_CN": "吴越铸师"
+					},
+					"text": {
+						"en": "Play effect: permanently give a random allied hero +{hero_armor} armor.",
+						"zh_CN": "出场效果：永久使一名随机友方武将+{hero_armor}护甲。"
+					},
+					"faction": "wu"
+				},
+				"revtel_convoy": {
+					"name": {
+						"en": "Grain Barge Fleet",
+						"zh_CN": "漕船队"
+					},
+					"text": {
+						"en": "Grain Barge Fleet has +X attack, where X is half your gold.",
+						"zh_CN": "漕船队+X攻击，X为你的金的一半。"
+					},
+					"faction": "wu"
+				},
+				"champion_of_the_ancient": {
+					"name": {
+						"en": "Wunan Guard",
+						"zh_CN": "无难军"
+					},
+					"text": {
+						"en": "Play effect: permanently give Wunan Guard +{per_enemy_attack} attack, +{per_enemy_health} health and +{per_enemy_cleave} cleave for each enemy.",
+						"zh_CN": "出场效果：每有一个敌方单位，永久使无难军+{per_enemy_attack}攻击、+{per_enemy_health}体力、+{per_enemy_cleave}横扫。"
+					},
+					"faction": "wu"
+				},
+				"roseleaf_rejuvenator": {
+					"name": {
+						"en": "Apricot Grove Healer",
+						"zh_CN": "杏林医仙"
+					},
+					"text": {
+						"en": "Play effect: heal your tower {amount}.",
+						"zh_CN": "出场效果：为你的城楼恢复{amount}点体力。"
+					},
+					"faction": "wu"
+				},
+				"emissary_of_the_quorum": {
+					"name": {
+						"en": "Zhuge Jin",
+						"zh_CN": "诸葛瑾"
+					},
+					"text": {
+						"en": "Envoy of Alliance: permanently give allies +{modify_attack} attack and +{modify_health} health. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "两国通好：永久使所有友方单位+{modify_attack}攻击、+{modify_health}体力。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Envoy of Alliance",
+						"zh_CN": "两国通好"
+					}
+				},
+				"thunderhide_alpha": {
+					"name": {
+						"en": "Feiyun Flagship",
+						"zh_CN": "飞云大船"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "wu"
+				},
+				"juke": {
+					"name": {
+						"en": "Cicada Sheds Its Shell",
+						"zh_CN": "金蝉脱壳"
+					},
+					"text": {
+						"en": "Swap an ally with one of its allied neighbors.",
+						"zh_CN": "将一个友方单位与其一个友方邻位单位交换位置。"
+					},
+					"faction": "wu"
+				},
+				"aphotic_shield": {
+					"name": {
+						"en": "Shield the Lord",
+						"zh_CN": "奋身护主"
+					},
+					"text": {
+						"en": "Purge your opponent's effects from a unit. Give it +{armor} armor and +{retaliate} retaliate this round.",
+						"zh_CN": "驱散对手施加于一个单位的所有效果。本回合使其+{armor}护甲、+{retaliate}反击。"
+					},
+					"faction": "wu"
+				},
+				"bellow": {
+					"name": {
+						"en": "Pounding Drums",
+						"zh_CN": "擂鼓"
+					},
+					"text": {
+						"en": "Move a creep to a random other lane.",
+						"zh_CN": "将一名兵卒移至随机的另一路。"
+					},
+					"faction": "wu"
+				},
+				"defend_the_weak": {
+					"name": {
+						"en": "Shields Together",
+						"zh_CN": "列盾相护"
+					},
+					"text": {
+						"en": "Permanently give a unit \"This unit's allied neighbors have +{armor} armor.\"",
+						"zh_CN": "永久使一个单位获得：“此单位的友方邻位单位+{armor}护甲。”"
+					},
+					"faction": "wu",
+					"grants": [
+						{
+							"en": "This unit's allied neighbors have +{armor} armor.",
+							"zh_CN": "此单位的友方邻位单位+{armor}护甲。"
+						}
+					]
+				},
+				"iron_branch_protection": {
+					"name": {
+						"en": "Mengchong Cover",
+						"zh_CN": "蒙冲掩护"
+					},
+					"text": {
+						"en": "Give a unit in any lane +{armor} armor until the end of its next combat phase.",
+						"zh_CN": "使任意一路中的一个单位+{armor}护甲，直至其下一个交战阶段结束。"
+					},
+					"faction": "wu"
+				},
+				"rumusque_blessing": {
+					"name": {
+						"en": "Reward the Army",
+						"zh_CN": "犒赏三军"
+					},
+					"text": {
+						"en": "Choose a lane. Permanently give allies in that lane +{health} health.",
+						"zh_CN": "选择一路，永久使该路中的友方单位+{health}体力。"
+					},
+					"faction": "wu"
+				},
+				"viper_strike": {
+					"name": {
+						"en": "Fire Ship Feint",
+						"zh_CN": "诈降火船"
+					},
+					"text": {
+						"en": "Give a unit \"Before the action phase, deal {amount} piercing damage to this unit\" until it dies.",
+						"zh_CN": "使一个单位获得“行动阶段前，对此单位造成{amount}点穿透伤害”，直至其阵亡。"
+					},
+					"faction": "wu",
+					"grants": [
+						{
+							"en": "Before the action phase, deal {amount} piercing damage to this unit.",
+							"zh_CN": "行动阶段前，对此单位造成{amount}点穿透伤害。"
+						}
+					]
+				},
+				"allseeing_ones_favor": {
+					"name": {
+						"en": "Zither in Harmony",
+						"zh_CN": "琴瑟和鸣"
+					},
+					"text": {
+						"en": "Permanently give a green hero \"Allies have +{regeneration} regeneration.\"",
+						"zh_CN": "永久使一名绿色武将获得：“友方单位+{regeneration}再生。”"
+					},
+					"faction": "wu",
+					"grants": [
+						{
+							"en": "Allies have +{regeneration} regeneration.",
+							"zh_CN": "友方单位+{regeneration}再生。"
+						}
+					]
+				},
+				"caught_unprepared": {
+					"name": {
+						"en": "Lull with Flattery",
+						"zh_CN": "卑辞骄敌"
+					},
+					"text": {
+						"en": "Stun a hero until they equip an item.",
+						"zh_CN": "眩晕一名武将，直至其装备一件军备。"
+					},
+					"faction": "wu"
+				},
+				"cleansing_rite": {
+					"name": {
+						"en": "River Purification",
+						"zh_CN": "临江祓禊"
+					},
+					"text": {
+						"en": "Purge your opponent's effects from a hero.",
+						"zh_CN": "驱散对手施加于一名武将的所有效果。"
+					},
+					"faction": "wu"
+				},
+				"defensive_bloom": {
+					"name": {
+						"en": "Fortify Ruxu",
+						"zh_CN": "濡须筑坞"
+					},
+					"text": {
+						"en": "Summon two Spiked Barricades.",
+						"zh_CN": "召唤两座拒马。"
+					},
+					"faction": "wu"
+				},
+				"empower": {
+					"name": {
+						"en": "Rousing Fervor",
+						"zh_CN": "激昂"
+					},
+					"text": {
+						"en": "Permanently give a unit +{attack} attack and +{cleave} cleave.",
+						"zh_CN": "永久使一个单位+{attack}攻击、+{cleave}横扫。"
+					},
+					"faction": "wu"
+				},
+				"ion_shell": {
+					"name": {
+						"en": "Duel at Shenting",
+						"zh_CN": "神亭酣斗"
+					},
+					"text": {
+						"en": "Permanently give a unit +{retaliate} retaliate.",
+						"zh_CN": "永久使一个单位+{retaliate}反击。"
+					},
+					"faction": "wu"
+				},
+				"restoration_effort": {
+					"name": {
+						"en": "Raise Stone City",
+						"zh_CN": "筑石头城"
+					},
+					"text": {
+						"en": "Heal your tower {amount}.",
+						"zh_CN": "为你的城楼恢复{amount}点体力。"
+					},
+					"faction": "wu"
+				},
+				"soul_of_spring": {
+					"name": {
+						"en": "Rest and Recover",
+						"zh_CN": "养精蓄锐"
+					},
+					"text": {
+						"en": "Permanently give a hero \"After you play a green card, give this hero and its allied neighbors +{regeneration} regeneration this round.\"",
+						"zh_CN": "永久使一名武将获得：“你打出一张绿色牌后，本回合使此武将及其友方邻位单位+{regeneration}再生。”"
+					},
+					"faction": "wu",
+					"grants": [
+						{
+							"en": "After you play a green card, give this hero and its allied neighbors +{regeneration} regeneration this round.",
+							"zh_CN": "你打出一张绿色牌后，本回合使此武将及其友方邻位单位+{regeneration}再生。"
+						}
+					]
+				},
+				"steal_strength": {
+					"name": {
+						"en": "Swap the Beams",
+						"zh_CN": "偷梁换柱"
+					},
+					"text": {
+						"en": "Give a unit {attack_loss} attack this round and give another unit +{attack} attack this round.",
+						"zh_CN": "本回合使一个单位{attack_loss}攻击，并使另一个单位+{attack}攻击。"
+					},
+					"faction": "wu"
+				},
+				"corrosive_mist": {
+					"name": {
+						"en": "Southern Miasma",
+						"zh_CN": "江南瘴疠"
+					},
+					"text": {
+						"en": "Condemn all equipped items.",
+						"zh_CN": "处斩所有已装备的军备。"
+					},
+					"faction": "wu"
+				},
+				"divine_intervention": {
+					"name": {
+						"en": "The Yangtze Barrier",
+						"zh_CN": "长江天堑"
+					},
+					"text": {
+						"en": "Give allies damage immunity this round.",
+						"zh_CN": "本回合所有友方单位免疫伤害。"
+					},
+					"faction": "wu"
+				},
+				"intimidation": {
+					"name": {
+						"en": "Phantom Ramparts",
+						"zh_CN": "疑城退敌"
+					},
+					"text": {
+						"en": "Move a unit to a random other lane.",
+						"zh_CN": "将一个单位移至随机的另一路。"
+					},
+					"faction": "wu"
+				},
+				"curse_of_atrophy": {
+					"name": {
+						"en": "Ill-Suited to the South",
+						"zh_CN": "水土不服"
+					},
+					"text": {
+						"en": "Permanently give enemy heroes {attack} attack.",
+						"zh_CN": "永久使所有敌方武将{attack}攻击。"
+					},
+					"faction": "wu"
+				},
+				"divine_purpose": {
+					"name": {
+						"en": "Mandate of Heaven",
+						"zh_CN": "天命所归"
+					},
+					"text": {
+						"en": "Permanently give a unit damage immunity.",
+						"zh_CN": "永久使一个单位免疫伤害。"
+					},
+					"faction": "wu"
+				},
+				"hand_of_god": {
+					"name": {
+						"en": "Granary Gift",
+						"zh_CN": "指囷相赠"
+					},
+					"text": {
+						"en": "Fully heal each ally. Give allies damage immunity this round.",
+						"zh_CN": "完全恢复每个友方单位的体力。本回合所有友方单位免疫伤害。"
+					},
+					"faction": "wu"
+				},
+				"verdant_refuge": {
+					"name": {
+						"en": "Qiao Sisters' Manor",
+						"zh_CN": "二乔宅"
+					},
+					"text": {
+						"en": "Allies have +{ally_armor} armor.",
+						"zh_CN": "友方单位+{ally_armor}护甲。"
+					},
+					"faction": "wu"
+				},
+				"loyal_beast": {
+					"name": {
+						"en": "Wooden Beast",
+						"zh_CN": "木兽"
+					},
+					"text": {
+						"en": "When Wooden Beast deals battle damage to a unit, permanently give that unit -{attack_loss} attack.",
+						"zh_CN": "木兽对一个单位造成战斗伤害时，永久使该单位-{attack_loss}攻击。"
+					},
+					"faction": "shu"
+				},
+				"roseleaf_wall": {
+					"name": {
+						"en": "Spiked Barricade",
+						"zh_CN": "拒马"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "wu"
+				},
+				"zombie": {
+					"name": {
+						"en": "Ghost Soldier",
+						"zh_CN": "阴兵"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "兵卒：{attack}攻击，{armor}护甲，{health}体力。"
+					},
+					"faction": "qun"
 				}
 			},
 			"presets": {
@@ -614,6 +1783,56 @@
 					"description": {
 						"en": "Sima Yi and Lü Bu threaten heroes. Use cross-lane damage, removal and board clears to control combat.",
 						"zh_CN": "司马懿与吕布专克武将。以跨路伤害、处斩与清场掌控战局。"
+					}
+				},
+				"sun_liu_alliance": {
+					"name": {
+						"en": "Sun–Liu Alliance",
+						"zh_CN": "孙刘联盟"
+					},
+					"description": {
+						"en": "Liu Bei, Zhuge Liang and Sun Shangxiang stand with Lu Su and Huang Gai: forts and stratagems hold the line while fire ships and seasoned troops break it.",
+						"zh_CN": "刘备、诸葛亮、孙尚香联手鲁肃、黄盖：以城防与计谋固守，以火船与百战之兵破敌。"
+					}
+				},
+				"northern_expedition": {
+					"name": {
+						"en": "Northern Expedition",
+						"zh_CN": "北伐中原"
+					},
+					"description": {
+						"en": "Zhao Yun, Wei Yan and Jiang Wei march north, shredding armour and striking back, while Cao Cao's and Sima Yi's schemes direct the fighting.",
+						"zh_CN": "赵云、魏延、姜维挥师北上，破甲反击；曹操与司马懿的谋略调度战局。"
+					}
+				},
+				"gathering_of_champions": {
+					"name": {
+						"en": "A Gathering of Champions",
+						"zh_CN": "名将云集"
+					},
+					"description": {
+						"en": "Ma Chao duels, Huang Zhong and Pang Tong hold the line, Huang Yueying's wooden beasts sap the enemy and Lü Bu cuts down their generals.",
+						"zh_CN": "马超单挑，黄忠与庞统坐镇，黄月英的木兽削弱敌军，吕布斩将夺旗。"
+					}
+				},
+				"ruxu_standoff": {
+					"name": {
+						"en": "Standoff at Ruxu",
+						"zh_CN": "濡须对峙"
+					},
+					"description": {
+						"en": "Lu Xun, Da Qiao and Taishi Ci fortify the river and shift troops between lanes; Cao Cao's and Sima Yi's stratagems strike from afar.",
+						"zh_CN": "陆逊、大乔、太史慈筑坞固守、调兵遣将；曹操与司马懿的谋略远程制敌。"
+					}
+				},
+				"little_conqueror": {
+					"name": {
+						"en": "The Little Conqueror",
+						"zh_CN": "小霸王"
+					},
+					"description": {
+						"en": "Sun Ce sweeps Jiangdong with Zhou Tai on guard and Xiao Qiao's care, while Jia Xu and Lü Bu cut down rival heroes.",
+						"zh_CN": "孙策横扫江东，周泰护驾、小乔照拂；贾诩与吕布斩除敌将。"
 					}
 				}
 			}
@@ -1039,6 +2258,1080 @@
 					"text": {
 						"en": "Silence a unit for this round."
 					}
+				},
+				"beastmaster": {
+					"name": {
+						"en": "Beastmaster",
+						"zh_CN": "兽王"
+					},
+					"text": {
+						"en": "Call of the Wild: Summon a Loyal Beast. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "野性呼唤：召唤一头忠诚野兽。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Call of the Wild",
+						"zh_CN": "野性呼唤"
+					}
+				},
+				"bristleback": {
+					"name": {
+						"en": "Bristleback",
+						"zh_CN": "钢背兽"
+					},
+					"text": {
+						"en": "Barroom Brawler: Modify Bristleback with +{brawler_armor} Armor after a hero blocking it dies.",
+						"zh_CN": "酒馆醉拳：当阻挡其前的英雄死亡后，修改钢背兽，使其+{brawler_armor}护甲。"
+					},
+					"ability_name": {
+						"en": "Barroom Brawler",
+						"zh_CN": "酒馆醉拳"
+					}
+				},
+				"centaur_warrunner": {
+					"name": {
+						"en": "Centaur Warrunner",
+						"zh_CN": "半人马战行者"
+					},
+					"text": {
+						"en": "Return: Centaur Warrunner has +{retaliate} Retaliate.",
+						"zh_CN": "反击：半人马战行者+{retaliate}反伤。"
+					},
+					"ability_name": {
+						"en": "Return",
+						"zh_CN": "反击"
+					}
+				},
+				"legion_commander": {
+					"name": {
+						"en": "Legion Commander",
+						"zh_CN": "军团指挥官"
+					},
+					"text": {
+						"en": "Moment of Courage: Legion Commander has +{retaliate} Retaliate.",
+						"zh_CN": "勇气之霎：军团指挥官+{retaliate}反伤。"
+					},
+					"ability_name": {
+						"en": "Moment of Courage",
+						"zh_CN": "勇气之霎"
+					}
+				},
+				"mazzie": {
+					"name": {
+						"en": "Mazzie",
+						"zh_CN": "梅兹"
+					},
+					"text": {
+						"en": "Mazzie has no active or passive ability.",
+						"zh_CN": "梅兹没有主动或被动技能。"
+					}
+				},
+				"pugna": {
+					"name": {
+						"en": "Pugna",
+						"zh_CN": "帕格纳"
+					},
+					"text": {
+						"en": "Nether Blast: Condemn a random enemy improvement. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "幽冥爆轰：惩处一个随机敌方强化。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Nether Blast",
+						"zh_CN": "幽冥爆轰"
+					}
+				},
+				"sven": {
+					"name": {
+						"en": "Sven",
+						"zh_CN": "斯温"
+					},
+					"text": {
+						"en": "Great Cleave: Sven has +X Cleave where X is equal to half its Attack.",
+						"zh_CN": "巨力挥舞：斯温+X顺势，X为其攻击的一半。"
+					},
+					"ability_name": {
+						"en": "Great Cleave",
+						"zh_CN": "巨力挥舞"
+					}
+				},
+				"tidehunter": {
+					"name": {
+						"en": "Tidehunter",
+						"zh_CN": "潮汐猎人"
+					},
+					"text": {
+						"en": "Ravage: Stun Tidehunter's enemy neighbors this round and each other enemy has a {chance}% chance of being stunned this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "毁灭：在本回合晕眩潮汐猎人的敌方近邻，其他敌人也有{chance}%几率被晕眩。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Ravage",
+						"zh_CN": "毁灭"
+					}
+				},
+				"timbersaw": {
+					"name": {
+						"en": "Timbersaw",
+						"zh_CN": "伐木机"
+					},
+					"text": {
+						"en": "Reactive Armor: Timbersaw has +{armor_per_attacker} Armor for each of its attackers. Timbersaw's attackers have -{attacker_armor_loss} Armor.",
+						"zh_CN": "活性护甲：每有一个攻击者，伐木机便+{armor_per_attacker}护甲。伐木机的攻击者-{attacker_armor_loss}护甲。"
+					},
+					"ability_name": {
+						"en": "Reactive Armor",
+						"zh_CN": "活性护甲"
+					}
+				},
+				"ursa": {
+					"name": {
+						"en": "Ursa",
+						"zh_CN": "熊战士"
+					},
+					"text": {
+						"en": "Fury Swipes: When Ursa deals battle damage to a unit, modify that unit with -{armor_loss} Armor.",
+						"zh_CN": "怒意狂击：当熊战士对一个单位造成战斗伤害时，修改该单位，使其-{armor_loss}护甲。"
+					},
+					"ability_name": {
+						"en": "Fury Swipes",
+						"zh_CN": "怒意狂击"
+					}
+				},
+				"abaddon": {
+					"name": {
+						"en": "Abaddon",
+						"zh_CN": "亚巴顿"
+					},
+					"text": {
+						"en": "Borrowed Time: Fully heal Abaddon and give it Damage Immunity this round. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "回光返照：完整治疗亚巴顿，并使其在本回合获得伤害免疫。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Borrowed Time",
+						"zh_CN": "回光返照"
+					}
+				},
+				"chen": {
+					"name": {
+						"en": "Chen",
+						"zh_CN": "陈"
+					},
+					"text": {
+						"en": "Holy Persuasion: Get control of an enemy creep. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "神圣劝化：控制一名敌方小兵。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Holy Persuasion",
+						"zh_CN": "神圣劝化"
+					}
+				},
+				"dark_seer": {
+					"name": {
+						"en": "Dark Seer",
+						"zh_CN": "黑暗贤者"
+					},
+					"text": {
+						"en": "Surge: Move another ally to another lane. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "奔腾：将另一个友方单位移至另一条兵线。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Surge",
+						"zh_CN": "奔腾"
+					}
+				},
+				"enchantress": {
+					"name": {
+						"en": "Enchantress",
+						"zh_CN": "魅惑魔女"
+					},
+					"text": {
+						"en": "Nature's Attendants: Enchantress has +{regeneration} Regeneration. Enchantress's allied neighbors have +{regeneration} Regeneration.",
+						"zh_CN": "自然之助：魅惑魔女+{regeneration}恢复。魅惑魔女的友方近邻+{regeneration}恢复。"
+					},
+					"ability_name": {
+						"en": "Nature's Attendants",
+						"zh_CN": "自然之助"
+					}
+				},
+				"magnus": {
+					"name": {
+						"en": "Magnus",
+						"zh_CN": "马格纳斯"
+					},
+					"text": {
+						"en": "Magnus has no active or passive ability.",
+						"zh_CN": "马格纳斯没有主动或被动技能。"
+					}
+				},
+				"omniknight": {
+					"name": {
+						"en": "Omniknight",
+						"zh_CN": "全知骑士"
+					},
+					"text": {
+						"en": "Purification: Heal a unit {amount}. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "洗礼：对一个单位进行{amount}治疗。主动技能，冷却{ability_cooldown}。"
+					},
+					"ability_name": {
+						"en": "Purification",
+						"zh_CN": "洗礼"
+					}
+				},
+				"treant_protector": {
+					"name": {
+						"en": "Treant Protector",
+						"zh_CN": "树精卫士"
+					},
+					"text": {
+						"en": "Branches of Iron: Treant Protector's allied neighbors have +{neighbor_armor} Armor.",
+						"zh_CN": "钢铁树枝：树精卫士的友方近邻+{neighbor_armor}护甲。"
+					},
+					"ability_name": {
+						"en": "Branches of Iron",
+						"zh_CN": "钢铁树枝"
+					}
+				},
+				"viper": {
+					"name": {
+						"en": "Viper",
+						"zh_CN": "冥界亚龙"
+					},
+					"text": {
+						"en": "Corrosive Skin: When a unit deals battle damage to Viper, modify that unit with -{attack_loss} Attack.",
+						"zh_CN": "腐蚀皮肤：当一个单位对冥界亚龙造成战斗伤害时，修改该单位，使其-{attack_loss}攻击。"
+					},
+					"ability_name": {
+						"en": "Corrosive Skin",
+						"zh_CN": "腐蚀皮肤"
+					}
+				},
+				"hellbear_crippler": {
+					"name": {
+						"en": "Hellbear Crippler",
+						"zh_CN": "地狱熊怪摧残者"
+					},
+					"text": {
+						"en": "When Hellbear Crippler deals battle damage to a unit, modify that unit with -{attack_loss} Attack.",
+						"zh_CN": "当地狱熊怪摧残者对一个单位造成战斗伤害时，修改该单位，使其-{attack_loss}攻击。"
+					}
+				},
+				"mercenary_exiles": {
+					"name": {
+						"en": "Mercenary Exiles",
+						"zh_CN": "亡命佣兵"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Spend all your gold. Modify Mercenary Exiles with +X Attack and +X Health where X is half the gold spent.",
+						"zh_CN": "主动{ability_cooldown}：消耗你所有的金钱。修改亡命佣兵，使其+X攻击和+X生命，X为消耗金钱的一半。"
+					},
+					"ability_name": {
+						"en": "Mercenary Exiles",
+						"zh_CN": "亡命佣兵"
+					}
+				},
+				"legion_standard_bearer": {
+					"name": {
+						"en": "Legion Standard Bearer",
+						"zh_CN": "军团旗手"
+					},
+					"text": {
+						"en": "Legion Standard Bearer's allied neighbors have +{neighbor_attack} Attack.",
+						"zh_CN": "军团旗手的友方近邻+{neighbor_attack}攻击。"
+					}
+				},
+				"rebel_instigator": {
+					"name": {
+						"en": "Rebel Instigator",
+						"zh_CN": "叛乱煽动者"
+					},
+					"text": {
+						"en": "After the combat phase, if Rebel Instigator dealt battle damage to a creep this round, summon a Rebel Instigator.",
+						"zh_CN": "战斗阶段后，如果叛乱煽动者在本回合对一名小兵造成战斗伤害，召唤一名叛乱煽动者。"
+					}
+				},
+				"smeevil_armsmaster": {
+					"name": {
+						"en": "Smeevil Armsmaster",
+						"zh_CN": "打铁小魔武器大师"
+					},
+					"text": {
+						"en": "Play Effect: Modify a random allied hero with +{hero_attack} Attack.",
+						"zh_CN": "出牌效果：修改一名随机友方英雄，使其+{hero_attack}攻击。"
+					}
+				},
+				"stonehall_elite": {
+					"name": {
+						"en": "Stonehall Elite",
+						"zh_CN": "石堂城精英"
+					},
+					"text": {
+						"en": "Modify Stonehall Elite with +{growth_attack} Attack and +{growth_health} Health after a unit blocking it dies.",
+						"zh_CN": "当阻挡其前的单位死亡后，修改石堂城精英，使其获得+{growth_attack}攻击和+{growth_health}生命。"
+					}
+				},
+				"cursed_satyr": {
+					"name": {
+						"en": "Cursed Satyr",
+						"zh_CN": "被诅咒的萨特"
+					},
+					"text": {
+						"en": "Summon a Zombie for your opponent after the combat phase.",
+						"zh_CN": "战斗阶段后，为你的对手召唤一具僵尸。"
+					}
+				},
+				"ogre_corpse_tosser": {
+					"name": {
+						"en": "Ogre Corpse Tosser",
+						"zh_CN": "食人魔投尸手"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to the enemy tower after an allied Melee Creep dies.",
+						"zh_CN": "一名友方近战小兵死亡后，对敌方塔造成{amount}透甲伤害。"
+					}
+				},
+				"red_mist_pillager": {
+					"name": {
+						"en": "Red Mist Pillager",
+						"zh_CN": "红雾掠夺者"
+					},
+					"text": {
+						"en": "After the combat phase, if Red Mist Pillager dealt battle damage to a tower this round, summon a Red Mist Pillager.",
+						"zh_CN": "战斗阶段后，如果红雾掠夺者在本回合对一座塔造成战斗伤害，召唤一名红雾掠夺者。"
+					}
+				},
+				"keenfolk_golem": {
+					"name": {
+						"en": "Keenfolk Golem",
+						"zh_CN": "基恩巨傀儡"
+					},
+					"text": {
+						"en": "Play Effect: Discard your hand.",
+						"zh_CN": "出牌效果：舍弃你的手牌。"
+					}
+				},
+				"marrowfell_brawler": {
+					"name": {
+						"en": "Marrowfell Brawler",
+						"zh_CN": "断骨格斗士"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "小兵：{attack}攻击，{armor}护甲，{health}生命。"
+					}
+				},
+				"double_edge": {
+					"name": {
+						"en": "Double Edge",
+						"zh_CN": "双刃剑"
+					},
+					"text": {
+						"en": "Give a red hero +{attack} Attack and {armor} Armor this round.",
+						"zh_CN": "在本回合使一名红色英雄+{attack}攻击和{armor}护甲。"
+					}
+				},
+				"fight_through_the_pain": {
+					"name": {
+						"en": "Fight Through the Pain",
+						"zh_CN": "忍痛奋战"
+					},
+					"text": {
+						"en": "Give a red hero +{armor} Armor this round. Get initiative.",
+						"zh_CN": "在本回合使一名红色英雄+{armor}护甲。获得先手。"
+					}
+				},
+				"kraken_shell": {
+					"name": {
+						"en": "Kraken Shell",
+						"zh_CN": "海妖外壳"
+					},
+					"text": {
+						"en": "Modify a red hero with +{armor} Armor. Get initiative.",
+						"zh_CN": "修改一名红色英雄，使其+{armor}护甲。获得先手。"
+					}
+				},
+				"new_orders": {
+					"name": {
+						"en": "New Orders",
+						"zh_CN": "新命令"
+					},
+					"text": {
+						"en": "Choose an ally. Choose a combat target for it.",
+						"zh_CN": "选择一个友方单位，为其选择一个战斗目标。"
+					}
+				},
+				"poised_to_strike": {
+					"name": {
+						"en": "Poised to Strike",
+						"zh_CN": "如箭在弦"
+					},
+					"text": {
+						"en": "Give a red hero +{attack} Attack this round.",
+						"zh_CN": "在本回合使一名红色英雄+{attack}攻击。"
+					}
+				},
+				"duel": {
+					"name": {
+						"en": "Duel",
+						"zh_CN": "决斗"
+					},
+					"text": {
+						"en": "Choose an allied red hero and another unit. They battle each other.",
+						"zh_CN": "选择一名友方红色英雄和另一个单位，让双方战斗。"
+					}
+				},
+				"heroic_resolve": {
+					"name": {
+						"en": "Heroic Resolve",
+						"zh_CN": "英勇意志"
+					},
+					"text": {
+						"en": "Modify a red hero with \"After you play a non-item card costing 2 or less, modify this hero with +{amount} Health.\"",
+						"zh_CN": "修改一名红色英雄，使其获得“每打出一张魔力消耗不超过2的非物品卡后，修改此英雄，使其+{amount}生命”。"
+					},
+					"grants": [
+						{
+							"en": "After you play a non-item card costing 2 or less, modify this hero with +{amount} Health.",
+							"zh_CN": "每打出一张魔力消耗不超过2的非物品卡后，修改此英雄，使其+{amount}生命。"
+						}
+					]
+				},
+				"pick_a_fight": {
+					"name": {
+						"en": "Pick a Fight",
+						"zh_CN": "惹是生非"
+					},
+					"text": {
+						"en": "Choose an allied hero. It taunts. Choose a combat target for it.",
+						"zh_CN": "选择一名友方英雄，使其嘲讽，为其选择一个战斗目标。"
+					}
+				},
+				"rising_anger": {
+					"name": {
+						"en": "Rising Anger",
+						"zh_CN": "怒火高涨"
+					},
+					"text": {
+						"en": "Modify a red hero with \"After you play a non-item card costing 2 or less, modify this hero with +{amount} Attack.\"",
+						"zh_CN": "修改一名红色英雄，使其获得“每打出一张魔力消耗不超过2的非物品卡后，修改此英雄，使其+{amount}攻击”。"
+					},
+					"grants": [
+						{
+							"en": "After you play a non-item card costing 2 or less, modify this hero with +{amount} Attack.",
+							"zh_CN": "每打出一张魔力消耗不超过2的非物品卡后，修改此英雄，使其+{amount}攻击。"
+						}
+					]
+				},
+				"whirling_death": {
+					"name": {
+						"en": "Whirling Death",
+						"zh_CN": "死亡回旋"
+					},
+					"text": {
+						"en": "Choose an allied red hero. Deal {amount} damage to its enemy neighbors and give them -{attack_loss} Attack this round.",
+						"zh_CN": "选择一名友方红色英雄，在本回合对其敌方近邻造成{amount}伤害和-{attack_loss}攻击。"
+					}
+				},
+				"rend_armor": {
+					"name": {
+						"en": "Rend Armor",
+						"zh_CN": "撕裂护甲"
+					},
+					"text": {
+						"en": "Modify a unit with -X Armor where X is its Armor.",
+						"zh_CN": "修改一个单位，使其-X护甲，X为其护甲。"
+					}
+				},
+				"smash_their_defenses": {
+					"name": {
+						"en": "Smash Their Defenses!",
+						"zh_CN": "粉碎防御！"
+					},
+					"text": {
+						"en": "Condemn an improvement. Draw a card.",
+						"zh_CN": "惩处一个强化。抽一张牌。"
+					}
+				},
+				"spot_weakness": {
+					"name": {
+						"en": "Spot Weakness",
+						"zh_CN": "洞察弱点"
+					},
+					"text": {
+						"en": "Give a hero and its allied neighbors Pierce this round. Draw a card.",
+						"zh_CN": "在本回合使一名英雄及其友方近邻获得透甲。抽一张牌。"
+					}
+				},
+				"clear_the_deck": {
+					"name": {
+						"en": "Clear the Deck",
+						"zh_CN": "一扫而空"
+					},
+					"text": {
+						"en": "Give allied heroes +{cleave} Cleave this round.",
+						"zh_CN": "在本回合使所有友方英雄+{cleave}顺势。"
+					}
+				},
+				"crippling_blow": {
+					"name": {
+						"en": "Crippling Blow",
+						"zh_CN": "致残重击"
+					},
+					"text": {
+						"en": "Modify a hero with {attack} Attack.",
+						"zh_CN": "修改一名英雄，使其{attack}攻击。"
+					}
+				},
+				"enrage": {
+					"name": {
+						"en": "Enrage",
+						"zh_CN": "激怒"
+					},
+					"text": {
+						"en": "Give a red hero +{attack} Attack and +{armor} Armor this round.",
+						"zh_CN": "在本回合使一名红色英雄+{attack}攻击和+{armor}护甲。"
+					}
+				},
+				"sucker_punch": {
+					"name": {
+						"en": "Sucker Punch",
+						"zh_CN": "冷不胜防"
+					},
+					"text": {
+						"en": "Stun a unit blocking an allied red hero this round. Deal {amount} damage to that unit.",
+						"zh_CN": "在本回合晕眩一个阻挡友方红色英雄的单位，并对该单位造成{amount}伤害。"
+					}
+				},
+				"tresdins_standards": {
+					"name": {
+						"en": "Tresdin's Standards",
+						"zh_CN": "特蕾丝汀的战旗"
+					},
+					"text": {
+						"en": "Modify a red hero with \"After you play a red card, give this hero and its allied neighbors +{attack} Attack and +{armor} Armor this round.\"",
+						"zh_CN": "修改一名红色英雄，使其获得“打出一张红色卡牌后，在本回合此英雄及其友方近邻+{attack}攻击和+{armor}护甲”。"
+					},
+					"grants": [
+						{
+							"en": "After you play a red card, give this hero and its allied neighbors +{attack} Attack and +{armor} Armor this round.",
+							"zh_CN": "打出一张红色卡牌后，在本回合此英雄及其友方近邻+{attack}攻击和+{armor}护甲。"
+						}
+					]
+				},
+				"viscous_nasal_goo": {
+					"name": {
+						"en": "Viscous Nasal Goo",
+						"zh_CN": "粘稠鼻液"
+					},
+					"text": {
+						"en": "Modify a unit with -{armor_loss} Armor.",
+						"zh_CN": "修改一个单位，使其-{armor_loss}护甲。"
+					}
+				},
+				"enough_magic": {
+					"name": {
+						"en": "Enough Magic!",
+						"zh_CN": "废话少说！"
+					},
+					"text": {
+						"en": "Proceed to the combat phase.",
+						"zh_CN": "直接进入战斗阶段。"
+					}
+				},
+				"raze": {
+					"name": {
+						"en": "Raze",
+						"zh_CN": "全面拆除"
+					},
+					"text": {
+						"en": "Condemn all enemy improvements.",
+						"zh_CN": "惩处所有敌方强化。"
+					}
+				},
+				"gods_strength": {
+					"name": {
+						"en": "God's Strength",
+						"zh_CN": "神之力量"
+					},
+					"text": {
+						"en": "Modify a red hero with +{attack} Attack.",
+						"zh_CN": "修改一名红色英雄，使其+{attack}攻击。"
+					}
+				},
+				"routed": {
+					"name": {
+						"en": "Routed",
+						"zh_CN": "一败涂地"
+					},
+					"text": {
+						"en": "Modify enemy heroes at the Fountain with -X Attack where X is half their Attack. Modify them with \"Your tower has -{mana_loss} Mana.\"",
+						"zh_CN": "修改所有在泉水的敌方英雄，使其-X攻击，X为其攻击的一半。修改该些敌方英雄，使其获得“你的塔-{mana_loss}魔力”。"
+					},
+					"grants": [
+						{
+							"en": "Your tower has -{mana_loss} Mana.",
+							"zh_CN": "你的塔-{mana_loss}魔力。"
+						}
+					]
+				},
+				"primal_roar": {
+					"name": {
+						"en": "Primal Roar",
+						"zh_CN": "原始咆哮"
+					},
+					"text": {
+						"en": "Stun a unit blocking an allied red hero this round. Move that unit's allied neighbors to random other lanes.",
+						"zh_CN": "在本回合晕眩一个阻挡友方红色英雄的单位，将该单位的友方近邻移至其他随机兵线。"
+					}
+				},
+				"spring_the_trap": {
+					"name": {
+						"en": "Spring the Trap",
+						"zh_CN": "触发陷阱"
+					},
+					"text": {
+						"en": "Summon two Centaur Hunters into any lane.",
+						"zh_CN": "召唤两名半人马猎手至任意兵线。"
+					}
+				},
+				"time_of_triumph": {
+					"name": {
+						"en": "Time of Triumph",
+						"zh_CN": "胜利时刻"
+					},
+					"text": {
+						"en": "Modify allied heroes with +{amount} Attack, +{amount} Armor, +{amount} Health, +{amount} Cleave, +{amount} Retaliate, and +{amount} Siege.",
+						"zh_CN": "修改友方英雄，使其+{amount}攻击、+{amount}护甲、+{amount}生命、+{amount}顺势、+{amount}反伤和+{amount}攻城。"
+					}
+				},
+				"nether_ward": {
+					"name": {
+						"en": "Nether Ward",
+						"zh_CN": "幽冥守卫"
+					},
+					"text": {
+						"en": "After opponent plays a spell, deal {amount} damage to the enemy tower.",
+						"zh_CN": "对手打出一张法术后，对敌方塔造成{amount}伤害。"
+					}
+				},
+				"steel_reinforcement": {
+					"name": {
+						"en": "Steel Reinforcement",
+						"zh_CN": "铜墙铁壁"
+					},
+					"text": {
+						"en": "Your tower has +{tower_armor} Armor.",
+						"zh_CN": "你的塔+{tower_armor}护甲。"
+					}
+				},
+				"vhoul_martyr": {
+					"name": {
+						"en": "Vhoul Martyr",
+						"zh_CN": "豺狼人殉道者"
+					},
+					"text": {
+						"en": "Death Effect: Modify allies with +{death_attack} Attack and +{death_health} Health.",
+						"zh_CN": "死亡效果：修改友方单位，使其+{death_attack}攻击和+{death_health}生命。"
+					}
+				},
+				"rebel_decoy": {
+					"name": {
+						"en": "Rebel Decoy",
+						"zh_CN": "叛军诱饵"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Swap Rebel Decoy with another ally.",
+						"zh_CN": "主动{ability_cooldown}：将叛军诱饵与另一个友方单位互换位置。"
+					},
+					"ability_name": {
+						"en": "Rebel Decoy",
+						"zh_CN": "叛军诱饵"
+					}
+				},
+				"rampaging_hellbear": {
+					"name": {
+						"en": "Rampaging Hellbear",
+						"zh_CN": "暴走地狱熊怪"
+					},
+					"text": {
+						"en": "Modify Rampaging Hellbear with +{combat_growth_attack} Attack after the combat phase.",
+						"zh_CN": "战斗阶段后，修改暴走地狱熊怪，使其+{combat_growth_attack}攻击。"
+					}
+				},
+				"roseleaf_druid": {
+					"name": {
+						"en": "Roseleaf Druid",
+						"zh_CN": "玫叶德鲁伊"
+					},
+					"text": {
+						"en": "Your tower has +{amount} Mana.",
+						"zh_CN": "你的塔+{amount}魔力。"
+					}
+				},
+				"satyr_duelist": {
+					"name": {
+						"en": "Satyr Duelist",
+						"zh_CN": "萨特决斗家"
+					},
+					"text": {
+						"en": "Modify Satyr Duelist with +{combat_growth_attack} Attack after the combat phase.",
+						"zh_CN": "战斗阶段后，修改萨特决斗家，使其+{combat_growth_attack}攻击。"
+					}
+				},
+				"selfish_cleric": {
+					"name": {
+						"en": "Selfish Cleric",
+						"zh_CN": "自私教士"
+					},
+					"text": {
+						"en": "Fully heal Selfish Cleric after the combat phase.",
+						"zh_CN": "战斗阶段后，完整治疗自私教士。"
+					}
+				},
+				"smeevil_blacksmith": {
+					"name": {
+						"en": "Smeevil Blacksmith",
+						"zh_CN": "打铁小魔铁匠"
+					},
+					"text": {
+						"en": "Play Effect: Modify a random allied hero with +{hero_armor} Armor.",
+						"zh_CN": "出牌效果：修改一名随机友方英雄，使其+{hero_armor}护甲。"
+					}
+				},
+				"revtel_convoy": {
+					"name": {
+						"en": "Revtel Convoy",
+						"zh_CN": "瑞文泰尔护卫队"
+					},
+					"text": {
+						"en": "Revtel Convoy has +X Attack where X is equal to half your gold.",
+						"zh_CN": "瑞文泰尔护卫队+X攻击，X为你持有金钱的一半。"
+					}
+				},
+				"champion_of_the_ancient": {
+					"name": {
+						"en": "Champion of the Ancient",
+						"zh_CN": "遗迹卫士"
+					},
+					"text": {
+						"en": "Play Effect: Modify Champion of the Ancient with +{per_enemy_attack} Attack, +{per_enemy_health} Health, and +{per_enemy_cleave} Cleave for each enemy.",
+						"zh_CN": "出牌效果：每有一个敌人，修改遗迹卫士，使其+{per_enemy_attack}攻击、+{per_enemy_health}生命和+{per_enemy_cleave}顺势。"
+					}
+				},
+				"roseleaf_rejuvenator": {
+					"name": {
+						"en": "Roseleaf Rejuvenator",
+						"zh_CN": "玫叶神医"
+					},
+					"text": {
+						"en": "Play Effect: Heal your tower {amount}.",
+						"zh_CN": "出牌效果：对你的塔进行{amount}治疗。"
+					}
+				},
+				"emissary_of_the_quorum": {
+					"name": {
+						"en": "Emissary of the Quorum",
+						"zh_CN": "评议团密使"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Modify allies with +{modify_attack} Attack and +{modify_health} Health.",
+						"zh_CN": "主动{ability_cooldown}：修改友方单位，使其+{modify_attack}攻击和+{modify_health}生命。"
+					},
+					"ability_name": {
+						"en": "Emissary of the Quorum",
+						"zh_CN": "评议团密使"
+					}
+				},
+				"thunderhide_alpha": {
+					"name": {
+						"en": "Thunderhide Alpha",
+						"zh_CN": "雷肤兽领袖"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "小兵：{attack}攻击，{armor}护甲，{health}生命。"
+					}
+				},
+				"juke": {
+					"name": {
+						"en": "Juke",
+						"zh_CN": "绕树"
+					},
+					"text": {
+						"en": "Swap an ally with one of its allied neighbors.",
+						"zh_CN": "将一个友方单位与其友方近邻互换位置。"
+					}
+				},
+				"aphotic_shield": {
+					"name": {
+						"en": "Aphotic Shield",
+						"zh_CN": "无光之盾"
+					},
+					"text": {
+						"en": "Purge your opponent's effects from a unit. Give that unit +{armor} Armor and +{retaliate} Retaliate this round.",
+						"zh_CN": "净化一个单位上的所有对手效果。在本回合使该单位+{armor}护甲和+{retaliate}反伤。"
+					}
+				},
+				"bellow": {
+					"name": {
+						"en": "Bellow",
+						"zh_CN": "喝斥"
+					},
+					"text": {
+						"en": "Move a creep to a random other lane.",
+						"zh_CN": "将一名小兵移至另一条随机兵线。"
+					}
+				},
+				"defend_the_weak": {
+					"name": {
+						"en": "Defend the Weak",
+						"zh_CN": "捍卫弱者"
+					},
+					"text": {
+						"en": "Modify a unit with \"This unit's allied neighbors have +{armor} Armor.\"",
+						"zh_CN": "修改一个单位，使其获得“此单位的友方近邻+{armor}护甲”。"
+					},
+					"grants": [
+						{
+							"en": "This unit's allied neighbors have +{armor} Armor.",
+							"zh_CN": "此单位的友方近邻+{armor}护甲"
+						}
+					]
+				},
+				"iron_branch_protection": {
+					"name": {
+						"en": "Iron Branch Protection",
+						"zh_CN": "铁树枝干守护"
+					},
+					"text": {
+						"en": "Give a unit in any lane +{armor} Armor until end of its next combat phase.",
+						"zh_CN": "使任意兵线上的一个单位+{armor}护甲，直至其下个战斗阶段结束为止。"
+					}
+				},
+				"rumusque_blessing": {
+					"name": {
+						"en": "Rumusque Blessing",
+						"zh_CN": "鲁姆斯克的祝福"
+					},
+					"text": {
+						"en": "Choose a lane. Modify allies in that lane with +{health} Health.",
+						"zh_CN": "选择一条兵线，修改此兵线上的友方单位，使其+{health}生命。"
+					}
+				},
+				"viper_strike": {
+					"name": {
+						"en": "Viper Strike",
+						"zh_CN": "蝮蛇突袭"
+					},
+					"text": {
+						"en": "Give a unit \"Deal {amount} piercing damage to this unit before the action phase\" until it dies.",
+						"zh_CN": "施加于一个单位，使其获得“行动阶段前，对此单位造成{amount}透甲伤害”，直至其死亡为止。"
+					},
+					"grants": [
+						{
+							"en": "Deal {amount} piercing damage to this unit before the action phase.",
+							"zh_CN": "行动阶段前，对此单位造成{amount}透甲伤害。"
+						}
+					]
+				},
+				"allseeing_ones_favor": {
+					"name": {
+						"en": "Allseeing One's Favor",
+						"zh_CN": "全视者恩泽"
+					},
+					"text": {
+						"en": "Modify a green hero with \"Allies have +{regeneration} Regeneration.\"",
+						"zh_CN": "修改一名绿色英雄，使其获得“友方单位+{regeneration}恢复”。"
+					},
+					"grants": [
+						{
+							"en": "Allies have +{regeneration} Regeneration.",
+							"zh_CN": "友方单位+{regeneration}恢复。"
+						}
+					]
+				},
+				"caught_unprepared": {
+					"name": {
+						"en": "Caught Unprepared",
+						"zh_CN": "攻其不备"
+					},
+					"text": {
+						"en": "Stun a hero until they equip an item.",
+						"zh_CN": "晕眩一名英雄，直至其装备一件物品为止。"
+					}
+				},
+				"cleansing_rite": {
+					"name": {
+						"en": "Cleansing Rite",
+						"zh_CN": "净化仪式"
+					},
+					"text": {
+						"en": "Purge your opponent's effects from a hero.",
+						"zh_CN": "净化一名英雄上的所有对手效果。"
+					}
+				},
+				"defensive_bloom": {
+					"name": {
+						"en": "Defensive Bloom",
+						"zh_CN": "绽放防御"
+					},
+					"text": {
+						"en": "Summon two Roseleaf Walls.",
+						"zh_CN": "召唤两道玫叶墙。"
+					}
+				},
+				"empower": {
+					"name": {
+						"en": "Empower",
+						"zh_CN": "授予力量"
+					},
+					"text": {
+						"en": "Modify a unit with +{attack} Attack and +{cleave} Cleave.",
+						"zh_CN": "修改一个单位，使其+{attack}攻击和+{cleave}顺势。"
+					}
+				},
+				"ion_shell": {
+					"name": {
+						"en": "Ion Shell",
+						"zh_CN": "离子外壳"
+					},
+					"text": {
+						"en": "Modify a unit with +{retaliate} Retaliate.",
+						"zh_CN": "修改一个单位，使其+{retaliate}反伤。"
+					}
+				},
+				"restoration_effort": {
+					"name": {
+						"en": "Restoration Effort",
+						"zh_CN": "妙手回春"
+					},
+					"text": {
+						"en": "Heal your tower {amount}.",
+						"zh_CN": "对你的塔进行{amount}治疗。"
+					}
+				},
+				"soul_of_spring": {
+					"name": {
+						"en": "Soul of Spring",
+						"zh_CN": "回春之魂"
+					},
+					"text": {
+						"en": "Modify a hero with \"After you play a green card, give this hero and its allied neighbors +{regeneration} Regeneration this round.\"",
+						"zh_CN": "修改一名英雄，使其获得“打出一张绿色卡牌后，在本回合此英雄及其友方近邻+{regeneration}恢复”。"
+					},
+					"grants": [
+						{
+							"en": "After you play a green card, give this hero and its allied neighbors +{regeneration} Regeneration this round.",
+							"zh_CN": "打出一张绿色卡牌后，在本回合此英雄及其友方近邻+{regeneration}恢复"
+						}
+					]
+				},
+				"steal_strength": {
+					"name": {
+						"en": "Steal Strength",
+						"zh_CN": "窃取力量"
+					},
+					"text": {
+						"en": "Give a unit {attack_loss} Attack this round and give another unit +{attack} Attack this round.",
+						"zh_CN": "在本回合使一个单位{attack_loss}攻击，另一个单位+{attack}攻击。"
+					}
+				},
+				"corrosive_mist": {
+					"name": {
+						"en": "Corrosive Mist",
+						"zh_CN": "腐蚀迷雾"
+					},
+					"text": {
+						"en": "Condemn all equipped items.",
+						"zh_CN": "惩处所有已装备的物品。"
+					}
+				},
+				"divine_intervention": {
+					"name": {
+						"en": "Divine Intervention",
+						"zh_CN": "神圣干预"
+					},
+					"text": {
+						"en": "Give allies Damage Immunity this round.",
+						"zh_CN": "在本回合使友方单位获得伤害免疫。"
+					}
+				},
+				"intimidation": {
+					"name": {
+						"en": "Intimidation",
+						"zh_CN": "恫吓"
+					},
+					"text": {
+						"en": "Move a unit to a random other lane.",
+						"zh_CN": "将一个单位移至另一条随机兵线。"
+					}
+				},
+				"curse_of_atrophy": {
+					"name": {
+						"en": "Curse of Atrophy",
+						"zh_CN": "衰退诅咒"
+					},
+					"text": {
+						"en": "Modify enemy heroes with {attack} Attack.",
+						"zh_CN": "修改敌方英雄，使其{attack}攻击。"
+					}
+				},
+				"divine_purpose": {
+					"name": {
+						"en": "Divine Purpose",
+						"zh_CN": "神圣旨意"
+					},
+					"text": {
+						"en": "Modify a unit with Damage Immunity.",
+						"zh_CN": "修改一个单位，使其获得伤害免疫。"
+					}
+				},
+				"hand_of_god": {
+					"name": {
+						"en": "Hand of God",
+						"zh_CN": "上帝之手"
+					},
+					"text": {
+						"en": "Fully heal each ally. Give allies Damage Immunity this round.",
+						"zh_CN": "完整治疗所有友方单位，在本回合使其获得伤害免疫。"
+					}
+				},
+				"verdant_refuge": {
+					"name": {
+						"en": "Verdant Refuge",
+						"zh_CN": "青翠庇护"
+					},
+					"text": {
+						"en": "Allies have +{ally_armor} Armor.",
+						"zh_CN": "友方单位+{ally_armor}护甲。"
+					}
+				},
+				"loyal_beast": {
+					"name": {
+						"en": "Loyal Beast",
+						"zh_CN": "忠诚野兽"
+					},
+					"text": {
+						"en": "When Loyal Beast deals battle damage to a unit, modify that unit with -{attack_loss} Attack.",
+						"zh_CN": "当忠诚野兽对一个单位造成战斗伤害时，修改该单位，使其-{attack_loss}攻击。"
+					}
+				},
+				"roseleaf_wall": {
+					"name": {
+						"en": "Roseleaf Wall",
+						"zh_CN": "玫叶墙"
+					},
+					"text": {
+						"en": "Creep: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "小兵：{attack}攻击，{armor}护甲，{health}体力。"
+					}
+				},
+				"zombie": {
+					"name": {
+						"en": "Zombie",
+						"zh_CN": "僵尸"
+					},
+					"text": {
+						"en": "Zombie: {attack} attack, {armor} armor, {health} health.",
+						"zh_CN": "僵尸：{attack}攻击，{armor}护甲，{health}生命。"
+					}
 				}
 			},
 			"presets": {
@@ -1064,6 +3357,56 @@
 					},
 					"description": {
 						"en": "Zeus and Phantom Assassin threaten heroes. Use cross-lane damage, removal and board clears to control combat."
+					}
+				},
+				"sun_liu_alliance": {
+					"name": {
+						"en": "Red / Green Alliance",
+						"zh_CN": "红绿同盟"
+					},
+					"description": {
+						"en": "Sven and Pugna lead Mazzie's improvements, Viper's poison and Chen's converts; creeps that grow after combat back them up.",
+						"zh_CN": "斯温与帕格纳领衔，梅兹的强化、冥界亚龙的剧毒与陈的感化相辅；战后成长的小兵稳步推进。"
+					}
+				},
+				"northern_expedition": {
+					"name": {
+						"en": "Red / Blue Retaliation",
+						"zh_CN": "红蓝反击"
+					},
+					"description": {
+						"en": "Timbersaw, Ursa and Centaur Warrunner strip armor and punish attackers; Zeus and J'Muy add burn, card draw and redirection.",
+						"zh_CN": "伐木机、熊战士与半人马战行者削甲反击；宙斯与睿智的姆伊提供灼烧、抽牌与调度。"
+					}
+				},
+				"gathering_of_champions": {
+					"name": {
+						"en": "Red / Black Champions",
+						"zh_CN": "红黑勇士"
+					},
+					"description": {
+						"en": "Legion Commander duels, Bristleback and Tidehunter hold the lane, Beastmaster's beasts weaken blockers and Phantom Assassin finishes heroes.",
+						"zh_CN": "军团指挥官决斗，钢背兽与潮汐猎人坐镇，兽王的野兽削弱阻挡者，幻影刺客收割英雄。"
+					}
+				},
+				"ruxu_standoff": {
+					"name": {
+						"en": "Green / Blue Fortress",
+						"zh_CN": "绿蓝堡垒"
+					},
+					"description": {
+						"en": "Treant Protector, Enchantress and Dark Seer armor, heal and reposition the board; Zeus and J'Muy control it with spells.",
+						"zh_CN": "树精卫士、魅惑魔女与黑暗贤者为战线加护、治疗并调整站位；宙斯与睿智的姆伊以法术掌控局面。"
+					}
+				},
+				"little_conqueror": {
+					"name": {
+						"en": "Green / Black Conquest",
+						"zh_CN": "绿黑征伐"
+					},
+					"description": {
+						"en": "Magnus, Abaddon and Omniknight empower, shield and heal; Debbi and Phantom Assassin remove the heroes in their way.",
+						"zh_CN": "马格纳斯、亚巴顿与全能骑士强化、护盾并治疗；狡诈的黛比与幻影刺客除掉挡路的英雄。"
 					}
 				}
 			}

@@ -18,6 +18,12 @@ extends SceneTree
 ## (combat strikes with cleave and retaliation); m2_chip_rows (the "+n" chip
 ## hovered open, a cooling chip in front), m2_hand_note and m2_hand_note_zh
 ## (a locked card's note beside the lifted card).
+## M3 (red and green cards, the new presets): m3_lane (a mid-game lane of the
+## Sun-Liu Alliance against A Gathering of Champions, new cards in hand and a
+## Steel Reinforcement by your tower), m3_lane_zh, m3_lane_classic, m3_hand (a
+## new card lifted), m3_hand_zh, m3_inspect (a new hero), m3_inspect_zh,
+## m3_catalog (the catalog filtered to red / Shu), m3_catalog_zh (green / Wu),
+## m3_decks (two of the new presets in the deck dialog) and m3_decks_zh.
 ## Pass --size=1280x720 to check the smaller window.
 
 const MainScene = preload("res://scenes/main.tscn")
@@ -32,6 +38,10 @@ const FIXTURES = "res://tests/fixtures/rules_fixtures.json"
 const M2_SHOTS = ["m2_board", "m2_board_zh", "m2_overview", "m2_stepper_lane", "m2_stepper_position",
 	"m2_stepper_improvement", "m2_item_ability", "m2_inspect", "m2_anim_status", "m2_anim_combat", "m2_chip_rows",
 	"m2_hand_note", "m2_hand_note_zh"]
+const M3_SHOTS = ["m3_lane", "m3_lane_zh", "m3_lane_classic", "m3_hand", "m3_hand_zh", "m3_inspect", "m3_inspect_zh",
+	"m3_catalog", "m3_catalog_zh", "m3_decks", "m3_decks_zh"]
+## New red and green cards for the M3 hand (EFFECT_SYSTEM_SPEC.md Appendix A).
+const M3_HAND = ["duel", "gods_strength", "viper_strike", "hand_of_god", "stonehall_elite", "spring_the_trap", "steel_reinforcement"]
 const OUT = "res://.tools/shots/"
 const SEED = 20482
 
@@ -192,6 +202,7 @@ func _run() -> void:
 	await _capture_game_over()
 	await _capture_hud_fountain()
 	await _capture_m2()
+	await _capture_m3()
 	print("Shots: ", ", ".join(saved))
 	app.queue_free()
 	await process_frame
@@ -621,3 +632,102 @@ func _capture_m2_animations() -> void:
 		await _wait(0.95)
 		await _shot("m2_anim_combat")
 		await _idle()
+
+## M3: a mid-game lane between two of the new presets, with new cards in hand.
+func _capture_m3() -> void:
+	if not M3_SHOTS.any(func(shot): return _wanted(shot)):
+		return
+	var screen = app.screen
+	app.set_locale("en")
+	app.set_skin("three_kingdoms")
+	app.deck_selections = ["sun_liu_alliance", "gathering_of_champions"]
+	app.controller.current_seed = SEED + 23
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	AnimationQueue.instant = true
+	var reached = _advance(_busy_lane, 1500)
+	var engine = app.controller.engine
+	print("M3 state: ", reached, " round ", engine.state.round, " lane ", engine.state.lane)
+	engine.state.players[0].hand = M3_HAND.duplicate()
+	Zones.sync(engine)
+	var lane_index = int(engine.state.lane)
+	if engine.state.lanes[lane_index].get("improvements", [[], []])[0].is_empty():
+		Zones.add_improvement(engine, "steel_reinforcement", 0, lane_index)
+	_publish()
+	await _idle()
+	AnimationQueue.instant = false
+	screen.view_lane(lane_index)
+	_mouse(screen.size * 0.5 + Vector2(0, 40))
+	await _wait(0.8)
+	await _shot("m3_lane")
+	if _wanted("m3_lane_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.3)
+		await _shot("m3_lane_zh")
+		app.set_locale("en")
+		await _wait(0.2)
+	if _wanted("m3_lane_classic"):
+		app.set_skin("classic")
+		await _wait(0.4)
+		await _shot("m3_lane_classic")
+		app.set_skin("three_kingdoms")
+		await _wait(0.3)
+	if _wanted("m3_hand") or _wanted("m3_hand_zh"):
+		_mouse(screen.hand_card_point(1))
+		await _wait(0.9)
+		await _shot("m3_hand")
+		if _wanted("m3_hand_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m3_hand_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.4)
+	if _wanted("m3_inspect") or _wanted("m3_inspect_zh"):
+		var hero_uid = -1
+		for unit in engine.state.lanes[lane_index].units[0] + engine.state.lanes[lane_index].units[1]:
+			if unit != null and unit.hero and Library.has_active(str(unit.card)):
+				hero_uid = int(unit.uid)
+		if hero_uid == -1:
+			for unit in engine.state.lanes[lane_index].units[0]:
+				if unit != null and unit.hero:
+					hero_uid = int(unit.uid)
+		screen.inspect_unit(hero_uid)
+		await _wait(0.5)
+		await _shot("m3_inspect")
+		if _wanted("m3_inspect_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m3_inspect_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		screen.inspect.close()
+		await _wait(0.2)
+	if _wanted("m3_catalog") or _wanted("m3_catalog_zh"):
+		var catalog = app.open_catalog()
+		await _frames(3)
+		catalog.apply_filter("red")
+		await _wait(0.8)
+		await _shot("m3_catalog")
+		if _wanted("m3_catalog_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			catalog.apply_filter("green")
+			await _wait(0.6)
+			await _shot("m3_catalog_zh")
+			app.set_locale("en")
+		app.close_dialogs()
+		await _wait(0.2)
+	if _wanted("m3_decks") or _wanted("m3_decks_zh"):
+		app.deck_selections = ["sun_liu_alliance", "ruxu_standoff"]
+		app.open_decks()
+		await _wait(0.8)
+		await _shot("m3_decks")
+		if _wanted("m3_decks_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			await _shot("m3_decks_zh")
+			app.set_locale("en")
+		app.close_dialogs()
+		await _wait(0.2)

@@ -1,0 +1,15 @@
+{
+"card": "hellbear_crippler",
+"source_id": 10118,
+"text": "When Hellbear Crippler deals battle damage to a unit, modify that unit with -1 Attack.",
+"covers": ["battle_damage_dealt", "modify", "stat_attack", "trigger_subject", "permanent"],
+"cases": [
+ {"name": "When Hellbear Crippler deals battle damage to a unit, modify that unit with -1 Attack", "clause": 0, "tags": ["battle_damage_dealt", "modify", "stat_attack", "trigger_subject"], "board": {"lanes": {"0": {"p0": ["axe#x", "hellbear_crippler#h"], "p1": ["melee_creep#m", "melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"c.health": 1, "c.attack": 1, "h.health": 1, "h.attack": 3, "events": {"has": ["trigger", "mod"]}}},
+ {"name": "a hero it damages keeps the -1 Attack through the Fountain", "clause": 0, "tags": ["trigger_subject", "permanent"], "board": {"lanes": {"0": {"p0": ["axe#x", "hellbear_crippler#h"], "p1": ["melee_creep#m", "jmuy#j"]}}}, "do": [{"combat": true}, {"kill": ["j"]}], "expect": {"j.attack": 2, "j.in_play": false}},
+ {"name": "the -1 Attack applies even when the Crippler dies in the same combat", "clause": 0, "tags": ["edge", "battle_damage_dealt"], "board": {"lanes": {"0": {"p0": ["hellbear_crippler#h"], "p1": ["axe#x"]}}}, "do": [{"combat": true}], "expect": {"h.in_play": false, "x.health": 9, "x.attack": 5}},
+ {"name": "two Cripplers hitting one unit modify it twice", "clause": 0, "tags": ["stat_attack", "permanent"], "board": {"lanes": {"0": {"p0": ["hellbear_crippler#h:arrow=1", "hellbear_crippler#k"], "p1": [null, "axe#x"]}}}, "do": [{"combat": true}], "expect": {"x.attack": 4, "x.health": 8}},
+ {"name": "hitting the tower modifies nothing", "clause": 0, "tags": ["negative", "trigger_subject"], "board": {"lanes": {"0": {"p0": ["hellbear_crippler#h"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 37, "events": {"not": ["mod"]}}},
+ {"name": "rq_32_zero_damage: a hit fully absorbed by Armor does not trigger", "clause": 0, "tags": ["edge", "rq_32", "battle_damage_dealt"], "board": {"lanes": {"0": {"p0": ["hellbear_crippler#h"], "p1": ["axe#x:arm=3"]}}}, "do": [{"combat": true}], "expect": {"x.attack": 6, "events": {"not": ["mod"]}}},
+ {"name": "damage dealt to the Crippler does not trigger it", "clause": 0, "tags": ["negative", "battle_damage_dealt"], "board": {"lanes": {"0": {"p0": ["hellbear_crippler#h:atk=0"], "p1": ["melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"c.attack": 2, "h.health": 1, "events": {"not": ["mod"]}}},
+ {"name": "rq_54_dead_hero_keeps_the_loss: a hero the Crippler kills keeps the -1 Attack in the Fountain", "clause": 0, "tags": ["edge", "trigger_subject", "permanent", "RQ-54"], "board": {"lanes": {"0": {"p0": ["hellbear_crippler#h"], "p1": ["jmuy#j:hp=3"]}}}, "do": [{"combat": true}], "expect": {"j.in_play": false, "j.attack": 2}}
+]}

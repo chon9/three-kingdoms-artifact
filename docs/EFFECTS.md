@@ -77,7 +77,7 @@ Item `attack`, `armor` and `health` become an implicit aura on the equipped hero
 | `$played` | The played card instance (play blocks). |
 | `$self.lane`, `.owner`, `.card`, `.slot`, `.hero`, `.color`, `.uid` | Read-only unit fields. |
 
-A unit that left play during the command resolves to its look-back snapshot: ops on it fizzle, but its lane, neighbors and stats can still be read (Death Effects).
+A unit that left play during the command resolves to its look-back snapshot: ops on it fizzle, but its lane, neighbors and stats can still be read (Death Effects). One exception: a `modify` aimed at a roster hero that died reaches the hero in the Fountain, since heroes keep modifications through death (RQ-54; Viper's Corrosive Skin on a hero that died hitting her).
 
 ### Selectors
 
@@ -139,13 +139,13 @@ Every op ignores objects that are no longer in play; a random pick over an empty
 | `after_combat` | `lane` | — |
 | `deployment` | — | — |
 | `card_played` | `player card kind color cost lane target` | `player kind not_kind color cost_max` |
-| `unit_died`, `death` | the dead unit's snapshot (`uid card owner hero color lane slot neighbors enemy_neighbors target attackers items attack armor max_health kw cause unit`) | `side kind card was` |
+| `unit_died`, `death` | the dead unit's snapshot (`uid card owner hero color lane slot neighbors enemy_neighbors target attackers blocking items attack armor max_health kw cause unit`) | `side kind card was` |
 | `unit_entered` | `unit lane how` | `side how` |
 | `improvement_entered` | `oid card owner lane` | `side` |
 | `battle_damage` | `source target amount lane in_combat part` | `role target_kind source_kind in_combat` |
 | `card_drawn` | `player card` | `player` |
 
-Triggers listen in their source's lane unless `"lane": "any"`. `death` reaches only the dead unit's own abilities (its Death Effect); units dying in the same Pulse do not see each other's deaths (RQ-43).
+Triggers listen in their source's lane unless `"lane": "any"`. `death` reaches only the dead unit's own abilities (its Death Effect); units dying in the same Pulse do not see each other's deaths (RQ-43). In a death snapshot, `attackers` are the enemies aimed at the unit that could attack (RQ-05), and `blocking` every enemy aimed at it, stunned or disarmed ones included: `"was": "blocker"` ("after a unit blocking it dies") reads `blocking`, so a stunned Bristleback still counts as blocked.
 
 ### Keywords and statuses
 
@@ -306,6 +306,12 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
 "play": {"choices": [{"key": "target", "from": {"s": "units", "kind": "hero", "color": "black"}}], "ops": [{"op": "modify", "to": "$c.target", "grant": 0}]}
 ```
 
+**Improvement aura on its lane's allies** (Verdant Refuge; Steel Reinforcement grants `your_tower` armor the same way): an improvement's context lane is the lane it was played into, so `allies` are that lane's.
+```json
+"ally_armor": 1, "cross_lane": true,
+"abilities": [{"id": "refuge", "kind": "aura", "affects": "allies", "grant": {"armor": {"param": "ally_armor"}}}]
+```
+
 **Rules layer** (Shop Deed, draft):
 ```json
 "abilities": [{"id": "deed", "kind": "aura", "affects": "you", "grant": {"rules": {"secret_shop_discount": 1}}}]
@@ -370,7 +376,7 @@ The golden games (`tests/golden/`, data in `tests/data/goldens/`) replay 54 reco
 
 ## Testing tools
 
-- **Card specs** (`tests/cards/<id>.json`, run by `tests/card_specs_test.gd`, spec §13.1). Each case builds a board from a small DSL (`lanes` rows of `"card#label:hp=3:atk=2:arrow=-1:ready=2+item"` entries, `hand`, `deck`, `towers`, `improvements`, `fountain`, `mana`, `gold`, `hand_state`...), runs steps (`play`, `ability`, `pass`, `combat`, `end_round`, `kill`, `draw`) and checks `expect` fields (`<label>.attack`, `<label>.kw.siege`, `<label>.stunned`, `tower`, `p0.hand`, `events` with `has`/`not`, `expect_legal`, `expect_illegal`, `expect_rate`, `expect_private`). The runner also checks the invariants after every step, that two runs give the same digest, that every event formats in both skins and locales, and that rejected commands change nothing. `--card <id>` runs one card.
+- **Card specs** (`tests/cards/<id>.json`, run by `tests/card_specs_test.gd`, spec §13.1). Each case builds a board from a small DSL (`lanes` rows of `"card#label:hp=3:atk=2:arrow=-1:ready=2+item"` entries, `hand`, `deck`, `towers`, `improvements`, `fountain`, `mana`, `gold`, `hand_state`...), runs steps (`play`, with `"as": "<label>"` to name the creep a play puts into the lane; `ability`; `pass`; `combat`; `end_round`, with `"deploy": {"<hero label>": lane}` to deploy heroes from the Fountain; `kill`; `draw`) and checks `expect` fields (`<label>.attack`, `<label>.kw.siege`, `<label>.stunned`, `tower`, `p0.hand`, `units.<lane>.<p>[.<card>]` (a count of units), `events` with `has`/`not`, `expect_legal`, `expect_illegal`, `expect_rate`, `expect_private`). For an assertion the DSL cannot express, `"gd": "res://tests/cards/extra/<id>.gd"` names a RefCounted script whose `check(engine, labels)` returns failure messages (`tests/cards/extra/soul_of_spring.gd` checks the granted text in the log). The runner also checks the invariants after every step, that two runs give the same digest, that every event formats in both skins and locales, and that rejected commands change nothing. `--card <id>` runs one card.
 - **Meta tests** (`tests/rules_schema_test.gd`): every verified Classic card has a spec, its `text` equals `valve_text`, and its `covers` include the card's mechanics tags; `tools/coverage.py` maps Valve's verb and trigger tags to ops and events (`python -I -X utf8 tools/coverage.py` rewrites `tests/data/coverage.json`, `--check` only checks; the schema test compares the table's hash).
 - **The rules fixture pack** (`tests/fixtures/rules_fixtures.json`, loaded with `CardLibrary.from_file(path, "rules_fixtures")`): synthetic `fx_*` cards for every keyword, status, duration, zone op, improvement, item ability, deed and rules-layer grant. It is never in a preset or `PACKS` and is excluded from exports. `tests/mechanics_test.gd` runs the keyword matrix and the RQ cases on it, plus `preview_equals_combat` on 2,000 random boards.
 - **Fuzz** (`tests/fuzz_test.gd`, `--seeds 50` by default, `--nightly` for 2,000): random legal decks over both packs and the fixture pack, the bot against a random agent and itself, invariants after every step, mutated commands, hidden-information swaps, replay round trips and torture boards. Failing journals are saved under `res://.tools/fuzz_failures/`.
@@ -378,9 +384,9 @@ The golden games (`tests/golden/`, data in `tests/data/goldens/`) replay 54 reco
 
 ## In the UI
 
-Nothing per card is needed: actives of units, items and improvements get buttons (the unit badge, the item slot, the improvement chip); every choice step (unit, combat target, lane, position, improvement) is asked for by the generic target stepper; statuses, flags and keywords show as badges; locks, charges and hacks show on cards in hand; every event key animates and logs. A card with granted text needs its `grants` locale entries.
+Nothing per card is needed: actives of units, items and improvements get buttons (the unit badge, the item slot, the improvement chip); every choice step (unit, combat target, lane, position, improvement) is asked for by the generic target stepper; statuses, flags and keywords show as badges; locks, charges and hacks show on cards in hand; every event key animates and logs. A card with granted text needs its `grants` locale entries: the `mod` and `status` events of a grant carry `ab` (`"<card>#<index>"`), and the log quotes that text (`EV_CHANGE_GRANT`).
 
 ## Not yet supported
 
-- The Classic cards themselves beyond the 49 migrated ones: they land in batches (spec §12, M3 to M7) once their mechanics exist, each with its spec.
+- The Classic cards beyond M1's 49 and M3's red and green cards (with three heroes' signature improvements): blue, black, items and the other improvements land in batches (spec §12, M4 to M7) once their mechanics exist, each with its spec.
 - The bot averages random cards over seeds 1 to 3 only from M4.

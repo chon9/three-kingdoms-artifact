@@ -29,8 +29,8 @@ extends RefCounted
 ##   damage             src, p, hits [[uid, n]], pierce
 ##   tower_damage       src, p, hits [[lane, p, n]]
 ##   heal               src, p, hits [[uid, n]] (towers [[lane, p, n]])
-##   mod                id, card | tower, st, kw, perm, src
-##   status             id, card | tower, st, kw, until, src
+##   mod                id, card | tower, st, kw, perm, src [, ab]  (ab = "<card>#<i>": granted text)
+##   status             id, card | tower, st, kw, until, src [, ab]
 ##   purge              id, card, n
 ##   condemn            id, card
 ##   summon             uid, card, p, lane, slot
@@ -252,6 +252,12 @@ static func changes(event: Dictionary) -> String:
 			parts.append(_signed(amount, label))
 		else:
 			parts.append(label if amount > 0 else t("EV_CHANGE_LOSE", {"keyword": label}))
+	# Granted text ("ab": "<card>#<index>"), e.g. Soul of Spring's trigger.
+	var granted = str(event.get("ab", "")).split("#")
+	if granted.size() == 2:
+		var text = Library.loc(granted[0], "grant_" + granted[1])
+		if not text.is_empty():
+			parts.append(t("EV_CHANGE_GRANT", {"text": text.trim_suffix(".").trim_suffix("。")}))
 	return t("LIST_SEPARATOR").join(parts) if not parts.is_empty() else t("WORD_NONE")
 
 ## Display name of a keyword, flag or status (KEYWORD_<NAME> in ui.csv).

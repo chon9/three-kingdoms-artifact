@@ -1,0 +1,13 @@
+{
+"card": "rumusque_blessing",
+"source_id": 10192,
+"text": "Choose a lane. Modify allies in that lane with +3 Health.",
+"covers": ["play", "modify", "stat_health", "all_allies", "lane_choice", "permanent"],
+"cases": [
+ {"name": "Choose a lane, even another one", "clause": 0, "tags": ["play", "lane_choice"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}, "2": {"p0": ["melee_creep#m", "keefe#k"], "p1": ["melee_creep#e", null]}}}, "do": [{"play": "rumusque_blessing", "lane": 2}], "expect": {"m.max_health": 7, "m.health": 7, "k.max_health": 14, "k.health": 14, "r.max_health": 7, "e.max_health": 4}},
+ {"name": "a lane without allies can be chosen; nothing is modified", "clause": 0, "tags": ["edge", "lane_choice"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}, "1": {"p0": [null], "p1": ["melee_creep#e"]}}}, "do": [{"play": "rumusque_blessing", "lane": 1}], "expect": {"e.max_health": 4, "r.max_health": 7, "events": {"not": ["mod"]}}},
+ {"name": "every lane is offered", "clause": 0, "tags": ["edge", "lane_choice"], "board": "@1", "expect_legal": [{"play": "rumusque_blessing", "lane": 0}, {"play": "rumusque_blessing", "lane": 1}, {"play": "rumusque_blessing", "lane": 2}]},
+ {"name": "Modify allies in that lane with +3 Health (damage stays)", "clause": 1, "tags": ["play", "modify", "stat_health", "all_allies", "permanent"], "board": {"lanes": {"0": {"p0": ["rix#r:hp=4", "melee_creep#m:hp=1"], "p1": ["melee_creep#c", "keefe#k"]}}}, "do": [{"play": "rumusque_blessing", "lane": 0}], "expect": {"r.max_health": 10, "r.health": 7, "m.max_health": 7, "m.health": 4, "events": {"has": ["mod"]}}},
+ {"name": "enemies in the chosen lane are not modified", "clause": 1, "tags": ["negative", "all_allies"], "board": "@3", "do": [{"play": "rumusque_blessing", "lane": 0}], "expect": {"c.max_health": 4, "k.max_health": 11}},
+ {"name": "the health lasts past the round and survives the Fountain (RQ-13)", "clause": 1, "tags": ["edge", "permanent", "RQ-13"], "board": "@3", "do": [{"play": "rumusque_blessing", "lane": 0}, {"end_round": true}, {"kill": ["r"]}], "expect": {"r.in_play": false, "r.max_health": 10, "r.health": 10, "m.max_health": 7}}
+]}

@@ -418,7 +418,9 @@ func validate_preset(entry: Dictionary) -> Dictionary:
 	if main_count < 40:
 		return {"ok": false, "code": "deck_main_size", "args": {}, "error": "The main deck needs at least forty cards."}
 	for hero_id in entry.heroes:
-		if int(entry.cards.get(definition(hero_id).signature, 0)) != 3:
+		# A hero without a signature card in the pack cannot fill a deck.
+		var signature = str(definition(str(hero_id)).get("signature", ""))
+		if signature.is_empty() or int(entry.cards.get(signature, 0)) != 3:
 			return {"ok": false, "code": "deck_signatures", "args": {}, "error": "Each hero requires three signature copies."}
 	var item_count = 0
 	for card_id in entry.items:

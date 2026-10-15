@@ -1,0 +1,11 @@
+{
+"card": "corrosive_mist",
+"source_id": 10142,
+"text": "Condemn all equipped items.",
+"covers": ["play", "condemn", "all_equipped_items"],
+"cases": [
+ {"name": "Condemn all equipped items on both sides of the lane; the heroes stay", "clause": 0, "tags": ["play", "condemn", "all_equipped_items"], "board": {"lanes": {"0": {"p0": ["rix#r+short_sword", "keefe#k+leather_armor+travelers_cloak"], "p1": ["axe#a+broadsword", "melee_creep#c"]}}}, "do": [{"play": "corrosive_mist"}], "expect": {"r.items": {}, "k.items": {}, "a.items": {}, "r.attack": 3, "k.armor": 1, "k.max_health": 11, "k.health": 11, "a.attack": 6, "r.in_play": true, "k.in_play": true, "a.in_play": true, "p0.gold": 0, "p1.gold": 0, "events": {"has": ["condemn", "item_gone"]}}},
+ {"name": "rq_04_lane_scope: items of heroes in other lanes are untouched", "clause": 0, "tags": ["edge", "all_equipped_items", "RQ-04"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}, "1": {"p0": ["keefe#k+short_sword"], "p1": ["axe#a+leather_armor"]}}}, "do": [{"play": "corrosive_mist"}], "expect": {"k.items": {"weapon": "short_sword"}, "k.attack": 8, "a.armor": 3, "events": {"not": ["item_gone"]}}},
+ {"name": "with no equipped item it still resolves and destroys nothing", "clause": 0, "tags": ["negative", "condemn"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["keefe#k"]}}}, "do": [{"play": "corrosive_mist"}], "expect": {"k.in_play": true, "r.in_play": true, "events": {"not": ["condemn", "item_gone"]}}},
+ {"name": "rq_40_item_loss_kills: a hurt hero whose health item is condemned can die", "clause": 0, "tags": ["edge", "condemn", "RQ-40"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["keefe#k:hp=3+travelers_cloak", "melee_creep#c"]}}}, "do": [{"play": "corrosive_mist"}], "expect": {"k.in_play": false, "c.in_play": true, "p0.gold": 5, "events": {"has": ["item_gone", "death"]}}}
+]}

@@ -1,0 +1,15 @@
+{
+"card": "whirling_death",
+"source_id": 10296,
+"text": "Choose an allied red hero. Deal 2 damage to its enemy neighbors and give them -2 Attack this round.",
+"covers": ["play", "damage", "stat_attack", "temp_buff", "allied_hero", "enemy_neighbors", "this_round"],
+"cases": [
+ {"name": "Choose an allied red hero", "clause": 0, "tags": ["play", "allied_hero"], "board": {"lanes": {"0": {"p0": ["timbersaw#t", "jmuy#j"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [], "expect_legal": [{"play": "whirling_death", "target": "t"}]},
+ {"name": "a hero of another colour, an enemy red hero or a creep is not a target", "clause": 0, "tags": ["negative", "allied_hero"], "board": "@0", "do": [], "expect_illegal": [{"play": "whirling_death", "target": "j"}, {"play": "whirling_death", "target": "x"}, {"play": "whirling_death", "target": "c"}]},
+ {"name": "Deal 2 damage to its enemy neighbors and give them -2 Attack this round", "clause": 1, "tags": ["damage", "stat_attack", "temp_buff", "enemy_neighbors", "this_round"], "board": {"lanes": {"0": {"p0": [null, "bristleback#t", null, null], "p1": ["melee_creep#a", "axe#x", "melee_creep#c", "melee_creep#d"]}}}, "do": [{"play": "whirling_death", "target": "t"}], "expect": {"a.health": 2, "a.attack": 0, "x.health": 10, "x.attack": 4, "c.health": 2, "c.attack": 0, "d.health": 4, "d.attack": 2, "events": {"has": ["damage", "status"]}}},
+ {"name": "the -2 Attack ends with the round; the damage stays", "clause": 1, "tags": ["edge", "this_round"], "board": "@2", "do": [{"play": "whirling_death", "target": "t"}, {"end_round": true}], "expect": {"x.attack": 6, "a.health": 2}},
+ {"name": "the weakened neighbors deal less in combat", "clause": 1, "tags": ["stat_attack", "temp_buff"], "board": "@2", "do": [{"play": "whirling_death", "target": "t"}, {"combat": true}], "expect": {"t.health": 8}},
+ {"name": "a neighbor killed by the damage simply dies", "clause": 1, "tags": ["edge", "damage"], "board": {"lanes": {"0": {"p0": [null, "bristleback#t"], "p1": ["melee_creep#a:hp=2", "axe#x"]}}}, "do": [{"play": "whirling_death", "target": "t"}], "expect": {"a.in_play": false, "x.attack": 4}},
+ {"name": "a hero without enemy neighbors can be chosen; nothing happens", "clause": 1, "tags": ["negative", "enemy_neighbors"], "board": {"lanes": {"0": {"p0": ["timbersaw#t", "melee_creep#m", "melee_creep#n"], "p1": [null, null, "melee_creep#c"]}}}, "do": [{"play": "whirling_death", "target": "t"}], "expect": {"c.health": 4, "c.attack": 2, "events": {"not": ["damage"]}}},
+ {"name": "a red hero in another lane is not a target", "clause": 0, "tags": ["negative", "allied_hero"], "board": {"lanes": {"0": {"p0": ["bristleback#b"], "p1": ["melee_creep#c"]}, "1": {"p0": ["timbersaw#t"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "whirling_death", "target": "t"}]}
+]}

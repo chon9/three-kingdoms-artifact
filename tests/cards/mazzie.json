@@ -1,0 +1,10 @@
+{
+"card": "mazzie",
+"source_id": 10052,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "mazzie fights with her printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["mazzie#u"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"u.health": 6, "u.attack": 6, "u.armor": 3, "e.in_play": false}},
+ {"name": "her 3 Armor blunts a hero's attack", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["mazzie#u"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"u.health": 3, "k.health": 6}},
+ {"name": "her red colour casts red spells", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["mazzie#u"], "p1": ["melee_creep#e"]}}}, "do": [{"play": "enrage", "target": "u"}], "expect": {"u.attack": 10, "u.armor": 7}}
+]}

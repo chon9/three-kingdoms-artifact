@@ -1,0 +1,16 @@
+{
+"card": "dark_seer",
+"source_id": 10068,
+"text": "Surge: Move another ally to another lane.",
+"covers": ["active", "move", "allied_unit", "other_lane"],
+"cases": [
+ {"name": "Surge moves another ally to the chosen lane and starts its cooldown", "clause": 0, "tags": ["active", "move", "allied_unit", "other_lane"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [{"ability": "ds", "target": "m", "lane": 1}], "expect": {"m.lane": 1, "ds.lane": 0, "ds.cooldown": 2, "events": {"has": ["ability", "move"]}}},
+ {"name": "an allied hero can be moved too", "clause": 0, "tags": ["edge", "allied_unit"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "rix#r"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [{"ability": "ds", "target": "r", "lane": 2}], "expect": {"r.lane": 2}},
+ {"name": "Dark Seer cannot move itself", "clause": 0, "tags": ["negative", "allied_unit"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [], "expect_illegal": [{"ability": "ds", "target": "ds", "lane": 1}]},
+ {"name": "the destination must be another lane", "clause": 0, "tags": ["negative", "other_lane"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [], "expect_illegal": [{"ability": "ds", "target": "m", "lane": 0}], "expect_legal": [{"ability": "ds", "target": "m", "lane": 2}]},
+ {"name": "an enemy is not a target", "clause": 0, "tags": ["negative", "allied_unit"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [], "expect_illegal": [{"ability": "ds", "target": "e", "lane": 1}]},
+ {"name": "an ally in another lane is not a target", "clause": 0, "tags": ["negative", "allied_unit"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds"], "p1": ["axe#x"]}, "1": {"p0": ["melee_creep#m"], "p1": [null]}}}, "do": [], "expect_illegal": [{"ability": "ds", "target": "m", "lane": 2}]},
+ {"name": "a silenced Dark Seer cannot use Surge", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"ds": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "ds", "target": "m", "lane": 1}]},
+ {"name": "rq_17_moved_unit_position: the ally enters a random empty position of the new lane", "clause": 0, "tags": ["edge", "move", "rq_17"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}, "1": {"p0": [null, null], "p1": ["melee_creep#y", "melee_creep#z"]}}}, "do": [{"ability": "ds", "target": "m", "lane": 1}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"m.slot": [0.38, 0.62]}},
+ {"name": "the moved ally keeps its modifications and leaves its old lane", "clause": 0, "tags": ["edge", "move"], "board": {"lanes": {"0": {"p0": ["dark_seer#ds", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [{"play": "ion_shell", "target": "m"}, {"pass": 1}, {"ability": "ds", "target": "m", "lane": 1}], "expect": {"m.lane": 1, "m.kw.retaliate": 3}}
+]}

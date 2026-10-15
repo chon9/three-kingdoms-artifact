@@ -1,0 +1,15 @@
+{
+"card": "verdant_refuge",
+"source_id": 10193,
+"text": "Allies have +1 Armor.",
+"covers": ["continuous", "stat_armor", "all_allies"],
+"cases": [
+ {"name": "Allies in its lane have +1 Armor, heroes and creeps alike", "clause": 0, "tags": ["continuous", "stat_armor", "all_allies"], "board": {"lanes": {"0": {"p0": ["magnus#h", "melee_creep#c"], "p1": ["melee_creep#a", "melee_creep#b"]}}, "improvements": {"0": {"p0": ["verdant_refuge#v"]}}}, "do": [], "expect": {"h.armor": 2, "c.armor": 1}},
+ {"name": "enemies in the lane get nothing", "clause": 0, "tags": ["negative", "all_allies"], "board": "@0", "do": [], "expect": {"a.armor": 0, "b.armor": 0}},
+ {"name": "the Armor reduces combat damage", "clause": 0, "tags": ["edge", "stat_armor"], "board": "@0", "do": [{"combat": true}], "expect": {"c.health": 3, "h.health": 9, "b.health": 2}},
+ {"name": "allies in another lane get nothing: only the improvement's lane", "clause": 0, "tags": ["negative", "stat_armor"], "board": {"lanes": {"0": {"p0": ["magnus#h"], "p1": ["melee_creep#a"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}, "improvements": {"0": {"p0": ["verdant_refuge#v"]}}}, "do": [], "expect": {"h.armor": 2, "o.armor": 0}},
+ {"name": "played from the active lane into another lane, it armors that lane's allies", "clause": 0, "tags": ["edge", "all_allies"], "board": {"lanes": {"0": {"p0": ["magnus#h"], "p1": ["melee_creep#a"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [{"play": "verdant_refuge", "lane": 1}], "expect": {"o.armor": 1, "h.armor": 1, "p.armor": 0, "mana.0.0": 5, "mana.1.0": 10}},
+ {"name": "two Verdant Refuges stack", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["melee_creep#c"], "p1": ["melee_creep#a"]}}, "improvements": {"0": {"p0": ["verdant_refuge#v", "verdant_refuge#w"]}}}, "do": [], "expect": {"c.armor": 2}},
+ {"name": "the aura needs no hero once it is in play, and ends when the improvement is condemned", "clause": 0, "tags": ["edge", "continuous"], "board": {"active_player": 1, "initiative": 1, "lanes": {"0": {"p0": ["melee_creep#c"], "p1": ["axe#x"]}}, "improvements": {"0": {"p0": ["verdant_refuge#v"]}}}, "do": [{"play": "raze", "player": 1}], "expect": {"v.in_play": false, "c.armor": 0, "events": {"has": ["condemn", "improvement_gone"]}}},
+ {"name": "without a green hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#x"], "p1": ["melee_creep#a"]}}}, "do": [], "expect_illegal": [{"play": "verdant_refuge", "lane": 0}, {"play": "verdant_refuge", "lane": 1}]}
+]}

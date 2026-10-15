@@ -1,0 +1,16 @@
+{
+"card": "chen",
+"source_id": 10017,
+"text": "Holy Persuasion: Get control of an enemy creep.",
+"covers": ["active", "steal_control", "enemy_creep"],
+"cases": [
+ {"name": "Holy Persuasion takes control of an enemy creep and starts its cooldown", "clause": 0, "tags": ["active", "steal_control", "enemy_creep"], "board": {"lanes": {"0": {"p0": ["chen#ch", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"ability": "ch", "target": "c"}], "expect": {"c.owner": 0, "c.lane": 0, "c.in_play": true, "ch.cooldown": 4, "events": {"has": ["ability", "control"]}}},
+ {"name": "an enemy hero is not a target", "clause": 0, "tags": ["negative", "enemy_creep"], "board": {"lanes": {"0": {"p0": ["chen#ch", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [], "expect_illegal": [{"ability": "ch", "target": "x"}]},
+ {"name": "an allied creep is not a target", "clause": 0, "tags": ["negative", "enemy_creep"], "board": {"lanes": {"0": {"p0": ["chen#ch", "melee_creep#m"], "p1": ["axe#x", null]}}}, "do": [], "expect_illegal": [{"ability": "ch", "target": "m"}]},
+ {"name": "an enemy creep in another lane is not a target", "clause": 0, "tags": ["negative", "enemy_creep"], "board": {"lanes": {"0": {"p0": ["chen#ch"], "p1": ["axe#x"]}, "1": {"p0": [null], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"ability": "ch", "target": "c"}]},
+ {"name": "a silenced Chen cannot use Holy Persuasion", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"ch": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "ch", "target": "c"}]},
+ {"name": "rq_02_stolen_bounty: the stolen creep's bounty goes to Chen's opponent", "clause": 0, "tags": ["edge", "steal_control"], "board": {"lanes": {"0": {"p0": ["chen#ch", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"ability": "ch", "target": "c"}, {"kill": ["c"]}], "expect": {"p1.gold": 1, "p0.gold": 0, "c.in_play": false}},
+ {"name": "the stolen creep keeps its modifications", "clause": 0, "tags": ["edge", "steal_control"], "board": {"lanes": {"0": {"p0": ["chen#ch", null], "p1": ["rix#q", "melee_creep#c"]}}, "active_player": 1, "initiative": 1}, "do": [{"play": "ion_shell", "target": "c", "player": 1}, {"ability": "ch", "target": "c"}], "expect": {"c.owner": 0, "c.kw.retaliate": 3}},
+ {"name": "rq_17_stolen_creep_position: the creep enters a random empty position on Chen's side", "clause": 0, "tags": ["edge", "steal_control", "rq_17"], "board": {"lanes": {"0": {"p0": [null, "chen#ch", null, null], "p1": ["melee_creep#a", "axe#x", "melee_creep#b", "melee_creep#e"]}}}, "do": [{"ability": "ch", "target": "e"}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"e.slot": [0.38, 0.62]}},
+ {"name": "the cooldown ticks down each round", "clause": 0, "tags": ["edge", "active"], "board": {"lanes": {"0": {"p0": ["chen#ch", null], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"ability": "ch", "target": "c"}, {"end_round": true}], "expect": {"ch.cooldown": 3}}
+]}

@@ -37,7 +37,7 @@ Remaining: chess clocks, improvements, pets, deck trays, the round-one deploymen
 
 ## 0.4 — Full Classic catalog and useful AI
 
-- Implement original hero abilities, signatures, creeps, spells, improvements, items and cross-lane effects.
+- Implement original hero abilities, signatures, creeps, spells, improvements, items and cross-lane effects. Done for red and green (M3 of `docs/design/EFFECT_SYSTEM_SPEC.md`: 92 cards, three signature improvements and five new presets); blue, black, items and improvements follow (M4 to M7).
 - Add differential/reference tests for each effect, plus interaction suites and generated legal-action games.
 - Extend the bot with multi-action search, hidden-state sampling and deployment/deck strategy.
 - Benchmark AI strength on held-out positions and human games; publish its limits and difficulty settings.

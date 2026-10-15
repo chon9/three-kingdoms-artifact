@@ -285,6 +285,729 @@
         }
       ],
       "valve_text": "Static Field: Deal 1 piercing damage to Zeus's enemy neighbors after you play a blue spell."
+    },
+    {
+      "id": "beastmaster",
+      "source_id": 10029,
+      "name": "Beastmaster",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10029_card.png",
+      "artist": "Clint Cearley",
+      "text": "Call of the Wild: Summon a Loyal Beast. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Call of the Wild",
+      "signature": "primal_roar",
+      "attack": 5,
+      "armor": 0,
+      "health": 12,
+      "ability_cooldown": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "call_of_the_wild",
+          "kind": "active",
+          "valve": 10437,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "summon",
+              "card": "loyal_beast"
+            }
+          ]
+        }
+      ],
+      "valve_text": "Call of the Wild: Summon a Loyal Beast."
+    },
+    {
+      "id": "bristleback",
+      "source_id": 10030,
+      "name": "Bristleback",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10030_card.png",
+      "artist": "JiHun Lee",
+      "text": "Barroom Brawler: Modify Bristleback with +{brawler_armor} Armor after a hero blocking it dies.",
+      "ability_name": "Barroom Brawler",
+      "signature": "viscous_nasal_goo",
+      "attack": 8,
+      "armor": 0,
+      "health": 12,
+      "brawler_armor": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "barroom_brawler",
+          "kind": "trigger",
+          "valve": 10502,
+          "on": "unit_died",
+          "filter": {
+            "was": "blocker",
+            "kind": "hero"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "armor": {
+                  "param": "brawler_armor"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-43"
+      ],
+      "valve_text": "Barroom Brawler: Modify Bristleback with +2 Armor after a hero blocking it dies."
+    },
+    {
+      "id": "centaur_warrunner",
+      "source_id": 10021,
+      "name": "Centaur Warrunner",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10021_card.png",
+      "artist": "Lius Lasahido",
+      "text": "Return: Centaur Warrunner has +2 Retaliate.",
+      "ability_name": "Return",
+      "retaliate": 2,
+      "signature": "double_edge",
+      "attack": 4,
+      "armor": 0,
+      "health": 14,
+      "status": "verified",
+      "keywords": {
+        "retaliate": {
+          "param": "retaliate"
+        }
+      },
+      "rq": [
+        "RQ-06"
+      ],
+      "valve_text": "Return: Centaur Warrunner has +2 Retaliate."
+    },
+    {
+      "id": "legion_commander",
+      "source_id": 10069,
+      "name": "Legion Commander",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10069_card.png",
+      "artist": "Randy Vargas",
+      "text": "Moment of Courage: Legion Commander has +2 Retaliate.",
+      "ability_name": "Moment of Courage",
+      "retaliate": 2,
+      "signature": "duel",
+      "attack": 6,
+      "armor": 1,
+      "health": 8,
+      "status": "verified",
+      "keywords": {
+        "retaliate": {
+          "param": "retaliate"
+        }
+      },
+      "rq": [
+        "RQ-06"
+      ],
+      "valve_text": "Moment of Courage: Legion Commander has +2 Retaliate."
+    },
+    {
+      "id": "mazzie",
+      "source_id": 10052,
+      "name": "Mazzie",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10052_card.png",
+      "artist": "Lius Lasahido",
+      "text": "Mazzie has no active or passive ability.",
+      "signature": "steel_reinforcement",
+      "attack": 6,
+      "armor": 3,
+      "health": 6,
+      "status": "verified",
+      "valve_text": ""
+    },
+    {
+      "id": "pugna",
+      "source_id": 10048,
+      "name": "Pugna",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10048_card.png",
+      "artist": "Randy Vargas",
+      "text": "Nether Blast: Condemn a random enemy improvement. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Nether Blast",
+      "ability_cooldown": 3,
+      "signature": "nether_ward",
+      "attack": 6,
+      "armor": 0,
+      "health": 9,
+      "status": "verified",
+      "rq": [
+        "RQ-04"
+      ],
+      "abilities": [
+        {
+          "id": "nether_blast",
+          "kind": "active",
+          "valve": 10444,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "condemn",
+              "to": {
+                "s": "improvements",
+                "side": "enemy",
+                "pick": {
+                  "random": 1
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Nether Blast: Condemn a random enemy improvement."
+    },
+    {
+      "id": "sven",
+      "source_id": 10054,
+      "name": "Sven",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10054_card.png",
+      "artist": "Yongjae Choi",
+      "text": "Great Cleave: Sven has +X Cleave where X is equal to half its Attack.",
+      "ability_name": "Great Cleave",
+      "signature": "gods_strength",
+      "attack": 5,
+      "armor": 0,
+      "health": 11,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "great_cleave",
+          "kind": "aura",
+          "valve": 10513,
+          "affects": "$self",
+          "grant": {
+            "cleave": {
+              "half": {
+                "stat": "attack",
+                "of": "$self"
+              }
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-28"
+      ],
+      "valve_text": "Great Cleave: Sven has +X Cleave where X is equal to half its Attack."
+    },
+    {
+      "id": "tidehunter",
+      "source_id": 10024,
+      "name": "Tidehunter",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10024_card.png",
+      "artist": "Daarken",
+      "text": "Ravage: Stun Tidehunter's enemy neighbors this round and each other enemy has a {chance}% chance of being stunned this round. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Ravage",
+      "signature": "kraken_shell",
+      "attack": 2,
+      "armor": 1,
+      "health": 18,
+      "chance": 50,
+      "ability_cooldown": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "ravage",
+          "kind": "active",
+          "valve": 10434,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "let",
+              "name": "near",
+              "value": "enemy_neighbors"
+            },
+            {
+              "op": "give",
+              "to": "$v.near",
+              "keywords": {
+                "stun": 1
+              },
+              "until": "round"
+            },
+            {
+              "op": "for_each",
+              "in": {
+                "use": "enemies",
+                "not": "$v.near"
+              },
+              "as": "u",
+              "ops": [
+                {
+                  "op": "chance",
+                  "pct": {
+                    "param": "chance"
+                  },
+                  "then": [
+                    {
+                      "op": "give",
+                      "to": "$v.u",
+                      "keywords": {
+                        "stun": 1
+                      },
+                      "until": "round"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "valve_text": "Ravage: Stun Tidehunter's enemy neighbors this round and each other enemy has a 50% chance of being stunned this round."
+    },
+    {
+      "id": "timbersaw",
+      "source_id": 10022,
+      "name": "Timbersaw",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10022_card.png",
+      "artist": "JiHun Lee",
+      "text": "Reactive Armor: Timbersaw has +{armor_per_attacker} Armor for each of its attackers. Timbersaw's attackers have -{attacker_armor_loss} Armor.",
+      "ability_name": "Reactive Armor",
+      "signature": "whirling_death",
+      "attack": 4,
+      "armor": 0,
+      "health": 11,
+      "armor_per_attacker": 1,
+      "attacker_armor_loss": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "reactive_armor",
+          "kind": "aura",
+          "valve": 10498,
+          "affects": "$self",
+          "grant": {
+            "armor": {
+              "mul": [
+                {
+                  "count": "attackers"
+                },
+                {
+                  "param": "armor_per_attacker"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "reactive_armor_attackers",
+          "kind": "aura",
+          "affects": "attackers",
+          "grant": {
+            "armor": {
+              "neg": {
+                "param": "attacker_armor_loss"
+              }
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-05"
+      ],
+      "valve_text": "Reactive Armor: Timbersaw has +1 Armor for each of its attackers. Timbersaw's attackers have -1 Armor."
+    },
+    {
+      "id": "ursa",
+      "source_id": 10070,
+      "name": "Ursa",
+      "color": "red",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10070_card.png",
+      "artist": "Forrest Imel",
+      "text": "Fury Swipes: When Ursa deals battle damage to a unit, modify that unit with -1 Armor.",
+      "ability_name": "Fury Swipes",
+      "armor_loss": 1,
+      "signature": "enrage",
+      "attack": 7,
+      "armor": 0,
+      "health": 10,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "fury_swipes",
+          "kind": "trigger",
+          "valve": 10521,
+          "on": "battle_damage",
+          "filter": {
+            "role": "dealer",
+            "target_kind": "unit"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$e.target",
+              "stats": {
+                "armor": {
+                  "neg": {
+                    "param": "armor_loss"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-32",
+        "RQ-45",
+        "RQ-54"
+      ],
+      "valve_text": "Fury Swipes: When Ursa deals battle damage to a unit, modify that unit with -1 Armor."
+    },
+    {
+      "id": "abaddon",
+      "source_id": 10016,
+      "name": "Abaddon",
+      "color": "green",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10016_card.png",
+      "artist": "Chase Stone",
+      "text": "Borrowed Time: Fully heal Abaddon and give it Damage Immunity this round. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Borrowed Time",
+      "signature": "aphotic_shield",
+      "attack": 4,
+      "health": 9,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "borrowed_time",
+          "kind": "active",
+          "valve": 10431,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "to": "$self",
+              "amount": "full"
+            },
+            {
+              "op": "give",
+              "to": "$self",
+              "until": "round",
+              "keywords": {
+                "damage_immunity": 1
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Borrowed Time: Fully heal Abaddon and give it Damage Immunity this round."
+    },
+    {
+      "id": "chen",
+      "source_id": 10017,
+      "name": "Chen",
+      "color": "green",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10017_card.png",
+      "artist": "Clint Cearley",
+      "text": "Holy Persuasion: Get control of an enemy creep. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Holy Persuasion",
+      "signature": "hand_of_god",
+      "attack": 4,
+      "health": 9,
+      "ability_cooldown": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "holy_persuasion",
+          "kind": "active",
+          "valve": 10432,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "enemy_creeps"
+            }
+          ],
+          "ops": [
+            {
+              "op": "control",
+              "unit": "$c.target",
+              "to": "you"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Holy Persuasion: Get control of an enemy creep."
+    },
+    {
+      "id": "dark_seer",
+      "source_id": 10068,
+      "name": "Dark Seer",
+      "color": "green",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10068_card.png",
+      "artist": "Stepan Alekseev",
+      "text": "Surge: Move another ally to another lane. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Surge",
+      "signature": "ion_shell",
+      "attack": 5,
+      "health": 9,
+      "ability_cooldown": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "surge",
+          "kind": "active",
+          "valve": 10452,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "other_allies"
+            },
+            {
+              "key": "lane",
+              "from": {
+                "s": "lanes",
+                "not": "$c.target.lane"
+              }
+            }
+          ],
+          "ops": [
+            {
+              "op": "move",
+              "unit": "$c.target",
+              "lane": "$c.lane"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Surge: Move another ally to another lane."
+    },
+    {
+      "id": "enchantress",
+      "source_id": 10036,
+      "name": "Enchantress",
+      "color": "green",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10036_card.png",
+      "artist": "Randy Vargas",
+      "text": "Nature's Attendants: Enchantress has +{regeneration} Regeneration. Enchantress's allied neighbors have +{regeneration} Regeneration.",
+      "ability_name": "Nature's Attendants",
+      "regeneration": 2,
+      "signature": "verdant_refuge",
+      "attack": 4,
+      "armor": 0,
+      "health": 8,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "natures_attendants",
+          "kind": "aura",
+          "valve": 10506,
+          "affects": [
+            "$self",
+            "allied_neighbors"
+          ],
+          "grant": {
+            "regeneration": {
+              "param": "regeneration"
+            }
+          }
+        }
+      ],
+      "valve_text": "Nature's Attendants: Enchantress has +2 Regeneration. Enchantress's allied neighbors have +2 Regeneration."
+    },
+    {
+      "id": "magnus",
+      "source_id": 10067,
+      "name": "Magnus",
+      "color": "green",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10067_card.png",
+      "artist": "Magali Villeneuve",
+      "text": "Magnus has no active or passive ability.",
+      "signature": "empower",
+      "attack": 4,
+      "armor": 1,
+      "health": 9,
+      "status": "verified",
+      "valve_text": ""
+    },
+    {
+      "id": "omniknight",
+      "source_id": 10044,
+      "name": "Omniknight",
+      "color": "green",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10044_card.png",
+      "artist": "Sam Carr",
+      "text": "Purification: Heal a unit {amount}. Active ability; cooldown {ability_cooldown}.",
+      "ability_name": "Purification",
+      "amount": 3,
+      "ability_cooldown": 2,
+      "signature": "allseeing_ones_favor",
+      "attack": 5,
+      "armor": 0,
+      "health": 12,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "purification",
+          "kind": "active",
+          "valve": 10443,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "ops": [
+            {
+              "op": "heal",
+              "to": "$c.target",
+              "amount": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Purification: Heal a unit 3."
+    },
+    {
+      "id": "treant_protector",
+      "source_id": 10056,
+      "name": "Treant Protector",
+      "color": "green",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10056_card.png",
+      "artist": "Alix Branwyn",
+      "text": "Branches of Iron: Treant Protector's allied neighbors have +{neighbor_armor} Armor.",
+      "ability_name": "Branches of Iron",
+      "neighbor_armor": 2,
+      "signature": "roseleaf_druid",
+      "attack": 4,
+      "armor": 0,
+      "health": 10,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "branches_of_iron",
+          "kind": "aura",
+          "valve": 10514,
+          "affects": "allied_neighbors",
+          "grant": {
+            "armor": {
+              "param": "neighbor_armor"
+            }
+          }
+        }
+      ],
+      "valve_text": "Branches of Iron: Treant Protector's allied neighbors have +2 Armor."
+    },
+    {
+      "id": "viper",
+      "source_id": 10028,
+      "name": "Viper",
+      "color": "green",
+      "kind": "hero",
+      "cost": 0,
+      "image": "res://assets/classic_cards/10028_card.png",
+      "artist": "Lars Grant-West",
+      "text": "Corrosive Skin: When a unit deals battle damage to Viper, modify that unit with -{attack_loss} Attack.",
+      "ability_name": "Corrosive Skin",
+      "attack_loss": 1,
+      "signature": "viper_strike",
+      "attack": 4,
+      "armor": 0,
+      "health": 10,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "corrosive_skin",
+          "kind": "trigger",
+          "valve": 10501,
+          "on": "battle_damage",
+          "filter": {
+            "role": "taker",
+            "source_kind": "unit"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$e.source",
+              "stats": {
+                "attack": {
+                  "neg": {
+                    "param": "attack_loss"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-32",
+        "RQ-45",
+        "RQ-54"
+      ],
+      "valve_text": "Corrosive Skin: When a unit deals battle damage to Viper, modify that unit with -1 Attack."
     }
   ],
   "cards": [
@@ -591,6 +1314,7 @@
       "attack": 4,
       "armor": 0,
       "health": 8,
+      "token": true,
       "status": "verified",
       "rq": [
         "RQ-48"
@@ -1357,6 +2081,2957 @@
         ]
       },
       "valve_text": "Silence a unit this round."
+    },
+    {
+      "id": "hellbear_crippler",
+      "source_id": 10118,
+      "name": "Hellbear Crippler",
+      "color": "red",
+      "kind": "creep",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10118_card.png",
+      "artist": "Vance Kovacs",
+      "text": "When Hellbear Crippler deals battle damage to a unit, modify that unit with -{attack_loss} Attack.",
+      "attack": 3,
+      "armor": 0,
+      "health": 3,
+      "attack_loss": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "cripple",
+          "kind": "trigger",
+          "on": "battle_damage",
+          "filter": {
+            "role": "dealer",
+            "target_kind": "unit"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$e.target",
+              "stats": {
+                "attack": {
+                  "neg": {
+                    "param": "attack_loss"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-32",
+        "RQ-45",
+        "RQ-54"
+      ],
+      "valve_text": "When Hellbear Crippler deals battle damage to a unit, modify that unit with -1 Attack."
+    },
+    {
+      "id": "mercenary_exiles",
+      "source_id": 10094,
+      "name": "Mercenary Exiles",
+      "color": "red",
+      "kind": "creep",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10094_card.png",
+      "artist": "John Stanko",
+      "text": "Active {ability_cooldown}: Spend all your gold. Modify Mercenary Exiles with +X Attack and +X Health where X is half the gold spent.",
+      "ability_name": "Mercenary Exiles",
+      "ability_cooldown": 2,
+      "attack": 2,
+      "armor": 1,
+      "health": 4,
+      "status": "verified",
+      "rq": [
+        "RQ-28"
+      ],
+      "abilities": [
+        {
+          "id": "empty_the_purse",
+          "kind": "active",
+          "valve": 10456,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "gold",
+              "player": "you",
+              "set": 0,
+              "as": "spent"
+            },
+            {
+              "op": "if",
+              "cond": {
+                "cmp": [
+                  {
+                    "half": "$v.spent"
+                  },
+                  ">",
+                  0
+                ]
+              },
+              "then": [
+                {
+                  "op": "modify",
+                  "to": "$self",
+                  "stats": {
+                    "attack": {
+                      "half": "$v.spent"
+                    },
+                    "max_health": {
+                      "half": "$v.spent"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "valve_text": "Active 2: Spend all your gold. Modify Mercenary Exiles with +X Attack and +X Health where X is half the gold spent."
+    },
+    {
+      "id": "legion_standard_bearer",
+      "source_id": 10087,
+      "name": "Legion Standard Bearer",
+      "color": "red",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10087_card.png",
+      "artist": "Wisnu Tan",
+      "neighbor_attack": 4,
+      "text": "Legion Standard Bearer's allied neighbors have +{neighbor_attack} Attack.",
+      "attack": 0,
+      "armor": 0,
+      "health": 6,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "standard",
+          "kind": "aura",
+          "affects": "allied_neighbors",
+          "grant": {
+            "attack": {
+              "param": "neighbor_attack"
+            }
+          }
+        }
+      ],
+      "valve_text": "Legion Standard Bearer's allied neighbors have +4 Attack."
+    },
+    {
+      "id": "rebel_instigator",
+      "source_id": 10084,
+      "name": "Rebel Instigator",
+      "color": "red",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10084_card.png",
+      "artist": "Forrest Imel",
+      "text": "After the combat phase, if Rebel Instigator dealt battle damage to a creep this round, summon a Rebel Instigator.",
+      "attack": 2,
+      "armor": 0,
+      "health": 3,
+      "status": "verified",
+      "rq": [
+        "RQ-17",
+        "RQ-45"
+      ],
+      "abilities": [
+        {
+          "id": "instigate",
+          "kind": "trigger",
+          "on": "after_combat",
+          "where": {
+            "log": "hit",
+            "by": "$self",
+            "kind": "creep"
+          },
+          "ops": [
+            {
+              "op": "summon",
+              "card": "rebel_instigator"
+            }
+          ]
+        }
+      ],
+      "valve_text": "After the combat phase, if Rebel Instigator dealt battle damage to a creep this round, summon a Rebel Instigator."
+    },
+    {
+      "id": "smeevil_armsmaster",
+      "source_id": 10076,
+      "name": "Smeevil Armsmaster",
+      "color": "red",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10076_card.png",
+      "artist": "Mike Azevedo",
+      "hero_attack": 2,
+      "text": "Play Effect: Modify a random allied hero with +{hero_attack} Attack.",
+      "attack": 2,
+      "armor": 0,
+      "health": 2,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "modify",
+            "to": {
+              "use": "allied_heroes",
+              "pick": {
+                "random": 1
+              }
+            },
+            "stats": {
+              "attack": {
+                "param": "hero_attack"
+              }
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-04"
+      ],
+      "valve_text": "Play Effect: Modify a random allied hero with +2 Attack."
+    },
+    {
+      "id": "stonehall_elite",
+      "source_id": 10131,
+      "name": "Stonehall Elite",
+      "color": "red",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10131_card.png",
+      "artist": "Jason Kang",
+      "growth_attack": 2,
+      "growth_health": 2,
+      "text": "Modify Stonehall Elite with +{growth_attack} Attack and +{growth_health} Health after a unit blocking it dies.",
+      "attack": 4,
+      "armor": 2,
+      "health": 2,
+      "status": "verified",
+      "rq": [
+        "RQ-05"
+      ],
+      "abilities": [
+        {
+          "id": "elite_growth",
+          "kind": "trigger",
+          "on": "unit_died",
+          "filter": {
+            "was": "blocker"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "attack": {
+                  "param": "growth_attack"
+                },
+                "max_health": {
+                  "param": "growth_health"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Modify Stonehall Elite with +2 Attack and +2 Health after a unit blocking it dies."
+    },
+    {
+      "id": "cursed_satyr",
+      "source_id": 10114,
+      "name": "Cursed Satyr",
+      "color": "red",
+      "kind": "creep",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10114_card.png",
+      "artist": "Jakub Kasper",
+      "text": "Summon a Zombie for your opponent after the combat phase.",
+      "attack": 6,
+      "armor": 0,
+      "health": 6,
+      "status": "verified",
+      "rq": [
+        "RQ-17"
+      ],
+      "abilities": [
+        {
+          "id": "cursed",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "summon",
+              "card": "zombie",
+              "for": "opponent"
+            }
+          ]
+        }
+      ],
+      "valve_text": "Summon a Zombie for your opponent after the combat phase."
+    },
+    {
+      "id": "ogre_corpse_tosser",
+      "source_id": 10103,
+      "name": "Ogre Corpse Tosser",
+      "color": "red",
+      "kind": "creep",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10103_card.png",
+      "artist": "Bayard Wu",
+      "amount": 2,
+      "text": "Deal {amount} piercing damage to the enemy tower after an allied Melee Creep dies.",
+      "attack": 2,
+      "armor": 0,
+      "health": 10,
+      "status": "verified",
+      "rq": [
+        "RQ-04",
+        "RQ-43"
+      ],
+      "abilities": [
+        {
+          "id": "corpse_toss",
+          "kind": "trigger",
+          "on": "unit_died",
+          "filter": {
+            "side": "ally",
+            "card": "melee_creep"
+          },
+          "ops": [
+            {
+              "op": "tower_damage",
+              "to": "enemy_tower",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "valve_text": "Deal 2 piercing damage to the enemy tower after an allied Melee Creep dies."
+    },
+    {
+      "id": "red_mist_pillager",
+      "source_id": 10132,
+      "name": "Red Mist Pillager",
+      "color": "red",
+      "kind": "creep",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10132_card.png",
+      "artist": "Anastasia Ovchinnikova",
+      "text": "After the combat phase, if Red Mist Pillager dealt battle damage to a tower this round, summon a Red Mist Pillager.",
+      "attack": 4,
+      "armor": 0,
+      "health": 2,
+      "status": "verified",
+      "rq": [
+        "RQ-17",
+        "RQ-45"
+      ],
+      "abilities": [
+        {
+          "id": "pillage",
+          "kind": "trigger",
+          "on": "after_combat",
+          "where": {
+            "log": "hit",
+            "by": "$self",
+            "kind": "tower"
+          },
+          "ops": [
+            {
+              "op": "summon",
+              "card": "red_mist_pillager"
+            }
+          ]
+        }
+      ],
+      "valve_text": "After the combat phase, if Red Mist Pillager dealt battle damage to a tower this round, summon a Red Mist Pillager."
+    },
+    {
+      "id": "keenfolk_golem",
+      "source_id": 10095,
+      "name": "Keenfolk Golem",
+      "color": "red",
+      "kind": "creep",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10095_card.png",
+      "artist": "Wisnu Tan",
+      "text": "Play Effect: Discard your hand.",
+      "attack": 13,
+      "armor": 0,
+      "health": 13,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "discard",
+            "cards": "your_hand"
+          }
+        ]
+      },
+      "valve_text": "Play Effect: Discard your hand."
+    },
+    {
+      "id": "marrowfell_brawler",
+      "source_id": 10097,
+      "name": "Marrowfell Brawler",
+      "color": "red",
+      "kind": "creep",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10097_card.png",
+      "artist": "Vance Kovacs",
+      "text": "Creep: 6 attack, 0 armor, 16 health.",
+      "attack": 6,
+      "armor": 0,
+      "health": 16,
+      "status": "verified",
+      "valve_text": ""
+    },
+    {
+      "id": "double_edge",
+      "source_id": 10292,
+      "name": "Double Edge",
+      "color": "red",
+      "kind": "spell",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10292_card.png",
+      "artist": "Lius Lasahido",
+      "text": "Give a red hero +8 Attack and -8 Armor this round.",
+      "attack": 8,
+      "armor": -8,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              },
+              "armor": {
+                "param": "armor"
+              }
+            },
+            "until": "round"
+          }
+        ]
+      },
+      "valve_text": "Give a red hero +8 Attack and -8 Armor this round."
+    },
+    {
+      "id": "fight_through_the_pain",
+      "source_id": 10370,
+      "name": "Fight Through the Pain",
+      "color": "red",
+      "kind": "spell",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10370_card.png",
+      "artist": "Forrest Imel",
+      "armor": 2,
+      "text": "Give a red hero +{armor} Armor this round. Get initiative.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "round",
+            "stats": {
+              "armor": {
+                "param": "armor"
+              }
+            }
+          }
+        ],
+        "initiative": true
+      },
+      "valve_text": "Give a red hero +2 Armor this round. | Get initiative."
+    },
+    {
+      "id": "kraken_shell",
+      "source_id": 10290,
+      "name": "Kraken Shell",
+      "color": "red",
+      "kind": "spell",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10290_card.png",
+      "artist": "Daarken",
+      "text": "Modify a red hero with +{armor} Armor. Get initiative.",
+      "armor": 1,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "armor": {
+                "param": "armor"
+              }
+            }
+          }
+        ],
+        "initiative": true
+      },
+      "valve_text": "Modify a red hero with +1 Armor. | Get initiative."
+    },
+    {
+      "id": "new_orders",
+      "source_id": 10366,
+      "name": "New Orders",
+      "color": "red",
+      "kind": "spell",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10366_card.png",
+      "artist": "Robert Simon",
+      "text": "Choose an ally. Choose a combat target for it.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "allies"
+          },
+          {
+            "key": "destination",
+            "combat_target_of": "$c.target"
+          }
+        ],
+        "ops": [
+          {
+            "op": "retarget",
+            "unit": "$c.target",
+            "to": "$c.destination"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-19"
+      ],
+      "valve_text": "Choose an ally. Choose a combat target for it."
+    },
+    {
+      "id": "poised_to_strike",
+      "source_id": 10313,
+      "name": "Poised to Strike",
+      "color": "red",
+      "kind": "spell",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10313_card.png",
+      "artist": "Magali Villeneuve",
+      "attack": 4,
+      "text": "Give a red hero +{attack} Attack this round.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "round",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Give a red hero +4 Attack this round."
+    },
+    {
+      "id": "duel",
+      "source_id": 10341,
+      "name": "Duel",
+      "color": "red",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10341_card.png",
+      "artist": "Bayard Wu",
+      "text": "Choose an allied red hero and another unit. They battle each other.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "red"
+            }
+          },
+          {
+            "key": "destination",
+            "from": {
+              "s": "units",
+              "not": "$c.target"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "battle",
+            "a": "$c.target",
+            "b": "$c.destination"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-06"
+      ],
+      "valve_text": "Choose an allied red hero and another unit. They battle each other."
+    },
+    {
+      "id": "heroic_resolve",
+      "source_id": 10327,
+      "name": "Heroic Resolve",
+      "color": "red",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10327_card.png",
+      "artist": "JiHun Lee",
+      "text": "Modify a red hero with \"After you play a non-item card costing 2 or less, modify this hero with +{amount} Health.\"",
+      "amount": 2,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "not_kind": "item",
+            "cost_max": 2
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "max_health": {
+                  "param": "amount"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-44"
+      ],
+      "valve_text": "Modify a red hero with \"After you play a non-item card costing 2 or less, modify this hero with +2 Health.\""
+    },
+    {
+      "id": "pick_a_fight",
+      "source_id": 10342,
+      "name": "Pick a Fight",
+      "color": "red",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10342_card.png",
+      "artist": "JiHun Lee",
+      "text": "Choose an allied hero. It taunts. Choose a combat target for it.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "allied_heroes"
+          },
+          {
+            "key": "destination",
+            "combat_target_of": "$c.target"
+          }
+        ],
+        "ops": [
+          {
+            "op": "taunt",
+            "unit": "$c.target"
+          },
+          {
+            "op": "retarget",
+            "unit": "$c.target",
+            "to": "$c.destination"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-18",
+        "RQ-19"
+      ],
+      "valve_text": "Choose an allied hero. It taunts. Choose a combat target for it."
+    },
+    {
+      "id": "rising_anger",
+      "source_id": 10349,
+      "name": "Rising Anger",
+      "color": "red",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10349_card.png",
+      "artist": "JiHun Lee",
+      "text": "Modify a red hero with \"After you play a non-item card costing 2 or less, modify this hero with +{amount} Attack.\"",
+      "amount": 1,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "not_kind": "item",
+            "cost_max": 2
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "attack": {
+                  "param": "amount"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-44"
+      ],
+      "valve_text": "Modify a red hero with \"After you play a non-item card costing 2 or less, modify this hero with +1 Attack.\""
+    },
+    {
+      "id": "whirling_death",
+      "source_id": 10296,
+      "name": "Whirling Death",
+      "color": "red",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10296_card.png",
+      "artist": "JiHun Lee",
+      "text": "Choose an allied red hero. Deal {amount} damage to its enemy neighbors and give them -{attack_loss} Attack this round.",
+      "amount": 2,
+      "attack_loss": 2,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "let",
+            "name": "near",
+            "value": {
+              "s": "units",
+              "rel": {
+                "enemy_neighbors": "$c.target"
+              }
+            }
+          },
+          {
+            "op": "damage",
+            "to": "$v.near",
+            "amount": {
+              "param": "amount"
+            }
+          },
+          {
+            "op": "give",
+            "to": "$v.near",
+            "stats": {
+              "attack": {
+                "neg": {
+                  "param": "attack_loss"
+                }
+              }
+            },
+            "until": "round"
+          }
+        ]
+      },
+      "valve_text": "Choose an allied red hero. Deal 2 damage to its enemy neighbors and give them -2 Attack this round."
+    },
+    {
+      "id": "rend_armor",
+      "source_id": 10367,
+      "name": "Rend Armor",
+      "color": "red",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10367_card.png",
+      "artist": "Forrest Imel",
+      "text": "Modify a unit with -X Armor where X is its Armor.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "armor": {
+                "neg": {
+                  "stat": "armor",
+                  "of": "$c.target"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a unit with -X Armor where X is its Armor."
+    },
+    {
+      "id": "smash_their_defenses",
+      "source_id": 10306,
+      "name": "Smash Their Defenses!",
+      "color": "red",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10306_card.png",
+      "artist": "JiHun Lee",
+      "text": "Condemn an improvement. Draw a card.",
+      "status": "verified",
+      "rq": [
+        "RQ-04"
+      ],
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "improvements"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "condemn",
+            "to": "$c.target"
+          },
+          {
+            "op": "pulse"
+          },
+          {
+            "op": "draw",
+            "player": "you",
+            "n": 1
+          }
+        ]
+      },
+      "valve_text": "Condemn an improvement. Draw a card."
+    },
+    {
+      "id": "spot_weakness",
+      "source_id": 10316,
+      "name": "Spot Weakness",
+      "color": "red",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10316_card.png",
+      "artist": "Lius Lasahido",
+      "text": "Give a hero and its allied neighbors Pierce this round. Draw a card.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": [
+              "$c.target",
+              {
+                "s": "units",
+                "rel": {
+                  "allied_neighbors": "$c.target"
+                }
+              }
+            ],
+            "until": "round",
+            "keywords": {
+              "pierce": 1
+            }
+          },
+          {
+            "op": "draw",
+            "player": "you",
+            "n": 1
+          }
+        ]
+      },
+      "valve_text": "Give a hero and its allied neighbors Pierce this round. Draw a card."
+    },
+    {
+      "id": "clear_the_deck",
+      "source_id": 10344,
+      "name": "Clear the Deck",
+      "color": "red",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10344_card.png",
+      "artist": "Bayard Wu",
+      "cleave": 4,
+      "text": "Give allied heroes +{cleave} Cleave this round.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "give",
+            "to": "allied_heroes",
+            "until": "round",
+            "keywords": {
+              "cleave": {
+                "param": "cleave"
+              }
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-04"
+      ],
+      "valve_text": "Give allied heroes +4 Cleave this round."
+    },
+    {
+      "id": "crippling_blow",
+      "source_id": 10421,
+      "name": "Crippling Blow",
+      "color": "red",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10421_card.png",
+      "artist": "Daarken",
+      "attack": -2,
+      "text": "Modify a hero with {attack} Attack.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a hero with -2 Attack."
+    },
+    {
+      "id": "enrage",
+      "source_id": 10282,
+      "name": "Enrage",
+      "color": "red",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10282_card.png",
+      "artist": "Forrest Imel",
+      "text": "Give a red hero +4 Attack and +4 Armor this round.",
+      "attack": 4,
+      "armor": 4,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              },
+              "armor": {
+                "param": "armor"
+              }
+            },
+            "until": "round"
+          }
+        ]
+      },
+      "valve_text": "Give a red hero +4 Attack and +4 Armor this round."
+    },
+    {
+      "id": "sucker_punch",
+      "source_id": 10350,
+      "name": "Sucker Punch",
+      "color": "red",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10350_card.png",
+      "artist": "Wisnu Tan",
+      "amount": 2,
+      "text": "Stun a unit blocking an allied red hero this round. Deal {amount} damage to that unit.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "rel": {
+                "blocker": {
+                  "s": "units",
+                  "side": "ally",
+                  "kind": "hero",
+                  "color": "red"
+                }
+              }
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "round",
+            "keywords": {
+              "stun": 1
+            }
+          },
+          {
+            "op": "damage",
+            "to": "$c.target",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Stun a unit blocking an allied red hero this round. Deal 2 damage to that unit."
+    },
+    {
+      "id": "tresdins_standards",
+      "source_id": 10385,
+      "name": "Tresdin's Standards",
+      "color": "red",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10385_card.png",
+      "artist": "James Paick",
+      "text": "Modify a red hero with \"After you play a red card, give this hero and its allied neighbors +{attack} Attack and +{armor} Armor this round.\"",
+      "attack": 1,
+      "armor": 1,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "color": "red"
+          },
+          "ops": [
+            {
+              "op": "give",
+              "to": [
+                "$self",
+                "allied_neighbors"
+              ],
+              "stats": {
+                "attack": {
+                  "param": "attack"
+                },
+                "armor": {
+                  "param": "armor"
+                }
+              },
+              "until": "round"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-44"
+      ],
+      "valve_text": "Modify a red hero with \"After you play a red card, give this hero and its allied neighbors +1 Attack and +1 Armor this round.\""
+    },
+    {
+      "id": "viscous_nasal_goo",
+      "source_id": 10419,
+      "name": "Viscous Nasal Goo",
+      "color": "red",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10419_card.png",
+      "artist": "JiHun Lee",
+      "text": "Modify a unit with -{armor_loss} Armor.",
+      "armor_loss": 2,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "armor": {
+                "neg": {
+                  "param": "armor_loss"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a unit with -2 Armor."
+    },
+    {
+      "id": "enough_magic",
+      "source_id": 10326,
+      "name": "Enough Magic!",
+      "color": "red",
+      "kind": "spell",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10326_card.png",
+      "artist": "JiHun Lee",
+      "text": "Proceed to the combat phase.",
+      "status": "draft",
+      "play": {
+        "ops": [
+          {
+            "op": "end_action_phase"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-20"
+      ],
+      "valve_text": "Proceed to the combat phase."
+    },
+    {
+      "id": "raze",
+      "source_id": 10305,
+      "name": "Raze",
+      "color": "red",
+      "kind": "spell",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10305_card.png",
+      "artist": "Mike Azevedo",
+      "text": "Condemn all enemy improvements.",
+      "status": "verified",
+      "rq": [
+        "RQ-04"
+      ],
+      "play": {
+        "ops": [
+          {
+            "op": "condemn",
+            "to": {
+              "s": "improvements",
+              "side": "enemy"
+            }
+          }
+        ]
+      },
+      "valve_text": "Condemn all enemy improvements."
+    },
+    {
+      "id": "gods_strength",
+      "source_id": 10330,
+      "name": "God's Strength",
+      "color": "red",
+      "kind": "spell",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10330_card.png",
+      "artist": "Yongjae Choi",
+      "text": "Modify a red hero with +4 Attack.",
+      "attack": 4,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "red"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a red hero with +4 Attack."
+    },
+    {
+      "id": "routed",
+      "source_id": 10191,
+      "name": "Routed",
+      "color": "red",
+      "kind": "spell",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10191_card.png",
+      "artist": "Robert Simon",
+      "text": "Modify enemy heroes at the Fountain with -X Attack where X is half their Attack. Modify them with \"Your tower has -{mana_loss} Mana.\"",
+      "mana_loss": 1,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "for_each",
+            "in": {
+              "s": "units",
+              "side": "enemy",
+              "kind": "hero",
+              "lane": "fountain"
+            },
+            "as": "h",
+            "ops": [
+              {
+                "op": "modify",
+                "to": "$v.h",
+                "stats": {
+                  "attack": {
+                    "neg": {
+                      "half": {
+                        "stat": "attack",
+                        "of": "$v.h"
+                      }
+                    }
+                  }
+                },
+                "grant": 0
+              }
+            ]
+          }
+        ]
+      },
+      "grants": [
+        {
+          "kind": "aura",
+          "affects": "your_tower",
+          "grant": {
+            "mana": {
+              "neg": {
+                "param": "mana_loss"
+              }
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-28",
+        "RQ-53"
+      ],
+      "valve_text": "Modify enemy heroes at the Fountain with -X Attack where X is half their Attack. Modify them with \"Your tower has -1 Mana.\""
+    },
+    {
+      "id": "primal_roar",
+      "source_id": 10293,
+      "name": "Primal Roar",
+      "color": "red",
+      "kind": "spell",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10293_card.png",
+      "artist": "Clint Cearley",
+      "text": "Stun a unit blocking an allied red hero this round. Move that unit's allied neighbors to random other lanes.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "rel": {
+                "blocker": {
+                  "s": "units",
+                  "side": "ally",
+                  "kind": "hero",
+                  "color": "red"
+                }
+              }
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "keywords": {
+              "stun": 1
+            },
+            "until": "round"
+          },
+          {
+            "op": "move",
+            "unit": {
+              "s": "units",
+              "rel": {
+                "allied_neighbors": "$c.target"
+              }
+            },
+            "lane": "random_other"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Stun a unit blocking an allied red hero this round. Move that unit's allied neighbors to random other lanes."
+    },
+    {
+      "id": "spring_the_trap",
+      "source_id": 10417,
+      "name": "Spring the Trap",
+      "color": "red",
+      "kind": "spell",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10417_card.png",
+      "artist": "James Paick",
+      "text": "Summon two Centaur Hunters into any lane.",
+      "amount": 2,
+      "cross_lane": true,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "lane",
+            "from": {
+              "s": "lanes",
+              "lane": "all"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "summon",
+            "card": "centaur_hunter",
+            "count": {
+              "param": "amount"
+            },
+            "lane": "$c.lane"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-48"
+      ],
+      "valve_text": "Summon two Centaur Hunters into any lane."
+    },
+    {
+      "id": "time_of_triumph",
+      "source_id": 10425,
+      "name": "Time of Triumph",
+      "color": "red",
+      "kind": "spell",
+      "cost": 8,
+      "image": "res://assets/classic_cards/10425_card.png",
+      "artist": "Darek Zabrocki",
+      "amount": 4,
+      "text": "Modify allied heroes with +{amount} Attack, +{amount} Armor, +{amount} Health, +{amount} Cleave, +{amount} Retaliate, and +{amount} Siege.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "modify",
+            "to": "allied_heroes",
+            "stats": {
+              "attack": {
+                "param": "amount"
+              },
+              "armor": {
+                "param": "amount"
+              },
+              "max_health": {
+                "param": "amount"
+              }
+            },
+            "keywords": {
+              "cleave": {
+                "param": "amount"
+              },
+              "retaliate": {
+                "param": "amount"
+              },
+              "siege": {
+                "param": "amount"
+              }
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-04"
+      ],
+      "valve_text": "Modify allied heroes with +4 Attack, +4 Armor, +4 Health, +4 Cleave, +4 Retaliate, and +4 Siege."
+    },
+    {
+      "id": "nether_ward",
+      "source_id": 10173,
+      "name": "Nether Ward",
+      "color": "red",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10173_card.png",
+      "artist": "Randy Vargas",
+      "cross_lane": true,
+      "amount": 3,
+      "text": "After opponent plays a spell, deal {amount} damage to the enemy tower.",
+      "status": "verified",
+      "rq": [
+        "RQ-03"
+      ],
+      "abilities": [
+        {
+          "id": "nether_ward",
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "opponent",
+            "kind": "spell"
+          },
+          "ops": [
+            {
+              "op": "tower_damage",
+              "to": "enemy_tower",
+              "amount": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "After opponent plays a spell, deal 3 damage to the enemy tower."
+    },
+    {
+      "id": "steel_reinforcement",
+      "source_id": 10179,
+      "name": "Steel Reinforcement",
+      "color": "red",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10179_card.png",
+      "artist": "Lius Lasahido",
+      "text": "Your tower has +1 Armor.",
+      "cross_lane": true,
+      "tower_armor": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "steel",
+          "kind": "aura",
+          "affects": "your_tower",
+          "grant": {
+            "armor": {
+              "param": "tower_armor"
+            }
+          }
+        }
+      ],
+      "valve_text": "Your tower has +1 Armor."
+    },
+    {
+      "id": "vhoul_martyr",
+      "source_id": 10107,
+      "name": "Vhoul Martyr",
+      "color": "green",
+      "kind": "creep",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10107_card.png",
+      "artist": "Jakub Kasper",
+      "text": "Death Effect: Modify allies with +{death_attack} Attack and +{death_health} Health.",
+      "death_attack": 1,
+      "death_health": 1,
+      "attack": 2,
+      "armor": 0,
+      "health": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "martyrdom",
+          "kind": "trigger",
+          "on": "death",
+          "ops": [
+            {
+              "op": "modify",
+              "to": "allies",
+              "stats": {
+                "attack": {
+                  "param": "death_attack"
+                },
+                "max_health": {
+                  "param": "death_health"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Death Effect: Modify allies with +1 Attack and +1 Health."
+    },
+    {
+      "id": "rebel_decoy",
+      "source_id": 10080,
+      "name": "Rebel Decoy",
+      "color": "green",
+      "kind": "creep",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10080_card.png",
+      "artist": "Jason Kang",
+      "text": "Active {ability_cooldown}: Swap Rebel Decoy with another ally.",
+      "ability_name": "Rebel Decoy",
+      "ability_cooldown": 1,
+      "attack": 2,
+      "armor": 0,
+      "health": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "decoy",
+          "kind": "active",
+          "valve": 10455,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "other_allies"
+            }
+          ],
+          "ops": [
+            {
+              "op": "swap",
+              "a": "$self",
+              "b": "$c.target"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-30"
+      ],
+      "valve_text": "Active 1: Swap Rebel Decoy with another ally."
+    },
+    {
+      "id": "rampaging_hellbear",
+      "source_id": 10113,
+      "name": "Rampaging Hellbear",
+      "color": "green",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10113_card.png",
+      "artist": "Vance Kovacs",
+      "text": "Modify Rampaging Hellbear with +{combat_growth_attack} Attack after the combat phase.",
+      "combat_growth_attack": 4,
+      "attack": 2,
+      "armor": 0,
+      "health": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "rampage",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "attack": {
+                  "param": "combat_growth_attack"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Modify Rampaging Hellbear with +4 Attack after the combat phase."
+    },
+    {
+      "id": "roseleaf_druid",
+      "source_id": 10117,
+      "name": "Roseleaf Druid",
+      "color": "green",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10117_card.png",
+      "artist": "Alix Branwyn",
+      "amount": 1,
+      "text": "Your tower has +{amount} Mana.",
+      "attack": 2,
+      "armor": 0,
+      "health": 6,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "druid",
+          "kind": "aura",
+          "affects": "your_tower",
+          "grant": {
+            "mana": {
+              "param": "amount"
+            }
+          }
+        }
+      ],
+      "valve_text": "Your tower has +1 Mana."
+    },
+    {
+      "id": "satyr_duelist",
+      "source_id": 10111,
+      "name": "Satyr Duelist",
+      "color": "green",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10111_card.png",
+      "artist": "Wisnu Tan",
+      "text": "Modify Satyr Duelist with +{combat_growth_attack} Attack after the combat phase.",
+      "combat_growth_attack": 2,
+      "attack": 3,
+      "armor": 0,
+      "health": 5,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "duelist",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$self",
+              "stats": {
+                "attack": {
+                  "param": "combat_growth_attack"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Modify Satyr Duelist with +2 Attack after the combat phase."
+    },
+    {
+      "id": "selfish_cleric",
+      "source_id": 10119,
+      "name": "Selfish Cleric",
+      "color": "green",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10119_card.png",
+      "artist": "John Stanko",
+      "text": "Fully heal Selfish Cleric after the combat phase.",
+      "attack": 4,
+      "armor": 0,
+      "health": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "selfish",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "heal",
+              "to": "$self",
+              "amount": "full"
+            }
+          ]
+        }
+      ],
+      "valve_text": "Fully heal Selfish Cleric after the combat phase."
+    },
+    {
+      "id": "smeevil_blacksmith",
+      "source_id": 10079,
+      "name": "Smeevil Blacksmith",
+      "color": "green",
+      "kind": "creep",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10079_card.png",
+      "artist": "Izzy",
+      "text": "Play Effect: Modify a random allied hero with +{hero_armor} Armor.",
+      "hero_armor": 1,
+      "attack": 2,
+      "armor": 0,
+      "health": 2,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "modify",
+            "to": {
+              "use": "allied_heroes",
+              "pick": {
+                "random": 1
+              }
+            },
+            "stats": {
+              "armor": {
+                "param": "hero_armor"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Play Effect: Modify a random allied hero with +1 Armor."
+    },
+    {
+      "id": "revtel_convoy",
+      "source_id": 10091,
+      "name": "Revtel Convoy",
+      "color": "green",
+      "kind": "creep",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10091_card.png",
+      "artist": "Darek Zabrocki",
+      "text": "Revtel Convoy has +X Attack where X is equal to half your gold.",
+      "attack": 0,
+      "armor": 0,
+      "health": 20,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "convoy",
+          "kind": "aura",
+          "affects": "$self",
+          "grant": {
+            "attack": {
+              "half": {
+                "gold": "you"
+              }
+            }
+          }
+        }
+      ],
+      "rq": [
+        "RQ-28"
+      ],
+      "valve_text": "Revtel Convoy has +X Attack where X is equal to half your gold."
+    },
+    {
+      "id": "champion_of_the_ancient",
+      "source_id": 10133,
+      "name": "Champion of the Ancient",
+      "color": "green",
+      "kind": "creep",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10133_card.png",
+      "artist": "Daarken",
+      "text": "Play Effect: Modify Champion of the Ancient with +{per_enemy_attack} Attack, +{per_enemy_health} Health, and +{per_enemy_cleave} Cleave for each enemy.",
+      "per_enemy_attack": 1,
+      "per_enemy_health": 1,
+      "per_enemy_cleave": 1,
+      "attack": 2,
+      "armor": 0,
+      "health": 6,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "let",
+            "name": "n",
+            "value": {
+              "count": "enemies"
+            }
+          },
+          {
+            "op": "if",
+            "cond": {
+              "cmp": [
+                "$v.n",
+                ">",
+                0
+              ]
+            },
+            "then": [
+              {
+                "op": "modify",
+                "to": "$self",
+                "stats": {
+                  "attack": {
+                    "mul": [
+                      {
+                        "param": "per_enemy_attack"
+                      },
+                      "$v.n"
+                    ]
+                  },
+                  "max_health": {
+                    "mul": [
+                      {
+                        "param": "per_enemy_health"
+                      },
+                      "$v.n"
+                    ]
+                  }
+                },
+                "keywords": {
+                  "cleave": {
+                    "mul": [
+                      {
+                        "param": "per_enemy_cleave"
+                      },
+                      "$v.n"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "valve_text": "Play Effect: Modify Champion of the Ancient with +1 Attack, +1 Health, and +1 Cleave for each enemy."
+    },
+    {
+      "id": "roseleaf_rejuvenator",
+      "source_id": 10134,
+      "name": "Roseleaf Rejuvenator",
+      "color": "green",
+      "kind": "creep",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10134_card.png",
+      "artist": "Jakub Kasper",
+      "text": "Play Effect: Heal your tower {amount}.",
+      "amount": 7,
+      "attack": 7,
+      "armor": 0,
+      "health": 7,
+      "status": "verified",
+      "rq": [
+        "RQ-46"
+      ],
+      "play": {
+        "ops": [
+          {
+            "op": "tower_heal",
+            "to": "your_tower",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Play Effect: Heal your tower 7."
+    },
+    {
+      "id": "emissary_of_the_quorum",
+      "source_id": 10096,
+      "name": "Emissary of the Quorum",
+      "color": "green",
+      "kind": "creep",
+      "cost": 8,
+      "image": "res://assets/classic_cards/10096_card.png",
+      "artist": "Kieran Yanner",
+      "text": "Active {ability_cooldown}: Modify allies with +{modify_attack} Attack and +{modify_health} Health.",
+      "ability_name": "Emissary of the Quorum",
+      "ability_cooldown": 1,
+      "modify_attack": 2,
+      "modify_health": 2,
+      "attack": 1,
+      "armor": 2,
+      "health": 10,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "quorum",
+          "kind": "active",
+          "valve": 10457,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "allies",
+              "stats": {
+                "attack": {
+                  "param": "modify_attack"
+                },
+                "max_health": {
+                  "param": "modify_health"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Active 1: Modify allies with +2 Attack and +2 Health."
+    },
+    {
+      "id": "thunderhide_alpha",
+      "source_id": 10108,
+      "name": "Thunderhide Alpha",
+      "color": "green",
+      "kind": "creep",
+      "cost": 9,
+      "image": "res://assets/classic_cards/10108_card.png",
+      "artist": "Vance Kovacs",
+      "text": "Creep: 25 attack, 0 armor, 25 health.",
+      "attack": 25,
+      "armor": 0,
+      "health": 25,
+      "status": "verified",
+      "valve_text": ""
+    },
+    {
+      "id": "juke",
+      "source_id": 10365,
+      "name": "Juke",
+      "color": "green",
+      "kind": "spell",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10365_card.png",
+      "artist": "Forrest Imel",
+      "text": "Swap an ally with one of its allied neighbors.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "allies"
+          },
+          {
+            "key": "destination",
+            "from": {
+              "s": "units",
+              "rel": {
+                "allied_neighbors": "$c.target"
+              }
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "swap",
+            "a": "$c.target",
+            "b": "$c.destination"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-30"
+      ],
+      "valve_text": "Swap an ally with one of its allied neighbors."
+    },
+    {
+      "id": "aphotic_shield",
+      "source_id": 10287,
+      "name": "Aphotic Shield",
+      "color": "green",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10287_card.png",
+      "artist": "Chase Stone",
+      "text": "Purge your opponent's effects from a unit. Give that unit +{armor} Armor and +{retaliate} Retaliate this round.",
+      "armor": 2,
+      "retaliate": 2,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "purge",
+            "to": "$c.target",
+            "from": "opponent"
+          },
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "round",
+            "stats": {
+              "armor": {
+                "param": "armor"
+              }
+            },
+            "keywords": {
+              "retaliate": {
+                "param": "retaliate"
+              }
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-12"
+      ],
+      "valve_text": "Purge your opponent's effects from a unit. Give that unit +2 Armor and +2 Retaliate this round."
+    },
+    {
+      "id": "bellow",
+      "source_id": 10303,
+      "name": "Bellow",
+      "color": "green",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10303_card.png",
+      "artist": "Forrest Imel",
+      "text": "Move a creep to a random other lane.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "creeps"
+          }
+        ],
+        "ops": [
+          {
+            "op": "move",
+            "unit": "$c.target",
+            "lane": "random_other"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Move a creep to a random other lane."
+    },
+    {
+      "id": "defend_the_weak",
+      "source_id": 10299,
+      "name": "Defend the Weak",
+      "color": "green",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10299_card.png",
+      "artist": "Svetlin Velinov",
+      "text": "Modify a unit with \"This unit's allied neighbors have +{armor} Armor.\"",
+      "armor": 2,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "id": "defend_the_weak",
+          "kind": "aura",
+          "affects": "allied_neighbors",
+          "grant": {
+            "armor": {
+              "param": "armor"
+            }
+          }
+        }
+      ],
+      "valve_text": "Modify a unit with \"This unit's allied neighbors have +2 Armor.\""
+    },
+    {
+      "id": "iron_branch_protection",
+      "source_id": 10324,
+      "name": "Iron Branch Protection",
+      "color": "green",
+      "kind": "spell",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10324_card.png",
+      "artist": "Magali Villeneuve",
+      "text": "Give a unit in any lane +{armor} Armor until end of its next combat phase.",
+      "cross_lane": true,
+      "armor": 3,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "lane": "all"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "stats": {
+              "armor": {
+                "param": "armor"
+              }
+            },
+            "until": "next_combat"
+          }
+        ]
+      },
+      "valve_text": "Give a unit in any lane +3 Armor until end of its next combat phase."
+    },
+    {
+      "id": "rumusque_blessing",
+      "source_id": 10192,
+      "name": "Rumusque Blessing",
+      "color": "green",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10192_card.png",
+      "artist": "John Stanko",
+      "text": "Choose a lane. Modify allies in that lane with +{health} Health.",
+      "cross_lane": true,
+      "health": 3,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "lane",
+            "from": {
+              "s": "lanes",
+              "lane": "all"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": {
+              "s": "units",
+              "side": "ally",
+              "lane": "$c.lane"
+            },
+            "stats": {
+              "max_health": {
+                "param": "health"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Choose a lane. Modify allies in that lane with +3 Health."
+    },
+    {
+      "id": "viper_strike",
+      "source_id": 10294,
+      "name": "Viper Strike",
+      "color": "green",
+      "kind": "spell",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10294_card.png",
+      "artist": "Lars Grant-West",
+      "amount": 2,
+      "text": "Give a unit \"Deal {amount} piercing damage to this unit before the action phase\" until it dies.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "death",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "kind": "trigger",
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "damage",
+              "to": "$self",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-13"
+      ],
+      "valve_text": "Give a unit \"Deal 2 piercing damage to this unit before the action phase\" until it dies."
+    },
+    {
+      "id": "allseeing_ones_favor",
+      "source_id": 10348,
+      "name": "Allseeing One's Favor",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10348_card.png",
+      "artist": "Sam Carr",
+      "regeneration": 2,
+      "text": "Modify a green hero with \"Allies have +{regeneration} Regeneration.\"",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": {
+              "s": "units",
+              "kind": "hero",
+              "color": "green"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "kind": "aura",
+          "affects": "allies",
+          "grant": {
+            "regeneration": {
+              "param": "regeneration"
+            }
+          }
+        }
+      ],
+      "valve_text": "Modify a green hero with \"Allies have +2 Regeneration.\""
+    },
+    {
+      "id": "caught_unprepared",
+      "source_id": 10396,
+      "name": "Caught Unprepared",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10396_card.png",
+      "artist": "Forrest Imel",
+      "text": "Stun a hero until they equip an item.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "until": "equip",
+            "keywords": {
+              "stun": 1
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-35"
+      ],
+      "valve_text": "Stun a hero until they equip an item."
+    },
+    {
+      "id": "cleansing_rite",
+      "source_id": 10382,
+      "name": "Cleansing Rite",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10382_card.png",
+      "artist": "John Stanko",
+      "text": "Purge your opponent's effects from a hero.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "purge",
+            "to": "$c.target",
+            "from": "opponent"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-12"
+      ],
+      "valve_text": "Purge your opponent's effects from a hero."
+    },
+    {
+      "id": "defensive_bloom",
+      "source_id": 10347,
+      "name": "Defensive Bloom",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10347_card.png",
+      "artist": "Jana Schirmer",
+      "amount": 2,
+      "text": "Summon two Roseleaf Walls.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "summon",
+            "card": "roseleaf_wall",
+            "count": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Summon two Roseleaf Walls."
+    },
+    {
+      "id": "empower",
+      "source_id": 10280,
+      "name": "Empower",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10280_card.png",
+      "artist": "Magali Villeneuve",
+      "attack": 3,
+      "cleave": 3,
+      "text": "Modify a unit with +{attack} Attack and +{cleave} Cleave.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            },
+            "keywords": {
+              "cleave": {
+                "param": "cleave"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a unit with +3 Attack and +3 Cleave."
+    },
+    {
+      "id": "ion_shell",
+      "source_id": 10281,
+      "name": "Ion Shell",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10281_card.png",
+      "artist": "Stepan Alekseev",
+      "text": "Modify a unit with +{retaliate} Retaliate.",
+      "retaliate": 3,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "keywords": {
+              "retaliate": {
+                "param": "retaliate"
+              }
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a unit with +3 Retaliate."
+    },
+    {
+      "id": "restoration_effort",
+      "source_id": 10358,
+      "name": "Restoration Effort",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10358_card.png",
+      "artist": "Darkken",
+      "text": "Heal your tower {amount}.",
+      "amount": 8,
+      "status": "verified",
+      "rq": [
+        "RQ-46"
+      ],
+      "play": {
+        "ops": [
+          {
+            "op": "tower_heal",
+            "to": "your_tower",
+            "amount": {
+              "param": "amount"
+            }
+          }
+        ]
+      },
+      "valve_text": "Heal your tower 8."
+    },
+    {
+      "id": "soul_of_spring",
+      "source_id": 10373,
+      "name": "Soul of Spring",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10373_card.png",
+      "artist": "Jana Schirmer",
+      "text": "Modify a hero with \"After you play a green card, give this hero and its allied neighbors +{regeneration} Regeneration this round.\"",
+      "regeneration": 4,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "heroes"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "grant": 0
+          }
+        ]
+      },
+      "grants": [
+        {
+          "id": "soul_of_spring",
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "color": "green"
+          },
+          "ops": [
+            {
+              "op": "give",
+              "to": [
+                "$self",
+                "allied_neighbors"
+              ],
+              "keywords": {
+                "regeneration": {
+                  "param": "regeneration"
+                }
+              },
+              "until": "round"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-03",
+        "RQ-44"
+      ],
+      "valve_text": "Modify a hero with \"After you play a green card, give this hero and its allied neighbors +4 Regeneration this round.\""
+    },
+    {
+      "id": "steal_strength",
+      "source_id": 10403,
+      "name": "Steal Strength",
+      "color": "green",
+      "kind": "spell",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10403_card.png",
+      "artist": "Darek Zabrocki",
+      "text": "Give a unit {attack_loss} Attack this round and give another unit +{attack} Attack this round.",
+      "attack": 4,
+      "attack_loss": -4,
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          },
+          {
+            "key": "destination",
+            "from": {
+              "s": "units",
+              "not": "$c.target"
+            }
+          }
+        ],
+        "ops": [
+          {
+            "op": "give",
+            "to": "$c.target",
+            "stats": {
+              "attack": {
+                "param": "attack_loss"
+              }
+            },
+            "until": "round"
+          },
+          {
+            "op": "give",
+            "to": "$c.destination",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            },
+            "until": "round"
+          }
+        ]
+      },
+      "valve_text": "Give a unit -4 Attack this round and give another unit +4 Attack this round."
+    },
+    {
+      "id": "corrosive_mist",
+      "source_id": 10142,
+      "name": "Corrosive Mist",
+      "color": "green",
+      "kind": "spell",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10142_card.png",
+      "artist": "Magali Villeneuve",
+      "text": "Condemn all equipped items.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "condemn",
+            "to": {
+              "s": "items"
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-04",
+        "RQ-40"
+      ],
+      "valve_text": "Condemn all equipped items."
+    },
+    {
+      "id": "divine_intervention",
+      "source_id": 10338,
+      "name": "Divine Intervention",
+      "color": "green",
+      "kind": "spell",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10338_card.png",
+      "artist": "Wisnu Tan",
+      "text": "Give allies Damage Immunity this round.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "give",
+            "to": "allies",
+            "until": "round",
+            "keywords": {
+              "damage_immunity": 1
+            }
+          }
+        ]
+      },
+      "valve_text": "Give allies Damage Immunity this round."
+    },
+    {
+      "id": "intimidation",
+      "source_id": 10379,
+      "name": "Intimidation",
+      "color": "green",
+      "kind": "spell",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10379_card.png",
+      "artist": "Bayard Wu",
+      "text": "Move a unit to a random other lane.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "move",
+            "unit": "$c.target",
+            "lane": "random_other"
+          }
+        ]
+      },
+      "rq": [
+        "RQ-17"
+      ],
+      "valve_text": "Move a unit to a random other lane."
+    },
+    {
+      "id": "curse_of_atrophy",
+      "source_id": 10317,
+      "name": "Curse of Atrophy",
+      "color": "green",
+      "kind": "spell",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10317_card.png",
+      "artist": "Magali Villeneuve",
+      "text": "Modify enemy heroes with {attack} Attack.",
+      "attack": -2,
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "modify",
+            "to": "enemy_heroes",
+            "stats": {
+              "attack": {
+                "param": "attack"
+              }
+            }
+          }
+        ]
+      },
+      "rq": [
+        "RQ-04"
+      ],
+      "valve_text": "Modify enemy heroes with -2 Attack."
+    },
+    {
+      "id": "divine_purpose",
+      "source_id": 10378,
+      "name": "Divine Purpose",
+      "color": "green",
+      "kind": "spell",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10378_card.png",
+      "artist": "Kieran Yanner",
+      "text": "Modify a unit with Damage Immunity.",
+      "status": "verified",
+      "play": {
+        "choices": [
+          {
+            "key": "target",
+            "from": "units"
+          }
+        ],
+        "ops": [
+          {
+            "op": "modify",
+            "to": "$c.target",
+            "keywords": {
+              "damage_immunity": 1
+            }
+          }
+        ]
+      },
+      "valve_text": "Modify a unit with Damage Immunity."
+    },
+    {
+      "id": "hand_of_god",
+      "source_id": 10340,
+      "name": "Hand of God",
+      "color": "green",
+      "kind": "spell",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10340_card.png",
+      "artist": "Clint Cearley",
+      "text": "Fully heal each ally. Give allies Damage Immunity this round.",
+      "status": "verified",
+      "play": {
+        "ops": [
+          {
+            "op": "heal",
+            "to": "allies",
+            "amount": "full"
+          },
+          {
+            "op": "give",
+            "to": "allies",
+            "until": "round",
+            "keywords": {
+              "damage_immunity": 1
+            }
+          }
+        ]
+      },
+      "valve_text": "Fully heal each ally. Give allies Damage Immunity this round."
+    },
+    {
+      "id": "verdant_refuge",
+      "source_id": 10193,
+      "name": "Verdant Refuge",
+      "color": "green",
+      "kind": "improvement",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10193_card.png",
+      "artist": "Chris Rallis",
+      "text": "Allies have +{ally_armor} Armor.",
+      "cross_lane": true,
+      "ally_armor": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "refuge",
+          "kind": "aura",
+          "affects": "allies",
+          "grant": {
+            "armor": {
+              "param": "ally_armor"
+            }
+          }
+        }
+      ],
+      "valve_text": "Allies have +1 Armor."
+    },
+    {
+      "id": "loyal_beast",
+      "source_id": 10136,
+      "name": "Loyal Beast",
+      "color": "red",
+      "kind": "creep",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10136_card.png",
+      "artist": "Clint Cearley",
+      "text": "When Loyal Beast deals battle damage to a unit, modify that unit with -{attack_loss} Attack.",
+      "attack": 3,
+      "armor": 1,
+      "health": 3,
+      "token": true,
+      "attack_loss": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "maul",
+          "kind": "trigger",
+          "on": "battle_damage",
+          "filter": {
+            "role": "dealer",
+            "target_kind": "unit"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": "$e.target",
+              "stats": {
+                "attack": {
+                  "neg": {
+                    "param": "attack_loss"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-32",
+        "RQ-45",
+        "RQ-54"
+      ],
+      "valve_text": "When Loyal Beast deals battle damage to a unit, modify that unit with -1 Attack."
+    },
+    {
+      "id": "roseleaf_wall",
+      "source_id": 10120,
+      "name": "Roseleaf Wall",
+      "color": "green",
+      "kind": "creep",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10120_card.png",
+      "artist": "Pauline Voss",
+      "text": "Creep: {attack} attack, {armor} armor, {health} health.",
+      "attack": 0,
+      "armor": 0,
+      "health": 8,
+      "token": true,
+      "status": "verified",
+      "valve_text": ""
+    },
+    {
+      "id": "zombie",
+      "source_id": 1009,
+      "name": "Zombie",
+      "color": "black",
+      "kind": "creep",
+      "cost": 1,
+      "image": "res://assets/classic_cards/1009_card.png",
+      "artist": "Forrest Imel",
+      "text": "Zombie: 2 attack, 0 armor, 2 health.",
+      "attack": 2,
+      "armor": 0,
+      "health": 2,
+      "status": "verified",
+      "token": true,
+      "valve_text": ""
     }
   ],
   "deck": {
@@ -1451,7 +5126,7 @@
         "avernus_blessing": 3,
         "stars_align": 3,
         "arm_the_rebellion": 3,
-        "centaur_hunter": 3
+        "satyr_duelist": 3
       },
       "items": {
         "short_sword": 2,
@@ -1492,6 +5167,203 @@
         "short_sword": 3,
         "leather_armor": 3,
         "travelers_cloak": 3
+      }
+    },
+    {
+      "id": "sun_liu_alliance",
+      "name": "Red / Green Alliance",
+      "description": "Sven and Pugna lead Mazzie's improvements, Viper's poison and Chen's converts; creeps that grow after combat back them up.",
+      "heroes": [
+        "sven",
+        "viper",
+        "pugna",
+        "chen",
+        "mazzie"
+      ],
+      "cards": {
+        "gods_strength": 3,
+        "viper_strike": 3,
+        "nether_ward": 3,
+        "hand_of_god": 3,
+        "steel_reinforcement": 3,
+        "poised_to_strike": 2,
+        "spot_weakness": 2,
+        "legion_standard_bearer": 2,
+        "stonehall_elite": 2,
+        "clear_the_deck": 2,
+        "hellbear_crippler": 2,
+        "time_of_triumph": 1,
+        "spring_the_trap": 1,
+        "rampaging_hellbear": 2,
+        "satyr_duelist": 2,
+        "iron_branch_protection": 2,
+        "rumusque_blessing": 2,
+        "selfish_cleric": 2,
+        "juke": 1
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "broadsword": 2,
+        "claymore": 1
+      }
+    },
+    {
+      "id": "northern_expedition",
+      "name": "Red / Blue Retaliation",
+      "description": "Timbersaw, Ursa and Centaur Warrunner strip armor and punish attackers; Zeus and J'Muy add burn, card draw and redirection.",
+      "heroes": [
+        "timbersaw",
+        "zeus",
+        "ursa",
+        "jmuy",
+        "centaur_warrunner"
+      ],
+      "cards": {
+        "whirling_death": 3,
+        "thundergods_wrath": 3,
+        "enrage": 3,
+        "battlefield_control": 3,
+        "double_edge": 3,
+        "fight_through_the_pain": 2,
+        "new_orders": 2,
+        "pick_a_fight": 2,
+        "rend_armor": 2,
+        "sucker_punch": 2,
+        "marrowfell_brawler": 2,
+        "mercenary_exiles": 2,
+        "red_mist_pillager": 2,
+        "lightning_strike": 3,
+        "tower_barrage": 2,
+        "foresight": 2,
+        "dimensional_portal": 2
+      },
+      "items": {
+        "short_sword": 3,
+        "leather_armor": 3,
+        "travelers_cloak": 3
+      }
+    },
+    {
+      "id": "gathering_of_champions",
+      "name": "Red / Black Champions",
+      "description": "Legion Commander duels, Bristleback and Tidehunter hold the lane, Beastmaster's beasts weaken blockers and Phantom Assassin finishes heroes.",
+      "heroes": [
+        "legion_commander",
+        "phantom_assassin",
+        "bristleback",
+        "tidehunter",
+        "beastmaster"
+      ],
+      "cards": {
+        "duel": 3,
+        "coup_de_grace": 3,
+        "viscous_nasal_goo": 3,
+        "kraken_shell": 3,
+        "primal_roar": 3,
+        "rising_anger": 2,
+        "heroic_resolve": 2,
+        "tresdins_standards": 2,
+        "crippling_blow": 2,
+        "cursed_satyr": 2,
+        "ogre_corpse_tosser": 2,
+        "rebel_instigator": 2,
+        "smeevil_armsmaster": 2,
+        "raze": 1,
+        "smash_their_defenses": 1,
+        "routed": 1,
+        "untested_grunt": 3,
+        "hip_fire": 2,
+        "slay": 1
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "broadsword": 1,
+        "claymore": 2
+      }
+    },
+    {
+      "id": "ruxu_standoff",
+      "name": "Green / Blue Fortress",
+      "description": "Treant Protector, Enchantress and Dark Seer armor, heal and reposition the board; Zeus and J'Muy control it with spells.",
+      "heroes": [
+        "treant_protector",
+        "jmuy",
+        "enchantress",
+        "zeus",
+        "dark_seer"
+      ],
+      "cards": {
+        "roseleaf_druid": 3,
+        "battlefield_control": 3,
+        "verdant_refuge": 3,
+        "thundergods_wrath": 3,
+        "ion_shell": 3,
+        "defensive_bloom": 2,
+        "defend_the_weak": 2,
+        "soul_of_spring": 2,
+        "bellow": 2,
+        "intimidation": 1,
+        "emissary_of_the_quorum": 1,
+        "roseleaf_rejuvenator": 2,
+        "rebel_decoy": 2,
+        "smeevil_blacksmith": 2,
+        "restoration_effort": 1,
+        "tower_barrage": 2,
+        "foresight": 2,
+        "thunderstorm": 2,
+        "lightning_strike": 2
+      },
+      "items": {
+        "leather_armor": 3,
+        "travelers_cloak": 3,
+        "short_sword": 2,
+        "broadsword": 1
+      }
+    },
+    {
+      "id": "little_conqueror",
+      "name": "Green / Black Conquest",
+      "description": "Magnus, Abaddon and Omniknight empower, shield and heal; Debbi and Phantom Assassin remove the heroes in their way.",
+      "heroes": [
+        "magnus",
+        "phantom_assassin",
+        "abaddon",
+        "debbi",
+        "omniknight"
+      ],
+      "cards": {
+        "empower": 3,
+        "coup_de_grace": 3,
+        "aphotic_shield": 3,
+        "no_accident": 3,
+        "allseeing_ones_favor": 3,
+        "vhoul_martyr": 2,
+        "champion_of_the_ancient": 2,
+        "revtel_convoy": 1,
+        "caught_unprepared": 2,
+        "cleansing_rite": 1,
+        "steal_strength": 2,
+        "curse_of_atrophy": 1,
+        "divine_intervention": 1,
+        "corrosive_mist": 1,
+        "divine_purpose": 1,
+        "thunderhide_alpha": 1,
+        "untested_grunt": 3,
+        "hip_fire": 2,
+        "slay": 2,
+        "forward_charge": 2,
+        "pick_off": 1
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "broadsword": 2,
+        "claymore": 1
       }
     }
   ]

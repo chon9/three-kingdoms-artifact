@@ -149,7 +149,12 @@ func _test_polarity() -> void:
 	var cases = {"no_accident": {"target": 1}, "healing_salve": {"target": -1}, "fx_stun_spell": {"target": 1},
 		"fx_shield_spell": {"target": -1}, "avernus_blessing": {"target": -1}, "fx_curse_spell": {"target": 1},
 		"fx_control": {"target": 1}, "berserkers_call": {}, "battlefield_control": {}, "town_portal_scroll": {"target": -1},
-		"slay": {"target": 1}, "fx_swap": {}}
+		"slay": {"target": 1}, "fx_swap": {},
+		# M3: expressions are estimated (a "neg" or a negative number harms), and
+		# granted text counts by what it does for its bearer.
+		"rend_armor": {"target": 1}, "crippling_blow": {"target": 1}, "steal_strength": {"target": 1, "destination": -1},
+		"enrage": {"target": -1}, "viper_strike": {"target": 1}, "soul_of_spring": {"target": -1},
+		"defend_the_weak": {"target": -1}, "heroic_resolve": {"target": -1}, "allseeing_ones_favor": {"target": -1}}
 	for card_id in cases:
 		var polarity: Dictionary = library.static_value(card_id).get("polarity", {})
 		_check(polarity == cases[card_id], "Polarity of %s is %s (got %s)" % [card_id, cases[card_id], polarity])

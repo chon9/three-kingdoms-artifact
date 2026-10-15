@@ -1,0 +1,13 @@
+{
+"card": "omniknight",
+"source_id": 10044,
+"text": "Purification: Heal a unit 3.",
+"covers": ["active", "heal", "unit"],
+"cases": [
+ {"name": "Purification heals a unit 3 and starts its cooldown", "clause": 0, "tags": ["active", "heal", "unit"], "board": {"lanes": {"0": {"p0": ["omniknight#o:hp=6"], "p1": ["melee_creep#c:hp=1"]}}}, "do": [{"ability": "o", "target": "o"}], "expect": {"o.health": 9, "o.cooldown": 2, "events": {"has": ["ability", "heal"]}}},
+ {"name": "an enemy unit can be healed, never above its maximum", "clause": 0, "tags": ["edge", "unit", "heal"], "board": "@0", "do": [{"ability": "o", "target": "c"}], "expect": {"c.health": 4, "o.health": 6}},
+ {"name": "a silenced Omniknight cannot use it", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"o": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "o", "target": "o"}]},
+ {"name": "a unit in another lane is not a target", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["omniknight#o:hp=6"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#x:hp=1"], "p1": ["melee_creep#y"]}}}, "do": [], "expect_illegal": [{"ability": "o", "target": "x"}]},
+ {"name": "cooldown 2: one round later it is still cooling down", "clause": 0, "tags": ["edge", "active"], "board": "@0", "do": [{"ability": "o", "target": "o"}, {"end_round": true}], "expect": {"o.cooldown": 1}},
+ {"name": "cooldown 2: two rounds later it is ready again", "clause": 0, "tags": ["edge", "active"], "board": "@0", "do": [{"ability": "o", "target": "o"}, {"end_round": true}, {"end_round": true}], "expect": {"o.cooldown": 0}}
+]}

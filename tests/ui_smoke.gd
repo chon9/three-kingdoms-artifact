@@ -363,6 +363,26 @@ func _run() -> void:
 	await _settle()
 	if not _require(int(jmuy.cooldown) > 0 and _engine().state.players[0].hand.size() == 1, "Clicking the ability badge uses the ability"):
 		return
+	# --- Dark Seer's Surge: a hero ability with a unit step, then a lane step (M3) ---
+	var seer = Zones.summon(_engine(), "dark_seer", 0, 0)
+	var seer_ally = Zones.summon(_engine(), "melee_creep", 0, 0)
+	_focus_player_zero([])
+	await _settle()
+	var seer_point = screen.ability_point(int(seer.uid))
+	if not _require(seer_point != Vector2.ZERO, "Dark Seer shows an ability badge"):
+		return
+	_click(seer_point)
+	if not _require(screen.current_step_type() == "unit", "Surge asks for another ally first"):
+		return
+	screen.target_unit(int(seer_ally.uid))
+	if not _require(screen.current_step_type() == "lane", "Surge then asks for a lane"):
+		return
+	screen.choose_lane(2)
+	await _settle()
+	if not _require(int(seer_ally.lane) == 2 and int(seer.cooldown) > 0, "Surge moves the ally to the chosen lane and starts its cooldown"):
+		return
+	_engine()._remove_from_lane(seer)
+	_engine()._remove_from_lane(seer_ally)
 	# --- Edge hover: only cross-lane cards switch lanes, once per visit -----------
 	_focus_player_zero(["no_accident"])
 	await _settle()
@@ -464,6 +484,23 @@ func _run() -> void:
 			return
 		app.close_dialogs()
 		await process_frame
+	# The catalog lists every definition of the pack (M3: the red and green
+	# cards too), heroes first, and filters by colour (faction).
+	var catalog = app.open_catalog()
+	await process_frame
+	var pack = Library.new()
+	var total = catalog.cards.size()
+	catalog.apply_filter("green")
+	var greens = catalog.cards.filter(func(card): return card.visible).size()
+	var green_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
+	catalog.apply_filter("all")
+	if not _require(total == pack.heroes.size() + pack.cards.size() and total >= 144 and str(catalog.cards[0].definition.get("kind", "")) == "hero"
+			and greens > 0 and greens < total and "treant_protector" in green_ids and "viper_strike" in green_ids and "duel" not in green_ids
+			and catalog.cards.all(func(card): return card.visible),
+			"The catalog lists every card (%d) and filters by colour (%d green)" % [total, greens]):
+		return
+	app.close_dialogs()
+	await process_frame
 	app.open_menu()
 	await process_frame
 	var escape = InputEventKey.new()
@@ -606,7 +643,7 @@ func _run() -> void:
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters)." % checks)
 	app.queue_free()
 	await process_frame
 	_restore_settings()

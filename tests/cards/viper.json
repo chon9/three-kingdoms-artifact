@@ -1,0 +1,16 @@
+{
+"card": "viper",
+"source_id": 10028,
+"text": "Corrosive Skin: When a unit deals battle damage to Viper, modify that unit with -1 Attack.",
+"covers": ["battle_damage_taken", "modify", "stat_attack", "trigger_subject", "permanent"],
+"cases": [
+ {"name": "Corrosive Skin: the unit that deals battle damage to Viper gets -1 Attack", "clause": 0, "tags": ["battle_damage_taken", "modify", "stat_attack", "trigger_subject", "permanent"], "board": {"lanes": {"0": {"p0": ["viper#v"], "p1": ["centaur_hunter#c"]}}}, "do": [{"combat": true}], "expect": {"c.attack": 3, "v.health": 6, "c.health": 4, "events": {"has": ["trigger", "mod"]}}},
+ {"name": "rq_32 no damage dealt, no corrosion", "clause": 0, "tags": ["negative", "battle_damage_taken", "RQ-32"], "board": {"lanes": {"0": {"p0": ["viper#v:arm=4"], "p1": ["centaur_hunter#c"]}}}, "do": [{"combat": true}], "expect": {"c.attack": 4, "c.health": 4, "v.health": 10}},
+ {"name": "a disarmed attacker deals nothing and keeps its attack", "clause": 0, "tags": ["negative", "battle_damage_taken"], "board": {"base": "@0", "give": {"c": ["disarm"]}}, "do": [{"combat": true}], "expect": {"c.attack": 4, "v.health": 10}},
+ {"name": "a unit Viper hits but that does not hit Viper is not corroded", "clause": 0, "tags": ["edge", "trigger_subject"], "board": {"lanes": {"0": {"p0": [null, "viper#v:arrow=-1"], "p1": ["centaur_hunter#a", null]}}}, "do": [{"combat": true}], "expect": {"a.health": 4, "a.attack": 4, "v.health": 10, "tower.0.0.health": 36}},
+ {"name": "the -1 Attack is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"combat": true}, {"end_round": true}], "expect": {"c.attack": 3}},
+ {"name": "a silenced Viper still corrodes (passive, RQ-31)", "clause": 0, "tags": ["edge", "battle_damage_taken"], "board": {"base": "@0", "give": {"v": ["silence"]}}, "do": [{"combat": true}], "expect": {"c.attack": 3}},
+ {"name": "Viper corrodes the unit that kills her", "clause": 0, "tags": ["edge", "battle_damage_taken"], "board": {"lanes": {"0": {"p0": ["viper#v:hp=4"], "p1": ["centaur_hunter#c"]}}}, "do": [{"combat": true}], "expect": {"v.in_play": false, "c.attack": 3}},
+ {"name": "rq_45 cleave damage to Viper is battle damage", "clause": 0, "tags": ["edge", "battle_damage_taken", "RQ-45"], "board": {"lanes": {"0": {"p0": ["viper#v", "melee_creep#m"], "p1": [null, "magnus#g"]}}}, "do": [{"play": "empower", "target": "g"}, {"combat": true}], "expect": {"m.in_play": false, "v.health": 7, "g.attack": 6}},
+ {"name": "rq_54_dead_hero_keeps_corrosion: a hero that dies hitting Viper keeps the -1 Attack in the Fountain", "clause": 0, "tags": ["edge", "trigger_subject", "permanent", "RQ-54"], "board": {"lanes": {"0": {"p0": ["viper#v"], "p1": ["keefe#k:hp=3"]}}}, "do": [{"combat": true}], "expect": {"k.in_play": false, "k.attack": 5, "v.health": 4}}
+]}

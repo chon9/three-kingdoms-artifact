@@ -1,0 +1,14 @@
+{
+"card": "red_mist_pillager",
+"source_id": 10132,
+"text": "After the combat phase, if Red Mist Pillager dealt battle damage to a tower this round, summon a Red Mist Pillager.",
+"covers": ["after_combat", "summon", "self", "permanent"],
+"cases": [
+ {"name": "it dealt battle damage to the tower: a Red Mist Pillager is summoned for its owner", "clause": 0, "tags": ["after_combat", "summon", "self", "permanent"], "board": {"lanes": {"0": {"p0": ["red_mist_pillager#r", null], "p1": [null, "melee_creep#x:atk=0:arrow=-1"]}}}, "do": [{"combat": true}], "expect": {"events": {"has": ["summon"]}, "tower.0.1.health": 36, "r.health": 2, "x.arrow": 0}},
+ {"name": "a blocked Pillager deals no tower damage and summons nothing", "clause": 0, "tags": ["negative", "after_combat"], "board": {"lanes": {"0": {"p0": ["red_mist_pillager#r"], "p1": ["ogre_conscript#m:atk=0"]}}}, "do": [{"combat": true}], "expect": {"m.health": 5, "tower.0.1.health": 40, "events": {"not": ["summon"]}}},
+ {"name": "rq_45_no_damage_after_armor: tower armor absorbing the whole attack is no battle damage", "clause": 0, "tags": ["edge", "RQ-45", "after_combat"], "board": {"lanes": {"0": {"p0": ["red_mist_pillager#r"], "p1": [null]}}, "towers": {"0": {"p1": {"armor": 4}}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 40, "events": {"not": ["summon"]}}},
+ {"name": "a Pillager killed in the same combat summons nothing", "clause": 0, "tags": ["edge", "self"], "board": {"lanes": {"0": {"p0": ["red_mist_pillager#r", null], "p1": [null, "melee_creep#x:arrow=-1"]}}}, "do": [{"combat": true}], "expect": {"r.in_play": false, "tower.0.1.health": 36, "events": {"not": ["summon"]}}},
+ {"name": "rq_17_copy_takes_a_random_end_of_a_full_row", "clause": 0, "tags": ["edge", "summon", "RQ-17"], "board": {"lanes": {"0": {"p0": ["red_mist_pillager#r"], "p1": [null]}}}, "do": [{"combat": true}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"r.slot": [0.38, 0.62]}},
+ {"name": "another lane's combat phase does not trigger it", "clause": 0, "tags": ["edge", "after_combat"], "board": {"lanes": {"0": {"p0": ["melee_creep#c"], "p1": [null]}, "1": {"p0": ["red_mist_pillager#r"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"events": {"not": ["summon"]}}},
+ {"name": "the next lane's combat phase does not trigger it a second time", "clause": 0, "tags": ["edge", "after_combat"], "board": {"lanes": {"0": {"p0": ["red_mist_pillager#r", null], "p1": [null, "melee_creep#x:atk=0:arrow=-1"]}}}, "do": [{"combat": true}, {"combat": true}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"r.slot": [0.0, 0.0], "x.arrow": [0.0, 0.0]}}
+]}

@@ -1487,8 +1487,11 @@ def report(entries):
     out.append("")
     ready = [e for e in counted if e["status"] != "implemented" and not e["engine"]["missing"] and not e["engine"]["partial"]]
     almost = [e for e in counted if e["status"] != "implemented" and not e["engine"]["missing"] and e["engine"]["partial"]]
-    out.append("Coverage = (full + 0.5 x partial) / required mechanics, measured against the generic engine facilities "
-               "below. The 49 implemented cards work through ad-hoc fields, so their coverage can be < 1.")
+    out.append("Coverage = (full + 0.5 x partial) / required mechanics, measured against the pre-M1 engine facilities "
+               "below (the legacy match_engine.gd effect switch, kept as the design baseline; it is not updated as "
+               "milestones land). Cards counted as implemented are the ones in data/classic_cards.json, so their "
+               "coverage can be < 1. The current mapping of every Valve tag to rules-engine ops, selectors and events "
+               "is tests/data/coverage.json (tools/coverage.py).")
     out.append("")
     out.append("- Unimplemented cards whose every mechanic is already fully supported (data only): %d - %s" % (
         len(ready), md_escape(", ".join(e["name"] for e in ready))))
@@ -1575,9 +1578,10 @@ def report(entries):
         out.append("- Source: %s" % source)
         out.append("")
     # engine map
-    out.append("## Current engine support map")
+    out.append("## Pre-M1 engine support map (design baseline)")
     out.append("")
-    out.append("`full` = a data field drives it generically; `partial` = exists for specific cards or a subset; "
+    out.append("The legacy engine before the rules engine (M1); see tests/data/coverage.json for the current mapping. "
+               "`full` = a data field drives it generically; `partial` = exists for specific cards or a subset; "
                "`none` = absent. Locations are file:function.")
     out.append("")
     out.append("| Mechanic | Status | Where | Notes |")

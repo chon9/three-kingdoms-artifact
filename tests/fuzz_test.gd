@@ -102,7 +102,9 @@ func _pool(kinds: Array, equipment: bool = false) -> Array:
 func _random_deck(rng: RandomNumberGenerator, preset_id: String) -> String:
 	var heroes: Array = []
 	for hero in library.heroes:
-		if str(hero.get("kind", "hero")) == "hero" and library._deckable(str(hero.id)):
+		# A hero needs a signature card of the pack to fill a legal deck.
+		var signature = str(hero.get("signature", ""))
+		if str(hero.get("kind", "hero")) == "hero" and library._deckable(str(hero.id)) and library.cards.has(signature):
 			heroes.append(str(hero.id))
 	heroes.sort()
 	var chosen: Array = []

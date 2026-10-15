@@ -1,0 +1,15 @@
+{
+"card": "mercenary_exiles",
+"source_id": 10094,
+"text": "Active 2: Spend all your gold. Modify Mercenary Exiles with +X Attack and +X Health where X is half the gold spent.",
+"covers": ["active", "gold_spend", "modify", "scaling_x", "stat_attack", "stat_health", "player_gold", "self", "permanent"],
+"cases": [
+ {"name": "Spend all your gold", "clause": 0, "tags": ["active", "gold_spend", "player_gold"], "board": {"lanes": {"0": {"p0": ["mercenary_exiles#x"], "p1": ["melee_creep#m"]}}, "gold": {"p0": 8, "p1": 5}}, "do": [{"ability": "x"}], "expect": {"p0.gold": 0, "p1.gold": 5, "x.cooldown": 2, "events": {"has": ["ability", "gold"]}}},
+ {"name": "with no gold the ability spends nothing and modifies nothing", "clause": 0, "tags": ["edge", "gold_spend"], "board": {"base": "@0", "gold": {"p0": 0}}, "do": [{"ability": "x"}], "expect": {"p0.gold": 0, "x.attack": 2, "x.max_health": 4, "x.cooldown": 2, "events": {"not": ["gold", "mod"]}}},
+ {"name": "a silenced Mercenary Exiles cannot use it", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"x": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "x"}]},
+ {"name": "outside the active lane it cannot be used", "clause": 0, "tags": ["negative", "active"], "board": {"active_lane": 1, "lanes": {"0": {"p0": ["mercenary_exiles#x"], "p1": ["melee_creep#m"]}, "1": {"p0": ["axe#a"], "p1": [null]}}, "gold": {"p0": 8}}, "do": [], "expect_illegal": [{"ability": "x"}]},
+ {"name": "Modify Mercenary Exiles with +X Attack and +X Health, X half the gold spent", "clause": 1, "tags": ["modify", "scaling_x", "stat_attack", "stat_health", "self", "player_gold"], "board": {"lanes": {"0": {"p0": ["mercenary_exiles#x"], "p1": ["melee_creep#m"]}}, "gold": {"p0": 8, "p1": 5}}, "do": [{"ability": "x"}], "expect": {"x.attack": 6, "x.max_health": 8, "x.health": 8, "x.armor": 1, "events": {"has": ["mod"]}}},
+ {"name": "rq_28_half_rounds_down: 7 gold spent gives +3", "clause": 1, "tags": ["edge", "scaling_x", "RQ-28"], "board": {"base": "@0", "gold": {"p0": 7}}, "do": [{"ability": "x"}], "expect": {"p0.gold": 0, "x.attack": 5, "x.max_health": 7, "x.health": 7}},
+ {"name": "1 gold spent rounds down to +0", "clause": 1, "tags": ["edge", "scaling_x"], "board": {"base": "@0", "gold": {"p0": 1}}, "do": [{"ability": "x"}], "expect": {"p0.gold": 0, "x.attack": 2, "x.max_health": 4, "events": {"has": ["gold"], "not": ["mod"]}}},
+ {"name": "the modification is permanent and the cooldown ticks down", "clause": 1, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["mercenary_exiles#x"], "p1": ["melee_creep#m"]}}, "gold": {"p0": 8, "p1": 5}}, "do": [{"ability": "x"}, {"end_round": true}], "expect": {"x.attack": 6, "x.max_health": 8, "x.cooldown": 1}}
+]}

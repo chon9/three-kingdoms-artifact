@@ -1,0 +1,13 @@
+{
+"card": "centaur_warrunner",
+"source_id": 10021,
+"text": "Return: Centaur Warrunner has +2 Retaliate.",
+"covers": ["continuous", "retaliate", "self"],
+"cases": [
+ {"name": "Return: an attacker takes 2 Retaliate damage, less its armor", "clause": 0, "tags": ["continuous", "retaliate", "self"], "board": {"lanes": {"0": {"p0": ["centaur_warrunner#c"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"c.kw.retaliate": 2, "c.health": 8, "k.health": 7}},
+ {"name": "rq_06_stunned_centaur_still_retaliates", "clause": 0, "tags": ["edge", "retaliate", "RQ-06"], "board": {"base": "@0", "give": {"c": ["stun"]}}, "do": [{"combat": true}], "expect": {"c.health": 8, "k.health": 10}},
+ {"name": "a unit that does not attack it takes no Retaliate", "clause": 0, "tags": ["negative", "retaliate"], "board": {"base": "@0", "give": {"k": ["stun"]}}, "do": [{"combat": true}], "expect": {"c.health": 14, "k.health": 8}},
+ {"name": "the attacker's armor reduces Retaliate", "clause": 0, "tags": ["edge", "retaliate"], "board": {"lanes": {"0": {"p0": ["centaur_warrunner#c"], "p1": ["keefe#k:arm=2"]}}}, "do": [{"combat": true}], "expect": {"c.health": 8, "k.health": 9}},
+ {"name": "Retaliate answers each enemy neighbor in Berserker's Call (M3 acceptance)", "clause": 0, "tags": ["retaliate", "self"], "board": {"lanes": {"0": {"p0": [null, "centaur_warrunner#c", null], "p1": ["melee_creep#a", "keefe#k", "melee_creep#b"]}}}, "do": [{"play": "berserkers_call", "target": "c"}], "expect": {"a.in_play": false, "b.in_play": false, "k.health": 7, "c.health": 4}},
+ {"name": "spell damage is not an attack: no Retaliate", "clause": 0, "tags": ["negative", "retaliate"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["centaur_warrunner#c"]}}}, "do": [{"play": "no_accident", "target": "c"}], "expect": {"c.health": 11, "d.health": 5}}
+]}

@@ -1,0 +1,14 @@
+{
+"card": "enchantress",
+"source_id": 10036,
+"text": "Nature's Attendants: Enchantress has +2 Regeneration. Enchantress's allied neighbors have +2 Regeneration.",
+"covers": ["continuous", "regeneration", "allied_neighbors", "self"],
+"cases": [
+ {"name": "Enchantress has +2 Regeneration", "clause": 0, "tags": ["continuous", "regeneration", "self"], "board": {"lanes": {"0": {"p0": [null, "enchantress#n", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [], "expect": {"n.kw.regeneration": 2}},
+ {"name": "her regeneration heals her in combat before the death check (RQ-09)", "clause": 0, "tags": ["edge", "regeneration", "self"], "board": {"lanes": {"0": {"p0": ["enchantress#n:hp=4"], "p1": ["centaur_hunter#c"]}}}, "do": [{"combat": true}], "expect": {"n.in_play": true, "n.health": 2, "c.health": 4}},
+ {"name": "regeneration never raises health above the maximum", "clause": 0, "tags": ["negative", "regeneration"], "board": {"lanes": {"0": {"p0": ["enchantress#n"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"n.health": 8, "tower.0.1.health": 36}},
+ {"name": "Enchantress's allied neighbors have +2 Regeneration", "clause": 1, "tags": ["continuous", "regeneration", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "enchantress#n", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [], "expect": {"l.kw.regeneration": 2, "r.kw.regeneration": 2, "n.kw.regeneration": 2}},
+ {"name": "an ally that is not a neighbor and the enemies get nothing", "clause": 1, "tags": ["negative", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", null, "enchantress#n"], "p1": ["melee_creep#x", "melee_creep#y", "melee_creep#z"]}}}, "do": [], "expect": {"a.kw.regeneration": 0, "y.kw.regeneration": 0, "z.kw.regeneration": 0}},
+ {"name": "the neighbors heal after combat damage", "clause": 1, "tags": ["edge", "regeneration"], "board": "@3", "do": [{"combat": true}], "expect": {"l.health": 4, "r.health": 4, "n.health": 8}},
+ {"name": "the aura ends when Enchantress dies", "clause": 1, "tags": ["edge", "continuous"], "board": "@3", "do": [{"kill": ["n"]}], "expect": {"l.kw.regeneration": 0, "r.kw.regeneration": 0}}
+]}

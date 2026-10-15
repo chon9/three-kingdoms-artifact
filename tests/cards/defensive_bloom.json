@@ -1,0 +1,10 @@
+{
+"card": "defensive_bloom",
+"source_id": 10347,
+"text": "Summon two Roseleaf Walls.",
+"covers": ["play", "summon", "permanent"],
+"cases": [
+ {"name": "Summon two Roseleaf Walls: they block the creeps across them", "clause": 0, "tags": ["play", "summon", "permanent"], "board": {"lanes": {"0": {"p0": [null, "magnus#m", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "defensive_bloom"}, {"combat": true}], "expect": {"tower.0.0.health": 40, "a.health": 4, "c.health": 4, "events": {"has": ["summon"]}}},
+ {"name": "the walls join the active lane only", "clause": 0, "tags": ["edge", "summon"], "board": {"lanes": {"0": {"p0": [null, "magnus#m", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}, "1": {"p0": [null, "melee_creep#o", null], "p1": ["melee_creep#x", "melee_creep#y", "melee_creep#z"]}}}, "do": [{"play": "defensive_bloom"}, {"combat": true}, {"combat": true}], "expect": {"tower.0.0.health": 40, "tower.1.0.health": 36}},
+ {"name": "it cannot be cast without a green hero in the lane", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "defensive_bloom"}]}
+]}

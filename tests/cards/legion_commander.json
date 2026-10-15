@@ -1,0 +1,12 @@
+{
+"card": "legion_commander",
+"source_id": 10069,
+"text": "Moment of Courage: Legion Commander has +2 Retaliate.",
+"covers": ["continuous", "retaliate", "self"],
+"cases": [
+ {"name": "Moment of Courage: an attacker takes 2 Retaliate damage, less its armor", "clause": 0, "tags": ["continuous", "retaliate", "self"], "board": {"lanes": {"0": {"p0": ["legion_commander#l"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"l.kw.retaliate": 2, "l.health": 3, "k.health": 5}},
+ {"name": "rq_06_stunned_legion_commander_still_retaliates", "clause": 0, "tags": ["edge", "retaliate", "RQ-06"], "board": {"base": "@0", "give": {"l": ["stun"]}}, "do": [{"combat": true}], "expect": {"l.health": 3, "k.health": 10}},
+ {"name": "a unit that does not attack it takes no Retaliate", "clause": 0, "tags": ["negative", "retaliate"], "board": {"base": "@0", "give": {"k": ["stun"]}}, "do": [{"combat": true}], "expect": {"l.health": 8, "k.health": 6}},
+ {"name": "every attacker takes Retaliate, diagonal ones too", "clause": 0, "tags": ["retaliate", "self"], "board": {"lanes": {"0": {"p0": [null, "legion_commander#l", null], "p1": ["melee_creep#a:arrow=1", "melee_creep#b", "melee_creep#c:arrow=-1"]}}}, "do": [{"combat": true}], "expect": {"a.health": 2, "c.health": 2, "b.in_play": false, "l.health": 5}},
+ {"name": "Retaliate answers her signature Duel", "clause": 0, "tags": ["retaliate"], "board": {"lanes": {"0": {"p0": ["legion_commander#l"], "p1": ["keefe#k"]}}}, "do": [{"play": "duel", "target": "l", "destination": "k"}], "expect": {"l.health": 3, "k.health": 5}}
+]}

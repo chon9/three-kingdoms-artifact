@@ -28,6 +28,10 @@ const HERO_ACTIVE_START_COOLDOWN = 0
 const SIMULTANEOUS_DAMAGE = true
 ## RQ-34/RQ-47: improvements per side of a lane.
 const IMPROVEMENT_CAP = 16
+## RQ-54: a Modify on a hero that died earlier in the same command (a trigger
+## resolving from its look-back snapshot) reaches the hero in the Fountain
+## (false: it fizzles like every other op on a unit that left play).
+const MODIFY_REACHES_DEAD_HEROES = true
 const ZONE_RANK = {"unit": 0, "item": 1, "improvement": 2, "deed": 3, "snapshot": 0}
 
 # --- Randomness (D1: the only functions that touch e.rng) ---------------------------
@@ -225,7 +229,9 @@ static func _filter_ok(e, filter: Dictionary, kind: String, payload: Dictionary,
 						if host_uid not in payload.get("enemy_neighbors", []):
 							return false
 					"blocker":
-						if host_uid not in payload.get("attackers", []):
+						# The dead unit was $host's combat target ("a unit
+						# blocking it"), whether or not $host could attack.
+						if host_uid not in payload.get("blocking", payload.get("attackers", [])):
 							return false
 			"role":
 				var host = ctx.get("host")
@@ -467,19 +473,27 @@ static func _snapshot(e, units: Array) -> Array:
 				enemy_neighbors.append(int(enemy[index].uid))
 		var across = int(enemy[slot].uid) if slot >= 0 and slot < enemy.size() and enemy[slot] != null else 0
 		var target = e.combat_target_of(unit)
+		# `blocking`: every enemy unit whose combat target was this unit, the
+		# units it was blocking (glossary: a unit is unblocked only when its
+		# combat target is the tower; stun and disarm stop attacking, not
+		# blocking). `attackers` leaves out disarmed and stunned ones (RQ-05).
 		var attackers: Array = []
+		var blocking: Array = []
 		for index in range(enemy.size()):
 			var attacker = enemy[index]
-			if attacker == null or Stats.flag(e, attacker, "disarm"):
+			if attacker == null:
 				continue
 			var aimed = e._combat_target(attacker, lane_index, index)
 			if not aimed.is_empty() and int(aimed.uid) == int(unit.uid):
-				attackers.append(int(attacker.uid))
+				blocking.append(int(attacker.uid))
+				if not Stats.flag(e, attacker, "disarm"):
+					attackers.append(int(attacker.uid))
 		var derived = Stats.derive(e, unit)
 		var snapshot = {"snap": true, "uid": int(unit.uid), "card": str(unit.card), "owner": int(unit.owner),
 			"hero": bool(unit.hero), "color": str(unit.get("color", "neutral")), "lane": lane_index, "slot": slot,
 			"neighbors": neighbors, "enemy_neighbors": enemy_neighbors, "across": across,
-			"target": int(target.get("uid", 0)), "attackers": attackers, "items": unit.get("items", {}).duplicate(),
+			"target": int(target.get("uid", 0)), "attackers": attackers, "blocking": blocking,
+			"items": unit.get("items", {}).duplicate(),
 			"attack": int(derived.attack), "armor": int(derived.armor), "max_health": int(derived.max_health),
 			"kw": derived.kw, "mods": unit.get("mods", []).duplicate(true), "health": int(unit.health),
 			"cause": e._causes.get(int(unit.uid), {})}
@@ -613,7 +627,7 @@ static func modify(e, target, stats: Dictionary, keywords: Dictionary, grant: St
 			for keyword in keywords:
 				target.kw[keyword] = int(target.kw.get(keyword, 0)) + int(keywords[keyword])
 			_record(e, target, "modify", by, source, written, keywords, grant, "perm")
-			e._event("mod", {"id": int(target.uid), "card": str(target.card), "st": written, "kw": keywords, "perm": true, "src": source})
+			e._event("mod", _with_grant({"id": int(target.uid), "card": str(target.card), "st": written, "kw": keywords, "perm": true, "src": source}, grant))
 		"tower":
 			var lane: Dictionary = e.state.lanes[int(target.lane)]
 			var structure: Dictionary = lane.structures[int(target.p)]
@@ -629,7 +643,31 @@ static func modify(e, target, stats: Dictionary, keywords: Dictionary, grant: St
 			for keyword in keywords:
 				structure.kw[keyword] = int(structure.kw.get(keyword, 0)) + int(keywords[keyword])
 			_record(e, structure, "modify", by, source, written, keywords, grant, "perm")
-			e._event("mod", {"id": Select.key(target), "tower": [int(target.lane), int(target.p)], "st": written, "kw": keywords, "perm": true, "src": source})
+			e._event("mod", _with_grant({"id": Select.key(target), "tower": [int(target.lane), int(target.p)], "st": written, "kw": keywords, "perm": true, "src": source}, grant))
+		"snapshot":
+			# RQ-54: a roster hero that died earlier in this command is in the
+			# Fountain. Heroes keep modifications through death (glossary), and a
+			# Pulse processes reactive abilities before it destroys units, so a
+			# Modify that resolves after the removal still reaches that hero.
+			if MODIFY_REACHES_DEAD_HEROES and bool(target.get("hero", false)):
+				var hero = _fountain_hero(e, int(target.get("uid", 0)))
+				if not hero.is_empty():
+					modify(e, hero, stats, keywords, grant, ctx)
+
+## The roster hero with `uid` while it is in the Fountain, or {}.
+static func _fountain_hero(e, uid: int) -> Dictionary:
+	for owner in e.state.players:
+		for hero in owner.roster:
+			if int(hero.uid) == uid and bool(hero.get("roster", true)) and int(hero.get("lane", -1)) < 0:
+				return hero
+	return {}
+
+## A mod/status event carries the granted text's reference ("<card>#<index>")
+## when the effect grants text, so the log can show that text.
+static func _with_grant(payload: Dictionary, grant: String) -> Dictionary:
+	if not grant.is_empty():
+		payload["ab"] = grant
+	return payload
 
 ## Temporary effect: an entry pulled at read time until `until` ends it.
 static func give(e, target, stats: Dictionary, keywords: Dictionary, grant: String, until: String, ctx: Dictionary) -> void:
@@ -647,12 +685,12 @@ static func give(e, target, stats: Dictionary, keywords: Dictionary, grant: Stri
 				return
 			_record(e, target, "give", by, source, stats, granted, grant, until)
 			_stamp_combat(e, target, int(target.lane), until)
-			e._event("status", {"id": int(target.uid), "card": str(target.card), "st": stats, "kw": granted, "until": until, "src": source})
+			e._event("status", _with_grant({"id": int(target.uid), "card": str(target.card), "st": stats, "kw": granted, "until": until, "src": source}, grant))
 		"tower":
 			var structure: Dictionary = e.state.lanes[int(target.lane)].structures[int(target.p)]
 			_record(e, structure, "give", by, source, stats, granted, grant, until)
 			_stamp_combat(e, structure, int(target.lane), until)
-			e._event("status", {"id": Select.key(target), "tower": [int(target.lane), int(target.p)], "st": stats, "kw": granted, "until": until, "src": source})
+			e._event("status", _with_grant({"id": Select.key(target), "tower": [int(target.lane), int(target.p)], "st": stats, "kw": granted, "until": until, "src": source}, grant))
 
 ## A next_combat entry given while its own lane's combat resolves (a death
 ## or battle-damage trigger) lasts until the lane's next combat: it carries the

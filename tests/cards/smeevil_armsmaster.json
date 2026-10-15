@@ -1,0 +1,14 @@
+{
+"card": "smeevil_armsmaster",
+"source_id": 10076,
+"text": "Play Effect: Modify a random allied hero with +2 Attack.",
+"covers": ["play_effect", "modify", "stat_attack", "random_allied_hero", "permanent"],
+"cases": [
+ {"name": "Play Effect: Modify a random allied hero with +2 Attack", "clause": 0, "tags": ["play_effect", "modify", "stat_attack", "random_allied_hero", "permanent"], "seed": 1, "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#e"]}}}, "do": [{"play": "smeevil_armsmaster", "position": 1}], "expect": {"k.attack": 8, "events": {"has": ["mod"]}}},
+ {"name": "each allied hero is picked half of the time", "clause": 0, "tags": ["random_allied_hero"], "seeds": {"from": 1, "count": 200}, "board": {"lanes": {"0": {"p0": ["keefe#k:atk=0", "axe#a:atk=0"], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"play": "smeevil_armsmaster", "position": 2}], "expect_rate": {"k.attack": [0.4, 0.6], "a.attack": [0.4, 0.6]}},
+ {"name": "exactly one allied hero is modified (fixed seed)", "clause": 0, "tags": ["random_allied_hero", "stat_attack"], "seed": 7, "board": {"lanes": {"0": {"p0": ["keefe#k", "axe#a"], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"play": "smeevil_armsmaster", "position": 2}], "expect": {"k.attack": 8, "a.attack": 6}},
+ {"name": "enemy heroes and allied creeps are never picked", "clause": 0, "tags": ["negative", "random_allied_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#x", "melee_creep#f"]}}}, "do": [{"play": "smeevil_armsmaster", "position": 2}], "expect": {"k.attack": 8, "x.attack": 6, "m.attack": 2}},
+ {"name": "rq_04_lane_scope: an allied hero in another lane is never picked (RQ-04)", "clause": 0, "tags": ["edge", "RQ-04", "random_allied_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#e"]}, "1": {"p0": ["axe#a"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "smeevil_armsmaster", "position": 1}], "expect": {"k.attack": 8, "a.attack": 6}},
+ {"name": "the modification lasts past the round and survives the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "smeevil_armsmaster", "position": 1}, {"end_round": true}, {"kill": ["k"]}], "expect": {"k.in_play": false, "k.attack": 8}},
+ {"name": "without a red hero it cannot be played", "clause": 0, "tags": ["negative", "play_effect"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#e"]}}}, "do": [], "expect_illegal": [{"play": "smeevil_armsmaster", "position": 1}]}
+]}

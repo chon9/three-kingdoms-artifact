@@ -1,0 +1,13 @@
+{
+"card": "empower",
+"source_id": 10280,
+"text": "Modify a unit with +3 Attack and +3 Cleave.",
+"covers": ["play", "cleave", "modify", "stat_attack", "unit", "permanent"],
+"cases": [
+ {"name": "Modify a unit with +3 Attack and +3 Cleave", "clause": 0, "tags": ["play", "modify", "stat_attack", "cleave", "unit", "permanent"], "board": {"lanes": {"0": {"p0": ["magnus#m"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "empower", "target": "m"}], "expect": {"m.attack": 7, "m.kw.cleave": 3, "events": {"has": ["mod"]}}},
+ {"name": "the cleave hits the blocker's allied neighbors in combat", "clause": 0, "tags": ["edge", "cleave"], "board": {"lanes": {"0": {"p0": [null, "magnus#m", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "empower", "target": "m"}, {"combat": true}], "expect": {"b.in_play": false, "a.health": 1, "c.health": 1, "m.health": 8}},
+ {"name": "an enemy unit can be the target", "clause": 0, "tags": ["edge", "unit"], "board": "@0", "do": [{"play": "empower", "target": "c"}], "expect": {"c.attack": 5, "c.kw.cleave": 3}},
+ {"name": "the modification is permanent: it survives the round and the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "empower", "target": "m"}, {"end_round": true}, {"kill": ["m"]}], "expect": {"m.in_play": false, "m.attack": 7, "m.kw.cleave": 3}},
+ {"name": "a unit in another lane is not a target", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["magnus#m"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [], "expect_illegal": [{"play": "empower", "target": "o"}]},
+ {"name": "it cannot be cast without a green hero in the lane", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "empower", "target": "k"}]}
+]}

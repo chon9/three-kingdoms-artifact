@@ -1,0 +1,16 @@
+{
+"card": "defend_the_weak",
+"source_id": 10299,
+"text": "Modify a unit with \"This unit's allied neighbors have +2 Armor.\"",
+"covers": ["continuous", "play", "grant_text", "modify", "stat_armor", "allied_neighbors", "unit", "permanent"],
+"cases": [
+ {"name": "Modify a unit with the granted text", "clause": 0, "tags": ["play", "modify", "grant_text", "unit", "permanent"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", "rix#r", "melee_creep#b"], "p1": ["melee_creep#c", "keefe#k", "melee_creep#d"]}}}, "do": [{"play": "defend_the_weak", "target": "r"}], "expect": {"a.armor": 2, "b.armor": 2, "r.armor": 0, "events": {"has": ["mod"]}}},
+ {"name": "the granted text is permanent: it lasts past the round", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "defend_the_weak", "target": "r"}, {"end_round": true}], "expect": {"a.armor": 2, "b.armor": 2}},
+ {"name": "an enemy unit can be modified; its own allied neighbors gain the armor", "clause": 0, "tags": ["edge", "unit"], "board": "@0", "do": [{"play": "defend_the_weak", "target": "k"}], "expect": {"c.armor": 2, "d.armor": 2, "k.armor": 1, "a.armor": 0, "b.armor": 0}},
+ {"name": "only units in this lane can be chosen", "clause": 0, "tags": ["negative", "unit", "RQ-04"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#m"], "p1": ["melee_creep#n"]}}}, "expect_illegal": [{"play": "defend_the_weak", "target": "m"}]},
+ {"name": "This unit's allied neighbors have +2 Armor, also new neighbors", "clause": 1, "tags": ["continuous", "stat_armor", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#a", "melee_creep#b"], "p1": ["melee_creep#c", null, null]}}}, "do": [{"play": "defend_the_weak", "target": "r"}, {"kill": ["a"]}], "expect": {"a.in_play": false, "b.armor": 2, "b.slot": 1}},
+ {"name": "enemy neighbors and units further away get nothing", "clause": 1, "tags": ["negative", "allied_neighbors"], "board": "@4", "do": [{"play": "defend_the_weak", "target": "r"}], "expect": {"a.armor": 2, "b.armor": 0, "c.armor": 0}},
+ {"name": "a silenced bearer still projects it (passive, RQ-31)", "clause": 1, "tags": ["edge", "stat_armor", "RQ-31"], "board": {"lanes": {"0": {"p0": ["drow#d", "melee_creep#a", "rix#r", "melee_creep#b"], "p1": ["melee_creep#c", "melee_creep#e", "melee_creep#f", "melee_creep#g"]}}, "give": {"r": ["silence"]}}, "do": [{"play": "defend_the_weak", "target": "r"}], "expect": {"a.armor": 2, "b.armor": 2, "d.armor": 0}},
+ {"name": "the armor ends when the bearer dies", "clause": 1, "tags": ["edge", "allied_neighbors"], "board": "@0", "do": [{"play": "defend_the_weak", "target": "r"}, {"kill": ["r"]}], "expect": {"a.armor": 0, "b.armor": 0}},
+ {"name": "rq_12_purged_by_the_opponent: the enemy's Cleansing Rite removes the granted text", "clause": 0, "tags": ["edge", "grant_text", "RQ-12"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", "rix#r", "melee_creep#b"], "p1": ["melee_creep#c", "rix#q", "melee_creep#d"]}}}, "do": [{"play": "defend_the_weak", "target": "r"}, {"play": "cleansing_rite", "target": "r", "player": 1}], "expect": {"a.armor": 0, "b.armor": 0, "events": {"has": ["purge"]}}}
+]}

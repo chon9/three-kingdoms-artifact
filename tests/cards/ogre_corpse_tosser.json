@@ -1,0 +1,15 @@
+{
+"card": "ogre_corpse_tosser",
+"source_id": 10103,
+"text": "Deal 2 piercing damage to the enemy tower after an allied Melee Creep dies.",
+"covers": ["ally_death", "piercing_damage", "tower_damage", "enemy_tower"],
+"cases": [
+ {"name": "an allied Melee Creep dies: 2 damage to the enemy tower", "clause": 0, "tags": ["ally_death", "tower_damage", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["ogre_corpse_tosser#o", "melee_creep#c"], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"kill": ["c"]}], "expect": {"tower.0.1.health": 38, "tower.0.0.health": 40, "events": {"has": ["tower_damage"]}}},
+ {"name": "the damage is piercing: tower armor does not reduce it", "clause": 0, "tags": ["edge", "piercing_damage"], "board": {"base": "@0", "towers": {"0": {"p1": {"armor": 3}}}}, "do": [{"kill": ["c"]}], "expect": {"tower.0.1.health": 38}},
+ {"name": "an allied Melee Creep dying in combat triggers it", "clause": 0, "tags": ["ally_death", "piercing_damage"], "board": {"lanes": {"0": {"p0": ["ogre_corpse_tosser#o", "melee_creep#c:hp=1"], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"combat": true}], "expect": {"c.in_play": false, "o.in_play": true, "tower.0.1.health": 38}},
+ {"name": "an enemy Melee Creep dying does not trigger it", "clause": 0, "tags": ["negative", "ally_death"], "board": {"lanes": {"0": {"p0": ["ogre_corpse_tosser#o", "melee_creep#c"], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"kill": ["e"]}], "expect": {"tower.0.1.health": 40, "tower.0.0.health": 40, "events": {"not": ["tower_damage"]}}},
+ {"name": "an allied creep that is not a Melee Creep does not trigger it", "clause": 0, "tags": ["negative", "ally_death"], "board": {"lanes": {"0": {"p0": ["ogre_corpse_tosser#o", "bronze_legionnaire#b"], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"kill": ["b"]}], "expect": {"tower.0.1.health": 40}},
+ {"name": "rq_04_tosser_watches_its_own_lane: an allied Melee Creep dying in another lane does not trigger it", "clause": 0, "tags": ["edge", "RQ-04", "ally_death"], "board": {"lanes": {"0": {"p0": ["ogre_corpse_tosser#o"], "p1": ["melee_creep#e"]}, "1": {"p0": ["melee_creep#c"], "p1": ["melee_creep#f"]}}}, "do": [{"kill": ["c"]}], "expect": {"tower.0.1.health": 40, "tower.1.1.health": 40}},
+ {"name": "rq_43_tosser_dying_with_the_creep: a Tosser dying in the same Pulse does not trigger", "clause": 0, "tags": ["edge", "RQ-43"], "board": {"lanes": {"0": {"p0": ["ogre_corpse_tosser#o", "melee_creep#c"], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"kill": ["o", "c"]}], "expect": {"tower.0.1.health": 40, "o.in_play": false}},
+ {"name": "two allied Melee Creeps dying deal 2 damage each", "clause": 0, "tags": ["edge", "tower_damage"], "board": {"lanes": {"0": {"p0": ["melee_creep#c", "ogre_corpse_tosser#o", "melee_creep#d"], "p1": ["melee_creep#e", "melee_creep#f", "melee_creep#g"]}}}, "do": [{"kill": ["c", "d"]}], "expect": {"tower.0.1.health": 36}}
+]}

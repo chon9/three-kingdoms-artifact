@@ -1,0 +1,8 @@
+{
+"card": "roseleaf_wall",
+"source_id": 10120,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "roseleaf_wall fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["roseleaf_wall#w"], "p1": ["melee_creep#e"]}}}, "do": [{"combat": true}], "expect": {"w.health": 6, "w.attack": 0, "w.armor": 0, "e.health": 4}}
+]}

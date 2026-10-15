@@ -1,0 +1,12 @@
+{
+"card": "satyr_duelist",
+"source_id": 10111,
+"text": "Modify Satyr Duelist with +2 Attack after the combat phase.",
+"covers": ["after_combat", "modify", "stat_attack", "self", "permanent"],
+"cases": [
+ {"name": "Modify it with +2 Attack after the combat phase", "clause": 0, "tags": ["after_combat", "modify", "stat_attack", "self", "permanent"], "board": {"lanes": {"0": {"p0": ["satyr_duelist#b"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"b.attack": 5, "b.max_health": 5, "events": {"has": ["mod"]}}},
+ {"name": "one that dies in the combat does not grow", "clause": 0, "tags": ["negative", "after_combat"], "board": {"lanes": {"0": {"p0": ["satyr_duelist#b:hp=1"], "p1": ["melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"b.in_play": false}},
+ {"name": "another lane's combat does not grow it", "clause": 0, "tags": ["edge", "self"], "board": {"lanes": {"0": {"p0": ["melee_creep#m"], "p1": [null]}, "1": {"p0": ["satyr_duelist#b"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"b.attack": 3}},
+ {"name": "a stunned one still grows (only actives are blocked)", "clause": 0, "tags": ["edge", "after_combat"], "board": {"base": "@0", "give": {"b": ["stun"]}}, "do": [{"combat": true}], "expect": {"b.attack": 5}},
+ {"name": "the growth is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"combat": true}, {"end_round": true}], "expect": {"b.attack": 5}}
+]}

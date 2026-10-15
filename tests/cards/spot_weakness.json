@@ -1,0 +1,17 @@
+{
+"card": "spot_weakness",
+"source_id": 10316,
+"text": "Give a hero and its allied neighbors Pierce this round. Draw a card.",
+"covers": ["play", "draw", "pierce", "temp_buff", "allied_neighbors", "hero", "this_round"],
+"cases": [
+ {"name": "Give a hero and its allied neighbors Pierce this round", "clause": 0, "tags": ["play", "pierce", "temp_buff", "allied_neighbors", "hero", "this_round"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "keefe#k", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "spot_weakness", "target": "k"}], "expect": {"k.kw.pierce": 1, "l.kw.pierce": 1, "r.kw.pierce": 1, "b.kw.pierce": 0, "events": {"has": ["status"]}}},
+ {"name": "Pierce makes the hero's combat damage ignore armor", "clause": 0, "tags": ["pierce"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "spot_weakness", "target": "k"}, {"combat": true}], "expect": {"o.health": 1}},
+ {"name": "without Pierce armor reduces it", "clause": 0, "tags": ["negative", "pierce"], "board": "@1", "do": [{"combat": true}], "expect": {"o.health": 3}},
+ {"name": "a neighbor's Pierce also ignores armor", "clause": 0, "tags": ["allied_neighbors", "pierce"], "board": {"lanes": {"0": {"p0": ["keefe#k", "centaur_hunter#h"], "p1": ["melee_creep#a", "ogre_conscript#o"]}}}, "do": [{"play": "spot_weakness", "target": "k"}, {"combat": true}], "expect": {"o.health": 3}},
+ {"name": "units that are not its allied neighbors get no Pierce", "clause": 0, "tags": ["negative", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "keefe#k", null, "melee_creep#far"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c", "melee_creep#d"]}}}, "do": [{"play": "spot_weakness", "target": "k"}], "expect": {"l.kw.pierce": 1, "far.kw.pierce": 0, "b.kw.pierce": 0, "c.kw.pierce": 0}},
+ {"name": "an enemy hero is a legal target: it and its neighbors get Pierce", "clause": 0, "tags": ["hero", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#m", "keefe#k", "melee_creep#n"], "p1": ["melee_creep#a", "axe#x", "melee_creep#b"]}}}, "do": [{"play": "spot_weakness", "target": "x"}], "expect": {"x.kw.pierce": 1, "a.kw.pierce": 1, "b.kw.pierce": 1, "k.kw.pierce": 0, "m.kw.pierce": 0}},
+ {"name": "a creep is not a target", "clause": 0, "tags": ["negative", "hero"], "board": "@0", "do": [], "expect_illegal": [{"play": "spot_weakness", "target": "l"}, {"play": "spot_weakness", "target": "b"}], "expect_legal": [{"play": "spot_weakness", "target": "k"}]},
+ {"name": "the Pierce ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "spot_weakness", "target": "k"}, {"end_round": true}], "expect": {"k.kw.pierce": 0, "l.kw.pierce": 0}},
+ {"name": "Draw a card", "clause": 1, "tags": ["play", "draw"], "board": {"base": "@0", "deck": {"p0": ["hip_fire"]}}, "do": [{"play": "spot_weakness", "target": "k"}], "expect": {"p0.hand": ["hip_fire"], "events": {"has": ["draw_cards"]}}, "expect_private": {"viewer": 1, "absent": ["hip_fire"]}},
+ {"name": "with an empty deck nothing is drawn and the Pierce still applies", "clause": 1, "tags": ["edge", "draw"], "board": "@0", "do": [{"play": "spot_weakness", "target": "k"}], "expect": {"p0.hand": 0, "k.kw.pierce": 1, "events": {"not": ["draw_cards"]}}}
+]}

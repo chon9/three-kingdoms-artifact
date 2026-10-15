@@ -1,0 +1,13 @@
+{
+"card": "spring_the_trap",
+"source_id": 10417,
+"text": "Summon two Centaur Hunters into any lane.",
+"covers": ["play", "summon", "lane_choice", "permanent"],
+"cases": [
+ {"name": "rq_48_summons: Summon two Centaur Hunters (the Valve token, 4/0/8) into another lane; both hit its tower in combat", "clause": 0, "tags": ["play", "summon", "lane_choice", "permanent", "RQ-48"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "spring_the_trap", "lane": 1}, {"combat": true}, {"combat": true}], "expect": {"tower.1.1.health": 32, "tower.1.0.health": 40, "lane": 2, "events": {"has": ["summon", "combat"]}}},
+ {"name": "any lane: every lane is offered, the active lane included", "clause": 0, "tags": ["lane_choice"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [], "expect_legal": [{"play": "spring_the_trap", "lane": 0}, {"play": "spring_the_trap", "lane": 1}, {"play": "spring_the_trap", "lane": 2}]},
+ {"name": "into the active lane: the two Hunters join it at new positions and attack the tower", "clause": 0, "tags": ["edge", "summon", "lane_choice"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": [null]}}}, "do": [{"play": "spring_the_trap", "lane": 0}, {"combat": true}], "expect": {"tower.0.1.health": 26, "k.health": 11, "events": {"has": ["summon"]}}},
+ {"name": "no red hero in the active lane: it cannot be cast, even into the lane where the red hero stands", "clause": 0, "tags": ["negative", "lane_choice"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}, "1": {"p0": ["keefe#k"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "spring_the_trap", "lane": 1}, {"play": "spring_the_trap", "lane": 0}]},
+ {"name": "a silenced red hero gives no colour: it cannot be cast", "clause": 0, "tags": ["negative", "summon"], "board": {"base": "@0", "give": {"k": ["silence"]}}, "do": [], "expect_illegal": [{"play": "spring_the_trap", "lane": 1}]},
+ {"name": "the summoned lane's other units are untouched: the Hunters fill new positions and units already there keep theirs", "clause": 0, "tags": ["edge", "summon"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}, "2": {"p0": ["melee_creep#m"], "p1": ["melee_creep#e"]}}}, "do": [{"play": "spring_the_trap", "lane": 2}], "expect": {"m.lane": 2, "m.health": 4, "e.health": 4, "events": {"has": ["summon"]}}}
+]}

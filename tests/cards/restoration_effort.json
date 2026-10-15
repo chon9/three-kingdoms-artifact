@@ -1,0 +1,11 @@
+{
+"card": "restoration_effort",
+"source_id": 10358,
+"text": "Heal your tower 8.",
+"covers": ["play", "heal", "tower_heal", "allied_tower"],
+"cases": [
+ {"name": "Heal your tower 8", "clause": 0, "tags": ["play", "heal", "tower_heal", "allied_tower"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}}, "towers": {"0": {"p0": {"health": 20}}}}, "do": [{"play": "restoration_effort"}], "expect": {"tower.0.0.health": 28, "events": {"has": ["heal"]}}},
+ {"name": "healing stops at the tower's 40 maximum", "clause": 0, "tags": ["negative", "tower_heal"], "board": {"base": "@0", "towers": {"0": {"p0": {"health": 36}}}}, "do": [{"play": "restoration_effort"}], "expect": {"tower.0.0.health": 40}},
+ {"name": "the enemy tower and towers in other lanes are not healed", "clause": 0, "tags": ["negative", "allied_tower"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}}, "towers": {"0": {"p0": {"health": 20}, "p1": {"health": 20}}, "1": {"p0": {"health": 20}}}}, "do": [{"play": "restoration_effort"}], "expect": {"tower.0.0.health": 28, "tower.0.1.health": 20, "tower.1.0.health": 20}},
+ {"name": "a fallen tower's ancient is healed instead, up to 80", "clause": 0, "tags": ["edge", "tower_heal", "RQ-46"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}}, "towers": {"0": {"p0": {"health": 50, "ancient": true}}}}, "do": [{"play": "restoration_effort"}], "expect": {"tower.0.0.health": 58, "tower.0.0.ancient": true}}
+]}

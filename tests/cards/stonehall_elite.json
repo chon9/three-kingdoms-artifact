@@ -1,0 +1,17 @@
+{
+"card": "stonehall_elite",
+"source_id": 10131,
+"text": "Modify Stonehall Elite with +2 Attack and +2 Health after a unit blocking it dies.",
+"covers": ["blocker_death", "modify", "stat_attack", "stat_health", "self", "permanent"],
+"cases": [
+ {"name": "the unit blocking it dies: +2 Attack and +2 Health", "clause": 0, "tags": ["blocker_death", "modify", "stat_attack", "stat_health", "self"], "board": {"lanes": {"0": {"p0": ["stonehall_elite#s"], "p1": ["melee_creep#m"]}}}, "do": [{"kill": ["m"]}], "expect": {"s.attack": 6, "s.max_health": 4, "s.health": 4, "events": {"has": ["mod"]}}},
+ {"name": "Stonehall Elite kills its blocker in combat and grows", "clause": 0, "tags": ["blocker_death", "self"], "board": {"lanes": {"0": {"p0": ["stonehall_elite#s"], "p1": ["melee_creep#m"]}}}, "do": [{"combat": true}], "expect": {"m.in_play": false, "s.attack": 6, "s.max_health": 4, "s.health": 4}},
+ {"name": "a diagonal combat target is also the unit blocking it", "clause": 0, "tags": ["edge", "blocker_death"], "board": {"lanes": {"0": {"p0": ["stonehall_elite#s:arrow=1", null], "p1": [null, "melee_creep#d"]}}}, "do": [{"kill": ["d"]}], "expect": {"s.attack": 6, "s.max_health": 4}},
+ {"name": "rq_05_attacker_is_not_blocker: an enemy attacking it diagonally is not the unit blocking it", "clause": 0, "tags": ["edge", "RQ-05", "blocker_death"], "board": {"lanes": {"0": {"p0": ["stonehall_elite#s", null], "p1": ["melee_creep#m", "melee_creep#d:arrow=-1"]}}}, "do": [{"kill": ["d"]}], "expect": {"s.attack": 4, "s.max_health": 2, "events": {"not": ["mod"]}}},
+ {"name": "an allied neighbor dying does not count", "clause": 0, "tags": ["negative", "blocker_death"], "board": {"lanes": {"0": {"p0": ["stonehall_elite#s", "melee_creep#a"], "p1": ["melee_creep#m", "melee_creep#n"]}}}, "do": [{"kill": ["a"]}], "expect": {"s.attack": 4, "s.max_health": 2}},
+ {"name": "an unblocked Stonehall Elite does not grow when another enemy dies", "clause": 0, "tags": ["negative", "blocker_death"], "board": {"lanes": {"0": {"p0": ["stonehall_elite#s", "melee_creep#a"], "p1": [null, "melee_creep#n"]}}}, "do": [{"kill": ["n"]}], "expect": {"s.attack": 4}},
+ {"name": "dying together with its blocker, it does not grow", "clause": 0, "tags": ["edge", "self"], "board": {"lanes": {"0": {"p0": ["stonehall_elite#s"], "p1": ["melee_creep#m"]}}}, "do": [{"kill": ["s", "m"]}], "expect": {"s.in_play": false, "events": {"not": ["mod"]}}},
+ {"name": "the growth is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["stonehall_elite#s"], "p1": ["melee_creep#m"]}}}, "do": [{"kill": ["m"]}, {"end_round": true}], "expect": {"s.attack": 6, "s.max_health": 4}},
+ {"name": "a stunned Stonehall Elite still grows when the unit blocking it dies (it is still blocked)", "clause": 0, "tags": ["edge", "blocker_death"], "board": {"base": "@0", "give": {"s": ["stun"]}}, "do": [{"kill": ["m"]}], "expect": {"s.attack": 6, "s.max_health": 4}},
+ {"name": "a disarmed Stonehall Elite still grows when the unit blocking it dies (it is still blocked)", "clause": 0, "tags": ["edge", "blocker_death"], "board": {"base": "@0", "give": {"s": ["disarm"]}}, "do": [{"kill": ["m"]}], "expect": {"s.attack": 6, "s.max_health": 4}}
+]}

@@ -1,0 +1,13 @@
+{
+"card": "nether_ward",
+"source_id": 10173,
+"text": "After opponent plays a spell, deal 3 damage to the enemy tower.",
+"covers": ["after_opponent_plays", "damage", "tower_damage", "enemy_tower"],
+"cases": [
+ {"name": "the opponent plays a spell: 3 damage to the opponent's tower", "clause": 0, "tags": ["after_opponent_plays", "damage", "tower_damage", "enemy_tower"], "board": {"active_player": 1, "initiative": 1, "lanes": {"0": {"p0": ["axe#a"], "p1": ["jmuy#j"]}}, "improvements": {"0": {"p0": ["nether_ward#w"]}}}, "do": [{"play": "lightning_strike", "player": 1}], "expect": {"tower.0.0.health": 34, "tower.0.1.health": 37, "events": {"has": ["tower_damage"]}}},
+ {"name": "tower armor reduces it (not piercing)", "clause": 0, "tags": ["edge", "damage"], "board": {"base": "@0", "towers": {"0": {"p1": {"armor": 1}}}}, "do": [{"play": "lightning_strike", "player": 1}], "expect": {"tower.0.1.health": 38}},
+ {"name": "your own spell does not trigger it", "clause": 0, "tags": ["negative", "after_opponent_plays"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["jmuy#j"]}}, "improvements": {"0": {"p0": ["nether_ward#w"]}}}, "do": [{"play": "combat_training", "target": "a"}], "expect": {"tower.0.1.health": 40, "tower.0.0.health": 40}},
+ {"name": "an opponent's item does not trigger it", "clause": 0, "tags": ["negative", "after_opponent_plays"], "board": {"active_player": 1, "initiative": 1, "lanes": {"0": {"p0": ["axe#a"], "p1": ["jmuy#j"]}}, "improvements": {"0": {"p0": ["nether_ward#w"]}}}, "do": [{"play": "potion_of_knowledge", "player": 1}], "expect": {"tower.0.1.health": 40}},
+ {"name": "rq_03_ward_watches_its_own_lane: a spell played in another lane does not trigger it", "clause": 0, "tags": ["edge", "RQ-03", "after_opponent_plays"], "board": {"active_player": 1, "initiative": 1, "lanes": {"0": {"p0": ["axe#a"], "p1": ["jmuy#j"]}}, "improvements": {"1": {"p0": ["nether_ward#w"]}}}, "do": [{"play": "lightning_strike", "player": 1}], "expect": {"tower.0.1.health": 40, "tower.1.1.health": 40}},
+ {"name": "Nether Ward is played into any lane from the active lane", "clause": 0, "tags": ["edge", "enemy_tower"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["jmuy#j"]}}}, "do": [{"play": "nether_ward", "lane": 2}], "expect": {"events": {"has": ["improvement"]}}}
+]}

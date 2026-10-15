@@ -316,6 +316,11 @@ func _presets_and_rqs() -> void:
 			var rules = library.rules(str(card_id))
 			_check(str(rules.status) == "verified" and not bool(rules.get("token", false)), "Preset %s card %s is verified and not a token" % [preset.id, card_id])
 		_check(library.validate_preset(preset).ok, "Preset %s validates" % preset.id)
+		# A signature card comes with its hero: a preset holds one only with that hero.
+		var own: Array = preset.heroes.map(func(hero_id): return str(library.definition(str(hero_id)).get("signature", "")))
+		for hero in library.heroes:
+			var signature = str(hero.get("signature", ""))
+			_check(not preset.cards.has(signature) or signature in own, "Preset %s holds %s only with its hero" % [preset.id, signature])
 	var token_deck = library.preset("starter").duplicate(true)
 	token_deck.cards["melee_creep"] = 1
 	_check(not library.validate_preset(token_deck).ok, "A token can never enter a deck (K13)")

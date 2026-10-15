@@ -1,0 +1,15 @@
+{
+"card": "emissary_of_the_quorum",
+"source_id": 10096,
+"text": "Active 1: Modify allies with +2 Attack and +2 Health.",
+"covers": ["active", "modify", "stat_attack", "stat_health", "all_allies", "permanent"],
+"cases": [
+ {"name": "Modify allies with +2 Attack and +2 Health (the Emissary included)", "clause": 0, "tags": ["active", "modify", "stat_attack", "stat_health", "all_allies", "permanent"], "board": {"lanes": {"0": {"p0": ["rix#h", "emissary_of_the_quorum#q", "melee_creep#m:hp=1"], "p1": ["melee_creep#a", null, null]}, "1": {"p0": ["melee_creep#o"], "p1": [null]}}}, "do": [{"ability": "q"}], "expect": {"h.attack": 5, "h.max_health": 9, "h.health": 9, "q.attack": 3, "q.max_health": 12, "q.health": 12, "m.attack": 4, "m.max_health": 6, "q.cooldown": 1, "events": {"has": ["ability", "mod"]}}},
+ {"name": "the +2 Health also raises a damaged ally's current health", "clause": 0, "tags": ["edge", "stat_health"], "board": "@0", "do": [{"ability": "q"}], "expect": {"m.health": 3}},
+ {"name": "enemies and allies in other lanes are not modified", "clause": 0, "tags": ["negative", "all_allies"], "board": "@0", "do": [{"ability": "q"}], "expect": {"a.attack": 2, "a.max_health": 4, "o.attack": 2, "o.max_health": 4}},
+ {"name": "a silenced Emissary cannot use it", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"q": ["silence"]}}, "do": [], "expect": {}, "expect_illegal": [{"ability": "q"}]},
+ {"name": "a stunned Emissary cannot use it", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"q": ["stun"]}}, "do": [], "expect": {}, "expect_illegal": [{"ability": "q"}]},
+ {"name": "the Modify is permanent and the cooldown is back to 0 next round", "clause": 0, "tags": ["edge", "permanent", "active"], "board": "@0", "do": [{"ability": "q"}, {"end_round": true}], "expect": {"h.attack": 5, "m.max_health": 6, "q.cooldown": 0}},
+ {"name": "it can be used again in the next round", "clause": 0, "tags": ["edge", "active"], "board": {"base": "@0", "cooldowns": {"q": 1}}, "do": [{"end_round": true}], "expect": {"q.cooldown": 0}, "expect_legal": [{"ability": "q"}]},
+ {"name": "on cooldown it cannot be used", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "cooldowns": {"q": 1}}, "do": [], "expect": {}, "expect_illegal": [{"ability": "q"}]}
+]}

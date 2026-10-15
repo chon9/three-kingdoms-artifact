@@ -1,0 +1,16 @@
+{
+"card": "clear_the_deck",
+"source_id": 10344,
+"text": "Give allied heroes +4 Cleave this round.",
+"covers": ["play", "cleave", "temp_buff", "all_allied_heroes", "this_round"],
+"cases": [
+ {"name": "Give allied heroes +4 Cleave this round", "clause": 0, "tags": ["play", "cleave", "temp_buff", "all_allied_heroes", "this_round"], "board": {"lanes": {"0": {"p0": ["keefe#k", "axe#a"], "p1": ["melee_creep#e", "melee_creep#f"]}}}, "do": [{"play": "clear_the_deck"}], "expect": {"k.kw.cleave": 4, "a.kw.cleave": 4, "events": {"has": ["status"]}}},
+ {"name": "allied creeps and enemy heroes get no Cleave", "clause": 0, "tags": ["negative", "all_allied_heroes"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["axe#x", "melee_creep#f"]}}}, "do": [{"play": "clear_the_deck"}], "expect": {"k.kw.cleave": 4, "m.kw.cleave": 0, "x.kw.cleave": 0, "f.kw.cleave": 0}},
+ {"name": "rq_04_lane_scope: an allied hero in another lane gets no Cleave (RQ-04)", "clause": 0, "tags": ["edge", "RQ-04", "all_allied_heroes"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#e"]}, "1": {"p0": ["axe#a"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "clear_the_deck"}], "expect": {"k.kw.cleave": 4, "a.kw.cleave": 0}},
+ {"name": "the hero's combat damage cleaves its blocker's neighbors", "clause": 0, "tags": ["cleave"], "board": {"lanes": {"0": {"p0": [null, "keefe#k", null], "p1": ["melee_creep#l", "melee_creep#c", "melee_creep#r"]}}}, "do": [{"play": "clear_the_deck"}, {"combat": true}], "expect": {"c.in_play": false, "l.in_play": false, "r.in_play": false}},
+ {"name": "without the card the blocker's neighbors take nothing", "clause": 0, "tags": ["negative", "cleave"], "board": "@3", "do": [{"combat": true}], "expect": {"c.in_play": false, "l.health": 4, "r.health": 4}},
+ {"name": "the Cleave ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "clear_the_deck"}, {"end_round": true}], "expect": {"k.kw.cleave": 0, "a.kw.cleave": 0}},
+ {"name": "the Fountain clears the Cleave", "clause": 0, "tags": ["edge", "temp_buff"], "board": "@0", "do": [{"play": "clear_the_deck"}, {"kill": ["k"]}], "expect": {"k.in_play": false, "k.kw.cleave": 0, "a.kw.cleave": 4}},
+ {"name": "a stunned allied hero still gets the Cleave", "clause": 0, "tags": ["edge", "all_allied_heroes"], "board": {"base": "@0", "give": {"a": ["stun"]}}, "do": [{"play": "clear_the_deck"}], "expect": {"a.kw.cleave": 4, "a.stunned": true}},
+ {"name": "silenced red heroes cannot cast it", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "give": {"k": ["silence"], "a": ["silence"]}}, "do": [], "expect_illegal": [{"play": "clear_the_deck"}]}
+]}

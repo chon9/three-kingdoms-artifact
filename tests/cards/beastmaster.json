@@ -1,0 +1,11 @@
+{
+"card": "beastmaster",
+"source_id": 10029,
+"text": "Call of the Wild: Summon a Loyal Beast.",
+"covers": ["active", "summon", "permanent"],
+"cases": [
+ {"name": "Call of the Wild summons a Loyal Beast that fights for Beastmaster", "clause": 0, "tags": ["active", "summon", "permanent"], "board": {"lanes": {"0": {"p0": ["beastmaster#b"], "p1": []}}}, "do": [{"ability": "b"}, {"combat": true}], "expect": {"b.cooldown": 3, "tower.0.1.health": 32, "events": {"has": ["ability", "summon"]}}},
+ {"name": "the beast joins Beastmaster's lane only", "clause": 0, "tags": ["edge", "summon"], "board": {"lanes": {"0": {"p0": ["beastmaster#b"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#m"], "p1": ["melee_creep#d"]}}}, "do": [{"ability": "b"}], "expect": {"m.slot": 0, "d.slot": 0}},
+ {"name": "a silenced Beastmaster cannot call", "clause": 0, "tags": ["negative", "active"], "board": {"lanes": {"0": {"p0": ["beastmaster#b"], "p1": ["melee_creep#c"]}}, "give": {"b": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "b"}]},
+ {"name": "it is on cooldown after use, and ticks down at the round end", "clause": 0, "tags": ["negative", "active"], "board": {"lanes": {"0": {"p0": ["beastmaster#b"], "p1": ["melee_creep#c"]}}}, "do": [{"ability": "b"}, {"end_round": true}], "expect": {"b.cooldown": 2}, "expect_illegal": [{"ability": "b"}]}
+]}

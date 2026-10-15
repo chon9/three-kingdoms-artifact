@@ -1,0 +1,12 @@
+{
+"card": "revtel_convoy",
+"source_id": 10091,
+"text": "Revtel Convoy has +X Attack where X is equal to half your gold.",
+"covers": ["continuous", "scaling_x", "stat_attack", "player_gold", "self"],
+"cases": [
+ {"name": "+X Attack where X is half your gold (10 gold: +5)", "clause": 0, "tags": ["continuous", "scaling_x", "stat_attack", "self", "player_gold"], "board": {"base": "@1", "gold": {"p0": 10}}, "do": [], "expect": {"r.attack": 5}},
+ {"name": "rq_28_half: half rounds down (9 gold: +4)", "clause": 0, "tags": ["edge", "rq_28", "scaling_x"], "board": {"lanes": {"0": {"p0": ["revtel_convoy#r"], "p1": [null]}}, "gold": {"p0": 9}}, "do": [], "expect": {"r.attack": 4}},
+ {"name": "no gold: no Attack; the opponent's gold does not count", "clause": 0, "tags": ["negative", "player_gold"], "board": {"lanes": {"0": {"p0": ["revtel_convoy#r"], "p1": [null]}}, "gold": {"p0": 0, "p1": 30}}, "do": [], "expect": {"r.attack": 0}},
+ {"name": "the Attack follows the gold: a bounty raises it at once", "clause": 0, "tags": ["edge", "continuous", "player_gold"], "board": {"lanes": {"0": {"p0": ["revtel_convoy#r"], "p1": ["melee_creep#a"]}}, "gold": {"p0": 11}}, "do": [{"combat": true}], "expect": {"a.in_play": false, "p0.gold": 12, "r.attack": 6}},
+ {"name": "its Attack in combat is half the gold at that time", "clause": 0, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["revtel_convoy#r"], "p1": [null]}}, "gold": {"p0": 14}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 33}}
+]}

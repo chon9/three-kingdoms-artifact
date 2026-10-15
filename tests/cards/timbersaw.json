@@ -1,0 +1,15 @@
+{
+"card": "timbersaw",
+"source_id": 10022,
+"text": "Reactive Armor: Timbersaw has +1 Armor for each of its attackers. Timbersaw's attackers have -1 Armor.",
+"covers": ["continuous", "scaling_x", "stat_armor", "attackers", "self"],
+"cases": [
+ {"name": "Timbersaw has +1 Armor for each of its attackers", "clause": 0, "tags": ["continuous", "scaling_x", "stat_armor", "attackers", "self"], "board": {"lanes": {"0": {"p0": [null, "timbersaw#t", null], "p1": ["melee_creep#a:arrow=1", "melee_creep#b", "melee_creep#c:arrow=-1"]}}}, "do": [], "expect": {"t.armor": 3}},
+ {"name": "rq_05_attackers: a disarmed enemy is not an attacker", "clause": 0, "tags": ["edge", "rq_05", "attackers"], "board": {"base": "@0", "give": {"a": ["disarm"]}}, "do": [], "expect": {"t.armor": 2}},
+ {"name": "with no attackers it has its printed Armor", "clause": 0, "tags": ["negative", "scaling_x"], "board": {"lanes": {"0": {"p0": ["melee_creep#m", "timbersaw#t"], "p1": ["melee_creep#a", null]}}}, "do": [], "expect": {"t.armor": 0, "a.armor": 0}},
+ {"name": "a silenced Timbersaw keeps the passive", "clause": 0, "tags": ["edge", "continuous"], "board": {"base": "@0", "give": {"t": ["silence"]}}, "do": [], "expect": {"t.armor": 3}},
+ {"name": "Timbersaw's attackers have -1 Armor; other enemies do not", "clause": 1, "tags": ["continuous", "stat_armor", "attackers"], "board": {"lanes": {"0": {"p0": ["timbersaw#t", "melee_creep#m"], "p1": ["melee_creep#a", "melee_creep#b"]}}}, "do": [], "expect": {"a.armor": -1, "b.armor": 0, "t.armor": 1}},
+ {"name": "the attackers' Armor returns when Timbersaw dies", "clause": 1, "tags": ["edge", "continuous"], "board": "@4", "do": [{"kill": ["t"]}], "expect": {"a.armor": 0}},
+ {"name": "a stunned enemy aimed at it keeps its Armor", "clause": 1, "tags": ["negative", "attackers"], "board": {"base": "@4", "give": {"a": ["stun"]}}, "do": [], "expect": {"a.armor": 0, "t.armor": 0}},
+ {"name": "in combat: three attackers bounce off, Timbersaw hits harder", "clause": 1, "tags": ["stat_armor", "attackers"], "board": "@0", "do": [{"combat": true}], "expect": {"t.health": 11, "b.in_play": false}}
+]}

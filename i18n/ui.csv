@@ -456,6 +456,7 @@ EV_UNTIL_EQUIP,until it equips an item,直至装备军备
 EV_UNTIL_USED,until it is used,直至生效
 EV_CHANGE_STAT,{sign}{n} {stat},{stat}{sign}{n}
 EV_CHANGE_LOSE,no {keyword},失去{keyword}
+EV_CHANGE_GRANT,"""{text}""",“{text}”
 EV_TOWER_OF,{player}'s tower ({lane}),{player}的城楼（{lane}）
 EV_PURGE,{n} effects on {target} are purged.,{target}的{n}个效果被驱散。
 EV_CONDEMN,{card} is condemned.,{card}被处斩。

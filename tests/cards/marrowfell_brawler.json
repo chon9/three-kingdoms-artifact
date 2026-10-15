@@ -1,0 +1,8 @@
+{
+"card": "marrowfell_brawler",
+"source_id": 10097,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "marrowfell_brawler fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["marrowfell_brawler#u"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"u.health": 10, "u.attack": 6, "u.armor": 0, "k.health": 6}}
+]}

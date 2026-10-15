@@ -1,0 +1,14 @@
+{
+"card": "divine_purpose",
+"source_id": 10378,
+"text": "Modify a unit with Damage Immunity.",
+"covers": ["play", "modify", "damage_immunity", "unit", "permanent"],
+"cases": [
+ {"name": "Modify a unit with Damage Immunity", "clause": 0, "tags": ["play", "modify", "damage_immunity", "unit", "permanent"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [{"play": "divine_purpose", "target": "m"}, {"combat": true}], "expect": {"m.kw.damage_immunity": 1, "m.health": 4}},
+ {"name": "the modification is permanent", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [{"play": "divine_purpose", "target": "m"}, {"end_round": true}, {"end_round": true}], "expect": {"m.kw.damage_immunity": 1}},
+ {"name": "it survives the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [{"play": "divine_purpose", "target": "r"}, {"kill": ["r"]}], "expect": {"r.in_play": false, "r.kw.damage_immunity": 1}},
+ {"name": "an immune unit still dies when condemned", "clause": 0, "tags": ["negative", "damage_immunity"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["jmuy#j", "melee_creep#e"]}}}, "do": [{"play": "divine_purpose", "target": "m"}, {"play": "annihilation", "player": 1}], "expect": {"m.in_play": false}},
+ {"name": "the opponent's Purge removes it", "clause": 0, "tags": ["negative", "modify"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["rix#q", "melee_creep#e"]}}}, "do": [{"play": "divine_purpose", "target": "r"}, {"play": "cleansing_rite", "target": "r", "player": 1}], "expect": {"r.kw.damage_immunity": 0}},
+ {"name": "the caster's own Purge keeps it", "clause": 0, "tags": ["edge", "modify"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [{"play": "divine_purpose", "target": "m"}, {"pass": 1}, {"play": "aphotic_shield", "target": "m"}], "expect": {"m.kw.damage_immunity": 1}},
+ {"name": "an enemy unit can be the target", "clause": 0, "tags": ["edge", "unit"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["axe#x", "melee_creep#e"]}}}, "do": [{"play": "divine_purpose", "target": "e"}, {"combat": true}], "expect": {"e.kw.damage_immunity": 1, "e.health": 4}}
+]}

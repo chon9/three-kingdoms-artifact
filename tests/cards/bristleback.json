@@ -1,0 +1,16 @@
+{
+"card": "bristleback",
+"source_id": 10030,
+"text": "Barroom Brawler: Modify Bristleback with +2 Armor after a hero blocking it dies.",
+"covers": ["blocker_death", "modify", "stat_armor", "self", "permanent"],
+"cases": [
+ {"name": "Barroom Brawler: +2 Armor after the hero blocking it dies", "clause": 0, "tags": ["blocker_death", "modify", "stat_armor", "self"], "board": {"lanes": {"0": {"p0": ["bristleback#b"], "p1": ["axe#a"]}}}, "do": [{"kill": ["a"]}], "expect": {"b.armor": 2, "a.in_play": false, "events": {"has": ["trigger", "mod"]}}},
+ {"name": "it gains the Armor when it kills its blocker in combat", "clause": 0, "tags": ["blocker_death", "modify", "stat_armor"], "board": {"lanes": {"0": {"p0": ["bristleback#b"], "p1": ["axe#a:hp=5"]}}}, "do": [{"combat": true}], "expect": {"a.in_play": false, "b.armor": 2, "b.health": 6}},
+ {"name": "a diagonal blocker counts", "clause": 0, "tags": ["blocker_death", "self"], "board": {"lanes": {"0": {"p0": ["bristleback#b:arrow=1", "melee_creep#m"], "p1": [null, "axe#a"]}}}, "do": [{"kill": ["a"]}], "expect": {"b.armor": 2}},
+ {"name": "a blocking creep's death does not count", "clause": 0, "tags": ["negative", "blocker_death"], "board": {"lanes": {"0": {"p0": ["bristleback#b"], "p1": ["melee_creep#c"]}}}, "do": [{"kill": ["c"]}], "expect": {"b.armor": 0, "c.in_play": false}},
+ {"name": "a hero that is not blocking it does not count", "clause": 0, "tags": ["negative", "blocker_death"], "board": {"lanes": {"0": {"p0": ["bristleback#b", "melee_creep#m"], "p1": ["melee_creep#c", "axe#a"]}}}, "do": [{"kill": ["a"]}], "expect": {"b.armor": 0}},
+ {"name": "an allied hero dying next to it does not count", "clause": 0, "tags": ["negative", "blocker_death"], "board": {"lanes": {"0": {"p0": ["bristleback#b", "axe#x"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [{"kill": ["x"]}], "expect": {"b.armor": 0}},
+ {"name": "a stunned Bristleback is still blocked by that hero", "clause": 0, "tags": ["edge", "blocker_death"], "board": {"lanes": {"0": {"p0": ["bristleback#b"], "p1": ["axe#a"]}}, "give": {"b": ["stun"]}}, "do": [{"kill": ["a"]}], "expect": {"b.armor": 2}},
+ {"name": "rq_43_simultaneous_death: dying together with its blocker gives nothing", "clause": 0, "tags": ["edge", "rq_43", "blocker_death"], "board": "@0", "do": [{"kill": ["a", "b"]}], "expect": {"b.in_play": false, "b.armor": 0}},
+ {"name": "the Armor is permanent: it survives the Fountain and the round end", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"kill": ["a"]}, {"end_round": true}, {"kill": ["b"]}], "expect": {"b.armor": 2, "b.in_play": false}}
+]}

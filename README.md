@@ -4,7 +4,7 @@
 
 Three lanes. Alternating actions. Heroes that return to the fight. Guan Yu holds the left lane while Cao Cao schemes in the middle and Sun Quan's fleet presses on the right. The rules are Valve's Artifact Classic rules, implemented in Godot; the names, text and artwork are our own Three Kingdoms theme. An optional **Classic** card theme shows the original card names for players who know the old game.
 
-The game currently supports **49 card definitions**: ten heroes (Guan Yu, Zhang Fei, Cao Cao, Sima Yi, Sun Quan, Gan Ning, Zhou Yu, Lü Meng, Lü Bu and Jia Xu), their signature cards, creeps, spells, equipment and consumables, in three preset decks. Play against the AI, pass the device to a friend, or (experimentally) over Steam, and save deterministic replays. The full Classic catalog and some placement and trigger details are still unfinished. This project is not affiliated with or endorsed by Valve.
+The game currently supports **144 card definitions**: 28 heroes (among them Guan Yu, Zhang Fei, Liu Bei, Zhuge Liang, Zhao Yun, Cao Cao, Sima Yi, Sun Quan, Sun Ce, Zhou Yu, Lü Bu and Jia Xu), their signature cards, every red (Shu) and green (Wu) creep and spell of Artifact Classic, equipment and consumables, in eight preset decks. Play against the AI, pass the device to a friend, or (experimentally) over Steam, and save deterministic replays. The full Classic catalog and some placement and trigger details are still unfinished. This project is not affiliated with or endorsed by Valve.
 
 ## Run
 
@@ -80,10 +80,10 @@ Fonts, textures, icons, particles, sounds and the artwork's provenance are credi
 - UI-independent command validation and seeded match state.
 - Three sequential lanes, separate mana, color requirements, passing and initiative.
 - Simultaneous combat, per-hit armor, structure damage, kill gold, hero reserves and respawn delays.
-- Forty-nine Classic definitions: ten heroes and 39 spells, creeps, equipment, consumables and tokens. Original training fixtures remain available only for engine regression tests.
+- 144 Classic definitions: 28 heroes and 116 spells, creeps, improvements, equipment, consumables and tokens (the 49 of the first release plus all 92 red and green cards and three heroes' signature improvements). Original training fixtures remain available only for engine regression tests.
 - Neighbor armor and attack, hero and tower damage bonuses, draw and cooldown abilities, permanent modifications, battles, combat redirection, tower damage, temporary mana, creep summoning, global attack, post-spell piercing damage, rapid deployment, growth, siege, silence, condemnation, random discard and cross-lane damage.
 - Healing, card draw and return-to-Fountain consumables, including Fountain healing and temporary-effect cleanup.
-- Three validated deck presets, independent deck choices for each player, nine-card item decks, Secret Shop / item / consumable shopping, and a gallery of every supported card.
+- Eight validated deck presets (one per colour pair with red or green, besides the original three), independent deck choices for each player, nine-card item decks, Secret Shop / item / consumable shopping, and a gallery of every supported card with colour (faction) filters.
 - A one-ply heuristic opponent that uses public board information and its own hand, without reading enemy cards or future random rolls.
 - A Classic-style match screen: sliding lane camera and overview, combat arrows and damage preview, drag-to-play with target arrows, the initiative coin, the shop chest, drag-to-lane deployment, inspection, event animations (casts, combat lunges and damage numbers, deaths, tower falls, lane changes), a match log and a game-over screen.
 - Local play and reproducible command-journal replay restoration.
@@ -109,7 +109,7 @@ godot --headless --path . --script res://tests/steam_test.gd
 godot --headless --path . --script res://tests/ui_smoke.gd
 ```
 
-The suites check rules, card effects, deck validation, privacy, shop resources, translations and UI interactions. They include 24 complete training bot matches, 12 Classic starter matches and 18 seeded matchups covering all nine combinations of the three presets; every complete match round-trips through replay serialization. The Steam test runs two real match controllers against a fake GodotSteam (lobbies, invites, handshake, disconnect and rejoin, concede) and, when the extension is loaded, checks the fake's methods, signals and constants against it. The UI smoke test drives the real scene with mouse events: drag-play (untargeted, targeted, creep positions), Battlefield Control's two stages, edge lane switching, a 14-card hand, ability badges, the initiative coin, shop hold and buy, deployment (staging, drags from the camp and between lanes, taking a hero back, the click fallback, the lock after confirming, privacy of the opponent's plans, a state update mid-drag, the reveal and skipping it), the fountain HUD, inspection, dialogs, deck selection, live language and card-theme switching, an AI turn and replay restoration.
+The suites check rules, card effects, deck validation, privacy, shop resources, translations and UI interactions. They include 24 complete training bot matches, 12 Classic starter matches, 18 seeded matchups covering all nine combinations of the original three presets and six bot matches for each newer preset; every complete match round-trips through replay serialization. Every card has its own rules spec in `tests/cards/`. The Steam test runs two real match controllers against a fake GodotSteam (lobbies, invites, handshake, disconnect and rejoin, concede) and, when the extension is loaded, checks the fake's methods, signals and constants against it. The UI smoke test drives the real scene with mouse events: drag-play (untargeted, targeted, creep positions), Battlefield Control's two stages, edge lane switching, a 14-card hand, ability badges, the initiative coin, shop hold and buy, deployment (staging, drags from the camp and between lanes, taking a hero back, the click fallback, the lock after confirming, privacy of the opponent's plans, a state update mid-drag, the reveal and skipping it), the fountain HUD, inspection, dialogs, deck selection, live language and card-theme switching, an AI turn and replay restoration.
 
 Screenshots of the main UI states need a real renderer (not `--headless`); they are written to `.tools/shots/`:
 
@@ -121,7 +121,7 @@ godot --path . -s res://tests/capture_preview.gd -- --size=1280x720 --only=lane_
 ## Source layout
 
 ```text
-data/classic_cards.json           Supported catalog and three deck presets (rules data)
+data/classic_cards.json           Supported catalog and eight deck presets (rules data)
 data/locale/cards.json            Card names and text per theme and language
 i18n/ui.csv                       Interface text (English, Simplified Chinese)
 data/training_cards.json          Original engine-test fixtures

@@ -1,0 +1,14 @@
+{
+"card": "rebel_decoy",
+"source_id": 10080,
+"text": "Active 1: Swap Rebel Decoy with another ally.",
+"covers": ["active", "swap", "allied_unit", "self"],
+"cases": [
+ {"name": "Swap Rebel Decoy with another ally", "clause": 0, "tags": ["active", "swap", "allied_unit", "self"], "board": {"lanes": {"0": {"p0": ["rebel_decoy#d", "melee_creep#m", "rix#h"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}, "1": {"p0": ["melee_creep#o"], "p1": [null]}}}, "do": [{"ability": "d", "target": "h"}], "expect": {"d.slot": 2, "h.slot": 0, "m.slot": 1, "d.cooldown": 1, "events": {"has": ["ability", "swap"]}}},
+ {"name": "rq_30_swap_arrows: arrows stay with the positions", "clause": 0, "tags": ["edge", "rq_30", "swap"], "board": {"lanes": {"0": {"p0": ["rebel_decoy#d:arrow=1", "melee_creep#m", "rix#h:arrow=-1"], "p1": [null, "melee_creep#b", null]}}}, "do": [{"ability": "d", "target": "h"}], "expect": {"d.slot": 2, "h.slot": 0, "d.arrow": -1, "h.arrow": 1}},
+ {"name": "the enemy across now fights the ally swapped in", "clause": 0, "tags": ["edge", "swap"], "board": {"lanes": {"0": {"p0": ["rebel_decoy#d", "rix#h"], "p1": ["melee_creep#a:atk=9", null]}}}, "do": [{"ability": "d", "target": "h"}, {"combat": true}], "expect": {"h.in_play": false, "d.in_play": true, "d.health": 3}},
+ {"name": "enemies, itself and allies in another lane are not legal targets", "clause": 0, "tags": ["negative", "allied_unit"], "board": {"lanes": {"0": {"p0": ["rebel_decoy#d", "melee_creep#m", "rix#h"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}, "1": {"p0": ["melee_creep#o"], "p1": [null]}}}, "do": [], "expect": {}, "expect_illegal": [{"ability": "d", "target": "a"}, {"ability": "d", "target": "d"}, {"ability": "d", "target": "o"}]},
+ {"name": "alone in its row it has nothing to swap with", "clause": 0, "tags": ["negative", "active"], "board": {"lanes": {"0": {"p0": ["rebel_decoy#d"], "p1": ["melee_creep#a"]}}}, "do": [], "expect": {}, "expect_illegal": [{"ability": "d"}, {"ability": "d", "target": "a"}]},
+ {"name": "a silenced Decoy cannot swap", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"d": ["silence"]}}, "do": [], "expect": {}, "expect_illegal": [{"ability": "d", "target": "h"}]},
+ {"name": "on cooldown it cannot swap again", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "cooldowns": {"d": 1}}, "do": [], "expect": {}, "expect_illegal": [{"ability": "d", "target": "h"}]}
+]}

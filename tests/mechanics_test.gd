@@ -14,7 +14,10 @@ extends SceneTree
 ##   secret_shop_discount, creep_lane);
 ## * preview_equals_combat on 2,000 random fixture boards;
 ## * the RQ decisions that land with these mechanics (rq_XX_* names);
-## * regressions for the M2 review findings (fix_* names).
+## * regressions for the M2 review findings (fix_* names);
+## * the engine capabilities added with the M3 cards (m3_* and rq_54_* names):
+##   the `blocking` death snapshot, a Modify reaching a hero that died in the
+##   same command, and granted text in mod/status events.
 ## Options (after --): --boards N (default 2000) for preview_equals_combat.
 
 const EngineClass = preload("res://scripts/core/match_engine.gd")
@@ -25,6 +28,8 @@ const Zones = preload("res://scripts/core/rules/zones.gd")
 const Combat = preload("res://scripts/core/rules/combat.gd")
 const Select = preload("res://scripts/core/rules/select.gd")
 const Invariants = preload("res://tests/invariants.gd")
+const EventText = preload("res://scripts/core/event_text.gd")
+const Settings = preload("res://scripts/core/game_settings.gd")
 const FIXTURES = "res://tests/fixtures/rules_fixtures.json"
 var checks = 0
 var failures: Array = []
@@ -41,14 +46,14 @@ func _initialize() -> void:
 			_test_silence, _test_disarm, _test_rapid_deployment, _test_soulbound, _test_tower_stats, _test_durations,
 			_test_purge_and_fountain, _test_locks, _test_add_card_and_counters, _test_hacks, _test_summon_and_fountain,
 			_test_move, _test_swap, _test_control, _test_zone_fuzz, _test_improvements, _test_items, _test_deeds,
-			_test_rules_layer, _test_creep_lane, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_preview_equals_combat]:
+			_test_rules_layer, _test_creep_lane, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_m3_engine, _test_preview_equals_combat]:
 		var started = Time.get_ticks_msec()
 		test.call()
 		if args.has("--timing"):
 			print("%-36s %6d ms" % [test.get_method(), Time.get_ticks_msec() - started])
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d M2 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, objects, rules layer, preview_equals_combat on %d boards)." % [
+	print("%s: %d M2 and M3 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, objects, rules layer, blocking snapshots, RQ-54, granted-text events, preview_equals_combat on %d boards)." % [
 		"PASS" if failures.is_empty() else "FAIL", checks, boards])
 	quit(0 if failures.is_empty() else 1)
 
@@ -1533,6 +1538,81 @@ func _test_review_fixes() -> void:
 	Zones.discard(engine, [_handle(engine, 0, 0)])
 	_check(Zones.card_counter(engine, second) == 3, "fix_card_counter_1: a hand counter is read by iid after a discard")
 	_check(Invariants.violations(engine).is_empty(), "Invariants hold after discards: %s" % [Invariants.violations(engine)])
+
+
+## Engine capabilities added with the M3 cards (EFFECT_SYSTEM_SPEC.md §12, M3
+## as built): the `blocking` death snapshot behind the "was": "blocker"
+## filter, a Modify that reaches a hero killed in the same command (RQ-54),
+## and granted text in mod/status events.
+func _test_m3_engine() -> void:
+	# "A unit blocking it" is the unit's combat target: a stunned or disarmed
+	# unit is still blocked, so its trigger fires (Bristleback, Stonehall Elite).
+	for status in ["stun", "disarm"]:
+		var engine = _engine()
+		var made = _rows(engine, 0, [["fx_grudge_creep"], ["melee_creep"]])
+		var grudge: Dictionary = made[0][0]
+		var blocker: Dictionary = made[1][0]
+		Kernel.give(engine, grudge, {}, {status: 1}, "", "round", {"controller": 1, "card": ""})
+		var snapshot: Dictionary = Kernel._snapshot(engine, [blocker])[0]
+		_check(snapshot.blocking == [int(grudge.uid)] and snapshot.attackers.is_empty(),
+			"m3_blocking_1: a %s unit aimed at the dying unit is in blocking, not in attackers (RQ-05)" % status)
+		engine._reset_transient()
+		blocker.health = 0
+		Kernel.pulse(engine)
+		engine._settle_transient()
+		_check(engine.attack_of(grudge) == 3, "m3_blocking_2: a %s unit grows after the unit blocking it dies (attack %d)" % [status, engine.attack_of(grudge)])
+	var engine = _engine()
+	var made = _rows(engine, 0, [["fx_grudge_creep", null], [null, "melee_creep"]])
+	made[0][0].arrow = 1
+	Stats.settle(engine)
+	engine._reset_transient()
+	made[1][1].health = 0
+	Kernel.pulse(engine)
+	engine._settle_transient()
+	_check(engine.attack_of(made[0][0]) == 3, "m3_blocking_3: a diagonal combat target counts as blocking")
+	engine = _engine()
+	made = _rows(engine, 0, [["fx_grudge_creep", "melee_creep"], ["melee_creep", "melee_creep"]])
+	engine._reset_transient()
+	made[1][1].health = 0
+	Kernel.pulse(engine)
+	engine._settle_transient()
+	_check(engine.attack_of(made[0][0]) == 1, "m3_blocking_4: the death of a unit blocking another unit does not count")
+	# RQ-54: a hero that dies in the combat where it hit Acid Shell keeps the
+	# -1 Attack in the Fountain (heroes keep modifications through death).
+	engine = _engine()
+	var hero: Dictionary = engine.state.players[0].roster[0]
+	var printed = int(hero.attack)
+	made = _rows(engine, 0, [[hero], ["fx_corrode_creep"]])
+	hero.health = 2
+	_combat(engine)
+	_check(int(hero.lane) == -1 and int(hero.attack) == printed - 1 and engine.attack_of(hero) == printed - 1,
+		"rq_54_dead_hero_keeps_modify: the hero is in the Fountain with %d Attack (printed %d)" % [engine.attack_of(hero), printed])
+	_check(_events(engine, "mod").any(func(event): return int(event.get("id", 0)) == int(hero.uid)), "rq_54_dead_hero_keeps_modify: a mod event names the hero")
+	_check(Invariants.violations(engine).is_empty(), "rq_54: invariants hold: %s" % [Invariants.violations(engine)])
+	engine = _engine()
+	made = _rows(engine, 0, [["melee_creep"], ["fx_corrode_creep"]])
+	var creep: Dictionary = made[0][0]
+	_combat(engine)
+	_check(int(creep.lane) == -1 and not _events(engine, "mod").any(func(event): return int(event.get("id", 0)) == int(creep.uid)),
+		"rq_54_dead_creep_fizzles: a creep that died is gone; the Modify fizzles")
+	engine = _engine()
+	hero = engine.state.players[0].roster[0]
+	made = _rows(engine, 0, [[hero], ["fx_corrode_creep"]])
+	_combat(engine)
+	_check(int(hero.lane) == 0 and engine.attack_of(hero) == printed - 1, "rq_54_live_hero: a surviving attacker loses 1 Attack")
+	# Granted text travels in the mod event ("ab") and reaches the log.
+	engine = _engine()
+	var caster = _caster(engine, 0, "red")
+	_check(_play(engine, 0, "fx_grant_spell", {"target": caster.uid}).ok, "m3_grant_event_1: Steadfast Vow plays")
+	# The grant's own mod event names it; the trigger it grants then fires on
+	# this very play (cost 2, RQ-44) with a plain +1 Health mod event.
+	var mods = _events(engine, "mod").filter(func(event): return event.has("ab"))
+	_check(mods.size() == 1 and str(mods[0].ab) == "fx_grant_spell#0", "m3_grant_event_2: the mod event names the granted text (%s)" % [mods])
+	if not mods.is_empty():
+		Settings.set_locale("en", false)
+		var text = EventText.format(mods[0])
+		_check(text.find("After you play a card costing 2 or less") != -1 and text.find("none") == -1,
+			"m3_grant_event_3: the log shows the granted text: %s" % text)
 
 ## On random fixture boards (keywords, statuses, items, improvements), the
 ## combat preview's damage, healing, deaths and tower damage equal what the

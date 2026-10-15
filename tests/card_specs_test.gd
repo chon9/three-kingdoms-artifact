@@ -23,18 +23,21 @@ extends SceneTree
 ## charges {label: n}, cooldowns {label: n}, hand_state {"p0": [{...}]};
 ## "@n" reuses case n's board and {"base": "@n", ...} merges into it.
 ## Steps ("do"): {"play": card, "target": label, "destination": label |
-## "tower", "lane": n, "position": n, "player": p}, {"ability": label |
-## "label.weapon"}, {"pass": p}, {"combat": true}, {"end_round": true},
-## {"kill": [labels]}, {"draw": {"p1": n}}.
+## "tower", "lane": n, "position": n, "player": p, "as": label (names the
+## unit a creep play puts into the lane)}, {"ability": label |
+## "label.weapon"}, {"pass": p}, {"combat": true}, {"end_round": true,
+## "deploy": {hero label: lane}}, {"kill": [labels]}, {"draw": {"p1": n}}.
 ## Expectations ("expect"): "label.<field>" (attack, armor, health,
 ## max_health, kw.<k>, stunned, silenced, disarmed, in_play, lane, slot,
 ## owner, cooldown, charges, items, ready_round, combat_target, arrow), "tower.<lane>.<p>.health" (and
 ## .ancient), "mana.<lane>.<p>", "max_mana.<lane>.<p>", "p<i>.gold",
 ## "p<i>.hand" (ids, or a count), "p<i>.hand_state.<i>.lock", "initiative",
-## "lane", "winner", "events": {"has": [keys], "not": [keys]};
+## "lane", "winner", "units.<lane>.<p>[.<card>]" (a count of units),
+## "events": {"has": [keys], "not": [keys]};
 ## "expect_legal" / "expect_illegal" (commands in step form), "expect_rate"
 ## ({key: [low, high]} over "seeds": {"from", "count"}), "expect_private"
-## ({"viewer": p, "absent": [strings]}).
+## ({"viewer": p, "absent": [strings]}), "gd" (a script whose
+## check(engine, labels) returns failure messages).
 
 const EngineClass = preload("res://scripts/core/match_engine.gd")
 const Library = preload("res://scripts/core/card_library.gd")
@@ -131,6 +134,7 @@ func _run_case(spec: Dictionary, index: int, seed_value: int, label: String, rep
 	var digest = engine.state_digest()
 	if report and ok:
 		_expectations(engine, labels, entry, label, seen)
+		_extra_checks(engine, labels, entry, label)
 		_illegal(engine, labels, entry, label)
 		_event_text(engine, seen, label)
 	return {"digest": digest, "engine": engine, "labels": labels}
@@ -343,7 +347,17 @@ func _step(engine, labels: Dictionary, step: Dictionary) -> String:
 		var command = _play_command(engine, labels, step, true)
 		if command.has("error"):
 			return command.error
-		return _apply(engine, int(step.get("player", engine.state.active_player)), command)
+		var before: Dictionary = {}
+		for unit in Stats.all_units(engine):
+			before[int(unit.uid)] = true
+		var problem = _apply(engine, int(step.get("player", engine.state.active_player)), command)
+		if problem == "" and step.has("as"):
+			# "as": "<label>" names the unit the play put into a lane (a creep).
+			var placed: Array = Stats.all_units(engine).filter(func(unit): return not before.has(int(unit.uid)) and str(unit.card) == str(step.play) and int(unit.get("lane", -1)) >= 0)
+			if placed.is_empty():
+				return "as: the play put no %s into a lane" % step.play
+			labels[str(step.as)] = placed[0]
+		return problem
 	if step.has("ability"):
 		var command = _ability_command(labels, step)
 		if command.has("error"):
@@ -357,6 +371,12 @@ func _step(engine, labels: Dictionary, step: Dictionary) -> String:
 		return problem if problem != "" else _apply(engine, 1 - first, {"type": "pass"})
 	if step.has("end_round"):
 		engine._begin_deployment()
+		# "deploy": {label: lane} plans heroes (from the Fountain) for the reveal.
+		for name in step.get("deploy", {}):
+			if not labels.has(name) or not labels[name].has("uid"):
+				return "deploy: unknown hero label %s" % name
+			var hero: Dictionary = labels[name]
+			engine.state.players[int(hero.owner)].plans[str(hero.uid)] = int(step.deploy[name])
 		for owner in engine.state.players:
 			owner.finished = true
 		engine._reveal_deployment()
@@ -452,6 +472,20 @@ func _expectations(engine, labels: Dictionary, entry: Dictionary, label: String,
 		for value in private.get("absent", []):
 			_check(text.find(str(value)) == -1, "%s: %s stays out of player %d's view" % [label, value, int(private.get("viewer", 1))])
 
+## The "gd" escape (spec §13.1): a RefCounted script whose
+## `func check(engine, labels: Dictionary) -> Array` returns failure messages
+## for assertions the DSL cannot express (an empty list when they hold).
+func _extra_checks(engine, labels: Dictionary, entry: Dictionary, label: String) -> void:
+	if not entry.has("gd"):
+		return
+	var script = load(str(entry.gd))
+	var checker = script.new() if script is Script else null
+	_check(checker != null and checker.has_method("check"), "%s: gd script %s has check(engine, labels)" % [label, entry.gd])
+	if checker == null or not checker.has_method("check"):
+		return
+	for message in checker.check(engine, labels):
+		_check(false, "%s: %s" % [label, message])
+
 ## Expected-illegal commands are rejected and change neither the digest nor
 ## the random state (also the runner's rejected-command check).
 func _illegal(engine, labels: Dictionary, entry: Dictionary, label: String) -> void:
@@ -515,6 +549,13 @@ func _read(engine, labels: Dictionary, key: String):
 			return int(engine.state.lane)
 		"winner":
 			return int(engine.state.winner)
+		"units":
+			# "units.<lane>.<p>" counts a side's units in a lane; ".<card>" only that card.
+			var count = 0
+			for unit in engine.state.lanes[int(parts[1])].units[int(parts[2])]:
+				if unit != null and (parts.size() < 4 or str(unit.card) == parts[3]):
+					count += 1
+			return count
 	if parts[0].begins_with("p") and parts[0].substr(1).is_valid_int() and parts.size() > 1:
 		var owner: Dictionary = engine.state.players[int(parts[0].substr(1))]
 		match parts[1]:

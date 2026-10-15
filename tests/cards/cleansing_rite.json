@@ -1,0 +1,14 @@
+{
+"card": "cleansing_rite",
+"source_id": 10382,
+"text": "Purge your opponent's effects from a hero.",
+"covers": ["play", "purge", "hero"],
+"cases": [
+ {"name": "Purge your opponent's effects from a hero", "clause": 0, "tags": ["play", "purge", "hero"], "board": {"lanes": {"0": {"p0": ["abaddon#a", "rix#r"], "p1": ["axe#x", "melee_creep#c"]}}, "give": {"r": ["silence"]}}, "do": [{"play": "cleansing_rite", "target": "r"}], "expect": {"r.silenced": false, "events": {"has": ["purge"]}}},
+ {"name": "a creep is not a target", "clause": 0, "tags": ["negative", "hero"], "board": {"lanes": {"0": {"p0": ["abaddon#a", "rix#r"], "p1": ["axe#x", "melee_creep#c"]}}, "give": {"r": ["silence"]}}, "do": [], "expect_illegal": [{"play": "cleansing_rite", "target": "c"}]},
+ {"name": "rq_35_purge_ends_stun: it removes Caught Unprepared", "clause": 0, "tags": ["edge", "purge", "rq_35"], "board": {"lanes": {"0": {"p0": ["abaddon#a", "rix#r"], "p1": ["rix#q", "melee_creep#c"]}}, "active_player": 1, "initiative": 1}, "do": [{"play": "caught_unprepared", "target": "a", "player": 1}, {"play": "cleansing_rite", "target": "a"}], "expect": {"a.stunned": false}},
+ {"name": "rq_12_caster_modify_stays: the caster's own modification stays", "clause": 0, "tags": ["edge", "purge", "rq_12"], "board": {"lanes": {"0": {"p0": ["abaddon#a", "rix#r"], "p1": ["axe#x", "melee_creep#c"]}}, "give": {"r": ["silence"]}}, "do": [{"play": "avernus_blessing", "target": "r"}, {"pass": 1}, {"play": "cleansing_rite", "target": "r"}], "expect": {"r.attack": 5, "r.silenced": false}},
+ {"name": "rq_12_opponent_modify_reversed: the opponent's modification is written back", "clause": 0, "tags": ["edge", "purge", "rq_12"], "board": {"lanes": {"0": {"p0": ["abaddon#a", "rix#r"], "p1": ["rix#q", "melee_creep#c"]}}, "active_player": 1, "initiative": 1}, "do": [{"play": "avernus_blessing", "target": "r", "player": 1}, {"play": "cleansing_rite", "target": "r"}], "expect": {"r.attack": 3}},
+ {"name": "on an enemy hero it removes that hero's own owner's buffs", "clause": 0, "tags": ["edge", "purge", "hero"], "board": {"lanes": {"0": {"p0": ["abaddon#a"], "p1": ["axe#x"]}}, "active_player": 1, "initiative": 1}, "do": [{"play": "combat_training", "target": "x", "player": 1}, {"play": "cleansing_rite", "target": "x"}], "expect": {"x.attack": 6}},
+ {"name": "items and damage are not purged", "clause": 0, "tags": ["negative", "purge"], "board": {"base": "@0", "lanes": {"0": {"p0": ["abaddon#a", "rix#r:hp=3+short_sword"], "p1": ["axe#x", "melee_creep#c"]}}}, "do": [{"play": "cleansing_rite", "target": "r"}], "expect": {"r.attack": 5, "r.health": 3, "r.silenced": false}}
+]}

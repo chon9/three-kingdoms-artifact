@@ -1,0 +1,15 @@
+{
+"card": "poised_to_strike",
+"source_id": 10313,
+"text": "Give a red hero +4 Attack this round.",
+"covers": ["play", "stat_attack", "temp_buff", "colour_hero", "this_round"],
+"cases": [
+ {"name": "Give a red hero +4 Attack this round", "clause": 0, "tags": ["play", "stat_attack", "temp_buff", "colour_hero", "this_round"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "poised_to_strike", "target": "k"}], "expect": {"k.attack": 10, "events": {"has": ["status"]}}},
+ {"name": "the attack counts in this round's combat", "clause": 0, "tags": ["stat_attack"], "board": "@0", "do": [{"play": "poised_to_strike", "target": "k"}, {"combat": true}], "expect": {"o.in_play": false}},
+ {"name": "without it the blocker survives", "clause": 0, "tags": ["negative", "stat_attack"], "board": "@0", "do": [{"combat": true}], "expect": {"o.health": 3}},
+ {"name": "an enemy red hero is a legal target", "clause": 0, "tags": ["colour_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#x"]}}}, "do": [{"play": "poised_to_strike", "target": "x"}], "expect": {"x.attack": 10, "k.attack": 6}},
+ {"name": "a hero of another colour or a creep is not a target", "clause": 0, "tags": ["negative", "colour_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "jmuy#j"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "poised_to_strike", "target": "j"}, {"play": "poised_to_strike", "target": "c"}], "expect_legal": [{"play": "poised_to_strike", "target": "k"}]},
+ {"name": "the attack ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "poised_to_strike", "target": "k"}, {"end_round": true}], "expect": {"k.attack": 6}},
+ {"name": "the Fountain clears the attack", "clause": 0, "tags": ["edge", "temp_buff"], "board": "@0", "do": [{"play": "poised_to_strike", "target": "k"}, {"kill": ["k"]}], "expect": {"k.in_play": false, "k.attack": 6}},
+ {"name": "a stunned red hero cannot cast it", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "give": {"k": ["stun"]}}, "do": [], "expect_illegal": [{"play": "poised_to_strike", "target": "k"}]}
+]}

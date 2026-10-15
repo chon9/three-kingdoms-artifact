@@ -1,0 +1,12 @@
+{
+"card": "enough_magic",
+"source_id": 10326,
+"text": "Proceed to the combat phase.",
+"covers": ["play", "end_action_phase"],
+"cases": [
+ {"name": "rq_20_end_action_phase: Proceed to the combat phase; the lane fights at once and the caster's opponent gets initiative", "clause": 0, "tags": ["play", "end_action_phase", "RQ-20"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["melee_creep#a", null]}}}, "do": [{"play": "enough_magic"}], "expect": {"lane": 1, "initiative": 1, "a.in_play": false, "k.health": 10, "tower.0.1.health": 38, "events": {"has": ["combat", "lane_open"]}}},
+ {"name": "without it the opponent could still act: one play hands the turn over and the lane stays", "clause": 0, "tags": ["negative", "end_action_phase"], "board": {"lanes": {"0": {"p0": ["keefe#k", "melee_creep#m"], "p1": ["melee_creep#a", null]}}}, "do": [{"play": "defensive_stance", "target": "k"}], "expect": {"lane": 0, "tower.0.1.health": 40, "events": {"not": ["combat"]}}},
+ {"name": "no red hero in the active lane: it cannot be cast", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}, "1": {"p0": ["keefe#k"], "p1": ["melee_creep#b"]}}}, "do": [], "expect_illegal": [{"play": "enough_magic"}]},
+ {"name": "in the last lane the combat is followed by the shop", "clause": 0, "tags": ["edge", "end_action_phase"], "board": {"active_lane": 2, "lanes": {"2": {"p0": ["keefe#k"], "p1": ["melee_creep#a"]}}}, "do": [{"play": "enough_magic"}], "expect": {"a.in_play": false, "events": {"has": ["combat", "shop_open"]}}},
+ {"name": "after the opponent passed first, the opponent still gets initiative", "clause": 0, "tags": ["edge", "end_action_phase", "RQ-20"], "board": {"base": "@0", "active_player": 1, "initiative": 1}, "do": [{"pass": 1}, {"play": "enough_magic"}], "expect": {"lane": 1, "initiative": 1}}
+]}

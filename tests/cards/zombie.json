@@ -1,0 +1,8 @@
+{
+"card": "zombie",
+"source_id": 1009,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "zombie fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["zombie#u"], "p1": ["melee_creep#e:atk=1"]}}}, "do": [{"combat": true}], "expect": {"u.health": 1, "u.attack": 2, "u.armor": 0, "u.max_health": 2, "e.health": 2}}
+]}

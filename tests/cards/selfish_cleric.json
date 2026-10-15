@@ -1,0 +1,11 @@
+{
+"card": "selfish_cleric",
+"source_id": 10119,
+"text": "Fully heal Selfish Cleric after the combat phase.",
+"covers": ["after_combat", "full_heal", "self"],
+"cases": [
+ {"name": "Fully heal Selfish Cleric after the combat phase", "clause": 0, "tags": ["after_combat", "full_heal", "self"], "board": {"lanes": {"0": {"p0": ["selfish_cleric#c"], "p1": ["melee_creep#a"]}}}, "do": [{"combat": true}], "expect": {"c.health": 4, "a.in_play": false, "events": {"has": ["heal"]}}},
+ {"name": "damage taken before the combat is healed too", "clause": 0, "tags": ["edge", "full_heal"], "board": {"lanes": {"0": {"p0": ["selfish_cleric#c:hp=1"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"c.health": 4}},
+ {"name": "a Cleric that dies in the combat is not healed", "clause": 0, "tags": ["negative", "after_combat"], "board": {"lanes": {"0": {"p0": ["selfish_cleric#c"], "p1": ["centaur_hunter#h"]}}}, "do": [{"combat": true}], "expect": {"c.in_play": false}},
+ {"name": "only the Cleric is healed, and another lane's combat does nothing", "clause": 0, "tags": ["negative", "self"], "board": {"lanes": {"0": {"p0": ["selfish_cleric#c", "melee_creep#m"], "p1": ["melee_creep#a", "melee_creep#b"]}, "1": {"p0": ["selfish_cleric#d:hp=1"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"c.health": 4, "m.health": 2, "d.health": 1}}
+]}

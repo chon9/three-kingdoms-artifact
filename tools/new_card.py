@@ -119,6 +119,16 @@ def find_draft(drafts, tags, valve, query):
 STAT_WORDS = {"attack": "attack|攻击", "armor": "armor|护甲", "health": "health|体力"}
 ## A number after one of these is a cooldown: only {ability_cooldown} may replace it.
 NOT_COOLDOWN = r"(?<!Active )(?<!cooldown )(?<!冷却)(?<!主动)"
+## A cost threshold ("costing 2 or less") is never a card parameter: the
+## card_played filter's cost_max is a literal number.
+NOT_COST = r"(?!\s*or less)(?!或更低)(?!以下)"
+
+
+def number(value, draft):
+    """An int field of a draft, or the value of the {"param": name} it reads."""
+    if isinstance(value, dict) and "param" in value:
+        value = draft.get(value["param"], 0)
+    return int(value or 0)
 
 
 def candidate_params(draft):
@@ -144,8 +154,9 @@ def placeholders(text, draft, notes, label):
             notes.append("%s: %d -> {%s} (%d time%s)" % (label, value, name, count, "" if count == 1 else "s"))
 
     for stat, words in STAT_WORDS.items():
+        # "+2 Attack" is a modification, never the card's own printed stat.
         if isinstance(draft.get(stat), int):
-            replace(r"(?<![\d{])%d(?=\s*(?:%s))" % (draft[stat], words), stat, draft[stat], re.IGNORECASE)
+            replace(r"(?<![\d{+\-−])%d(?=\s*(?:%s))" % (draft[stat], words), stat, draft[stat], re.IGNORECASE)
     if isinstance(draft.get("ability_cooldown"), int):
         value = draft["ability_cooldown"]
         replace(r"(?<=Active )%d(?![\d}])|(?<=cooldown )%d(?![\d}])|(?<=冷却)%d(?![\d}])|(?<=主动)%d(?![\d}])"
@@ -154,7 +165,7 @@ def placeholders(text, draft, notes, label):
     for name in candidate_params(draft):
         values.setdefault(int(draft[name]), []).append(name)
     for value, names in sorted(values.items(), key=lambda item: -len(str(item[0]))):
-        pattern = NOT_COOLDOWN + r"(?<![\d{])%d(?![\d}])" % value
+        pattern = NOT_COOLDOWN + r"(?<![\d{])%d(?![\d}])" % value + NOT_COST
         if len(names) != 1:
             if re.search(pattern, text):
                 notes.append("%s: %d matches %s; left as a number" % (label, value, " and ".join(names)))
@@ -228,7 +239,7 @@ def classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_v
             body = ability_tags.get("text") or strip_html(ability_valve.get("card_text", {}).get("english", ""))
             text = "%s: %s" % (name, body) if name else body
             if ability.get("kind") == "active":
-                text += " Active ability; cooldown %d." % int(ability.get("cooldown", 0))
+                text += " Active ability; cooldown %d." % number(ability.get("cooldown", 0), draft)
             return text
         name = ability_valve.get("card_name", {}).get(language, "")
         body = strip_html(ability_valve.get("card_text", {}).get(language, ""), chinese=True)
@@ -236,7 +247,7 @@ def classic_text(draft, tags_entry, valve_card, ability, ability_tags, ability_v
             return ""
         text = "%s：%s" % (name, body) if name else body
         if ability.get("kind") == "active":
-            text += "主动技能，冷却%d。" % int(ability.get("cooldown", 0))
+            text += "主动技能，冷却%d。" % number(ability.get("cooldown", 0), draft)
         return text
     if language == "english":
         return (tags_entry.get("text") or strip_html(valve_card.get("card_text", {}).get("english", ""))).replace(" | ", " ")

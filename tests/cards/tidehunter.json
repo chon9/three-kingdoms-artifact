@@ -1,0 +1,15 @@
+{
+"card": "tidehunter",
+"source_id": 10024,
+"text": "Ravage: Stun Tidehunter's enemy neighbors this round and each other enemy has a 50% chance of being stunned this round.",
+"covers": ["active", "random_chance", "stun", "all_enemies", "enemy_neighbors", "self", "this_round"],
+"cases": [
+ {"name": "Ravage stuns every enemy neighbor", "clause": 0, "tags": ["active", "stun", "enemy_neighbors", "self"], "seed": 1, "board": {"lanes": {"0": {"p0": [null, "tidehunter#t", null, null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c", "melee_creep#d"]}}}, "do": [{"ability": "t"}], "expect": {"a.stunned": true, "b.stunned": true, "c.stunned": true, "t.cooldown": 4, "events": {"has": ["ability", "status"]}}},
+ {"name": "each other enemy is stunned half of the time", "clause": 0, "tags": ["random_chance", "all_enemies"], "seeds": {"from": 1, "count": 200}, "board": "@0", "do": [{"ability": "t"}], "expect_rate": {"d.stunned": [0.4, 0.6]}},
+ {"name": "two other enemies roll independently", "clause": 0, "tags": ["random_chance", "all_enemies"], "seeds": {"from": 1, "count": 200}, "board": {"lanes": {"0": {"p0": ["tidehunter#t", null, null, null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c", "melee_creep#d"]}}}, "do": [{"ability": "t"}], "expect_rate": {"c.stunned": [0.4, 0.6], "d.stunned": [0.4, 0.6], "b.stunned": [1, 1]}},
+ {"name": "allies and enemies in other lanes are never stunned", "clause": 0, "tags": ["edge", "all_enemies"], "seeds": {"from": 1, "count": 200}, "board": {"lanes": {"0": {"p0": [null, "tidehunter#t", "melee_creep#m", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c", "melee_creep#d"]}, "1": {"p0": ["melee_creep#n"], "p1": ["melee_creep#e"]}}}, "do": [{"ability": "t"}], "expect_rate": {"m.stunned": [0, 0], "e.stunned": [0, 0], "n.stunned": [0, 0]}},
+ {"name": "the stun ends with the round", "clause": 0, "tags": ["this_round"], "board": "@0", "do": [{"ability": "t"}, {"end_round": true}], "expect": {"a.stunned": false, "b.stunned": false, "t.cooldown": 3}},
+ {"name": "a silenced Tidehunter cannot Ravage", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"t": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "t"}]},
+ {"name": "Ravage is on cooldown after use", "clause": 0, "tags": ["negative", "active"], "board": "@0", "do": [{"ability": "t"}], "expect_illegal": [{"ability": "t"}]},
+ {"name": "stunned enemy neighbors deal no combat damage", "clause": 0, "tags": ["stun", "enemy_neighbors"], "board": "@0", "do": [{"ability": "t"}, {"combat": true}], "expect": {"t.health": 18}}
+]}

@@ -1,0 +1,12 @@
+{
+"card": "curse_of_atrophy",
+"source_id": 10317,
+"text": "Modify enemy heroes with -2 Attack.",
+"covers": ["play", "modify", "stat_attack", "all_enemy_heroes", "permanent"],
+"cases": [
+ {"name": "Modify enemy heroes with -2 Attack", "clause": 0, "tags": ["play", "modify", "stat_attack", "all_enemy_heroes", "permanent"], "board": {"lanes": {"0": {"p0": ["rix#r", null, null], "p1": ["keefe#k", "axe#a", "melee_creep#c"]}}}, "do": [{"play": "curse_of_atrophy"}], "expect": {"k.attack": 4, "a.attack": 4, "c.attack": 2, "r.attack": 3, "events": {"has": ["mod"]}}},
+ {"name": "allied heroes, enemy creeps and enemy heroes in other lanes are unaffected", "clause": 0, "tags": ["negative", "all_enemy_heroes", "RQ-04"], "board": {"lanes": {"0": {"p0": ["rix#r", "axe#x"], "p1": ["melee_creep#c", null]}, "1": {"p0": [null], "p1": ["keefe#k"]}}}, "do": [{"play": "curse_of_atrophy"}], "expect": {"x.attack": 6, "r.attack": 3, "c.attack": 2, "k.attack": 6}},
+ {"name": "the modification lasts past the round and survives the Fountain (RQ-13)", "clause": 0, "tags": ["edge", "permanent", "RQ-13"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["keefe#k", "axe#a"]}}}, "do": [{"play": "curse_of_atrophy"}, {"end_round": true}, {"kill": ["a"]}], "expect": {"k.attack": 4, "a.in_play": false, "a.attack": 4}},
+ {"name": "attack never shows below 0, and the stored loss still offsets later bonuses", "clause": 0, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["rix#r", null], "p1": ["keefe#k:atk=1", "lycan#l"]}}}, "do": [{"play": "curse_of_atrophy"}], "expect": {"k.attack": 1, "l.attack": 2}},
+ {"name": "a 1-attack enemy hero with no bonus drops to 0 attack", "clause": 0, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["keefe#k:atk=1"]}}}, "do": [{"play": "curse_of_atrophy"}], "expect": {"k.attack": 0}}
+]}

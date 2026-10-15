@@ -1,0 +1,12 @@
+{
+"card": "keenfolk_golem",
+"source_id": 10095,
+"text": "Play Effect: Discard your hand.",
+"covers": ["play_effect", "discard_hand", "own_hand"],
+"cases": [
+ {"name": "Play Effect: discard your whole hand", "clause": 0, "tags": ["play_effect", "discard_hand", "own_hand"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#m"]}}, "hand": {"p0": ["foresight", "slay"], "p1": ["hip_fire"]}}, "do": [{"play": "keenfolk_golem", "position": 1}], "expect": {"p0.hand": [], "p1.hand": ["hip_fire"], "events": {"has": ["play", "discard"]}}},
+ {"name": "with no other card in hand nothing is discarded", "clause": 0, "tags": ["edge", "discard_hand"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#m"]}}, "hand": {"p1": ["hip_fire"]}}, "do": [{"play": "keenfolk_golem", "position": 1}], "expect": {"p0.hand": [], "p1.hand": ["hip_fire"], "events": {"not": ["discard"]}}},
+ {"name": "locked cards are discarded too", "clause": 0, "tags": ["edge", "own_hand"], "board": {"base": "@0", "hand_state": {"p0": [{"lock": 2}]}}, "do": [{"play": "keenfolk_golem", "position": -1}], "expect": {"p0.hand": []}},
+ {"name": "the discarded cards stay hidden from the opponent", "clause": 0, "tags": ["edge", "discard_hand"], "board": "@0", "do": [{"play": "keenfolk_golem", "position": 1}], "expect": {"p0.hand": []}, "expect_private": {"viewer": 1, "absent": ["foresight", "slay"]}},
+ {"name": "without a red hero in the lane it cannot be played", "clause": 0, "tags": ["negative", "play_effect"], "board": {"lanes": {"0": {"p0": ["debbi#d"], "p1": ["melee_creep#m"]}}, "hand": {"p0": ["foresight", "slay"], "p1": ["hip_fire"]}}, "do": [], "expect_illegal": [{"play": "keenfolk_golem", "position": 1}]}
+]}

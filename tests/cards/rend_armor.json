@@ -1,0 +1,19 @@
+{
+"card": "rend_armor",
+"source_id": 10367,
+"text": "Modify a unit with -X Armor where X is its Armor.",
+"covers": ["play", "modify", "scaling_x", "stat_armor", "unit", "permanent"],
+"cases": [
+ {"name": "Modify a unit with -X Armor where X is its Armor", "clause": 0, "tags": ["play", "modify", "scaling_x", "stat_armor", "unit", "permanent"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["ogre_conscript#o"]}}}, "do": [{"play": "rend_armor", "target": "o"}], "expect": {"o.armor": 0, "events": {"has": ["mod"]}}},
+ {"name": "the stripped unit takes full combat damage", "clause": 0, "tags": ["stat_armor"], "board": "@0", "do": [{"play": "rend_armor", "target": "o"}, {"combat": true}], "expect": {"o.health": 1}},
+ {"name": "X counts armor from items: the hero ends at 0", "clause": 0, "tags": ["scaling_x", "stat_armor"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#x+leather_armor"]}}}, "do": [{"play": "rend_armor", "target": "x"}], "expect": {"x.armor": 0}},
+ {"name": "X counts armor from auras; when the aura ends the unit is left below 0", "clause": 0, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": ["keefe#k", null], "p1": ["prowler_vanguard#v", "ogre_conscript#o"]}}}, "do": [{"play": "rend_armor", "target": "o"}, {"kill": ["v"]}], "expect": {"o.armor": -1}},
+ {"name": "a unit with 0 Armor keeps 0 Armor", "clause": 0, "tags": ["edge", "unit"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["centaur_hunter#c"]}}}, "do": [{"play": "rend_armor", "target": "c"}], "expect": {"c.armor": 0, "c.health": 8}},
+ {"name": "a unit with negative Armor ends at 0 (X is negative)", "clause": 0, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["centaur_hunter#c:arm=-1"]}}}, "do": [{"play": "rend_armor", "target": "c"}], "expect": {"c.armor": 0}},
+ {"name": "an allied unit is a legal target", "clause": 0, "tags": ["unit"], "board": "@0", "do": [{"play": "rend_armor", "target": "k"}], "expect": {"k.armor": 0, "o.armor": 2}},
+ {"name": "a unit in another lane is not a target", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#e"]}, "1": {"p0": ["melee_creep#m"], "p1": ["ogre_conscript#o"]}}}, "do": [], "expect_illegal": [{"play": "rend_armor", "target": "o"}], "expect_legal": [{"play": "rend_armor", "target": "e"}]},
+ {"name": "the modification lasts past the round and survives the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#x"]}}}, "do": [{"play": "rend_armor", "target": "x"}, {"end_round": true}, {"kill": ["x"]}], "expect": {"x.in_play": false, "x.armor": 0}},
+ {"name": "armor gained later counts again", "clause": 0, "tags": ["edge", "stat_armor"], "board": "@8", "do": [{"play": "rend_armor", "target": "x"}, {"pass": 1}, {"play": "defensive_stance", "target": "x"}], "expect": {"x.armor": 3}},
+ {"name": "without a red hero it cannot be cast", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["ogre_conscript#o"]}}}, "do": [], "expect_illegal": [{"play": "rend_armor", "target": "o"}]},
+ {"name": "rq_12_purged_by_the_opponent: the enemy's Aphotic Shield gives the Armor back, then its own +2", "clause": 0, "tags": ["edge", "permanent", "RQ-12"], "board": {"lanes": {"0": {"p0": ["keefe#k", null], "p1": ["ogre_conscript#o", "rix#q"]}}}, "do": [{"play": "rend_armor", "target": "o"}, {"play": "aphotic_shield", "target": "o", "player": 1}], "expect": {"o.armor": 4, "events": {"has": ["purge"]}}}
+]}

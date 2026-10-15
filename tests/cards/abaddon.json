@@ -1,0 +1,15 @@
+{
+"card": "abaddon",
+"source_id": 10016,
+"text": "Borrowed Time: Fully heal Abaddon and give it Damage Immunity this round.",
+"covers": ["active", "damage_immunity", "full_heal", "self", "this_round"],
+"cases": [
+ {"name": "Borrowed Time fully heals Abaddon, gives it Damage Immunity and starts its cooldown", "clause": 0, "tags": ["active", "full_heal", "damage_immunity", "self", "this_round"], "board": {"lanes": {"0": {"p0": ["abaddon#a:hp=2"], "p1": ["debbi#d"]}}}, "do": [{"ability": "a"}], "expect": {"a.health": 9, "a.kw.damage_immunity": 1, "a.cooldown": 2, "d.kw.damage_immunity": 0, "events": {"has": ["ability", "heal", "status"]}}},
+ {"name": "the immune Abaddon takes no combat damage but still deals its own", "clause": 0, "tags": ["edge", "damage_immunity"], "board": "@0", "do": [{"ability": "a"}, {"combat": true}], "expect": {"a.health": 9, "d.health": 1}},
+ {"name": "the immunity ends with the round; the cooldown ticks down", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"ability": "a"}, {"end_round": true}], "expect": {"a.kw.damage_immunity": 0, "a.health": 9, "a.cooldown": 1}},
+ {"name": "a silenced Abaddon cannot use Borrowed Time", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"a": ["silence"]}}, "do": [], "expect_illegal": [{"ability": "a"}]},
+ {"name": "a stunned Abaddon cannot use Borrowed Time", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "give": {"a": ["stun"]}}, "do": [], "expect_illegal": [{"ability": "a"}]},
+ {"name": "a full heal reaches the maximum health from items", "clause": 0, "tags": ["edge", "full_heal"], "board": {"lanes": {"0": {"p0": ["abaddon#a:hp=2+travelers_cloak"], "p1": ["debbi#d"]}}}, "do": [{"ability": "a"}], "expect": {"a.health": 13}},
+ {"name": "the immunity also stops spell damage", "clause": 0, "tags": ["edge", "damage_immunity"], "board": {"lanes": {"0": {"p0": ["abaddon#a:hp=2"], "p1": ["zeus#z"]}}}, "do": [{"ability": "a"}, {"play": "thunderstorm", "player": 1}], "expect": {"a.health": 9, "z.health": 7}},
+ {"name": "the opponent's Purge removes the immunity", "clause": 0, "tags": ["edge", "damage_immunity", "purge"], "board": {"lanes": {"0": {"p0": ["abaddon#a:hp=2"], "p1": ["rix#r"]}}}, "do": [{"ability": "a"}, {"play": "cleansing_rite", "target": "a", "player": 1}], "expect": {"a.kw.damage_immunity": 0, "a.health": 9}}
+]}

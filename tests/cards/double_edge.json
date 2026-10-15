@@ -1,0 +1,14 @@
+{
+"card": "double_edge",
+"source_id": 10292,
+"text": "Give a red hero +8 Attack and -8 Armor this round.",
+"covers": ["play", "stat_armor", "stat_attack", "temp_buff", "colour_hero", "this_round"],
+"cases": [
+ {"name": "Give a red hero +8 Attack and -8 Armor this round", "clause": 0, "tags": ["play", "stat_attack", "stat_armor", "temp_buff", "colour_hero", "this_round"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "double_edge", "target": "k"}], "expect": {"k.attack": 14, "k.armor": -7, "events": {"has": ["status"]}}},
+ {"name": "the bonus ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "double_edge", "target": "k"}, {"end_round": true}], "expect": {"k.attack": 6, "k.armor": 1}},
+ {"name": "negative Armor makes the hero take more battle damage", "clause": 0, "tags": ["edge", "stat_armor"], "board": "@0", "do": [{"play": "double_edge", "target": "k"}, {"combat": true}], "expect": {"k.health": 2, "c.in_play": false}},
+ {"name": "only red heroes are targets", "clause": 0, "tags": ["negative", "colour_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "jmuy#j"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "double_edge", "target": "j"}, {"play": "double_edge", "target": "c"}]},
+ {"name": "an enemy red hero is a target too", "clause": 0, "tags": ["colour_hero", "temp_buff"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#a"]}}}, "do": [{"play": "double_edge", "target": "a"}], "expect": {"a.attack": 14, "a.armor": -6}},
+ {"name": "without an allied red hero in the lane it cannot be cast", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["axe#a"]}}}, "do": [], "expect_illegal": [{"play": "double_edge", "target": "a"}]},
+ {"name": "the Fountain clears the bonus", "clause": 0, "tags": ["edge", "temp_buff"], "board": "@0", "do": [{"play": "double_edge", "target": "k"}, {"kill": ["k"]}], "expect": {"k.attack": 6, "k.armor": 1, "k.in_play": false}}
+]}

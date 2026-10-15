@@ -1,0 +1,13 @@
+{
+"card": "viscous_nasal_goo",
+"source_id": 10419,
+"text": "Modify a unit with -2 Armor.",
+"covers": ["play", "modify", "stat_armor", "unit", "permanent"],
+"cases": [
+ {"name": "Modify a unit with -2 Armor", "clause": 0, "tags": ["play", "modify", "stat_armor", "unit"], "board": {"lanes": {"0": {"p0": ["bristleback#b"], "p1": ["axe#a"]}}}, "do": [{"play": "viscous_nasal_goo", "target": "a"}], "expect": {"a.armor": 0, "events": {"has": ["mod"]}}},
+ {"name": "Armor can go below 0, so the unit takes more damage", "clause": 0, "tags": ["stat_armor", "unit"], "board": {"lanes": {"0": {"p0": ["bristleback#b", "melee_creep#m"], "p1": ["axe#a", "melee_creep#c"]}}}, "do": [{"play": "viscous_nasal_goo", "target": "c"}, {"combat": true}], "expect": {"c.in_play": false}},
+ {"name": "an allied unit is a legal target", "clause": 0, "tags": ["unit"], "board": "@0", "do": [{"play": "viscous_nasal_goo", "target": "b"}], "expect": {"b.armor": -2}},
+ {"name": "it needs a red hero in the lane to cast", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "viscous_nasal_goo", "target": "c"}]},
+ {"name": "a unit in another lane is not a target", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["bristleback#b"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#m"], "p1": ["melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "viscous_nasal_goo", "target": "d"}]},
+ {"name": "the modification survives the Fountain and the round end", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "viscous_nasal_goo", "target": "a"}, {"end_round": true}, {"kill": ["a"]}], "expect": {"a.armor": 0, "a.in_play": false}}
+]}

@@ -1,0 +1,17 @@
+{
+"card": "ursa",
+"source_id": 10070,
+"text": "Fury Swipes: When Ursa deals battle damage to a unit, modify that unit with -1 Armor.",
+"covers": ["battle_damage_dealt", "modify", "stat_armor", "trigger_subject", "permanent"],
+"cases": [
+ {"name": "Fury Swipes: the unit Ursa damages is modified with -1 Armor", "clause": 0, "tags": ["battle_damage_dealt", "modify", "stat_armor", "trigger_subject", "permanent"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"k.armor": 0, "k.health": 5, "u.health": 4, "u.armor": 0, "events": {"has": ["trigger", "mod"]}}},
+ {"name": "the -1 Armor is permanent: it outlasts the round and the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}, {"end_round": true}, {"kill": ["k"]}], "expect": {"k.armor": 0, "k.in_play": false}},
+ {"name": "rq_32_no_damage_no_swipe: 0 battle damage does not trigger it", "clause": 0, "tags": ["negative", "battle_damage_dealt", "RQ-32"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": ["keefe#k:arm=7"]}}}, "do": [{"combat": true}], "expect": {"k.armor": 7, "k.health": 11, "events": {"not": ["mod"]}}},
+ {"name": "damage to a tower does not trigger it", "clause": 0, "tags": ["negative", "trigger_subject"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 33, "events": {"not": ["mod"]}}},
+ {"name": "a unit Ursa kills is gone when Fury Swipes resolves", "clause": 0, "tags": ["edge", "trigger_subject"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": ["melee_creep#m"]}}}, "do": [{"combat": true}], "expect": {"m.in_play": false, "events": {"has": ["trigger"], "not": ["mod"]}}},
+ {"name": "Fury Swipes answers battle damage outside combat (Duel)", "clause": 0, "tags": ["battle_damage_dealt", "modify"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": ["keefe#k"]}}}, "do": [{"play": "duel", "target": "u", "destination": "k"}], "expect": {"k.armor": 0, "k.health": 5, "u.health": 4}},
+ {"name": "it stacks, and resolves even when Ursa falls in the same combat", "clause": 0, "tags": ["edge", "modify", "permanent"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": ["marrowfell_brawler#b"]}}}, "do": [{"play": "duel", "target": "u", "destination": "b"}, {"combat": true}], "expect": {"b.armor": -2, "b.health": 1, "u.in_play": false}},
+ {"name": "rq_45_retaliate_is_battle_damage: Ursa's Retaliate hit also swipes", "clause": 0, "tags": ["edge", "battle_damage_dealt", "RQ-45"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": ["centaur_hunter#h"]}}, "give": {"u": ["stun", "retaliate"]}}, "do": [{"combat": true}], "expect": {"h.armor": -1, "h.health": 7, "u.health": 6}},
+ {"name": "rq_45_cleave_is_battle_damage: every unit Ursa cleaves is swiped", "clause": 0, "tags": ["edge", "battle_damage_dealt", "RQ-45"], "board": {"lanes": {"0": {"p0": [null, "ursa#u", null], "p1": ["melee_creep#a", "keefe#k", "melee_creep#c"]}}, "give": {"u": ["cleave"]}}, "do": [{"combat": true}], "expect": {"a.armor": -1, "c.armor": -1, "k.armor": 0, "a.health": 3, "k.health": 5}},
+ {"name": "rq_54_dead_hero_keeps_swipe: a hero Ursa kills keeps the -1 Armor in the Fountain", "clause": 0, "tags": ["edge", "trigger_subject", "permanent", "RQ-54"], "board": {"lanes": {"0": {"p0": ["ursa#u"], "p1": ["keefe#k:hp=3"]}}}, "do": [{"combat": true}], "expect": {"k.in_play": false, "k.armor": 0}}
+]}

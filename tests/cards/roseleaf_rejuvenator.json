@@ -1,0 +1,11 @@
+{
+"card": "roseleaf_rejuvenator",
+"source_id": 10134,
+"text": "Play Effect: Heal your tower 7.",
+"covers": ["play_effect", "heal", "tower_heal", "allied_tower"],
+"cases": [
+ {"name": "Play Effect: Heal your tower 7", "clause": 0, "tags": ["play_effect", "heal", "tower_heal", "allied_tower"], "board": {"lanes": {"0": {"p0": ["rix#h"], "p1": [null]}}, "towers": {"0": {"p0": {"health": 20}}}}, "do": [{"play": "roseleaf_rejuvenator", "position": 1}], "expect": {"tower.0.0.health": 27, "events": {"has": ["heal"]}}},
+ {"name": "the heal stops at the tower's 40 health", "clause": 0, "tags": ["edge", "tower_heal"], "board": {"lanes": {"0": {"p0": ["rix#h"], "p1": [null]}}, "towers": {"0": {"p0": {"health": 36}}}}, "do": [{"play": "roseleaf_rejuvenator", "position": 1}], "expect": {"tower.0.0.health": 40}},
+ {"name": "the enemy tower and your towers in other lanes are not healed", "clause": 0, "tags": ["negative", "allied_tower"], "board": {"lanes": {"0": {"p0": ["rix#h"], "p1": [null]}}, "towers": {"0": {"p0": {"health": 20}, "p1": {"health": 20}}, "1": {"p0": {"health": 20}}}}, "do": [{"play": "roseleaf_rejuvenator", "position": 1}], "expect": {"tower.0.0.health": 27, "tower.0.1.health": 20, "tower.1.0.health": 20}},
+ {"name": "rq_46_heals_the_ancient: with the tower fallen, the lane's ancient is healed, up to 80", "clause": 0, "tags": ["edge", "tower_heal", "RQ-46"], "board": {"lanes": {"0": {"p0": ["rix#h"], "p1": [null]}}, "towers": {"0": {"p0": {"health": 50, "ancient": true}}}}, "do": [{"play": "roseleaf_rejuvenator", "position": 1}], "expect": {"tower.0.0.health": 57, "tower.0.0.ancient": true}}
+]}

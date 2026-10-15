@@ -1,0 +1,14 @@
+{
+"card": "iron_branch_protection",
+"source_id": 10324,
+"text": "Give a unit in any lane +3 Armor until end of its next combat phase.",
+"covers": ["play", "stat_armor", "temp_buff", "unit", "until_next_combat"],
+"cases": [
+ {"name": "Give a unit in any lane +3 Armor", "clause": 0, "tags": ["play", "stat_armor", "temp_buff", "unit"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}, "2": {"p0": ["melee_creep#m"], "p1": ["keefe#k"]}}}, "do": [{"play": "iron_branch_protection", "target": "m"}], "expect": {"m.armor": 3, "k.armor": 1, "r.armor": 0, "events": {"has": ["status"]}}},
+ {"name": "an enemy unit in another lane is a legal target too", "clause": 0, "tags": ["edge", "unit"], "board": "@0", "do": [{"play": "iron_branch_protection", "target": "k"}], "expect": {"k.armor": 4, "m.armor": 0}},
+ {"name": "the armor protects in its lane's combat, then ends with that combat", "clause": 0, "tags": ["until_next_combat", "stat_armor"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "iron_branch_protection", "target": "r"}, {"combat": true}], "expect": {"r.health": 7, "r.armor": 0, "c.health": 1}},
+ {"name": "a unit whose lane already fought keeps it past the round end", "clause": 0, "tags": ["edge", "until_next_combat"], "board": {"active_lane": 1, "lanes": {"0": {"p0": ["melee_creep#m"], "p1": ["melee_creep#c"]}, "1": {"p0": ["rix#r"], "p1": ["melee_creep#d"]}}}, "do": [{"play": "iron_branch_protection", "target": "m"}, {"end_round": true}], "expect": {"m.armor": 3}},
+ {"name": "after the round end it still expires in that lane's next combat", "clause": 0, "tags": ["edge", "until_next_combat"], "board": "@3", "do": [{"play": "iron_branch_protection", "target": "m"}, {"end_round": true}, {"combat": true}], "expect": {"m.armor": 0}},
+ {"name": "a moved unit keeps it until the combat of its new lane", "clause": 0, "tags": ["edge", "until_next_combat"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["melee_creep#c", "melee_creep#e"]}, "1": {"p0": ["melee_creep#n"], "p1": ["melee_creep#d"]}}}, "do": [{"play": "iron_branch_protection", "target": "m"}, {"pass": 1}, {"play": "intimidation", "target": "m"}, {"pass": 1}, {"pass": 0}], "expect": {"m.armor": 3}},
+ {"name": "a hero that dies loses it in the Fountain (RQ-13)", "clause": 0, "tags": ["negative", "temp_buff", "RQ-13"], "board": {"lanes": {"0": {"p0": ["rix#r"], "p1": ["keefe#k"]}}}, "do": [{"play": "iron_branch_protection", "target": "k"}, {"kill": ["k"]}], "expect": {"k.in_play": false, "k.armor": 1}}
+]}

@@ -1,0 +1,13 @@
+{
+"card": "bellow",
+"source_id": 10303,
+"text": "Move a creep to a random other lane.",
+"covers": ["play", "move", "creep", "random_other_lane"],
+"cases": [
+ {"name": "Move a creep to a random other lane", "clause": 0, "tags": ["play", "move", "creep", "random_other_lane"], "seed": 1, "board": {"active_lane": 1, "lanes": {"0": {"p0": ["melee_creep#x"], "p1": ["melee_creep#y"]}, "1": {"p0": ["rix#r", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#c"]}, "2": {"p0": ["melee_creep#z"], "p1": [null]}}}, "do": [{"play": "bellow", "target": "m"}], "expect": {"m.lane": 0, "m.in_play": true, "m.owner": 0, "r.slot": 0, "events": {"has": ["move"]}}},
+ {"name": "each other lane is chosen half of the time", "clause": 0, "tags": ["random_other_lane"], "seeds": {"from": 1, "count": 200}, "board": "@0", "do": [{"play": "bellow", "target": "m"}], "expect_rate": {"m.lane": [0.4, 0.6]}},
+ {"name": "the creep never stays in its own lane", "clause": 0, "tags": ["edge", "random_other_lane"], "seeds": {"from": 1, "count": 200}, "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"play": "bellow", "target": "m"}], "expect_rate": {"m.lane": [1.0, 1.0], "m.in_play": [1.0, 1.0]}},
+ {"name": "an enemy creep can be moved; it stays its owner's", "clause": 0, "tags": ["edge", "creep"], "seeds": {"from": 1, "count": 200}, "board": "@2", "do": [{"play": "bellow", "target": "c"}], "expect_rate": {"c.lane": [1.0, 1.0], "c.owner": [1.0, 1.0]}},
+ {"name": "heroes cannot be chosen", "clause": 0, "tags": ["negative", "creep"], "board": "@2", "expect_illegal": [{"play": "bellow", "target": "r"}, {"play": "bellow", "target": "k"}]},
+ {"name": "creeps in other lanes cannot be chosen", "clause": 0, "tags": ["negative", "creep", "RQ-04"], "board": "@0", "expect_illegal": [{"play": "bellow", "target": "x"}, {"play": "bellow", "target": "z"}]}
+]}

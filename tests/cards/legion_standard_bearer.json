@@ -1,0 +1,15 @@
+{
+"card": "legion_standard_bearer",
+"source_id": 10087,
+"text": "Legion Standard Bearer's allied neighbors have +4 Attack.",
+"covers": ["continuous", "stat_attack", "allied_neighbors"],
+"cases": [
+ {"name": "Legion Standard Bearer's allied neighbors have +4 Attack", "clause": 0, "tags": ["continuous", "stat_attack", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "legion_standard_bearer#s", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [], "expect": {"l.attack": 6, "r.attack": 6, "s.attack": 0, "s.health": 6}},
+ {"name": "the Bearer itself, the enemies and allies further away get nothing", "clause": 0, "tags": ["negative", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "legion_standard_bearer#s", "melee_creep#r", "melee_creep#far"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c", "melee_creep#d"]}}}, "do": [], "expect": {"s.attack": 0, "far.attack": 2, "a.attack": 2, "b.attack": 2, "c.attack": 2}},
+ {"name": "allies in another lane get nothing", "clause": 0, "tags": ["edge", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["legion_standard_bearer#s"], "p1": ["melee_creep#a"]}, "1": {"p0": ["melee_creep#m"], "p1": ["melee_creep#b"]}}}, "do": [], "expect": {"m.attack": 2}},
+ {"name": "the aura ends when the Bearer dies", "clause": 0, "tags": ["edge", "continuous"], "board": "@0", "do": [{"kill": ["s"]}], "expect": {"s.in_play": false, "l.attack": 2, "r.attack": 2}},
+ {"name": "a stunned Bearer keeps its aura", "clause": 0, "tags": ["edge", "continuous"], "board": {"base": "@0", "give": {"s": ["stun"]}}, "do": [], "expect": {"l.attack": 6}},
+ {"name": "a hero next to it deals the extra damage in combat", "clause": 0, "tags": ["stat_attack"], "board": {"lanes": {"0": {"p0": ["keefe#k", "legion_standard_bearer#s"], "p1": ["ogre_conscript#o", "melee_creep#m"]}}}, "do": [{"combat": true}], "expect": {"o.in_play": false, "s.health": 4, "m.health": 4}},
+ {"name": "played between two allies, it buffs both", "clause": 0, "tags": ["continuous", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["keefe#k", null, "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "legion_standard_bearer", "position": 1}], "expect": {"k.attack": 10, "r.attack": 6}},
+ {"name": "without a red hero it cannot be played", "clause": 0, "tags": ["negative", "continuous"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#a"]}}}, "do": [], "expect_illegal": [{"play": "legion_standard_bearer", "position": 1}]}
+]}

@@ -1,0 +1,15 @@
+{
+"card": "sven",
+"source_id": 10054,
+"text": "Great Cleave: Sven has +X Cleave where X is equal to half its Attack.",
+"covers": ["continuous", "cleave", "scaling_x", "self"],
+"cases": [
+ {"name": "Great Cleave: 5 Attack gives Cleave 2 on the blocker's neighbors", "clause": 0, "tags": ["continuous", "scaling_x", "cleave", "self"], "board": {"lanes": {"0": {"p0": [null, "sven#s", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"s.kw.cleave": 2, "a.health": 2, "c.health": 2, "b.in_play": false, "s.health": 9}},
+ {"name": "rq_28_half_rounds_down: 7 Attack gives Cleave 3", "clause": 0, "tags": ["edge", "scaling_x", "RQ-28"], "board": {"lanes": {"0": {"p0": ["sven#s+short_sword"], "p1": ["melee_creep#e"]}}}, "do": [], "expect": {"s.attack": 7, "s.kw.cleave": 3}},
+ {"name": "X follows a permanent Attack change (God's Strength)", "clause": 0, "tags": ["scaling_x", "cleave"], "board": {"lanes": {"0": {"p0": [null, "sven#s", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "gods_strength", "target": "s"}], "expect": {"s.attack": 9, "s.kw.cleave": 4}},
+ {"name": "X follows a temporary Attack bonus (Double Edge)", "clause": 0, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": [null, "sven#s", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "double_edge", "target": "s"}], "expect": {"s.attack": 13, "s.kw.cleave": 6}},
+ {"name": "the bonus Cleave ends with the bonus Attack", "clause": 0, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": [null, "sven#s", null], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "double_edge", "target": "s"}, {"end_round": true}], "expect": {"s.attack": 5, "s.kw.cleave": 2}},
+ {"name": "an unblocked Sven hits the tower and cleaves nothing", "clause": 0, "tags": ["negative", "cleave"], "board": {"lanes": {"0": {"p0": ["sven#s", null], "p1": [null, "melee_creep#b"]}}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 35, "b.health": 4}},
+ {"name": "Cleave is reduced by armor and does not trigger Retaliate", "clause": 0, "tags": ["edge", "cleave"], "board": {"lanes": {"0": {"p0": [null, "sven#s", null], "p1": ["bronze_legionnaire#a", "melee_creep#b", "centaur_warrunner#c"]}}}, "do": [{"combat": true}], "expect": {"a.health": 2, "c.health": 12, "s.health": 9}},
+ {"name": "Sven with 1 Attack has no Cleave", "clause": 0, "tags": ["edge", "scaling_x"], "board": {"lanes": {"0": {"p0": ["sven#s:atk=1"], "p1": ["melee_creep#e"]}}}, "do": [], "expect": {"s.kw.cleave": 0}}
+]}

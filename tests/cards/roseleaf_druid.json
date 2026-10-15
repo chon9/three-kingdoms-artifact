@@ -1,0 +1,11 @@
+{
+"card": "roseleaf_druid",
+"source_id": 10117,
+"text": "Your tower has +1 Mana.",
+"covers": ["continuous", "mana_change", "allied_tower", "tower_mana"],
+"cases": [
+ {"name": "Your tower has +1 Mana: playing it raises maximum and current mana", "clause": 0, "tags": ["continuous", "mana_change", "allied_tower", "tower_mana"], "board": {"lanes": {"0": {"p0": ["magnus#m", null], "p1": ["melee_creep#c", "melee_creep#d"]}}, "mana": 5}, "do": [{"play": "roseleaf_druid", "position": 1}], "expect": {"max_mana.0.0": 6, "mana.0.0": 2}},
+ {"name": "the mana leaves with the Druid", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["magnus#m", "roseleaf_druid#r"], "p1": ["melee_creep#c", "melee_creep#d"]}}, "mana": 5}, "do": [{"kill": ["r"]}], "expect": {"max_mana.0.0": 5, "mana.0.0": 5}},
+ {"name": "the enemy tower and the towers of other lanes are unaffected", "clause": 0, "tags": ["negative", "allied_tower", "tower_mana"], "board": "@1", "do": [], "expect": {"max_mana.0.0": 6, "max_mana.0.1": 5, "max_mana.1.0": 5}},
+ {"name": "two Druids give +2 Mana", "clause": 0, "tags": ["edge", "mana_change"], "board": {"lanes": {"0": {"p0": ["magnus#m", "roseleaf_druid#r", "roseleaf_druid#s"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}, "mana": 5}, "do": [], "expect": {"max_mana.0.0": 7, "mana.0.0": 7}}
+]}

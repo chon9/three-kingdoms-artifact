@@ -2,7 +2,7 @@
 
 The target is **Artifact Classic (the first version)**. Foundry's unified mana, shared action phase and fixed five-slot lanes are not the target.
 
-This file separates implemented mechanics from verified fidelity. The supported catalog contains 49 real Classic definitions with preserved Valve artwork. Card effects use Valve's localization/glossary, with Classic balance-patch corrections for Axe, Gust and equipment prices. Automated tests cover supported effects, three presets and every preset matchup. Exact Classic behavior still needs reference matches around deployment, combat targeting restrictions and unusual combinations.
+This file separates implemented mechanics from verified fidelity. The supported catalog contains 144 real Classic definitions with preserved Valve artwork: the 49 migrated in M1 and, from M3, the 92 red and green cards plus three heroes' signature improvements (Steel Reinforcement, Nether Ward, Verdant Refuge). Card effects use Valve's localization/glossary, with Classic balance-patch corrections for Axe, Gust and equipment prices. Automated tests cover supported effects, eight presets, every matchup of the original three and bot matches with each M3 preset. Exact Classic behavior still needs reference matches around deployment, combat targeting restrictions and unusual combinations.
 
 Card rules are data: every card entry in `data/classic_cards.json` (schema 4) and `data/training_cards.json` (schema 2) carries its rules, which the rules engine in `scripts/core/rules/` runs (see "Rules engine" below and `docs/EFFECTS.md`). Open rules questions are numbered RQ-xx and listed under "Rules questions".
 
@@ -13,12 +13,12 @@ Card rules are data: every card entry in `data/classic_cards.json` (schema 4) an
 | Actions | Players alternate; legal commands validate before mutation | Implemented |
 | Initiative | First consecutive passer opens next lane; playing resets passes; initiative effects keep the action | Implemented and tested; complex ability interactions absent |
 | Color | A matching hero in the active lane that is neither silenced nor stunned (stun counts as silence and disarm) | Implemented and tested |
-| Combat | Snapshot all attacks, reduce every incoming hit by armor, apply simultaneously. The combat plan also handles siege, cleave, retaliate, regeneration, piercing, Lethal and Damage Immunity, and records battle damage (RQ-45) | Implemented; the shipped cards use siege and the hero/tower bonuses, the other keywords are tested with fixture cards |
+| Combat | Snapshot all attacks, reduce every incoming hit by armor, apply simultaneously. The combat plan also handles siege, cleave, retaliate, regeneration, piercing, Lethal and Damage Immunity, and records battle damage (RQ-45) | Implemented; the shipped cards use siege, cleave, retaliate, regeneration, pierce, Damage Immunity and the hero/tower bonuses; Lethal is tested with fixture cards |
 | Combat targets | A redirect may choose an enemy unit in the three positions across, or the tower only when the position directly across is empty (RQ-19, FX-2) | Implemented and tested |
 | Structures | 40-health towers, then 80-health ancients; no tower-hit overflow | Implemented; verify special damage effects against Classic |
 | Victory | Two towers or one ancient; simultaneous wins draw | Implemented and tested |
 | Gold | Opponent receives bounty whenever a unit dies, including friendly spell damage and symmetric clears (RQ-02) | Implemented; bounty is the `bounty` keyword (5 for heroes, 1 for creeps) |
-| Heroes | Original five plus Drow, Lycan, Phantom Assassin, Zeus and Rix | Ten supported heroes, five per chosen deck |
+| Heroes | Original five plus Drow, Lycan, Phantom Assassin, Zeus and Rix (M1); the 18 red and green heroes from Mazzie to Chen (M3) | 28 supported heroes, five per chosen deck |
 | Death | Normal heroes return after a full round; Rix returns next round; Fountain immediately heals and clears temporary effects (RQ-13) | Implemented and tested |
 | Deployment | Lane creeps are assigned and shown to both players first; heroes are then assigned to lanes privately and may be moved to another lane or taken back until their player confirms; after both confirm, each player draws two cards, then all new units are placed in one shuffled order, deployment triggers run (RQ-23, RQ-49) and every unit's arrow is rolled | Implemented per the wiki Phases page and tested; changing a planned lane before confirming is an assumption (below) |
 | Placement | Creep cards: the player chooses an empty own slot or a new position at either end. Summons, lane creeps and deployed heroes: a random empty own slot, otherwise a new position at a random end | Implemented and tested; random-placement details are an assumption (below) |
@@ -27,27 +27,27 @@ Card rules are data: every card entry in `data/classic_cards.json` (schema 4) an
 | Draw | Five opening cards, then two per later round after deployment choices are confirmed; empty deck draws nothing | Implemented; every hand card has a private instance id (`hand_state`) |
 | Shop | Secret Shop, item-deck and consumable slots. The item deck is reshuffled every shopping phase; buying from it reveals the next card. Hold: pay 1 gold, once per shop phase, to keep the Secret Shop offer for the next shopping phase | Implemented per the wiki Item Shop page and tested; supported pools only |
 | Equipment | Weapon, armor and accessory slots; replacement; retained through death. Equipping is legal while stunned (RQ-35) | Real printed effects implemented; each equipped item is an instance with its own id |
-| Decks | Three presets; 5 unique heroes, 40 main cards with all signature copies, 9 equipment cards | Validated preset selection (only `verified`, non-token cards); custom deck editing and complete format rules absent |
-| Cards | Ten heroes and 39 other definitions, all `verified`. Schema-4 drafts of all 303 counted Classic cards are in `tests/data/classic_rules_drafts.json` | Supported slice; drafts compile and are checked against Valve data, but are not playable |
-| Auras | Farvhan and Prowler give adjacent allies +1 armor, Lycan +2 attack, Drow +1 attack to other allies in all lanes; item bonuses are auras on their hero. Auras are derived when read, and a unit projects its auras until the Pulse removes it (FX-3, RQ-15) | Implemented; removal, stacking and FX-3 tested |
+| Decks | Eight presets: the original three and, from M3, one per colour pair with red or green (Red/Green, Red/Blue, Red/Black, Green/Blue, Green/Black); 5 unique heroes, 40 main cards with all signature copies (each hero needs a signature card in the pack), 9 equipment cards | Validated preset selection (only `verified`, non-token cards); presets hold signature cards only with their own hero; custom deck editing and complete format rules absent |
+| Cards | 28 heroes and 116 other definitions, all `verified` except Enough Magic! (a `draft`, RQ-20). Schema-4 drafts of all 303 counted Classic cards are in `tests/data/classic_rules_drafts.json` | Supported slice (M1 and M3 of spec §12); drafts compile and are checked against Valve data, but are not playable |
+| Auras | Farvhan and Prowler give adjacent allies +1 armor, Lycan +2 attack, Drow +1 attack to other allies in all lanes; item bonuses are auras on their hero. M3 adds self and neighbor auras (Sven, Timbersaw, Treant Protector, Enchantress, Legion Standard Bearer), tower auras (Roseleaf Druid, Steel Reinforcement), an improvement's aura on its lane's allies (Verdant Refuge) and granted auras that follow their bearer (Defend the Weak, Allseeing One's Favor, Routed). Auras are derived when read, and a unit projects its auras until the Pulse removes it (FX-3, RQ-15) | Implemented; removal, stacking and FX-3 tested |
 | Debbi | +2 battle damage against heroes and structures, none against creeps | Implemented and tested |
 | Drow / Lycan | Global +1 to other allies; adjacent +2 attack | Implemented; aura loss and stacking tested |
 | Phantom Assassin | +4 battle damage to heroes only | Implemented and tested |
 | Zeus | After a blue spell, deal 1 piercing to enemy neighbors; a dead Zeus does not trigger | Implemented as a `card_played` trigger; order with other triggers follows RQ-37 |
 | Growth / siege | Savage Wolf grows after surviving lane combat; blocked siege adds tower damage | Implemented and tested |
 | Silence | Prevents active abilities and hero casting color; passives remain; clears at round end/Fountain (RQ-31) | Implemented and tested |
-| Cross lane | Pick Off pays source-lane mana and targets any lane; Wrath hits enemy heroes in all lanes | Implemented and tested |
+| Cross lane | Pick Off pays source-lane mana and targets any lane; Wrath hits enemy heroes in all lanes; Spring the Trap, Iron Branch Protection, Rumusque Blessing and every improvement (glossary) choose any lane | Implemented and tested |
 | Consumables | Healing, draw and Portal return with no play-time mana cost | Implemented and tested |
-| Condemn / discard | Slay, Coup de Grace and Annihilation; Coup discards one random remaining hand card; Annihilation condemns the active lane (RQ-04) | Implemented; Death Shields and Soulbound are implemented in the Pulse and tested with fixture cards |
+| Condemn / discard | Slay, Coup de Grace and Annihilation; Coup discards one random remaining hand card; Annihilation condemns the active lane (RQ-04). M3: Raze, Smash Their Defenses! and Pugna condemn improvements, Corrosive Mist condemns items, Keenfolk Golem discards the hand | Implemented; Death Shields and Soulbound are implemented in the Pulse and tested with fixture cards |
 | J'Muy | Draw one via active ability; four-round cooldown with round ticks; actives start ready (RQ-24) | Implemented; initial cooldown timing still needs reference-match verification |
-| Signatures | Fighting Instinct permanent buffs, No Accident damage, Prowler aura, Battlefield Control redirection, Berserker's Call neighbor battles | Implemented and tested; full edge interactions require reference fixtures |
+| Signatures | Fighting Instinct permanent buffs, No Accident damage, Prowler aura, Battlefield Control redirection, Berserker's Call neighbor battles; the 18 M3 heroes' signatures (Duel's battle, Primal Roar's random-lane moves, Hand of God, Ion Shell, Viper Strike...) each with a spec | Implemented and tested; full edge interactions require reference fixtures |
 | Extra effects | Tower Barrage and Thunderstorm damage each enemy unit, never the tower (RQ-01, FX-1); Stars Align grants temporary mana; Dimensional Portal summons three creeps | Implemented and tested |
 | Group damage | A damage effect on several units computes every amount from one board state, then applies them (FX-3, RQ-15) | Implemented and tested |
-| Triggers | General event bus and trigger queue: triggers are collected from live sources when their event fires, filtered, then resolved in batches in one total order (RQ-37). A Pulse follows each batch; dying units leave look-back snapshots for Death Effects (RQ-43) | Implemented and tested with fixture cards; the shipped cards use Zeus's and Savage Wolf's triggers |
+| Triggers | General event bus and trigger queue: triggers are collected from live sources when their event fires, filtered, then resolved in batches in one total order (RQ-37). A Pulse follows each batch; dying units leave look-back snapshots for Death Effects (RQ-43), and a Modify that resolves after a hero died reaches it in the Fountain (RQ-54) | Implemented and tested with fixture cards and the M3 cards (play, death, after-combat, battle-damage, unit-died, card-played and granted triggers) |
 | Log events | Structured dictionaries (`{"k": key, ...}`) formatted by `scripts/core/event_text.gd` through `tr()` keys in en and zh_CN. Private fields (drawn cards) travel under `_s` and reach only their viewer | Implemented and tested |
 | Zone operations | Summon, move (to a chosen or random other lane and position), swap, control and Fountain returns keep both rows aligned and arrows consistent; forced targets that no longer apply end (a forced tower target when a unit stands directly across, a forced unit target unless it is an enemy within one position) | Implemented and tested with fixture cards (`tests/mechanics_test.gd`, zone fuzz) |
 | Hand state | Locks (stacking, one round decays per round), card counters (charges, from the printed value), base copies and hacks on cards in hand. Lock counts are public on card backs; which cards, counters and hacks stay private | Implemented and tested with fixture cards; privacy fuzzed (`tests/fuzz_test.gd`) |
-| Improvements and Deeds | Improvements are played into a chosen lane, at most 16 per side (RQ-47), with charges, triggers and active abilities; Deeds go to a public zone (RQ-41); items are instances with triggers, actives and charges | Implemented and tested with fixture cards; no shipped card uses them yet |
+| Improvements and Deeds | Improvements are Cross Lane cards (glossary): played into a chosen lane, at most 16 per side (RQ-47), with charges, triggers and active abilities; Deeds go to a public zone (RQ-41); items are instances with triggers, actives and charges | Implemented and tested with fixture cards; the shipped improvements are three heroes' signatures (Steel Reinforcement, Nether Ward, Verdant Refuge, pulled forward from M7); Deeds and item abilities ship with M6 |
 | Rules layer | Player auras may grant `round_draw`, `forbid_play`, `secret_shop_discount` (prices may go negative, RQ-26) and `creep_lane` (RQ-22) | Implemented and tested with fixture cards |
 | Replays | Seed, selected decks and validated commands restore state/RNG. Replays record protocol 7 and `RULES_VERSION`; a replay made with other rules fails clearly (`replay_rules`) | Implemented and tested; Steam protocol 8 adds `RULES_VERSION` to the content hash |
 
@@ -91,30 +91,30 @@ Behaviour changes made on purpose after the migration (each re-recorded the gold
 
 ## Rules questions
 
-Each question has one default, one place in the code or data, and (where implemented) a named test. RQ-01 to RQ-36 come from the mechanics inventory (`docs/design/MECHANICS.md`, regenerate with `python tools/mechanics.py`); RQ-37 to RQ-52 from the effect system design. In the last column, "cards:" names the shipped cards whose `rq` field lists the question. Questions whose cards are not in the pack yet keep the inventory's best answer until their milestone.
+Each question has one default, one place in the code or data, and (where implemented) a named test. RQ-01 to RQ-36 come from the mechanics inventory (`docs/design/MECHANICS.md`, regenerate with `python tools/mechanics.py`); RQ-37 to RQ-52 from the effect system design; RQ-53 and RQ-54 from the M3 cards. In the last column, "cards:" names the shipped cards whose `rq` field lists the question. Questions whose cards are not in the pack yet keep the inventory's best answer until their milestone.
 
 | RQ | Question | Default | Where | Test or status |
 | --- | --- | --- | --- | --- |
 | RQ-01 | Does "each enemy" include the enemy tower? | No: towers are not units (Tower Barrage, Thunderstorm) | FX-1, card data | `rq_01_each_enemy_excludes_tower`; cards: Tower Barrage, Thunderstorm |
 | RQ-02 | Who gets bounty when a unit dies to its owner's effect? | Always the dying unit's opponent | `Kernel._remove` | `rq_02` (rules kernel test); cards: Annihilation |
-| RQ-03 | Lane scope of "after you play" triggers | The source's lane, unless the text says "any lane" | trigger `lane` | Zeus scans the active lane |
-| RQ-04 | Default scope of "allies", "enemies", "all units" | The active lane (spells) or the source's lane | selector `lane` | cards: Annihilation (condemns the active lane) |
-| RQ-05 | Who are a unit's attackers? | Enemy units whose combat target is it and that are not disarmed | `attackers` relation | `rq_05_attackers` (mechanics test) |
-| RQ-06 | When does Retaliate apply? | In any battle, once per attacker, even when stunned; reduced by armor | `Combat` | `kw_retaliate_1` to `_5` (mechanics test) |
+| RQ-03 | Lane scope of "after you play" triggers | The source's lane, unless the text says "any lane" | trigger `lane` | Zeus scans the active lane; cards: Nether Ward, Soul of Spring |
+| RQ-04 | Default scope of "allies", "enemies", "all units" | The active lane (spells) or the source's lane | selector `lane` | cards: Annihilation (condemns the active lane), Pugna, Smeevil Armsmaster, Ogre Corpse Tosser, Smash Their Defenses!, Clear the Deck, Raze, Time of Triumph, Corrosive Mist, Curse of Atrophy |
+| RQ-05 | Who are a unit's attackers? | Enemy units whose combat target is it and that are not disarmed. A stunned or disarmed unit is still blocked by its combat target (glossary: unblocked means the combat target is the tower), so death snapshots also record `blocking`, every enemy aimed at the dead unit, which the `was: blocker` filter reads (M3) | `attackers` relation, `Kernel._snapshot` | `rq_05_attackers`, `m3_blocking_*` (mechanics test); cards: Timbersaw, Stonehall Elite |
+| RQ-06 | When does Retaliate apply? | In any battle, once per attacker, even when stunned; reduced by armor | `Combat` | `kw_retaliate_1` to `_5` (mechanics test); cards: Centaur Warrunner, Legion Commander, Duel |
 | RQ-07 | Siege and Cleave when disarmed or unblocked | Neither applies; siege counts for diagonal targets; tower armor reduces siege | `Combat.plan` | tested |
 | RQ-08 | Cleave targets and armor | The target's allied neighbors, each reduced by its armor | `Combat.plan` | `kw_cleave_1` to `_4` (mechanics test) |
 | RQ-09 | Regeneration timing | In the combat phase, before the death check, capped at max health | `Combat.plan` | `kw_regeneration_1` to `_5` (mechanics test) |
 | RQ-10 | Damage Immunity against condemn and Lethal | Immune units take no damage but die to condemn; Lethal needs damage dealt | `Kernel` | `rq_10` |
 | RQ-11 | Death Shield stacking | At most one; it saves at 1 health once | `Kernel.give`, `_consume_death_shields` | `rq_11` |
-| RQ-12 | What does Purge remove? | Modify and temporary entries from the opponent; not auras, items or damage | `Kernel.purge` | tested (modifier provenance) |
-| RQ-13 | What survives the Fountain? | Items and Modify effects; temporary and "until death" effects end | `Kernel` Fountain entry | `rq_13_fountain` |
+| RQ-12 | What does Purge remove? | Modify and temporary entries from the opponent; not auras, items or damage | `Kernel.purge` | tested (modifier provenance); cards: Aphotic Shield, Cleansing Rite |
+| RQ-13 | What survives the Fountain? | Items and Modify effects; temporary and "until death" effects end | `Kernel` Fountain entry | `rq_13_fountain`; cards: Viper Strike |
 | RQ-14 | Lock details | Stacks; each locked card loses 1 lock per round | `lock` op | `rq_14_lock_stacks`, `rq_14_lock_decay` (mechanics test) |
 | RQ-15 | Pulse semantics inside multi-step effects | A Pulse updates continuous effects, resolves triggers and removes the dead; auras last until removal; group damage is simultaneous | FX-3, `Kernel.pulse`, `SIMULTANEOUS_DAMAGE`, `AURAS_NEED_HEALTH` | `fx3_aura_persists_until_pulse` |
 | RQ-16 | Chain Frost bounce target | Neighbors of the previous unit; with none, the bounces fizzle (low confidence) | Chain Frost draft | draft (M5) |
-| RQ-17 | Where do summoned, moved and stolen units go? | A random empty position on the owner's side, then an arrow roll | `Zones.spawn` | summons, `move_*`, `control_*` and the zone fuzz (mechanics test) |
-| RQ-18 | Taunt scope | The taunting unit's enemy neighbors retarget to it | `taunt` op | `rq_18_taunt` (mechanics test) |
-| RQ-19 | Legal choices for "choose a combat target" | Enemy units in the three positions across; the tower only when the position directly across is empty | FX-2, `combat_targets` | `rq_19_tower_needs_empty_across`; cards: Battlefield Control |
-| RQ-20 | Initiative after Enough Magic! | The caster's opponent gets initiative | `_end_action_phase` | `rq_20_end_action_phase` (mechanics test) |
+| RQ-17 | Where do summoned, moved and stolen units go? | A random empty position on the owner's side, then an arrow roll | `Zones.spawn` | summons, `move_*`, `control_*` and the zone fuzz (mechanics test); cards: Chen, Dark Seer, Rebel Instigator, Cursed Satyr, Red Mist Pillager, Primal Roar, Bellow, Intimidation |
+| RQ-18 | Taunt scope | The taunting unit's enemy neighbors retarget to it | `taunt` op | `rq_18_taunt` (mechanics test); cards: Pick a Fight |
+| RQ-19 | Legal choices for "choose a combat target" | Enemy units in the three positions across; the tower only when the position directly across is empty | FX-2, `combat_targets` | `rq_19_tower_needs_empty_across`; cards: Battlefield Control, New Orders, Pick a Fight |
+| RQ-20 | Initiative after Enough Magic! | The caster's opponent gets initiative | `_end_action_phase` | `rq_20_end_action_phase` (mechanics test); cards: Enough Magic! (a draft until a reference match) |
 | RQ-21 | What counts as entering a lane (Glyph of Confusion)? | Every placement into the lane, not swaps | `unit_entered` | `rq_21_summon_enters`, `rq_21_move_enters`, `rq_21_control_enters`, `rq_21_swap_not_entering` (mechanics test) |
 | RQ-22 | Kanna's lane creeps | Into her lane when she is in play or deploying | `creep_lane` rules key | `rq_22_kanna_lane`, `rq_22_kanna_ready`, `rq_22_kanna_planned`, `rq_22_kanna_not_ready` (mechanics test) |
 | RQ-23 | Order of deployment-phase summons | At the reveal, after heroes are placed, before arrows | `deployment` event | lane hooks test (rules kernel test) |
@@ -122,30 +122,32 @@ Each question has one default, one place in the code or data, and (where impleme
 | RQ-25 | Quicken | The cooldown is set, then reduced by 1, not below 1 | `active.quicken` | `rq_25_quicken` (mechanics test) |
 | RQ-26 | Shop Deed and negative prices | Each deed subtracts the base cost; prices may pay gold | `secret_shop_discount` | `rq_26_deed_discount`, `rq_26_negative_price` (mechanics test) |
 | RQ-27 | Starting charges | Valve's `charges` field (March of the Machines and Bitter Enemies 3) | `charges` param | schema test (Valve parity) |
-| RQ-28 | Rounding of "half" and of evenly divided damage | Round down; the remainder is lost | `half`, `damage_split` | `rq_28_half`, `rq_28_damage_split` (mechanics test) |
+| RQ-28 | Rounding of "half" and of evenly divided damage | Round down; the remainder is lost | `half`, `damage_split` | `rq_28_half`, `rq_28_damage_split` (mechanics test); cards: Sven, Mercenary Exiles, Routed, Revtel Convoy |
 | RQ-29 | Summoned Meepo | A hero outside the roster that does not return from the Fountain | `summon` (`roster: false`) | `rq_29_summoned_hero` (mechanics test) |
-| RQ-30 | Swaps and pathing | Arrows stay with positions | `swap` op | `rq_30_swap_arrows` (mechanics test) |
+| RQ-30 | Swaps and pathing | Arrows stay with positions | `swap` op | `rq_30_swap_arrows` (mechanics test); cards: Rebel Decoy, Juke |
 | RQ-31 | Silence against passives and colour | Silence stops actives and colour, not passives; stun is silence plus disarm | `Stats` | tested |
-| RQ-32 | Battle-damage triggers with 0 damage | Do not fire | `battle_damage` event | fixture-tested (rules kernel test) |
+| RQ-32 | Battle-damage triggers with 0 damage | Do not fire | `battle_damage` event | fixture-tested (rules kernel test); cards: Ursa, Viper, Hellbear Crippler, Loyal Beast |
 | RQ-33 | Cross Lane cards | Mana and colour from the active lane; target in any lane | `cross_lane` | tested with Pick Off |
 | RQ-34 / RQ-47 | Improvements per lane | At most 16 per side of a lane; a 17th condemns a random one | `IMPROVEMENT_CAP` in `kernel.gd`, `Zones.add_improvement` | `rq_47_improvement_cap` (mechanics test) |
-| RQ-35 | Caught Unprepared duration | Until that hero equips an item or enters the Fountain; equipping is legal while stunned | `equip` duration | `rq_35_equip_while_stunned` |
+| RQ-35 | Caught Unprepared duration | Until that hero equips an item or enters the Fountain; equipping is legal while stunned | `equip` duration | `rq_35_equip_while_stunned`; cards: Caught Unprepared |
 | RQ-36 | Hacks and base copies | A base copy has no locks, charges or hacks; hacks run after the card | `hand_state` | `rq_36_base_copy`, hacks (mechanics test) |
 | RQ-37 | Order of simultaneous triggers | One batch per Pulse loop, no Pulse inside a batch; order: event, initiative side, lane, zone, position, ability, id | `Kernel.key_less`, `BATCH_MODE` | `rq_37_order`, `rq_37_batch_mode` |
 | RQ-38 | Item triggers and actives while the host is in the Fountain | No; host stat auras still apply | `Stats`, `Targeting` | `rq_38_item_in_fountain` (mechanics test) |
 | RQ-39 | Does a Death Shield save a Soulbound partner? | Yes, with its own unused shield; a unit its shield saves does not die, so it takes no partner with it | `Kernel._resolve_dying` | `rq_39_soulbound_shield`, `fix_soulbound_shield_*` |
-| RQ-40 | Can losing a +Health aura kill? | Yes, through the settle delta, in the same Pulse | `Stats.settle`, `Kernel.pulse` | `rq_40_aura_loss_kills` |
+| RQ-40 | Can losing a +Health aura kill? | Yes, through the settle delta, in the same Pulse | `Stats.settle`, `Kernel.pulse` | `rq_40_aura_loss_kills`; cards: Corrosive Mist |
 | RQ-41 | Where does a Deed go? | Played free into a public `deeds` zone; permanent | `Zones.add_deed` | `rq_41_deed_zone` (mechanics test) |
 | RQ-42 | What is an empty combat position for moves? | The `creep_positions` set | `positions` selector | `rq_42_empty_position` (mechanics test) |
-| RQ-43 | Do units dying in the same Pulse see each other's deaths? | No, except their own Death Effect | `Kernel._live_listeners` | `rq_43_simultaneous_death` |
-| RQ-44 | Does a granted "after you play" trigger see its granting card? | Yes: `card_played` is emitted after resolution | `_play` order | `rq_44_granted_sees_granting` (mechanics test) |
-| RQ-45 | What is battle damage? | Attack, cleave, retaliate and siege hits | `Combat.plan` parts | fixture-tested (rules kernel and mechanics tests) |
-| RQ-46 | Does "a tower" include a lane's ancient? | Yes: the standing structure of each lane | `towers` selector | `rq_46_ancient_is_tower` (mechanics test) |
-| RQ-48 | Centaur Hunter is a Valve token but a preset creep | Keep it deckable (5 mana) until the presets are revised in M3 | `data/classic_cards.json` | presets validate; cards: Centaur Hunter |
+| RQ-43 | Do units dying in the same Pulse see each other's deaths? | No, except their own Death Effect | `Kernel._live_listeners` | `rq_43_simultaneous_death`; cards: Bristleback, Ogre Corpse Tosser |
+| RQ-44 | Does a granted "after you play" trigger see its granting card? | Yes: `card_played` is emitted after resolution | `_play` order | `rq_44_granted_sees_granting` (mechanics test); cards: Heroic Resolve, Rising Anger, Tresdin's Standards, Soul of Spring |
+| RQ-45 | What is battle damage? | Attack, cleave, retaliate and siege hits | `Combat.plan` parts | fixture-tested (rules kernel and mechanics tests); cards: Ursa, Viper, Hellbear Crippler, Rebel Instigator, Red Mist Pillager, Loyal Beast |
+| RQ-46 | Does "a tower" include a lane's ancient? | Yes: the standing structure of each lane | `towers` selector | `rq_46_ancient_is_tower` (mechanics test); cards: Restoration Effort, Roseleaf Rejuvenator ("heal your tower" heals the ancient after the tower falls, up to 80) |
+| RQ-48 | Centaur Hunter is a Valve token but was a preset creep | Decided in M3: a token (`token: true`, as in Valve's set data: no rarity, no item); Spring the Trap summons it, and the Green Assault preset plays Satyr Duelist in its place | `data/classic_cards.json` | `rq_48_summons` (Spring the Trap spec), presets validate, a token never enters a deck (schema test); cards: Centaur Hunter, Spring the Trap |
 | RQ-49 | Is round 1's placement a deployment phase? | Yes (low confidence) | `ROUND1_DEPLOYMENT_HOOKS` in `kernel.gd` | `rq_49_round1_deployment` |
 | RQ-50 | Does "for each ally" count the unit itself? | Yes: `allies` includes the source, `other_allies` does not | shorthands | `rq_50_allies_include_self` (mechanics test) |
 | RQ-51 | Hourglass and the round draw | The round draw happens before placement | `_reveal_deployment` order | `rq_51_hourglass_round_draw` (mechanics test) |
 | RQ-52 | Losing a −Mana effect at 0 current mana | Current mana follows the actual change of the maximum | `Stats.settle` | `rq_52_mana_floor` |
+| RQ-53 | Is a hero that has not been deployed yet (heroes 4 and 5 before rounds 2 and 3) "at the Fountain"? | Yes (low confidence): `lane: "fountain"` selects every roster hero out of the lanes; the glossary describes only dead heroes there | `Select` (`fountain` lane) | `rq_53_undeployed_heroes_are_at_the_fountain` (Routed spec); cards: Routed |
+| RQ-54 | Does a Modify reach a hero that died earlier in the same command (a battle-damage trigger resolving after the Pulse removed it)? | Yes (medium confidence): heroes keep modifications through death and a Pulse processes reactive abilities before it destroys units (glossary); every other op on a unit that left play fizzles, and a dead creep is gone | `MODIFY_REACHES_DEAD_HEROES` in `kernel.gd` | `rq_54_*` (mechanics test; Viper, Ursa, Hellbear Crippler and Loyal Beast specs); cards: Ursa, Viper, Hellbear Crippler, Loyal Beast |
 
 ## Assumptions pending verification
 
@@ -157,11 +159,11 @@ Each question has one default, one place in the code or data, and (where impleme
 - **Holding then buying.** Buying a held Secret Shop item in the same phase cancels the hold. The gold already paid is not refunded.
 - **Ancient overflow** and the **J'Muy cooldown** timing remain as previously documented.
 - **Zone edge cases (M2).** A move to a position that was taken in the meantime fizzles; a control change of a roster hero fizzles (only creeps and summoned heroes change sides); lane creeps that follow a hero (RQ-22) go to lane 0 when no such hero can be found at the reveal; locks apply only to cards in hand.
-- **Low-confidence rules defaults** (RQ-16, RQ-20, RQ-22, RQ-24, RQ-28, RQ-29, RQ-37, RQ-49 to RQ-52) each sit behind one constant or data entry, so a reference match can flip them without code changes.
+- **Low-confidence rules defaults** (RQ-16, RQ-20, RQ-22, RQ-24, RQ-28, RQ-29, RQ-37, RQ-49 to RQ-54) each sit behind one constant or data entry, so a reference match can flip them without code changes.
 
 ## Explicitly missing
 
-The remaining original heroes/cards (drafted in `tests/data/classic_rules_drafts.json`, not playable; they land in card batches once tested, M3 to M7), including every real improvement, Deed and item with an active ability; full shop pools/distribution; custom deck editing and full constructed/draft modes; concede, timers, spectators, replay playback and content migration.
+The remaining original heroes/cards (drafted in `tests/data/classic_rules_drafts.json`, not playable; they land in card batches once tested: blue in M4, black in M5, items in M6, improvements in M7), including every Deed and item with an active ability and every improvement except the three M3 signatures; full shop pools/distribution; custom deck editing and full constructed/draft modes; concede, timers, spectators, replay playback and content migration.
 
 Never add an unsupported original card to a playable deck with a partial effect. Record it as a `draft` until its complete text and interactions are implemented with tests and a reference (`docs/EFFECTS.md`).
 

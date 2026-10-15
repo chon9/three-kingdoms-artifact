@@ -1,0 +1,16 @@
+{
+"card": "fight_through_the_pain",
+"source_id": 10370,
+"text": "Give a red hero +2 Armor this round. | Get initiative.",
+"covers": ["play", "get_initiative", "stat_armor", "temp_buff", "colour_hero", "this_round"],
+"cases": [
+ {"name": "Give a red hero +2 Armor this round", "clause": 0, "tags": ["play", "stat_armor", "temp_buff", "colour_hero", "this_round"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["centaur_hunter#c"]}}}, "do": [{"play": "fight_through_the_pain", "target": "k"}], "expect": {"k.armor": 3, "events": {"has": ["status"]}}},
+ {"name": "the armor reduces this round's combat damage", "clause": 0, "tags": ["stat_armor"], "board": "@0", "do": [{"play": "fight_through_the_pain", "target": "k"}, {"combat": true}], "expect": {"k.health": 10}},
+ {"name": "an enemy red hero is a legal target", "clause": 0, "tags": ["colour_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#x"]}}}, "do": [{"play": "fight_through_the_pain", "target": "x"}], "expect": {"x.armor": 4, "k.armor": 1}},
+ {"name": "a hero of another colour or a creep is not a target", "clause": 0, "tags": ["negative", "colour_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "jmuy#j"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "fight_through_the_pain", "target": "j"}, {"play": "fight_through_the_pain", "target": "c"}], "expect_legal": [{"play": "fight_through_the_pain", "target": "k"}]},
+ {"name": "the armor ends with the round", "clause": 0, "tags": ["edge", "this_round"], "board": "@0", "do": [{"play": "fight_through_the_pain", "target": "k"}, {"end_round": true}], "expect": {"k.armor": 1}},
+ {"name": "the Fountain clears the armor", "clause": 0, "tags": ["edge", "temp_buff"], "board": "@0", "do": [{"play": "fight_through_the_pain", "target": "k"}, {"kill": ["k"]}], "expect": {"k.in_play": false, "k.armor": 1}},
+ {"name": "a silenced red hero cannot cast it", "clause": 0, "tags": ["negative", "play"], "board": {"base": "@0", "give": {"k": ["silence"]}}, "do": [], "expect_illegal": [{"play": "fight_through_the_pain", "target": "k"}]},
+ {"name": "Get initiative: the caster acts again", "clause": 1, "tags": ["play", "get_initiative"], "board": "@0", "do": [{"play": "fight_through_the_pain", "target": "k"}], "expect": {"initiative": 0}},
+ {"name": "a card without it hands the initiative over", "clause": 1, "tags": ["negative", "get_initiative"], "board": "@0", "do": [{"play": "defensive_stance", "target": "k"}], "expect": {"initiative": 1}}
+]}

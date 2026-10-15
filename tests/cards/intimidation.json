@@ -1,0 +1,13 @@
+{
+"card": "intimidation",
+"source_id": 10379,
+"text": "Move a unit to a random other lane.",
+"covers": ["play", "move", "random_other_lane", "unit"],
+"cases": [
+ {"name": "Move a unit to a random other lane; a hero keeps its items", "clause": 0, "tags": ["play", "move", "unit", "random_other_lane"], "seed": 1, "board": {"active_lane": 1, "lanes": {"0": {"p0": ["melee_creep#x"], "p1": ["melee_creep#y"]}, "1": {"p0": ["rix#r", "melee_creep#m"], "p1": ["keefe#k+short_sword", "melee_creep#c"]}, "2": {"p0": ["melee_creep#z"], "p1": [null]}}}, "do": [{"play": "intimidation", "target": "k"}], "expect": {"k.lane": 0, "k.in_play": true, "k.owner": 1, "k.attack": 8, "k.items": {"weapon": "short_sword"}, "events": {"has": ["move"]}}},
+ {"name": "each other lane is chosen half of the time", "clause": 0, "tags": ["random_other_lane"], "seeds": {"from": 1, "count": 200}, "board": "@0", "do": [{"play": "intimidation", "target": "k"}], "expect_rate": {"k.lane": [0.4, 0.6]}},
+ {"name": "the unit never stays in its own lane", "clause": 0, "tags": ["edge", "random_other_lane"], "seeds": {"from": 1, "count": 200}, "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m"], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"play": "intimidation", "target": "k"}], "expect_rate": {"k.lane": [1.0, 1.0], "k.in_play": [1.0, 1.0]}},
+ {"name": "allied units and creeps can be moved too", "clause": 0, "tags": ["edge", "unit"], "seeds": {"from": 1, "count": 200}, "board": "@2", "do": [{"play": "intimidation", "target": "m"}], "expect_rate": {"m.lane": [1.0, 1.0]}},
+ {"name": "units in other lanes cannot be chosen", "clause": 0, "tags": ["negative", "unit", "RQ-04"], "board": "@0", "expect_illegal": [{"play": "intimidation", "target": "x"}, {"play": "intimidation", "target": "z"}]},
+ {"name": "a moved unit's temporary effects stay with it", "clause": 0, "tags": ["edge", "move"], "board": "@2", "do": [{"play": "steal_strength", "target": "m", "destination": "k"}, {"pass": 1}, {"play": "intimidation", "target": "k"}], "expect": {"k.attack": 10, "k.in_play": true}}
+]}

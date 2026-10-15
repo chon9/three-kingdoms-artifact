@@ -1,0 +1,14 @@
+{
+"card": "viper_strike",
+"source_id": 10294,
+"text": "Give a unit \"Deal 2 piercing damage to this unit before the action phase\" until it dies.",
+"covers": ["before_action", "play", "grant_text", "piercing_damage", "self", "unit", "until_death"],
+"cases": [
+ {"name": "Give a unit the granted text until it dies", "clause": 0, "tags": ["play", "grant_text", "unit", "until_death"], "board": {"lanes": {"0": {"p0": ["viper#v"], "p1": ["keefe#k"]}}}, "do": [{"play": "viper_strike", "target": "k"}, {"end_round": true}], "expect": {"k.health": 9, "events": {"has": ["trigger", "damage"]}}},
+ {"name": "it lasts beyond the round, every round until the unit dies", "clause": 0, "tags": ["edge", "until_death"], "board": "@0", "do": [{"play": "viper_strike", "target": "k"}, {"end_round": true}, {"end_round": true}], "expect": {"k.health": 7}},
+ {"name": "a creep it is given to dies to it", "clause": 0, "tags": ["edge", "until_death"], "board": {"lanes": {"0": {"p0": ["viper#v"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "viper_strike", "target": "c"}, {"end_round": true}, {"end_round": true}], "expect": {"c.in_play": false}},
+ {"name": "a unit in another lane is not a target", "clause": 0, "tags": ["negative", "unit"], "board": {"lanes": {"0": {"p0": ["viper#v"], "p1": ["keefe#k"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [], "expect_illegal": [{"play": "viper_strike", "target": "p"}]},
+ {"name": "Deal 2 piercing damage to this unit before the action phase", "clause": 1, "tags": ["before_action", "piercing_damage", "self"], "board": {"lanes": {"0": {"p0": ["viper#v"], "p1": ["ogre_conscript#g"]}}}, "do": [{"play": "viper_strike", "target": "g"}, {"end_round": true}], "expect": {"g.health": 5, "v.health": 10}},
+ {"name": "it waits for its own lane's action phase", "clause": 1, "tags": ["edge", "before_action", "self"], "board": {"lanes": {"0": {"p0": [null, "viper#v"], "p1": ["melee_creep#c", null]}}}, "do": [{"play": "viper_strike", "target": "c"}, {"combat": true}], "expect": {"c.health": 4, "tower.0.0.health": 38}},
+ {"name": "two copies deal 2 each", "clause": 1, "tags": ["edge", "piercing_damage"], "board": "@0", "do": [{"play": "viper_strike", "target": "k"}, {"pass": 1}, {"play": "viper_strike", "target": "k"}, {"end_round": true}], "expect": {"k.health": 7}}
+]}

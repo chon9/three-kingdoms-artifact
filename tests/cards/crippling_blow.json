@@ -1,0 +1,16 @@
+{
+"card": "crippling_blow",
+"source_id": 10421,
+"text": "Modify a hero with -2 Attack.",
+"covers": ["play", "modify", "stat_attack", "hero", "permanent"],
+"cases": [
+ {"name": "Modify a hero with -2 Attack", "clause": 0, "tags": ["play", "modify", "stat_attack", "hero", "permanent"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#x"]}}}, "do": [{"play": "crippling_blow", "target": "x"}], "expect": {"x.attack": 4, "k.attack": 6, "events": {"has": ["mod"]}}},
+ {"name": "an allied hero is a legal target too", "clause": 0, "tags": ["play", "hero"], "board": "@0", "do": [{"play": "crippling_blow", "target": "k"}], "expect": {"k.attack": 4, "x.attack": 6}},
+ {"name": "a creep is not a target", "clause": 0, "tags": ["negative", "hero"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [], "expect_illegal": [{"play": "crippling_blow", "target": "c"}], "expect_legal": [{"play": "crippling_blow", "target": "k"}]},
+ {"name": "a hero in another lane is not a target", "clause": 0, "tags": ["negative", "hero"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}, "1": {"p0": ["melee_creep#m"], "p1": ["axe#y"]}}}, "do": [], "expect_illegal": [{"play": "crippling_blow", "target": "y"}], "expect_legal": [{"play": "crippling_blow", "target": "k"}]},
+ {"name": "the modification lasts past the round and survives the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "crippling_blow", "target": "x"}, {"end_round": true}, {"kill": ["x"]}], "expect": {"x.in_play": false, "x.attack": 4}},
+ {"name": "attack does not go below 0 and the hero then deals no combat damage", "clause": 0, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#x:atk=1"]}}}, "do": [{"play": "crippling_blow", "target": "x"}, {"combat": true}], "expect": {"x.attack": 0, "k.health": 11}},
+ {"name": "the weakened hero deals less combat damage", "clause": 0, "tags": ["stat_attack"], "board": "@0", "do": [{"play": "crippling_blow", "target": "x"}, {"combat": true}], "expect": {"k.health": 8, "x.health": 6}},
+ {"name": "without a red hero it cannot be cast", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["axe#x"]}}}, "do": [], "expect_illegal": [{"play": "crippling_blow", "target": "x"}]},
+ {"name": "rq_12_purged_by_the_opponent: the enemy's Cleansing Rite reverses the -2 Attack", "clause": 0, "tags": ["edge", "permanent", "RQ-12"], "board": {"lanes": {"0": {"p0": ["keefe#k", null], "p1": ["axe#x", "rix#q"]}}}, "do": [{"play": "crippling_blow", "target": "x"}, {"play": "cleansing_rite", "target": "x", "player": 1}], "expect": {"x.attack": 6, "events": {"has": ["purge"]}}}
+]}

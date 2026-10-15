@@ -1,0 +1,13 @@
+{
+"card": "juke",
+"source_id": 10365,
+"text": "Swap an ally with one of its allied neighbors.",
+"covers": ["play", "swap", "allied_neighbors", "allied_unit"],
+"cases": [
+ {"name": "Swap an ally with one of its allied neighbors", "clause": 0, "tags": ["play", "swap", "allied_unit", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["rix#r", "melee_creep#m", "keefe#k"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "juke", "target": "r", "destination": "m"}], "expect": {"r.slot": 1, "m.slot": 0, "k.slot": 2, "a.slot": 0, "r.lane": 0, "events": {"has": ["swap"], "not": ["move"]}}},
+ {"name": "rq_30_swap_arrows: arrows stay with the combat positions", "clause": 0, "tags": ["edge", "swap", "RQ-30"], "board": {"lanes": {"0": {"p0": ["rix#r:arrow=1", "melee_creep#m"], "p1": [null, "melee_creep#c"]}}}, "do": [{"play": "juke", "target": "r", "destination": "m"}], "expect": {"m.slot": 0, "m.arrow": 1, "r.slot": 1, "r.arrow": 0}},
+ {"name": "a unit that is not a neighbor cannot be chosen", "clause": 0, "tags": ["negative", "allied_neighbors"], "board": "@0", "expect_illegal": [{"play": "juke", "target": "r", "destination": "k"}]},
+ {"name": "enemies can be neither the ally nor the neighbor", "clause": 0, "tags": ["negative", "allied_unit"], "board": "@0", "expect_illegal": [{"play": "juke", "target": "r", "destination": "a"}, {"play": "juke", "target": "a", "destination": "b"}]},
+ {"name": "an ally without allied neighbors cannot be chosen", "clause": 0, "tags": ["negative", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["rix#r", null, "melee_creep#m"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "expect_illegal": [{"play": "juke", "target": "r", "destination": "m"}]},
+ {"name": "neighbor auras follow the units after the swap", "clause": 0, "tags": ["edge", "swap", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["farvhan#f", "melee_creep#m", "melee_creep#n"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [{"play": "juke", "target": "f", "destination": "m"}], "expect": {"f.slot": 1, "n.armor": 1, "m.armor": 1}}
+]}

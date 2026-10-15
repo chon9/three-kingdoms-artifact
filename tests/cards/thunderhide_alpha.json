@@ -1,0 +1,8 @@
+{
+"card": "thunderhide_alpha",
+"source_id": 10108,
+"text": "",
+"covers": [],
+"cases": [
+ {"name": "thunderhide_alpha fights with its printed stats", "clause": -1, "tags": [], "board": {"lanes": {"0": {"p0": ["thunderhide_alpha#u"], "p1": ["keefe#k"]}}}, "do": [{"combat": true}], "expect": {"u.health": 19, "u.attack": 25, "u.armor": 0, "k.in_play": false}}
+]}

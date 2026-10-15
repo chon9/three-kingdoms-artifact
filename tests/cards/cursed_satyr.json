@@ -1,0 +1,13 @@
+{
+"card": "cursed_satyr",
+"source_id": 10114,
+"text": "Summon a Zombie for your opponent after the combat phase.",
+"covers": ["after_combat", "summon", "opponent", "permanent"],
+"cases": [
+ {"name": "after the combat phase a Zombie is summoned on the opponent's side", "clause": 0, "tags": ["after_combat", "summon", "opponent", "permanent"], "board": {"lanes": {"0": {"p0": ["cursed_satyr#s:arrow=1", null], "p1": [null, "ogre_conscript#x"]}}}, "do": [{"combat": true}], "expect": {"events": {"has": ["combat", "summon"]}, "s.arrow": 0, "x.health": 3, "x.arrow": 0, "tower.0.0.health": 33, "tower.0.1.health": 40}},
+ {"name": "rq_17_zombie_takes_a_random_end_of_a_full_row", "clause": 0, "tags": ["edge", "summon", "opponent", "RQ-17"], "board": {"lanes": {"0": {"p0": ["cursed_satyr#s"], "p1": ["ogre_conscript#m:atk=1"]}}}, "do": [{"combat": true}], "seeds": {"from": 1, "count": 200}, "expect_rate": {"s.slot": [0.38, 0.62]}},
+ {"name": "with seed 1 the Zombie takes the left end of the full row", "clause": 0, "tags": ["summon", "opponent"], "board": "@1", "do": [{"combat": true}], "expect": {"s.slot": 1, "s.health": 5, "m.health": 3, "events": {"has": ["summon"]}}, "seed": 1},
+ {"name": "a Satyr that dies in the combat summons nothing", "clause": 0, "tags": ["negative", "after_combat"], "board": {"lanes": {"0": {"p0": ["cursed_satyr#s:hp=1"], "p1": ["melee_creep#m"]}}}, "do": [{"combat": true}], "expect": {"s.in_play": false, "events": {"not": ["summon"]}}},
+ {"name": "another lane's combat phase does not trigger it", "clause": 0, "tags": ["edge", "after_combat"], "board": {"lanes": {"0": {"p0": ["melee_creep#c"], "p1": [null]}, "1": {"p0": ["cursed_satyr#s"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"events": {"not": ["summon"]}}},
+ {"name": "the Zombie belongs to the opponent: one more unit on the opponent's side, none on yours", "clause": 0, "tags": ["summon", "opponent"], "board": {"lanes": {"0": {"p0": ["cursed_satyr#s", "melee_creep#c"], "p1": ["ogre_conscript#m:atk=1", "melee_creep#n:atk=1"]}}}, "do": [{"combat": true}], "expect": {"units.0.1.zombie": 1, "units.0.1": 3, "units.0.0": 2, "units.0.0.zombie": 0}}
+]}

@@ -1,0 +1,13 @@
+{
+"card": "gods_strength",
+"source_id": 10330,
+"text": "Modify a red hero with +4 Attack.",
+"covers": ["play", "modify", "stat_attack", "colour_hero", "permanent"],
+"cases": [
+ {"name": "Modify a red hero with +4 Attack", "clause": 0, "tags": ["play", "modify", "stat_attack", "colour_hero", "permanent"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "gods_strength", "target": "k"}], "expect": {"k.attack": 10, "events": {"has": ["mod"]}}},
+ {"name": "the modification outlasts the round", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "gods_strength", "target": "k"}, {"end_round": true}], "expect": {"k.attack": 10}},
+ {"name": "the modification survives the Fountain", "clause": 0, "tags": ["edge", "permanent"], "board": "@0", "do": [{"play": "gods_strength", "target": "k"}, {"kill": ["k"]}], "expect": {"k.attack": 10, "k.in_play": false}},
+ {"name": "only red heroes are targets", "clause": 0, "tags": ["negative", "colour_hero"], "board": {"lanes": {"0": {"p0": ["keefe#k", "jmuy#j"], "p1": ["melee_creep#c", "melee_creep#d"]}}}, "do": [], "expect_illegal": [{"play": "gods_strength", "target": "j"}, {"play": "gods_strength", "target": "c"}]},
+ {"name": "an enemy red hero is a target too", "clause": 0, "tags": ["colour_hero", "modify"], "board": {"lanes": {"0": {"p0": ["keefe#k"], "p1": ["axe#a"]}}}, "do": [{"play": "gods_strength", "target": "a"}], "expect": {"a.attack": 10}},
+ {"name": "without an allied red hero in the lane it cannot be cast", "clause": 0, "tags": ["negative", "play"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["axe#a"]}}}, "do": [], "expect_illegal": [{"play": "gods_strength", "target": "a"}]}
+]}

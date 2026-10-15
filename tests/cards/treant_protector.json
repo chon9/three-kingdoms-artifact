@@ -1,0 +1,13 @@
+{
+"card": "treant_protector",
+"source_id": 10056,
+"text": "Branches of Iron: Treant Protector's allied neighbors have +2 Armor.",
+"covers": ["continuous", "stat_armor", "allied_neighbors"],
+"cases": [
+ {"name": "Branches of Iron: allied neighbors have +2 Armor", "clause": 0, "tags": ["continuous", "stat_armor", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "treant_protector#t", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}}}, "do": [], "expect": {"l.armor": 2, "r.armor": 2, "t.armor": 0}},
+ {"name": "an ally that is not a neighbor and the enemies get nothing", "clause": 0, "tags": ["negative", "allied_neighbors"], "board": {"lanes": {"0": {"p0": ["melee_creep#a", null, "treant_protector#t"], "p1": ["melee_creep#x", "melee_creep#y", "melee_creep#z"]}}}, "do": [], "expect": {"a.armor": 0, "y.armor": 0, "z.armor": 0}},
+ {"name": "the armor reduces combat damage", "clause": 0, "tags": ["edge", "stat_armor"], "board": "@0", "do": [{"combat": true}], "expect": {"l.health": 4, "r.health": 4, "t.health": 8}},
+ {"name": "a silenced Treant Protector still protects (passives are not silenced, RQ-31)", "clause": 0, "tags": ["edge", "continuous"], "board": {"base": "@0", "give": {"t": ["silence"]}}, "do": [], "expect": {"l.armor": 2, "r.armor": 2}},
+ {"name": "the aura ends when Treant Protector dies", "clause": 0, "tags": ["edge", "continuous"], "board": "@0", "do": [{"kill": ["t"]}], "expect": {"l.armor": 0, "t.in_play": false}},
+ {"name": "a neighbor in another lane is not protected", "clause": 0, "tags": ["negative", "stat_armor"], "board": {"lanes": {"0": {"p0": ["melee_creep#l", "treant_protector#t", "melee_creep#r"], "p1": ["melee_creep#a", "melee_creep#b", "melee_creep#c"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}}, "do": [], "expect": {"o.armor": 0}}
+]}

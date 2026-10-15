@@ -1,0 +1,13 @@
+{
+"card": "hand_of_god",
+"source_id": 10340,
+"text": "Fully heal each ally. Give allies Damage Immunity this round.",
+"covers": ["play", "damage_immunity", "full_heal", "all_allies", "this_round"],
+"cases": [
+ {"name": "Fully heal each ally", "clause": 0, "tags": ["play", "full_heal", "all_allies"], "board": {"lanes": {"0": {"p0": ["chen#ch:hp=2", "melee_creep#m:hp=1"], "p1": ["axe#x:hp=3", "melee_creep#e:hp=1"]}, "1": {"p0": ["rix#r:hp=2"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "hand_of_god"}], "expect": {"ch.health": 9, "m.health": 4, "events": {"has": ["heal"]}}},
+ {"name": "enemies and allies in other lanes are not healed", "clause": 0, "tags": ["negative", "all_allies"], "board": {"lanes": {"0": {"p0": ["chen#ch:hp=2", "melee_creep#m:hp=1"], "p1": ["axe#x:hp=3", "melee_creep#e:hp=1"]}, "1": {"p0": ["rix#r:hp=2"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "hand_of_god"}], "expect": {"x.health": 3, "e.health": 1, "r.health": 2}},
+ {"name": "Give allies Damage Immunity this round", "clause": 1, "tags": ["play", "damage_immunity", "all_allies", "this_round"], "board": {"lanes": {"0": {"p0": ["chen#ch:hp=2", "melee_creep#m:hp=1"], "p1": ["axe#x:hp=3", "melee_creep#e:hp=1"]}, "1": {"p0": ["rix#r:hp=2"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "hand_of_god"}, {"combat": true}], "expect": {"ch.kw.damage_immunity": 1, "m.kw.damage_immunity": 1, "ch.health": 9, "m.health": 4}},
+ {"name": "enemies and other lanes get no immunity", "clause": 1, "tags": ["negative", "all_allies"], "board": {"lanes": {"0": {"p0": ["chen#ch:hp=2", "melee_creep#m:hp=1"], "p1": ["axe#x:hp=3", "melee_creep#e:hp=1"]}, "1": {"p0": ["rix#r:hp=2"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "hand_of_god"}], "expect": {"x.kw.damage_immunity": 0, "e.kw.damage_immunity": 0, "r.kw.damage_immunity": 0}},
+ {"name": "the immunity ends with the round", "clause": 1, "tags": ["edge", "this_round"], "board": {"lanes": {"0": {"p0": ["chen#ch:hp=2", "melee_creep#m:hp=1"], "p1": ["axe#x:hp=3", "melee_creep#e:hp=1"]}, "1": {"p0": ["rix#r:hp=2"], "p1": ["melee_creep#f"]}}}, "do": [{"play": "hand_of_god"}, {"end_round": true}], "expect": {"m.kw.damage_immunity": 0}},
+ {"name": "immune allies still die when condemned", "clause": 1, "tags": ["edge", "damage_immunity"], "board": {"lanes": {"0": {"p0": ["chen#ch:hp=2", "melee_creep#m:hp=1"], "p1": ["jmuy#j", "melee_creep#e"]}}}, "do": [{"play": "hand_of_god"}, {"play": "annihilation", "player": 1}], "expect": {"m.in_play": false, "ch.in_play": false}}
+]}
