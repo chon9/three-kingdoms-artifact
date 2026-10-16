@@ -7,9 +7,10 @@ extends RefCounted
 ## simulation_from_view (synthetic randomness, no hidden information); a
 ## random candidate is simulated with seeds 1 to 3 and averaged (§9.5). Card
 ## and ability values come from the compiled rules (static values: draws,
-## initiative, locks, hacks, mana restores), the evaluation counts keywords,
-## statuses, improvements and opponent locks, and large action sets are
-## prefiltered by a compile-time polarity score.
+## initiative, locks, hacks, mana restores, gold gains), the evaluation counts
+## keywords, statuses, improvements (by their cost and charges) and opponent
+## locks, and large action sets are prefiltered by a compile-time polarity
+## score.
 
 const Stats = preload("res://scripts/core/rules/stats.gd")
 ## Above this many candidates the prefilter applies (spec §9.4 names 60).
@@ -25,6 +26,14 @@ const KEYWORD_WEIGHT = 0.3
 const IMMUNITY_WEIGHT = 1.0
 const HINDERED_ATTACK = 0.25
 const IMPROVEMENT_WEIGHT = 2.0
+## Spec §9.3 says the improvement term is tuned with the bot-vs-bot matrix.
+## M7 tuned it: an improvement is also worth IMPROVEMENT_COST_WEIGHT per mana
+## of its printed cost. A flat 2.0 is worth less than the card in hand plus
+## the play penalty from cost 3 up, so the bot never played the dearer Classic
+## improvements whose effect the one-ply simulation cannot see (Steam Cannon,
+## Glyph of Confusion, Selemene's Favor...). No golden game has an
+## improvement, so the goldens are unchanged.
+const IMPROVEMENT_COST_WEIGHT = 0.25
 const IMPROVEMENT_CHARGE_WEIGHT = 0.5
 const LOCK_WEIGHT = 0.3
 ## Spec §9.3 lists cleave, retaliate, regeneration and siege at 0.3 each.
@@ -47,6 +56,12 @@ const HACK_TOWER_WEIGHT = 0.06
 ## Mana a restore makes available for the dearest card in hand, per point
 ## (the play penalty's rate per mana spent); the evaluation has no mana term.
 const MANA_WEIGHT = 0.12
+## Gold a play or ability adds to its player's purse (static_value.gold: a
+## gold op that adds for "you"), per gold; the evaluation has no gold term
+## (M7: Revtel Investments' active; also Ravenhook and Payday). About half
+## what the shop's stat items return per gold (a Short Sword's +2 Attack is
+## worth 1.5 for 3 gold), since gold is spent only at the next shop.
+const GOLD_WEIGHT = 0.25
 ## Simulations run by this bot (tests and profiling read it; choices never do).
 var simulations: int = 0
 ## Whether the last _simulated_score drew any randomness (an outcome without a
@@ -195,8 +210,11 @@ func _simulated_score(engine, view: Dictionary, player: int, action: Dictionary,
 	var simulated: Dictionary = simulation.state
 	simulated.players[player]["hand_count"] = simulated.players[player].hand.size()
 	var score = _evaluate(simulation, simulated, player) - baseline
-	if _static_of(engine, view, player, action).get("mana", false):
+	var static_value: Dictionary = _static_of(engine, view, player, action)
+	if static_value.get("mana", false):
 		score += _mana_value(engine, view, simulated, player, action)
+	if static_value.get("gold", false):
+		score += GOLD_WEIGHT * float(maxi(0, int(simulated.players[player].gold) - int(view.players[player].gold)))
 	return score
 
 ## The static values of the card a play uses or of the ability it activates.
@@ -420,7 +438,9 @@ func _evaluate_view(engine, view: Dictionary, player: int) -> float:
 				if unit != null:
 					score += sign_value * _unit_value(engine, unit)
 			for improvement in lane.get("improvements", [[], []])[side]:
-				score += sign_value * (IMPROVEMENT_WEIGHT + IMPROVEMENT_CHARGE_WEIGHT * float(improvement.get("charges", 0)))
+				var cost = int(engine.library.get_card(str(improvement.card)).get("cost", 0))
+				score += sign_value * (IMPROVEMENT_WEIGHT + IMPROVEMENT_COST_WEIGHT * float(cost)
+					+ IMPROVEMENT_CHARGE_WEIGHT * float(improvement.get("charges", 0)))
 		if lane_index >= view.lane:
 			var combat = engine.combat_preview(lane_index)
 			var dies: Array = combat.get("dies", [])

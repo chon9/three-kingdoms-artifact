@@ -600,13 +600,20 @@ static func tower_damage(e, lane_index: int, defender: int, amount: int, piercin
 
 ## Applies damage to a lane's standing structure: a tower falls into an
 ## 80-health ancient with no overflow. The only writer of round_log.tower_hit.
-static func damage_structure(e, lane_index: int, defender: int, amount: int) -> void:
+## `regeneration` (the combat phase only) heals the structure after the
+## damage and before the fall check, up to 40 (80 for an ancient): it can
+## keep a tower standing, but a tower that falls leaves a fresh 80-health
+## ancient that this combat's Regeneration does not heal (RQ-09).
+static func damage_structure(e, lane_index: int, defender: int, amount: int, regeneration: int = 0) -> void:
 	var structure = e.state.lanes[lane_index].structures[defender]
 	if structure.destroyed:
 		return
 	if amount > 0 and e.state.has("round_log"):
 		e.state.round_log.tower_hit[defender][lane_index] = true
 	structure.health -= amount
+	if regeneration > 0:
+		var cap = 80 if bool(structure.ancient) else 40
+		structure.health = maxi(int(structure.health), mini(cap, int(structure.health) + regeneration))
 	if structure.health <= 0:
 		if structure.ancient:
 			structure.destroyed = true

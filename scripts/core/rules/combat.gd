@@ -165,21 +165,14 @@ static func resolve(e, lane_index: int) -> void:
 		var unit = e.find_unit(int(uid_string))
 		if not unit.is_empty():
 			unit.health -= int(forecast.unit_damage[uid_string])
-	var before: Array = []
-	for structure in e.state.lanes[lane_index].structures:
-		before.append([bool(structure.ancient), bool(structure.destroyed)])
+	# Tower Regeneration heals before the fall check, like a unit's (RQ-09).
 	for player in range(2):
-		Kernel.damage_structure(e, lane_index, 1 - player, int(forecast.tower_damage[player]))
+		Kernel.damage_structure(e, lane_index, 1 - player, int(forecast.tower_damage[player]),
+			int(forecast.tower_heal[1 - player]))
 	for uid_string in forecast.heal:
 		var unit = e.find_unit(int(uid_string))
 		if not unit.is_empty():
 			unit.health = mini(Stats.max_health(e, unit), int(unit.health) + int(forecast.heal[uid_string]))
-	for player in range(2):
-		var structure: Dictionary = e.state.lanes[lane_index].structures[player]
-		var fell = bool(structure.ancient) != before[player][0] or bool(structure.destroyed)
-		if int(forecast.tower_heal[player]) > 0 and not fell:
-			var cap = 80 if bool(structure.ancient) else 40
-			structure.health = mini(cap, int(structure.health) + int(forecast.tower_heal[player]))
 	for uid in forecast.condemn:
 		var unit = e.find_unit(int(uid))
 		if not unit.is_empty():

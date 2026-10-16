@@ -3341,6 +3341,390 @@
 						"zh_CN": "装备者+{health}体力。只要装备者在任意一路中，对手每摸一张牌，使该牌+{amount}锁定。"
 					},
 					"faction": "neutral"
+				},
+				"assured_destruction": {
+					"name": {
+						"en": "Jade and Stone Burn",
+						"zh_CN": "玉石俱焚"
+					},
+					"text": {
+						"en": "All heroes have +{siege} siege.",
+						"zh_CN": "所有武将+{siege}攻城。"
+					},
+					"faction": "qun"
+				},
+				"escape_route": {
+					"name": {
+						"en": "Retreat Is Best",
+						"zh_CN": "走为上"
+					},
+					"text": {
+						"en": "Slip Away: return an allied hero to the Fountain. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "脱身：将一名友方武将召回大营。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Slip Away",
+						"zh_CN": "脱身"
+					}
+				},
+				"iron_fog_goldmine": {
+					"name": {
+						"en": "Offices for Sale",
+						"zh_CN": "西园卖官"
+					},
+					"text": {
+						"en": "Get {gold} gold after the combat phase.",
+						"zh_CN": "交战阶段后，获得{gold}金。"
+					},
+					"faction": "qun"
+				},
+				"keenfolk_turret": {
+					"name": {
+						"en": "Bed Crossbow",
+						"zh_CN": "床弩"
+					},
+					"text": {
+						"en": "Volley: deal {amount} piercing damage to a unit. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "连射：对一个单位造成{amount}点穿透伤害。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Volley",
+						"zh_CN": "连射"
+					}
+				},
+				"steam_cannon": {
+					"name": {
+						"en": "Siege Tower",
+						"zh_CN": "井阑"
+					},
+					"text": {
+						"en": "Rain from Above: deal {amount} piercing damage to a unit in any lane. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "高橹俯射：对任意一路中的一个单位造成{amount}点穿透伤害。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Rain from Above",
+						"zh_CN": "高橹俯射"
+					}
+				},
+				"the_tyler_estate": {
+					"name": {
+						"en": "Ten Attendants",
+						"zh_CN": "十常侍"
+					},
+					"text": {
+						"en": "Both towers have -{mana_loss} mana.",
+						"zh_CN": "双方城楼-{mana_loss}军令。"
+					},
+					"faction": "qun"
+				},
+				"trebuchets": {
+					"name": {
+						"en": "Battering Ram",
+						"zh_CN": "冲车"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to the enemy tower before the action phase.",
+						"zh_CN": "行动阶段前，对敌方城楼造成{amount}点穿透伤害。"
+					},
+					"faction": "qun"
+				},
+				"bitter_enemies": {
+					"name": {
+						"en": "Feud of the Yuans",
+						"zh_CN": "二袁交恶"
+					},
+					"text": {
+						"en": "After the combat phase, remove a charge from Feud of the Yuans. Before the action phase, if it has no charges, deal {amount} damage to both towers.",
+						"zh_CN": "交战阶段后，移除二袁交恶的1层充能。行动阶段前，若二袁交恶没有充能，对双方城楼各造成{amount}点伤害。"
+					},
+					"faction": "qun"
+				},
+				"path_of_the_cunning": {
+					"name": {
+						"en": "Way of Deception",
+						"zh_CN": "诡道"
+					},
+					"text": {
+						"en": "After you play a black card, permanently give a random ally +{amount} siege.",
+						"zh_CN": "你打出一张黑色牌后，永久使一个随机友方单位+{amount}攻城。"
+					},
+					"faction": "qun"
+				},
+				"revtel_investments": {
+					"name": {
+						"en": "Mei Fortress",
+						"zh_CN": "郿坞"
+					},
+					"text": {
+						"en": "Add a charge to Mei Fortress after the combat phase.\nOpen the Vaults: get {gold_per_charge} gold for each charge, then condemn Mei Fortress. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "交战阶段后，为郿坞增加1层充能。\n开坞散财：每有1层充能，获得{gold_per_charge}金，然后处斩郿坞。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Open the Vaults",
+						"zh_CN": "开坞散财"
+					}
+				},
+				"unsupervised_artillery": {
+					"name": {
+						"en": "Sapper Tunnels",
+						"zh_CN": "地道"
+					},
+					"text": {
+						"en": "Undermine: deal {amount} piercing damage to the enemy tower. Only usable if there are no unblocked enemies. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "掘地攻城：对敌方城楼造成{amount}点穿透伤害。仅当没有未被阻挡的敌方单位时可用。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "qun",
+					"ability_name": {
+						"en": "Undermine",
+						"zh_CN": "掘地攻城"
+					}
+				},
+				"the_oath": {
+					"name": {
+						"en": "Blood Oath",
+						"zh_CN": "歃血为盟"
+					},
+					"text": {
+						"en": "You can't play spells or creeps while this is the active lane. If there is an allied black hero in this lane, allies have +{amount} attack.",
+						"zh_CN": "本路为当前路时，你不能打出计策或兵卒。若本路中有友方黑色武将，友方单位+{amount}攻击。"
+					},
+					"faction": "qun"
+				},
+				"aghanims_sanctum": {
+					"name": {
+						"en": "Bronze Sparrow Terrace",
+						"zh_CN": "铜雀台"
+					},
+					"text": {
+						"en": "Court Audience: fully restore your tower's mana. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "台上召对：完全恢复你城楼的军令。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Court Audience",
+						"zh_CN": "台上召对"
+					}
+				},
+				"conflagration": {
+					"name": {
+						"en": "Crossbow Battery",
+						"zh_CN": "强弩营"
+					},
+					"text": {
+						"en": "Deal {amount} damage to each enemy before the action phase.",
+						"zh_CN": "行动阶段前，对每个敌方单位造成{amount}点伤害。"
+					},
+					"faction": "wei"
+				},
+				"messenger_rookery": {
+					"name": {
+						"en": "Post Station",
+						"zh_CN": "驿站"
+					},
+					"text": {
+						"en": "Relay Orders: choose an ally, then choose a combat target for it. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "传令：选择一个友方单位，为其指定交战目标。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wei",
+					"ability_name": {
+						"en": "Relay Orders",
+						"zh_CN": "传令"
+					}
+				},
+				"fractured_timeline": {
+					"name": {
+						"en": "Walls and Bare Fields",
+						"zh_CN": "坚壁清野"
+					},
+					"text": {
+						"en": "Before the action phase, give a random card in your opponent's hand +{amount} lock.",
+						"zh_CN": "行动阶段前，使对手手牌中一张随机牌+{amount}锁定。"
+					},
+					"faction": "wei"
+				},
+				"howling_mind": {
+					"name": {
+						"en": "Monthly Appraisals",
+						"zh_CN": "月旦评"
+					},
+					"text": {
+						"en": "You and your opponent draw an extra card each round.",
+						"zh_CN": "你与对手每回合各额外摸一张牌。"
+					},
+					"faction": "wei"
+				},
+				"path_of_the_wise": {
+					"name": {
+						"en": "Imperial Academy",
+						"zh_CN": "太学"
+					},
+					"text": {
+						"en": "After you play a blue card, deal {amount} piercing damage to a random enemy.",
+						"zh_CN": "你打出一张蓝色牌后，对一个随机敌方单位造成{amount}点穿透伤害。"
+					},
+					"faction": "wei"
+				},
+				"watchtower": {
+					"name": {
+						"en": "Scout Camp",
+						"zh_CN": "斥候营"
+					},
+					"text": {
+						"en": "Whenever an enemy improvement enters this lane, draw a card.",
+						"zh_CN": "每当有敌方营建进入本路，摸一张牌。"
+					},
+					"faction": "wei"
+				},
+				"glyph_of_confusion": {
+					"name": {
+						"en": "Horse Pitfalls",
+						"zh_CN": "陷马坑"
+					},
+					"text": {
+						"en": "Whenever any unit enters this lane, stun it this round.",
+						"zh_CN": "每当有单位进入本路，本回合眩晕该单位。"
+					},
+					"faction": "wei"
+				},
+				"altar_of_the_mad_moon": {
+					"name": {
+						"en": "Field Infirmary",
+						"zh_CN": "伤兵营"
+					},
+					"text": {
+						"en": "Allied Foot Soldiers have +{creep_regeneration} regeneration.",
+						"zh_CN": "友方步卒+{creep_regeneration}再生。"
+					},
+					"faction": "wu"
+				},
+				"mist_of_avernus": {
+					"name": {
+						"en": "Fleet Drills",
+						"zh_CN": "水师操练"
+					},
+					"text": {
+						"en": "Permanently give allies +{amount} attack before the action phase.",
+						"zh_CN": "行动阶段前，永久使所有友方单位+{amount}攻击。"
+					},
+					"faction": "wu"
+				},
+				"path_of_the_dreamer": {
+					"name": {
+						"en": "Land of Fish and Rice",
+						"zh_CN": "鱼米之乡"
+					},
+					"text": {
+						"en": "After you play a green card, give your tower +{amount} regeneration until the end of the round.",
+						"zh_CN": "你打出一张绿色牌后，本回合你的城楼+{amount}再生。"
+					},
+					"faction": "wu"
+				},
+				"selemenes_favor": {
+					"name": {
+						"en": "Capital at Jianye",
+						"zh_CN": "定都建业"
+					},
+					"text": {
+						"en": "Your tower has +{tower_mana} mana.",
+						"zh_CN": "你的城楼+{tower_mana}军令。"
+					},
+					"faction": "wu"
+				},
+				"cheating_death": {
+					"name": {
+						"en": "Heaven Protects",
+						"zh_CN": "吉人天相"
+					},
+					"text": {
+						"en": "Heaven's Aid: give a unit a death shield this round. Only usable if there is an allied green hero in this lane. Active ability; cooldown {ability_cooldown}.",
+						"zh_CN": "天佑：本回合使一个单位获得免死护盾。仅当本路中有友方绿色武将时可用。主动技能，冷却{ability_cooldown}。"
+					},
+					"faction": "wu",
+					"ability_name": {
+						"en": "Heaven's Aid",
+						"zh_CN": "天佑"
+					}
+				},
+				"homefield_advantage": {
+					"name": {
+						"en": "Wait Out the Weary",
+						"zh_CN": "以逸待劳"
+					},
+					"text": {
+						"en": "Before the action phase, disarm a random enemy this round.",
+						"zh_CN": "行动阶段前，本回合使一个随机敌方单位缴械。"
+					},
+					"faction": "wu"
+				},
+				"unearthed_secrets": {
+					"name": {
+						"en": "River Beacons",
+						"zh_CN": "江防烽燧"
+					},
+					"text": {
+						"en": "Draw a card after the combat phase if your tower was dealt damage this round.",
+						"zh_CN": "若本回合你的城楼受到伤害，交战阶段后摸一张牌。"
+					},
+					"faction": "wu"
+				},
+				"temple_of_war": {
+					"name": {
+						"en": "Chengdu Arsenal",
+						"zh_CN": "成都武库"
+					},
+					"text": {
+						"en": "All equipped heroes have +{hero_attack} attack and +{hero_armor} armor.",
+						"zh_CN": "所有装备了军备的武将+{hero_attack}攻击、+{hero_armor}护甲。"
+					},
+					"faction": "shu"
+				},
+				"burning_oil": {
+					"name": {
+						"en": "Logs and Boulders",
+						"zh_CN": "滚木礌石"
+					},
+					"text": {
+						"en": "Your tower has +{tower_retaliate} retaliate.",
+						"zh_CN": "你的城楼+{tower_retaliate}反击。"
+					},
+					"faction": "shu"
+				},
+				"the_omexe_arena": {
+					"name": {
+						"en": "Baidi Citadel",
+						"zh_CN": "白帝城"
+					},
+					"text": {
+						"en": "Draw a card after a hero dies.",
+						"zh_CN": "一名武将阵亡后，摸一张牌。"
+					},
+					"faction": "shu"
+				},
+				"grand_melee": {
+					"name": {
+						"en": "Clash of Champions",
+						"zh_CN": "阵前斗将"
+					},
+					"text": {
+						"en": "If there is an allied red hero in this lane, all heroes have +{cleave} cleave.",
+						"zh_CN": "若本路中有友方红色武将，所有武将+{cleave}横扫。"
+					},
+					"faction": "shu"
+				},
+				"path_of_the_bold": {
+					"name": {
+						"en": "Road to Shu",
+						"zh_CN": "蜀道"
+					},
+					"text": {
+						"en": "After you play a red card, permanently give a random ally +{amount} attack.",
+						"zh_CN": "你打出红色牌后，永久使一个随机友方单位+{amount}攻击。"
+					},
+					"faction": "shu"
 				}
 			},
 			"presets": {
@@ -3522,6 +3906,46 @@
 					"description": {
 						"en": "Lü Bu rides Red Hare with the Sky Piercer and the Purple-Gold Crown; Jia Xu schemes, Yuan Shao pays for every head, Hua Tuo heals and Zuo Ci conjures: each warlord takes what he can.",
 						"zh_CN": "吕布跨赤兔、执方天画戟、戴紫金冠；贾诩设谋、袁绍重金购首、华佗施术、左慈弄法，群雄各取所需。"
+					}
+				},
+				"siege_of_ye": {
+					"name": {
+						"en": "Siege of Ye",
+						"zh_CN": "邺城之战"
+					},
+					"description": {
+						"en": "Guo Jia foresees the fall of the Yuans and Jia Xu counsels patience: while Yuan Shao's sons feud, rams, siege towers and tunnels close in on Ye, Xu Chu's Tiger Guards hold the camp and Zhen Ji waits behind the walls.",
+						"zh_CN": "郭嘉料定袁氏必亡，贾诩劝以缓图：袁绍诸子同室操戈之际，冲车、井阑与地道合围邺城，许褚的虎卫坚守大营，甄姬困守城中。"
+					}
+				},
+				"jing_province": {
+					"name": {
+						"en": "Struggle for Jing Province",
+						"zh_CN": "荆州之争"
+					},
+					"description": {
+						"en": "Guan Yu holds Jing behind river beacons and Lady Sun's Fort while Lu Su bargains for it; Lü Meng crosses the river in white and Lu Xun waits out the weary to take the land of fish and rice.",
+						"zh_CN": "关羽凭江防烽燧与孙夫人城镇守荆州，鲁肃单刀赴会索要此地；吕蒙白衣渡江，陆逊以逸待劳，终取这片鱼米之乡。"
+					}
+				},
+				"dong_zhuo_tyranny": {
+					"name": {
+						"en": "Dong Zhuo's Tyranny",
+						"zh_CN": "董卓乱政"
+					},
+					"description": {
+						"en": "Dong Zhuo hoards the court's gold in Mei Fortress with Lü Bu at his side; Cao Cao flees the capital to swear the blood oath against him, Diaochan's charm turns father against son, and Jia Xu counsels Dong Zhuo's generals to strike back.",
+						"zh_CN": "董卓敛尽天下财货于郿坞，吕布随侍左右；曹操逃离京城，歃血会盟共讨国贼；貂蝉一计令义父子反目，贾诩又劝董卓旧部反攻长安。"
+					}
+				},
+				"xiaoyao_ford": {
+					"name": {
+						"en": "Battle of Xiaoyao Ford",
+						"zh_CN": "逍遥津之战"
+					},
+					"description": {
+						"en": "Zhang Liao's eight hundred storm Sun Quan's camp past horse pitfalls and crossbow batteries; Gan Ning and Zhou Tai cut a way out, heaven protects Sun Quan's leap over the broken bridge, and Xiahou Dun brings up the reinforcements.",
+						"zh_CN": "张辽率八百勇士冲破陷马坑与强弩营直扑孙权大营；甘宁、周泰杀出重围，孙权跃马飞渡断桥，吉人天相，夏侯惇援军随后杀到。"
 					}
 				}
 			}
@@ -6483,6 +6907,358 @@
 						"en": "Equipped hero has +{health} Health. Whenever opponent draws a card, give that card +{amount} Lock if equipped hero is in any lane.",
 						"zh_CN": "装备此物品的英雄+{health}生命。如果装备此物品的英雄在任意兵线上，使对手每次抽取的牌+{amount}锁定。"
 					}
+				},
+				"assured_destruction": {
+					"name": {
+						"en": "Assured Destruction",
+						"zh_CN": "同归于尽"
+					},
+					"text": {
+						"en": "All heroes have +{siege} Siege.",
+						"zh_CN": "所有英雄+{siege}攻城。"
+					}
+				},
+				"escape_route": {
+					"name": {
+						"en": "Escape Route",
+						"zh_CN": "脱逃路线"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Return an allied hero to the Fountain.",
+						"zh_CN": "主动{ability_cooldown}：将一名友方英雄召回泉水。"
+					},
+					"ability_name": {
+						"en": "Escape Route",
+						"zh_CN": "脱逃路线"
+					}
+				},
+				"iron_fog_goldmine": {
+					"name": {
+						"en": "Iron Fog Goldmine",
+						"zh_CN": "铁雾金矿"
+					},
+					"text": {
+						"en": "Get {gold} gold after the combat phase.",
+						"zh_CN": "战斗阶段后，获得{gold}金钱。"
+					}
+				},
+				"keenfolk_turret": {
+					"name": {
+						"en": "Keenfolk Turret",
+						"zh_CN": "基恩炮塔"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Deal {amount} piercing damage to a unit.",
+						"zh_CN": "主动{ability_cooldown}：对一个单位造成{amount}透甲伤害。"
+					},
+					"ability_name": {
+						"en": "Keenfolk Turret",
+						"zh_CN": "基恩炮塔"
+					}
+				},
+				"steam_cannon": {
+					"name": {
+						"en": "Steam Cannon",
+						"zh_CN": "蒸汽大炮"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Deal {amount} piercing damage to a unit in any lane.",
+						"zh_CN": "主动{ability_cooldown}：对任意兵线上的一个单位造成{amount}透甲伤害。"
+					},
+					"ability_name": {
+						"en": "Steam Cannon",
+						"zh_CN": "蒸汽大炮"
+					}
+				},
+				"the_tyler_estate": {
+					"name": {
+						"en": "The Tyler Estate",
+						"zh_CN": "泰勒庄园"
+					},
+					"text": {
+						"en": "Both towers have -{mana_loss} Mana.",
+						"zh_CN": "双方的塔-{mana_loss}魔力。"
+					}
+				},
+				"trebuchets": {
+					"name": {
+						"en": "Trebuchets",
+						"zh_CN": "投石机"
+					},
+					"text": {
+						"en": "Deal {amount} piercing damage to the enemy tower before the action phase.",
+						"zh_CN": "行动阶段前，对敌方塔造成{amount}透甲伤害。"
+					}
+				},
+				"bitter_enemies": {
+					"name": {
+						"en": "Bitter Enemies",
+						"zh_CN": "夙敌"
+					},
+					"text": {
+						"en": "After the combat phase, remove a charge from Bitter Enemies. Before the action phase, if there are zero charges on Bitter Enemies, deal {amount} damage to both towers.",
+						"zh_CN": "战斗阶段后，从夙敌移除1能量。行动阶段前，如果夙敌的能量为零，则对双方塔造成{amount}伤害。"
+					}
+				},
+				"path_of_the_cunning": {
+					"name": {
+						"en": "Path of the Cunning",
+						"zh_CN": "诈者之路"
+					},
+					"text": {
+						"en": "After you play a black card, modify a random ally with +{amount} Siege.",
+						"zh_CN": "打出一张黑色卡牌后，修改一个随机友方单位，使其+{amount}攻城。"
+					}
+				},
+				"revtel_investments": {
+					"name": {
+						"en": "Revtel Investments",
+						"zh_CN": "瑞文泰尔的资产"
+					},
+					"text": {
+						"en": "Add a charge to Revtel Investments after the combat phase. Active {ability_cooldown}: Get {gold_per_charge} gold for each charge. Condemn Revtel Investments.",
+						"zh_CN": "战斗阶段后，为瑞文泰尔的资产增加1能量。主动{ability_cooldown}：每有1能量，获得{gold_per_charge}金钱。惩处瑞文泰尔的资产。"
+					},
+					"ability_name": {
+						"en": "Revtel Investments",
+						"zh_CN": "瑞文泰尔的资产"
+					}
+				},
+				"unsupervised_artillery": {
+					"name": {
+						"en": "Unsupervised Artillery",
+						"zh_CN": "无人看管的火炮"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Deal {amount} piercing damage to the enemy tower. May only be used if there are no unblocked enemies.",
+						"zh_CN": "主动{ability_cooldown}：对敌方塔造成{amount}透甲伤害。只能在没有未受阻挡的敌人时使用。"
+					},
+					"ability_name": {
+						"en": "Unsupervised Artillery",
+						"zh_CN": "无人看管的火炮"
+					}
+				},
+				"the_oath": {
+					"name": {
+						"en": "The Oath",
+						"zh_CN": "誓约"
+					},
+					"text": {
+						"en": "You can not play spells or creeps while this is the active lane. If there is an allied black hero in this lane, allies have +{amount} Attack.",
+						"zh_CN": "当此兵线为活跃兵线时，你无法打出法术或小兵。如果此兵线上有一名友方黑色英雄，友方单位+{amount}攻击。"
+					}
+				},
+				"aghanims_sanctum": {
+					"name": {
+						"en": "Aghanim's Sanctum",
+						"zh_CN": "阿哈利姆圣所"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Fully restore your tower's Mana.",
+						"zh_CN": "主动{ability_cooldown}：使你的塔恢复全部魔力。"
+					},
+					"ability_name": {
+						"en": "Aghanim's Sanctum",
+						"zh_CN": "阿哈利姆圣所"
+					}
+				},
+				"conflagration": {
+					"name": {
+						"en": "Conflagration",
+						"zh_CN": "烈焰"
+					},
+					"text": {
+						"en": "Deal {amount} damage to each enemy before the action phase.",
+						"zh_CN": "行动阶段前，对每个敌人造成{amount}伤害。"
+					}
+				},
+				"messenger_rookery": {
+					"name": {
+						"en": "Messenger Rookery",
+						"zh_CN": "信使之巢"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Choose an ally. Choose a combat target for it.",
+						"zh_CN": "主动{ability_cooldown}：选择一个友方单位，为其选择一个战斗目标。"
+					},
+					"ability_name": {
+						"en": "Messenger Rookery",
+						"zh_CN": "信使之巢"
+					}
+				},
+				"fractured_timeline": {
+					"name": {
+						"en": "Fractured Timeline",
+						"zh_CN": "破碎时间轴"
+					},
+					"text": {
+						"en": "Before the action phase, give a random card in opponent's hand +{amount} Lock.",
+						"zh_CN": "行动阶段前，使对手的一张随机手牌+{amount}锁定。"
+					}
+				},
+				"howling_mind": {
+					"name": {
+						"en": "Howling Mind",
+						"zh_CN": "咆哮意志"
+					},
+					"text": {
+						"en": "You and your opponent draw an extra card each round.",
+						"zh_CN": "你和对手每回合多抽一张牌。"
+					}
+				},
+				"path_of_the_wise": {
+					"name": {
+						"en": "Path of the Wise",
+						"zh_CN": "智者之路"
+					},
+					"text": {
+						"en": "After you play a blue card, deal {amount} piercing damage to a random enemy.",
+						"zh_CN": "打出一张蓝色卡牌后，对一个随机敌人造成{amount}透甲伤害。"
+					}
+				},
+				"watchtower": {
+					"name": {
+						"en": "Watchtower",
+						"zh_CN": "瞭望塔"
+					},
+					"text": {
+						"en": "Whenever an enemy improvement enters this lane, draw a card.",
+						"zh_CN": "当一个敌方强化进入此兵线时，抽一张牌。"
+					}
+				},
+				"glyph_of_confusion": {
+					"name": {
+						"en": "Glyph of Confusion",
+						"zh_CN": "困惑符文"
+					},
+					"text": {
+						"en": "Whenever any unit enters this lane, stun it this round.",
+						"zh_CN": "当任何一个单位进入此兵线时，在本回合使其晕眩。"
+					}
+				},
+				"altar_of_the_mad_moon": {
+					"name": {
+						"en": "Altar of the Mad Moon",
+						"zh_CN": "癫狂之月祭坛"
+					},
+					"text": {
+						"en": "Allied Melee Creeps have +{creep_regeneration} Regeneration.",
+						"zh_CN": "友方近战小兵+{creep_regeneration}恢复。"
+					}
+				},
+				"mist_of_avernus": {
+					"name": {
+						"en": "Mist of Avernus",
+						"zh_CN": "魔霭迷雾"
+					},
+					"text": {
+						"en": "Modify allies with +{amount} Attack before the action phase.",
+						"zh_CN": "行动阶段前，修改友方单位，使其+{amount}攻击。"
+					}
+				},
+				"path_of_the_dreamer": {
+					"name": {
+						"en": "Path of the Dreamer",
+						"zh_CN": "梦者之路"
+					},
+					"text": {
+						"en": "After you play a green card, give your tower +{amount} Regeneration until end of round.",
+						"zh_CN": "打出一张绿色卡牌后，你的塔+{amount}恢复，直至回合结束为止。"
+					}
+				},
+				"selemenes_favor": {
+					"name": {
+						"en": "Selemene's Favor",
+						"zh_CN": "赛莉蒙妮的眷顾"
+					},
+					"text": {
+						"en": "Your tower has +{tower_mana} Mana.",
+						"zh_CN": "你的塔+{tower_mana}魔力。"
+					}
+				},
+				"cheating_death": {
+					"name": {
+						"en": "Cheating Death",
+						"zh_CN": "命不该绝"
+					},
+					"text": {
+						"en": "Active {ability_cooldown}: Give a unit a Death Shield this round. May only be used if there is an allied green hero in this lane.",
+						"zh_CN": "主动{ability_cooldown}：在本回合使一个单位获得免死护盾。只能在此兵线上有一名友方绿色英雄时使用。"
+					},
+					"ability_name": {
+						"en": "Cheating Death",
+						"zh_CN": "命不该绝"
+					}
+				},
+				"homefield_advantage": {
+					"name": {
+						"en": "Homefield Advantage",
+						"zh_CN": "地主优势"
+					},
+					"text": {
+						"en": "Before the action phase disarm a random enemy this round.",
+						"zh_CN": "行动阶段前，在本回合缴械一个随机敌人。"
+					}
+				},
+				"unearthed_secrets": {
+					"name": {
+						"en": "Unearthed Secrets",
+						"zh_CN": "秘密出土"
+					},
+					"text": {
+						"en": "Draw a card after the combat phase if your tower was dealt damage this round.",
+						"zh_CN": "如果你的塔在本回合受到伤害，战斗阶段后抽一张牌。"
+					}
+				},
+				"temple_of_war": {
+					"name": {
+						"en": "Temple of War",
+						"zh_CN": "战争神殿"
+					},
+					"text": {
+						"en": "All equipped heroes have +{hero_attack} Attack and +{hero_armor} Armor.",
+						"zh_CN": "所有装备物品的英雄+{hero_attack}攻击和+{hero_armor}护甲。"
+					}
+				},
+				"burning_oil": {
+					"name": {
+						"en": "Burning Oil",
+						"zh_CN": "滚烫火油"
+					},
+					"text": {
+						"en": "Your tower has +{tower_retaliate} Retaliate.",
+						"zh_CN": "你的塔+{tower_retaliate}反伤。"
+					}
+				},
+				"the_omexe_arena": {
+					"name": {
+						"en": "The Omexe Arena",
+						"zh_CN": "欧梅克斯竞技场"
+					},
+					"text": {
+						"en": "Draw a card after a hero dies.",
+						"zh_CN": "当一名英雄死亡后，抽一张牌。"
+					}
+				},
+				"grand_melee": {
+					"name": {
+						"en": "Grand Melee",
+						"zh_CN": "大乱斗"
+					},
+					"text": {
+						"en": "If there is an allied red hero in this lane, all heroes have +{cleave} Cleave.",
+						"zh_CN": "如果此兵线上有一名友方红色英雄，所有英雄+{cleave}顺势。"
+					}
+				},
+				"path_of_the_bold": {
+					"name": {
+						"en": "Path of the Bold",
+						"zh_CN": "勇者之路"
+					},
+					"text": {
+						"en": "After you play a red card, modify a random ally with +{amount} Attack.",
+						"zh_CN": "打出一张红色卡牌后，修改一个随机友方单位，使其+{amount}攻击。"
+					}
 				}
 			},
 			"presets": {
@@ -6658,6 +7434,46 @@
 					"description": {
 						"en": "Debbi, Phantom Assassin, Bounty Hunter, Necrophos and Lion hunt heroes for gold with Poaching Knife, Revtel Signet Ring and Apotheosis Blade, then spend it in the shop.",
 						"zh_CN": "狡诈的黛比、幻影刺客、赏金猎人、瘟疫法师与莱恩以盗猎刀、瑞文泰尔印戒与封神之刃猎杀英雄换取金钱，再到商店中花掉。"
+					}
+				},
+				"siege_of_ye": {
+					"name": {
+						"en": "Blue / Black Siege Works",
+						"zh_CN": "蓝黑攻城器械"
+					},
+					"description": {
+						"en": "Ogre Magi and Debbi wear the towers down with Ignite, Trebuchets, Unsupervised Artillery and a Steam Cannon while Bitter Enemies counts down; Bounty Hunter, Luna and Prellex's Barracks hold the lanes.",
+						"zh_CN": "食人魔魔法师与狡诈的黛比以引燃、投石机、无人看管的火炮与蒸汽大炮消磨防御塔，夙敌的倒计时步步逼近；赏金猎人、露娜与普瑞蕾斯的兵营坚守兵线。"
+					}
+				},
+				"jing_province": {
+					"name": {
+						"en": "Red / Green Fortifications",
+						"zh_CN": "红绿要塞"
+					},
+					"description": {
+						"en": "Keefe, Mazzie and Rix fight behind Burning Oil and Steel Reinforcement under Grand Melee; Treant Protector and Chen heal while Unearthed Secrets, Path of the Dreamer and Homefield Advantage hold the towers.",
+						"zh_CN": "勇者基弗、梅兹与里克斯在大乱斗中依托滚烫火油与铜墙铁壁作战；树精卫士与陈负责治疗，秘密出土、梦者之路与地主优势守住防御塔。"
+					}
+				},
+				"dong_zhuo_tyranny": {
+					"name": {
+						"en": "Black / Blue Tyranny",
+						"zh_CN": "黑蓝暴政"
+					},
+					"description": {
+						"en": "Bloodseeker, Phantom Assassin and Winter Wyvern fight under The Oath and Assured Destruction while The Tyler Estate starves both towers; J'Muy redirects, Debbi finishes off heroes, and Iron Fog Goldmine and Revtel Investments fill the purse.",
+						"zh_CN": "血魔、幻影刺客与寒冬飞龙在誓约与同归于尽之下作战，泰勒庄园令双方的塔缺少魔力；睿智的姆伊调度战场，狡诈的黛比收割英雄，铁雾金矿与瑞文泰尔的资产充实钱袋。"
+					}
+				},
+				"xiaoyao_ford": {
+					"name": {
+						"en": "Blue / Green Bastion",
+						"zh_CN": "蓝绿堡垒"
+					},
+					"description": {
+						"en": "Earthshaker and Crystal Maiden stun and freeze what Glyph of Confusion and Conflagration let through; Farvhan, Lycan and Abaddon shield and grow the board with Mist of Avernus, Cheating Death and Selemene's Favor.",
+						"zh_CN": "撼地者与冰晶圣女震晕、冰冻困惑符文与烈焰放过的敌人；梦者法瓦汗、狼人与亚巴顿借魔霭迷雾、命不该绝与赛莉蒙妮的眷顾护盾并壮大战线。"
 					}
 				}
 			}

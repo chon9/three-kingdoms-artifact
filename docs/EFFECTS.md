@@ -335,6 +335,54 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
 "abilities": [{"id": "deed", "kind": "aura", "affects": "you", "grant": {"rules": {"secret_shop_discount": 1}}}]
 ```
 
+**Tower keywords and mana from an improvement** (Burning Oil; Selemene's Favor grants `mana`, The Tyler Estate `{"mana": {"neg": ...}}` on `both_towers`): the towers of the improvement's own lane. A tower's Retaliate answers each unit whose combat target is the tower, reduced by its Armor (RQ-06); a mana aura moves the exact base and current mana with it (CF-5, RQ-52).
+```json
+"tower_retaliate": 2,
+"abilities": [{"id": "oil", "kind": "aura", "affects": "your_tower", "grant": {"retaliate": {"param": "tower_retaliate"}}}]
+```
+
+**A conditional lane aura, and a forbid** (The Oath; Grand Melee gives every hero Cleave with the same `if`; Temple of War selects equipped heroes with `{"s": "units", "kind": "hero", "where": {"has": {"s": "items", "rel": {"equipped_on": "$it"}}}}`): the `if` is a presence test, so a stunned or silenced black hero still counts (RQ-60). `forbid_play` stops its owner's plays of those kinds while the improvement's lane is active; the UI gives `REASON_FORBIDDEN`.
+```json
+"amount": 4,
+"abilities": [{"id": "oath", "kind": "aura", "affects": "you", "grant": {"rules": {"forbid_play": {"kinds": ["spell", "creep"], "lane": "self"}}}},
+  {"id": "sworn", "kind": "aura", "affects": "allies", "if": {"has": {"s": "units", "side": "ally", "kind": "hero", "color": "black"}}, "grant": {"attack": {"param": "amount"}}}]
+```
+
+**Both players draw an extra card** (Howling Mind; it works from any lane and stacks with Troll Soothsayer): `"affects": "both_players", "grant": {"rules": {"round_draw": 1}}`.
+
+**Whenever a unit enters this lane** (Glyph of Confusion): `unit_entered` fires for creep plays, summons, deployment, moves from another lane and control changes, not swaps (RQ-21); a stun given at deployment lasts the whole new round.
+```json
+"abilities": [{"id": "confusion", "kind": "trigger", "on": "unit_entered", "ops": [{"op": "give", "to": "$e.unit", "until": "round", "keywords": {"stun": 1}}]}]
+```
+
+**After you play a card of a colour, in this lane** (Path of the Bold; Wise, Dreamer and Cunning alike): `card_played` is heard while the improvement's lane is the active lane (RQ-03), and a Path played into the active lane hears its own play (RQ-44). Watchtower listens the same way to `improvement_entered` with `"filter": {"side": "enemy"}`, The Omexe Arena to `unit_died` with `"filter": {"kind": "hero"}`.
+```json
+"amount": 1,
+"abilities": [{"id": "bold", "kind": "trigger", "on": "card_played", "filter": {"player": "you", "color": "red"},
+  "ops": [{"op": "modify", "to": {"use": "allies", "pick": {"random": 1}}, "stats": {"attack": {"param": "amount"}}}]}]
+```
+
+**Charges that count down, then a payoff** (Bitter Enemies, 3 charges from Valve's data; Revtel Investments counts up from 0 and its active pays `{"mul": [{"param": "gold_per_charge"}, {"charges": "$self"}]}` gold, then condemns itself):
+```json
+"amount": 6, "charges": 3,
+"abilities": [{"id": "countdown", "kind": "trigger", "on": "after_combat", "ops": [{"op": "charges", "on": "$self", "add": -1, "min": 0}]},
+  {"id": "feud", "kind": "trigger", "on": "before_action", "where": {"cmp": [{"charges": "$self"}, "==", 0]},
+   "ops": [{"op": "tower_damage", "to": "both_towers", "amount": {"param": "amount"}}]}]
+```
+
+**An improvement active with a condition** (Unsupervised Artillery; Cheating Death requires `{"has": {"use": "allied_heroes", "color": "green"}}`): `requires` is checked over the improvement's lane, and the active is used from its chip while that lane is active; an improvement played this round can use it at once (RQ-24).
+```json
+"ability_cooldown": 1, "amount": 4,
+"abilities": [{"id": "artillery", "kind": "active", "valve": 10462, "cooldown": {"param": "ability_cooldown"},
+  "requires": {"empty": {"use": "enemies", "where": {"unblocked": "$it"}}},
+  "ops": [{"op": "tower_damage", "to": "enemy_tower", "amount": {"param": "amount"}, "piercing": true}]}]
+```
+
+**The round log** (Unearthed Secrets): `{"log": "tower_hit", "tower": "your_tower"}` holds when your tower in the improvement's lane (its ancient once it fell, RQ-46) was dealt damage this round, from any source; the log clears at the end of the round.
+```json
+"abilities": [{"id": "secrets", "kind": "trigger", "on": "after_combat", "where": {"log": "tower_hit", "tower": "your_tower"}, "ops": [{"op": "draw", "player": "you", "n": 1}]}]
+```
+
 **Granted text on an item** (Stonehall Pike; Cloak and Plate grant `max_health` and `armor`): `$self` in an item's trigger is the item instance, so the Modify records the grant on the instance. Host auras of granted text apply wherever the hero is (the Fountain included), other auras and triggers only while the hero is in a lane (RQ-38); the entries stack, the opponent's Purge does not reach them (RQ-12), and a replaced or condemned item takes them along.
 ```json
 "growth_attack": 1,
@@ -441,7 +489,7 @@ The golden games (`tests/golden/`, data in `tests/data/goldens/`) replay 54 reco
 - **Meta tests** (`tests/rules_schema_test.gd`): every verified Classic card has a spec, its `text` equals `valve_text`, and its `covers` include the card's mechanics tags; `tools/coverage.py` maps Valve's verb and trigger tags to ops and events (`python -I -X utf8 tools/coverage.py` rewrites `tests/data/coverage.json`, `--check` only checks; the schema test compares the table's hash).
 - **The rules fixture pack** (`tests/fixtures/rules_fixtures.json`, loaded with `CardLibrary.from_file(path, "rules_fixtures")`): synthetic `fx_*` cards for every keyword, status, duration, zone op, improvement, item ability, deed and rules-layer grant. It is never in a preset or `PACKS` and is excluded from exports. `tests/mechanics_test.gd` runs the keyword matrix and the RQ cases on it, plus `preview_equals_combat` on 2,000 random boards.
 - **Fuzz** (`tests/fuzz_test.gd`, `--seeds 50` by default, `--nightly` for 2,000): random legal decks over both packs and the fixture pack, the bot against a random agent and itself, invariants after every step, mutated commands, hidden-information swaps, replay round trips and torture boards. Failing journals are saved under `res://.tools/fuzz_failures/`.
-- **The bot** (`tests/bot_test.gd`): evaluation terms, the static values of locks, hacks and mana restores, random candidates averaged over seeds 1 to 3 (spec §9.5), polarity, the prefilter, purity, the hidden swap and the decision budget on a dense board.
+- **The bot** (`tests/bot_test.gd`): evaluation terms (an improvement counts 2.0 plus 0.25 per mana of its cost and 0.5 per charge, M7), the static values of locks, hacks, mana restores and gold gains (M7: a play or ability that adds gold for you is worth 0.25 per gold, so Revtel Investments cashes in at 6 charges), random candidates averaged over seeds 1 to 3 (spec §9.5), polarity, the prefilter, purity, the hidden swap and the decision budget on a dense board. Nothing per card is needed: the bot reads the compiled static values.
 
 ## In the UI
 
@@ -449,4 +497,4 @@ Nothing per card is needed: actives of units, items and improvements get buttons
 
 ## Not yet supported
 
-- The Classic improvements beyond the seven heroes' signatures: they land in M7 (spec §12), each with its spec. Every hero, creep, spell and item ships (M1 and M3 to M6). Chain Frost (RQ-16), Enough Magic! (RQ-20) and Kanna (RQ-22) ship as drafts until a reference match.
+- Nothing in the Classic catalog: every hero, creep, spell, item and improvement ships (M1 and M3 to M7), each with its spec. Chain Frost (RQ-16), Enough Magic! (RQ-20) and Kanna (RQ-22) ship as drafts until a reference match.

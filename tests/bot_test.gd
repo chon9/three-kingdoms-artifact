@@ -1,13 +1,15 @@
 extends SceneTree
 ## Bot (EFFECT_SYSTEM_SPEC.md §9) on the rules fixture pack:
 ## * the M2 evaluation terms: combat keywords, Damage Immunity, a quarter of
-##   the attack for a stunned or disarmed unit, improvements with charges,
-##   opponent locks (standing, and the ones the bot's own plays add), and the
-##   preview's deaths and healing;
+##   the attack for a stunned or disarmed unit, improvements by their cost
+##   (M7) and charges, opponent locks (standing, and the ones the bot's own
+##   plays add), and the preview's deaths and healing;
 ## * the prefilter: above PREFILTER_LIMIT candidates, pass, every ability and
 ##   the best combinations per hand card by compile-time polarity, at most
 ##   PREFILTER_KEEP, in legal order;
 ## * Kanna's -1 lane creeps in the deployment choice (§9.6);
+## * M7: the static value of gold gains (Revtel Investments cashes in once its
+##   charges outweigh the improvement);
 ## * M4: the static values of hacks (Self Sabotage) and mana restores (Satyr
 ##   Magician's active), and random candidates averaged over seeds 1 to 3
 ##   (§9.5; choose_action re-simulates the random contenders among the
@@ -37,12 +39,12 @@ var bot = BotClass.new()
 
 func _initialize() -> void:
 	library = Library.from_file(FIXTURES, "rules_fixtures")
-	for test in [_test_evaluation_terms, _test_lock_term, _test_hack_term, _test_mana_term, _test_random_seeds, _test_polarity,
-			_test_prefilter, _test_kanna_deployment, _test_purity_and_swap, _test_budget]:
+	for test in [_test_evaluation_terms, _test_lock_term, _test_hack_term, _test_mana_term, _test_gold_term, _test_random_seeds,
+			_test_polarity, _test_prefilter, _test_kanna_deployment, _test_purity_and_swap, _test_budget]:
 		test.call()
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d bot checks (evaluation terms, locks, hacks, mana restores, random candidates over seeds 1-3, polarity, prefilter, Kanna lanes, purity, hidden swap, budget)." % ["PASS" if failures.is_empty() else "FAIL", checks])
+	print("%s: %d bot checks (evaluation terms, locks, hacks, mana restores, gold gains, random candidates over seeds 1-3, polarity, prefilter, Kanna lanes, purity, hidden swap, budget)." % ["PASS" if failures.is_empty() else "FAIL", checks])
 	quit(0 if failures.is_empty() else 1)
 
 func _check(condition: bool, message: String) -> void:
@@ -100,9 +102,30 @@ func _test_evaluation_terms() -> void:
 	engine = _engine()
 	var empty = _score(engine)
 	var keg = Zones.add_improvement(engine, "fx_countdown", 0, 1)
-	_check(is_equal_approx(_score(engine) - empty, 2.0 + 0.5 * 2), "An own improvement is worth 2.0 plus 0.5 per charge")
+	# The Powder Keg costs 3 and starts with 2 charges, the Academy costs 3.
+	_check(is_equal_approx(_score(engine) - empty, 2.0 + 0.25 * 3 + 0.5 * 2), "An own improvement is worth 2.0, plus 0.25 per mana of its cost and 0.5 per charge")
 	Zones.add_improvement(engine, "fx_library", 1, 1)
-	_check(is_equal_approx(_score(engine) - empty, 3.0 - 2.0), "An enemy improvement counts against")
+	_check(is_equal_approx(_score(engine) - empty, 3.75 - 2.75), "An enemy improvement counts against")
+	# M7: a dearer improvement is worth more (Steam Cannon costs 7, Trebuchets 1).
+	var worth: Dictionary = {}
+	for card_id in ["steam_cannon", "trebuchets"]:
+		engine = _engine()
+		empty = _score(engine)
+		Zones.add_improvement(engine, card_id, 0, 0)
+		worth[card_id] = _score(engine) - empty
+	_check(is_equal_approx(worth.steam_cannon, 2.0 + 0.25 * 7) and is_equal_approx(worth.trebuchets, 2.0 + 0.25),
+		"An improvement's value grows with its cost (%s)" % [worth])
+	# So the bot plays an affordable improvement rather than pass, whatever its
+	# cost, even when the one-ply simulation sees none of its effect (before
+	# M7 a flat 2.0 lost to the card in hand plus the play penalty from cost 3).
+	var casters = {"black": "sorla_khan", "blue": "jmuy", "green": "farvhan"}
+	for card_id in ["steam_cannon", "glyph_of_confusion", "selemenes_favor", "trebuchets"]:
+		engine = _engine()
+		_unit(engine, casters[str(library.get_card(card_id).color)], 0, 0)
+		engine.state.players[0].hand = [card_id]
+		Zones.sync(engine)
+		var choice = bot.choose_action(engine, 0)
+		_check(str(choice.get("type", "")) == "play", "The bot plays an affordable %s rather than pass (%s)" % [card_id, choice])
 	engine = _engine()
 	engine.state.players[1].hand = ["foresight", "foresight"]
 	Zones.sync(engine)
@@ -206,6 +229,37 @@ func _test_mana_term() -> void:
 	engine.state.first_pass = 1
 	Zones.sync(engine)
 	_check(bot.choose_action(engine, 0) == {"type": "ability", "unit": int(satyr.uid)}, "The bot restores its mana before it would pass with an unaffordable Selemene")
+
+## M7: gold that a play or ability adds to its player's purse is worth
+## GOLD_WEIGHT per gold, read from the simulation (the evaluation has no gold
+## term). Spending all gold (Mercenary Exiles, Wrath of Gold) is not a gain.
+## Revtel Investments cashes in only when its gold outweighs the improvement:
+## 4 gold per charge at 0.25 against 2.0 + 0.25 x 3 + 0.5 per charge.
+func _test_gold_term() -> void:
+	var revtel_static: Dictionary = library.rules("revtel_investments").get("ability_static", {}).get("cash_out", {})
+	var exiles_static: Dictionary = library.rules("mercenary_exiles").get("ability_static", {}).get("empty_the_purse", {})
+	_check(bool(revtel_static.get("gold", false)) and bool(library.static_value("payday").get("gold", false))
+		and not bool(exiles_static.get("gold", true)) and not bool(library.static_value("wrath_of_gold").get("gold", true)),
+		"Gold gains are static values; spending all gold is not (%s, %s)" % [revtel_static, exiles_static])
+	var engine = _engine()
+	var runner = _unit(engine, "fx_quick_creep", 0, 0)
+	var dash = {"type": "ability", "unit": int(runner.uid)}
+	_check(dash in engine.legal_actions(0), "Quick Runner's active is legal")
+	var view = engine.player_view(0)
+	var score = bot._score_action(engine, view, 0, dash, bot._evaluate(engine, view, 0))
+	_check(is_equal_approx(score, BotClass.GOLD_WEIGHT), "One gold gained is worth GOLD_WEIGHT (%.3f)" % score)
+	for charges in [2, 5, 6, 8]:
+		engine = _engine()
+		var revtel = Zones.add_improvement(engine, "revtel_investments", 0, 0)
+		revtel["charges"] = charges
+		var cash = {"type": "ability", "unit": int(revtel.oid)}
+		_check(cash in engine.legal_actions(0), "Revtel Investments' active is legal")
+		view = engine.player_view(0)
+		score = bot._score_action(engine, view, 0, cash, bot._evaluate(engine, view, 0))
+		var expected = 0.25 * 4.0 * charges - (2.0 + 0.25 * 3 + 0.5 * charges)
+		_check(is_equal_approx(score, expected), "Cashing in %d charges scores %.2f (%.2f)" % [charges, expected, score])
+		var choice = bot.choose_action(engine, 0)
+		_check((choice == cash) == (charges >= 6), "The bot cashes in at %d charges: %s (%s)" % [charges, charges >= 6, choice])
 
 ## Spec §9.5 (M4): a random candidate is simulated with seeds 1, 2 and 3 and
 ## averaged; a deterministic one with seed 1 only.

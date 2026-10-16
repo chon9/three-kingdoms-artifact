@@ -1,0 +1,15 @@
+{
+"card": "escape_route",
+"source_id": 10176,
+"text": "Active 1: Return an allied hero to the Fountain.",
+"covers": ["active", "return_to_fountain", "allied_hero", "fountain"],
+"cases": [
+ {"name": "Return an allied hero to the Fountain: fully healed, ready next round, no bounty", "clause": 0, "tags": ["active", "return_to_fountain", "allied_hero", "fountain"], "board": {"lanes": {"0": {"p0": ["keefe#k:hp=4", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}}, "improvements": {"0": {"p0": ["escape_route#g"]}}}, "do": [{"ability": "g", "target": "k"}], "expect": {"k.in_play": false, "k.health": 11, "k.ready_round": 3, "fountain.0.keefe": 1, "p1.gold": 0, "g.cooldown": 1, "events": {"has": ["ability", "fountain"], "not": ["death"]}}},
+ {"name": "an enemy hero or an allied creep is not a target", "clause": 0, "tags": ["negative", "allied_hero"], "board": "@0", "do": [], "expect_illegal": [{"ability": "g", "target": "e"}, {"ability": "g", "target": "m"}]},
+ {"name": "an allied hero in another lane is not a target", "clause": 0, "tags": ["negative", "allied_hero"], "board": {"base": "@0", "lanes": {"1": {"p0": ["tinker#t"], "p1": [null]}}}, "do": [], "expect_illegal": [{"ability": "g", "target": "t"}]},
+ {"name": "the hero redeploys at the next deployment", "clause": 0, "tags": ["edge", "fountain"], "board": "@0", "do": [{"ability": "g", "target": "k"}, {"end_round": true, "deploy": {"k": 1}}], "expect": {"k.lane": 1, "k.health": 11}},
+ {"name": "the enemy it was blocking now attacks the tower", "clause": 0, "tags": ["edge", "return_to_fountain"], "board": "@0", "do": [{"ability": "g", "target": "k"}, {"combat": true}], "expect": {"tower.0.0.health": 34, "e.health": 10}},
+ {"name": "rq_13: the hero keeps its Modify effects and loses this round's stun", "clause": 0, "tags": ["edge", "fountain", "RQ-13"], "board": "@0", "do": [{"play": "fighting_instinct", "target": "k"}, {"pass": 1}, {"give": {"k": ["stun"]}}, {"ability": "g", "target": "k"}], "expect": {"k.in_play": false, "k.stunned": false, "k.attack": 7, "k.armor": 2, "k.health": 11}},
+ {"name": "Active 1: a second hero cannot be sent this round", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "lanes": {"0": {"p0": ["keefe#k:hp=4", "tinker#t"], "p1": ["axe#e", "melee_creep#c"]}}}, "do": [{"ability": "g", "target": "k"}, {"pass": 1}], "expect_illegal": [{"ability": "g", "target": "t"}]},
+ {"name": "rq_24: played this round, it can be used at once", "clause": 0, "tags": ["edge", "active", "RQ-24"], "board": {"lanes": {"0": {"p0": ["tinker#t", "melee_creep#m"], "p1": ["axe#e", "melee_creep#c"]}}}, "do": [{"play": "escape_route", "lane": 0}, {"pass": 1}], "expect": {"mana.0.0": 9}, "gd": "res://tests/cards/extra/improvement_ready_when_played.gd"}
+]}

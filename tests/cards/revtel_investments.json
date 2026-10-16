@@ -1,0 +1,18 @@
+{
+"card": "revtel_investments",
+"source_id": 10164,
+"text": "Add a charge to Revtel Investments after the combat phase. | Active 1: Get 4 gold for each charge. Condemn Revtel Investments.",
+"covers": ["active", "after_combat", "charges", "condemn", "gold_gain", "scaling_x", "player_gold", "self"],
+"cases": [
+ {"name": "Add a charge after the combat phase", "clause": 0, "tags": ["after_combat", "charges", "self"], "board": {"improvements": {"0": {"p0": ["revtel_investments#r"]}}}, "do": [{"combat": true}], "expect": {"r.charges": 1, "events": {"has": ["trigger", "charges"]}}},
+ {"name": "it enters with no charges (Valve's card has none)", "clause": 0, "tags": ["edge", "charges"], "board": "@0", "do": [], "expect": {"r.charges": 0}},
+ {"name": "the charges add up over the rounds", "clause": 0, "tags": ["charges", "after_combat"], "board": {"base": "@0", "charges": {"r": 2}}, "do": [{"combat": true}], "expect": {"r.charges": 3}},
+ {"name": "another lane's combat adds nothing", "clause": 0, "tags": ["negative", "after_combat"], "board": {"improvements": {"1": {"p0": ["revtel_investments#r"]}}}, "do": [{"combat": true}], "expect": {"r.charges": 0, "events": {"not": ["charges"]}}},
+ {"name": "Get 4 gold for each charge", "clause": 1, "tags": ["active", "gold_gain", "charges", "scaling_x", "player_gold"], "board": {"base": "@0", "charges": {"r": 3}, "gold": {"p0": 5}}, "do": [{"ability": "r"}], "expect": {"p0.gold": 17, "p1.gold": 0, "events": {"has": ["ability", "gold"]}}},
+ {"name": "with no charges it can still be used: no gold, and it is still condemned", "clause": 1, "tags": ["edge", "gold_gain", "scaling_x"], "board": "@0", "do": [{"ability": "r"}], "expect": {"p0.gold": 0, "r.in_play": false, "events": {"has": ["ability", "condemn"], "not": ["gold"]}}},
+ {"name": "the opponent's Revtel Investments pays its owner", "clause": 1, "tags": ["edge", "player_gold"], "board": {"improvements": {"0": {"p1": ["revtel_investments#q"]}}, "charges": {"q": 2}}, "do": [{"pass": 0}, {"ability": "q"}], "expect": {"p1.gold": 8, "p0.gold": 0, "q.in_play": false}},
+ {"name": "you cannot use the opponent's", "clause": 1, "tags": ["negative", "active"], "board": {"improvements": {"0": {"p1": ["revtel_investments#q"]}}, "charges": {"q": 2}}, "do": [], "expect_illegal": [{"ability": "q"}]},
+ {"name": "Condemn Revtel Investments: it leaves play after paying", "clause": 2, "tags": ["active", "condemn", "self"], "board": {"base": "@0", "charges": {"r": 1}}, "do": [{"ability": "r"}], "expect": {"p0.gold": 4, "r.in_play": false, "events": {"has": ["condemn", "improvement_gone"]}}, "expect_illegal": [{"ability": "r"}]},
+ {"name": "only itself: another improvement stays", "clause": 2, "tags": ["edge", "condemn", "self"], "board": {"improvements": {"0": {"p0": ["revtel_investments#r", "iron_fog_goldmine#i"]}}, "charges": {"r": 1}}, "do": [{"ability": "r"}, {"combat": true}], "expect": {"r.in_play": false, "i.in_play": true, "p0.gold": 7}},
+ {"name": "rq_24: played this round, it can be used at once", "clause": 1, "tags": ["edge", "active", "RQ-24"], "board": {"lanes": {"0": {"p0": ["tinker#t"], "p1": [null]}}}, "do": [{"play": "revtel_investments", "lane": 0}, {"pass": 1}], "expect": {"mana.0.0": 7}, "gd": "res://tests/cards/extra/improvement_ready_when_played.gd"}
+]}

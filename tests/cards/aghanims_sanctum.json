@@ -1,0 +1,14 @@
+{
+"card": "aghanims_sanctum",
+"source_id": 10175,
+"text": "Active 1: Fully restore your tower's Mana.",
+"covers": ["active", "mana_restore", "allied_tower", "tower_mana"],
+"cases": [
+ {"name": "Active 1: fully restore your tower's Mana", "clause": 0, "tags": ["active", "mana_restore", "allied_tower", "tower_mana"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#m"]}}, "improvements": {"0": {"p0": ["aghanims_sanctum#g"]}}}, "do": [{"play": "thunderstorm"}, {"pass": 1}, {"ability": "g"}], "expect": {"mana.0.0": 10, "max_mana.0.0": 10, "g.cooldown": 1, "events": {"has": ["ability", "mana"]}}},
+ {"name": "on cooldown it cannot be used again this round", "clause": 0, "tags": ["negative", "active"], "board": "@0", "do": [{"play": "thunderstorm"}, {"pass": 1}, {"ability": "g"}, {"pass": 1}], "expect_illegal": [{"ability": "g"}]},
+ {"name": "cooldown 1: ready again next round", "clause": 0, "tags": ["edge", "active"], "board": "@0", "do": [{"play": "thunderstorm"}, {"pass": 1}, {"ability": "g"}, {"end_round": true}, {"pass": 1}], "expect": {"g.cooldown": 0}, "expect_legal": [{"ability": "g"}]},
+ {"name": "only your own tower: the opponent's spent Mana stays spent", "clause": 0, "tags": ["edge", "allied_tower"], "board": {"active_player": 1, "initiative": 1, "lanes": {"0": {"p0": ["jmuy#k"], "p1": ["jmuy#j"]}}, "improvements": {"0": {"p0": ["aghanims_sanctum#g"]}}}, "do": [{"play": "lightning_strike", "player": 1}, {"ability": "g"}], "expect": {"mana.0.1": 8, "mana.0.0": 10}},
+ {"name": "at full Mana it can still be used: nothing changes and it goes on cooldown", "clause": 0, "tags": ["edge", "mana_restore"], "board": "@0", "do": [{"ability": "g"}], "expect": {"mana.0.0": 10, "g.cooldown": 1, "events": {"has": ["ability"], "not": ["mana"]}}},
+ {"name": "in another lane it cannot be used, so that lane's tower stays spent", "clause": 0, "tags": ["negative", "allied_tower"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#m"]}, "1": {"p0": [null], "p1": ["melee_creep#n"]}}, "improvements": {"1": {"p0": ["aghanims_sanctum#g"]}}}, "do": [{"play": "thunderstorm"}, {"pass": 1}], "expect": {"mana.0.0": 4, "mana.1.0": 10}, "expect_illegal": [{"ability": "g"}]},
+ {"name": "rq_24: played this round, it can be used at once", "clause": 0, "tags": ["edge", "active", "RQ-24"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#m"]}}}, "do": [{"play": "aghanims_sanctum", "lane": 0}, {"pass": 1}], "expect": {"mana.0.0": 6}, "gd": "res://tests/cards/extra/improvement_ready_when_played.gd"}
+]}

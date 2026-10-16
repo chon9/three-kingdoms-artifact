@@ -1,0 +1,15 @@
+{
+"card": "selemenes_favor",
+"source_id": 10168,
+"text": "Your tower has +2 Mana.",
+"covers": ["continuous", "mana_change", "allied_tower", "tower_mana"],
+"cases": [
+ {"name": "Your tower has +2 Mana: played into the active lane, maximum and current Mana rise by 2 after its cost", "clause": 0, "tags": ["continuous", "mana_change", "allied_tower", "tower_mana"], "board": {"lanes": {"0": {"p0": ["magnus#g"], "p1": ["melee_creep#c"]}}, "mana": 5}, "do": [{"play": "selemenes_favor", "lane": 0}], "expect": {"max_mana.0.0": 7, "mana.0.0": 3, "max_mana.0.1": 5, "mana.0.1": 5}},
+ {"name": "played into another lane, only that lane's tower gains it", "clause": 0, "tags": ["edge", "allied_tower", "tower_mana"], "board": "@0", "do": [{"play": "selemenes_favor", "lane": 1}], "expect": {"max_mana.1.0": 7, "mana.1.0": 7, "max_mana.0.0": 5, "mana.0.0": 1, "max_mana.1.1": 5, "max_mana.2.0": 5}},
+ {"name": "the opponent's tower is unaffected; the opponent's Favor does not raise yours", "clause": 0, "tags": ["negative", "allied_tower"], "board": {"lanes": {"0": {"p0": ["magnus#g"], "p1": ["melee_creep#c"]}}, "mana": 5, "improvements": {"0": {"p1": ["selemenes_favor#f"]}}}, "do": [], "expect": {"max_mana.0.0": 5, "mana.0.0": 5, "max_mana.0.1": 7, "mana.0.1": 7}},
+ {"name": "next round the maximum grows from 5 to 6, plus 2, and refills", "clause": 0, "tags": ["edge", "continuous", "tower_mana"], "board": {"lanes": {"0": {"p0": ["magnus#g"], "p1": ["melee_creep#c"]}}, "mana": 5, "improvements": {"0": {"p0": ["selemenes_favor#f"]}}}, "do": [{"end_round": true}], "expect": {"max_mana.0.0": 8, "mana.0.0": 8, "max_mana.0.1": 6}},
+ {"name": "rq_52: condemned by Obliterating Orb, the Mana goes and current Mana follows the change", "clause": 0, "tags": ["edge", "mana_change", "RQ-52"], "board": "@3", "do": [{"play": "arm_the_rebellion"}, {"play": "obliterating_orb", "target": "f", "player": 1}], "expect": {"f.in_play": false, "max_mana.0.0": 5, "mana.0.0": 1}},
+ {"name": "rq_52: at full Mana the loss takes 2 from current Mana", "clause": 0, "tags": ["edge", "tower_mana", "RQ-52"], "board": {"base": "@3", "active_player": 1}, "do": [{"play": "obliterating_orb", "target": "f", "player": 1}], "expect": {"f.in_play": false, "max_mana.0.0": 5, "mana.0.0": 5}},
+ {"name": "two Favors give +4", "clause": 0, "tags": ["edge", "continuous"], "board": {"base": "@3"}, "do": [{"play": "selemenes_favor", "lane": 0}], "expect": {"max_mana.0.0": 9, "mana.0.0": 5}},
+ {"name": "the extra Mana can be spent at once: a 3-cost card is playable after the Favor at 5 Mana", "clause": 0, "tags": ["edge", "tower_mana"], "board": {"lanes": {"0": {"p0": ["magnus#g"], "p1": ["melee_creep#c"]}}, "mana": 5, "hand": {"p0": ["selemenes_favor", "avernus_blessing"]}}, "do": [{"play": "selemenes_favor", "lane": 0}, {"pass": 1}], "expect": {"mana.0.0": 3}, "expect_legal": [{"play": "avernus_blessing", "target": "g"}]}
+]}

@@ -31,7 +31,7 @@ static func compile(card: Dictionary) -> Dictionary:
 		"status": str(normalized.get("status", "")), "token": bool(normalized.get("token", false)),
 		"rq": normalized.get("rq", []), "params": {}, "keywords": {}, "play": {}, "enter": [],
 		"abilities": [], "grants": [], "host": {}, "events": {}, "grant_events": {}, "active": -1,
-		"auras": [], "static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0, "hack": 0, "mana": false},
+		"auras": [], "static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0, "hack": 0, "mana": false, "gold": false},
 		"ability_static": {}, "uses": {}}
 	for key in normalized:
 		var value = normalized[key]
@@ -1128,13 +1128,15 @@ static func _cond(value, path: String, scope: Dictionary) -> Dictionary:
 ## The bot's static values of an op list (spec §9.2): constant draws for
 ## "you"; how many opponent hand cards its locks hold back and how many its
 ## hacks change (the bot cannot see them: its simulation has no opponent
-## hand); whether it restores its own tower's mana (the evaluation has no
-## mana term, so the bot prices that from the simulated tower).
+## hand); whether it restores its own tower's mana, and whether it adds gold
+## for "you" (the evaluation has no mana or gold term, so the bot prices them
+## from the simulated tower and the simulated purse).
 static func _static_value(ops: Array) -> Dictionary:
 	var draw = 0
 	var locks = 0
 	var hacks = 0
 	var mana = false
+	var gold = false
 	for op in ops:
 		if str(op.get("op", "")) == "draw" and str(op.get("player", "you")) == "you" and op.get("n") is int:
 			draw += int(op.n)
@@ -1144,7 +1146,10 @@ static func _static_value(ops: Array) -> Dictionary:
 			hacks += _opponent_hand_pick(op.to)
 		elif str(op.get("op", "")) == "mana" and op.has("restore") and _side_of(op.get("to")) == 1:
 			mana = true
-	return {"draw": draw, "initiative": false, "random": false, "bias": 0.0, "lock": locks, "hack": hacks, "mana": mana}
+		elif str(op.get("op", "")) == "gold" and op.has("add") and str(op.get("player", "you")) == "you":
+			gold = true
+	return {"draw": draw, "initiative": false, "random": false, "bias": 0.0, "lock": locks, "hack": hacks, "mana": mana,
+		"gold": gold}
 
 ## How many random opponent hand cards a compiled card selector picks
 ## ({"s": "cards", "player": "opponent", "zone": [hand...], "pick": n}), else 0.

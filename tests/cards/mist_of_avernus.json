@@ -1,0 +1,16 @@
+{
+"card": "mist_of_avernus",
+"source_id": 10169,
+"text": "Modify allies with +1 Attack before the action phase.",
+"covers": ["before_action", "modify", "stat_attack", "all_allies", "permanent"],
+"cases": [
+ {"name": "before its lane's action phase, each ally there is modified with +1 Attack; the enemy is not", "clause": 0, "tags": ["before_action", "modify", "stat_attack", "all_allies", "permanent"], "board": {"active_lane": 0, "lanes": {"0": {"p0": ["melee_creep#z"], "p1": [null]}, "1": {"p0": ["axe#a", "melee_creep#m"], "p1": ["keefe#k", null]}, "2": {"p0": ["melee_creep#f"], "p1": [null]}}, "improvements": {"1": {"p0": ["mist_of_avernus#s"]}}}, "do": [{"combat": true}], "expect": {"lane": 1, "a.attack": 7, "m.attack": 3, "k.attack": 6, "events": {"has": ["trigger", "mod"]}}},
+ {"name": "rq_04: allies in other lanes are not modified", "clause": 0, "tags": ["edge", "RQ-04", "all_allies"], "board": {"active_lane": 0, "lanes": {"0": {"p0": ["melee_creep#z"], "p1": [null]}, "1": {"p0": ["axe#a", "melee_creep#m"], "p1": ["keefe#k", null]}, "2": {"p0": ["melee_creep#f"], "p1": [null]}}, "improvements": {"1": {"p0": ["mist_of_avernus#s"]}}}, "do": [{"combat": true}], "expect": {"z.attack": 2, "f.attack": 2}},
+ {"name": "it is permanent and grows each round", "clause": 0, "tags": ["permanent", "edge"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": [null]}}, "improvements": {"0": {"p0": ["mist_of_avernus#s"]}}}, "do": [{"end_round": true}, {"end_round": true}], "expect": {"a.attack": 8}},
+ {"name": "a hero keeps it through death, in the Fountain", "clause": 0, "tags": ["permanent", "edge"], "board": {"active_lane": 0, "lanes": {"0": {"p0": ["melee_creep#z"], "p1": [null]}, "1": {"p0": ["axe#a", "melee_creep#m"], "p1": ["keefe#k", null]}, "2": {"p0": ["melee_creep#f"], "p1": [null]}}, "improvements": {"1": {"p0": ["mist_of_avernus#s"]}}}, "do": [{"combat": true}, {"kill": ["a"]}], "expect": {"a.attack": 7, "fountain.0.axe": 1}},
+ {"name": "Purge by the opponent removes it (RQ-12)", "clause": 0, "tags": ["edge", "modify"], "board": {"base": "@0", "lanes": {"1": {"p0": ["axe#a", "melee_creep#m"], "p1": ["omniknight#o", null]}}}, "do": [{"combat": true}, {"pass": 0}, {"play": "cleansing_rite", "player": 1, "target": "a"}], "expect": {"a.attack": 6, "m.attack": 3}},
+ {"name": "a stunned ally is still modified (a passive improvement)", "clause": 0, "tags": ["edge", "all_allies"], "board": {"base": "@0", "give": {"a": ["stun"]}}, "do": [{"combat": true}], "expect": {"a.attack": 7}},
+ {"name": "no allies in its lane: nothing happens", "clause": 0, "tags": ["negative", "all_allies"], "board": {"active_lane": 0, "lanes": {"1": {"p0": [null], "p1": ["keefe#k"]}}, "improvements": {"1": {"p0": ["mist_of_avernus#s"]}}}, "do": [{"combat": true}], "expect": {"k.attack": 6, "events": {"not": ["mod"]}}},
+ {"name": "the opponent's Mist modifies the opponent's units only", "clause": 0, "tags": ["edge", "all_allies"], "board": {"base": "@0", "improvements": {"1": {"p1": ["mist_of_avernus#s"]}}}, "do": [{"combat": true}], "expect": {"k.attack": 7, "a.attack": 6}},
+ {"name": "without a green hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "modify"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": [null]}}}, "do": [], "expect_illegal": [{"play": "mist_of_avernus", "lane": 0}]}
+]}

@@ -1,0 +1,15 @@
+{
+"card": "keenfolk_turret",
+"source_id": 10184,
+"text": "Active 1: Deal 2 piercing damage to a unit.",
+"covers": ["active", "piercing_damage", "unit"],
+"cases": [
+ {"name": "Deal 2 piercing damage to a unit: Axe's 2 Armor does not reduce it", "clause": 0, "tags": ["active", "piercing_damage", "unit"], "board": {"lanes": {"0": {"p0": ["tinker#t", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c"]}, "1": {"p0": ["melee_creep#o"], "p1": ["melee_creep#p"]}}, "improvements": {"0": {"p0": ["keenfolk_turret#g"]}}}, "do": [{"ability": "g", "target": "x"}], "expect": {"x.health": 8, "g.cooldown": 1, "events": {"has": ["ability", "damage"]}}},
+ {"name": "a unit of either side in the lane is a target", "clause": 0, "tags": ["active", "unit"], "board": "@0", "do": [], "expect_legal": [{"ability": "g", "target": "m"}, {"ability": "g", "target": "c"}, {"ability": "g", "target": "t"}]},
+ {"name": "a unit in another lane is not a target", "clause": 0, "tags": ["negative", "unit"], "board": "@0", "do": [], "expect_illegal": [{"ability": "g", "target": "p"}]},
+ {"name": "it kills a 2-health creep and its owner gets the bounty", "clause": 0, "tags": ["edge", "piercing_damage"], "board": {"base": "@0", "lanes": {"0": {"p0": ["tinker#t", "melee_creep#m"], "p1": ["axe#x", "melee_creep#c:hp=2"]}}}, "do": [{"ability": "g", "target": "c"}], "expect": {"c.in_play": false, "p0.gold": 1}},
+ {"name": "Damage Immunity: the unit takes nothing", "clause": 0, "tags": ["edge", "piercing_damage"], "board": {"base": "@0", "give": {"x": ["damage_immunity"]}}, "do": [{"ability": "g", "target": "x"}], "expect": {"x.health": 10}},
+ {"name": "a Death Shield saves the creep at 1 health", "clause": 0, "tags": ["edge", "unit"], "board": {"base": "@3", "give": {"c": ["death_shield"]}}, "do": [{"ability": "g", "target": "c"}], "expect": {"c.in_play": true, "c.health": 1}},
+ {"name": "Active 1: once per round, and not from another lane", "clause": 0, "tags": ["negative", "active"], "board": {"base": "@0", "improvements": {"0": {"p0": ["keenfolk_turret#g"]}, "1": {"p0": ["keenfolk_turret#h"]}}}, "do": [{"ability": "g", "target": "x"}, {"pass": 1}], "expect_illegal": [{"ability": "g", "target": "c"}, {"ability": "h", "target": "p"}, {"ability": "h", "target": "c"}]},
+ {"name": "rq_24: played this round, it can be used at once", "clause": 0, "tags": ["edge", "active", "RQ-24"], "board": {"lanes": {"0": {"p0": ["tinker#t"], "p1": ["melee_creep#c"]}}}, "do": [{"play": "keenfolk_turret", "lane": 0}, {"pass": 1}], "expect": {"mana.0.0": 6}, "gd": "res://tests/cards/extra/improvement_ready_when_played.gd"}
+]}

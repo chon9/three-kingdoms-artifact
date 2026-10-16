@@ -1898,6 +1898,230 @@
       "artist": "Magali Villeneuve",
       "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10241_large_english.bf086f2663702c91de9df854481ef7ee370263c1.png",
       "local_file": "10241_card.png"
+    },
+    {
+      "id": 10141,
+      "name": "Assured Destruction",
+      "artist": "Titus Lunter",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10141_large_english.025ba4016b23624573d98321f66ea49dae41aa95.png",
+      "local_file": "10141_card.png"
+    },
+    {
+      "id": 10176,
+      "name": "Escape Route",
+      "artist": "Bayard Wu",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10176_large_english.5154025a968faba834f62d3d0442cae60995d0e7.png",
+      "local_file": "10176_card.png"
+    },
+    {
+      "id": 10165,
+      "name": "Iron Fog Goldmine",
+      "artist": "James Paick",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10165_large_english.9bd1a3b4ff1c07841fb1947d3cdaa21039ce8e2e.png",
+      "local_file": "10165_card.png"
+    },
+    {
+      "id": 10184,
+      "name": "Keenfolk Turret",
+      "artist": "Robbie Trevino",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10184_large_english.70264229556eb5b96fe63b6977377abd215dfae7.png",
+      "local_file": "10184_card.png"
+    },
+    {
+      "id": 10185,
+      "name": "Steam Cannon",
+      "artist": "Lake Hurwitz",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10185_large_english.e43db03aeed80da4f65428fce3c56e380461726d.png",
+      "local_file": "10185_card.png"
+    },
+    {
+      "id": 10154,
+      "name": "The Tyler Estate",
+      "artist": "Dimitar Marinski",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10154_large_english.059a0207bb605b2094724a9380c901ac8eb3c7ef.png",
+      "local_file": "10154_card.png"
+    },
+    {
+      "id": 10161,
+      "name": "Trebuchets",
+      "artist": "Suzanne Helmigh",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10161_large_english.7394cac4707cf8f4c6107afd03c317efe71fdcf8.png",
+      "local_file": "10161_card.png"
+    },
+    {
+      "id": 10156,
+      "name": "Bitter Enemies",
+      "artist": "Lius Lasahido",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10156_large_english.b9bc1ab131bfb401f4c9cc8755217b8b86383947.png",
+      "local_file": "10156_card.png"
+    },
+    {
+      "id": 10150,
+      "name": "Path of the Cunning",
+      "artist": "Alayna Danner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10150_large_english.e8ac3e0bf337850977361d295be44d42683a9f67.png",
+      "local_file": "10150_card.png"
+    },
+    {
+      "id": 10164,
+      "name": "Revtel Investments",
+      "artist": "Jason Kang",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10164_large_english.88ae69b5716425cb754b0eabde3998f8ce62a326.png",
+      "local_file": "10164_card.png"
+    },
+    {
+      "id": 10162,
+      "name": "Unsupervised Artillery",
+      "artist": "Forrest Imel",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10162_large_english.4725d7e90d4b44cf5599382d5758c3474ec7eebc.png",
+      "local_file": "10162_card.png"
+    },
+    {
+      "id": 10182,
+      "name": "The Oath",
+      "artist": "Daarken",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10182_large_english.8ae6ce2d1efe39fa599667a54486c1e3e889a856.png",
+      "local_file": "10182_card.png"
+    },
+    {
+      "id": 10175,
+      "name": "Aghanim's Sanctum",
+      "artist": "Lake Hurwitz",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10175_large_english.c382ffddbcea0f287f14560710db2b1e1c63d6bf.png",
+      "local_file": "10175_card.png"
+    },
+    {
+      "id": 10157,
+      "name": "Conflagration",
+      "artist": "Lius Lasahido",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10157_large_english.618f0fc11b5132f84b802de3a9914f44b693b080.png",
+      "local_file": "10157_card.png"
+    },
+    {
+      "id": 10180,
+      "name": "Messenger Rookery",
+      "artist": "Forrest Imel",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10180_large_english.28e782a595f0b83fc704d6ee0f16040063136003.png",
+      "local_file": "10180_card.png"
+    },
+    {
+      "id": 10148,
+      "name": "Fractured Timeline",
+      "artist": "Sam Carr",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10148_large_english.0470a16136abf3edcc979f9e29e70126dd25852e.png",
+      "local_file": "10148_card.png"
+    },
+    {
+      "id": 10171,
+      "name": "Howling Mind",
+      "artist": "James Paick",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10171_large_english.62a2ac330ae0de093331231b632319710a4d6a29.png",
+      "local_file": "10171_card.png"
+    },
+    {
+      "id": 10151,
+      "name": "Path of the Wise",
+      "artist": "Alayna Danner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10151_large_english.0f821918bed64ec1b06da73353c494dd932f8494.png",
+      "local_file": "10151_card.png"
+    },
+    {
+      "id": 10194,
+      "name": "Watchtower",
+      "artist": "Forrest Imel",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10194_large_english.499fab31a9cf30c0fa67e2c2efece507a9299a29.png",
+      "local_file": "10194_card.png"
+    },
+    {
+      "id": 10187,
+      "name": "Glyph of Confusion",
+      "artist": "Stepan Alekseev",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10187_large_english.346b932da49687f59193c90b0a84903385db3c71.png",
+      "local_file": "10187_card.png"
+    },
+    {
+      "id": 10170,
+      "name": "Altar of the Mad Moon",
+      "artist": "Dimitar Marinski",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10170_large_english.bd5dae33abb8f7ef70bae0dd9a51621054febf13.png",
+      "local_file": "10170_card.png"
+    },
+    {
+      "id": 10169,
+      "name": "Mist of Avernus",
+      "artist": "Joseph Meehan",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10169_large_english.fbb70116dca7e133da31158f841b9ca73b3eb2f8.png",
+      "local_file": "10169_card.png"
+    },
+    {
+      "id": 10152,
+      "name": "Path of the Dreamer",
+      "artist": "Alayna Danner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10152_large_english.227247bae83078a128dd0ba99cbde0c53c9af825.png",
+      "local_file": "10152_card.png"
+    },
+    {
+      "id": 10168,
+      "name": "Selemene's Favor",
+      "artist": "Tenaya Sims",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10168_large_english.14c445463d638ffe4016f1696036b0c26e8a382a.png",
+      "local_file": "10168_card.png"
+    },
+    {
+      "id": 10181,
+      "name": "Cheating Death",
+      "artist": "Daarken",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10181_large_english.aaff1f27ed9c917a0d187c63228ff91c5e919c0a.png",
+      "local_file": "10181_card.png"
+    },
+    {
+      "id": 10155,
+      "name": "Homefield Advantage",
+      "artist": "Jason Kang",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10155_large_english.ea25250a40f77052c435f5890fde926f2216e1cc.png",
+      "local_file": "10155_card.png"
+    },
+    {
+      "id": 10149,
+      "name": "Unearthed Secrets",
+      "artist": "David Palumbo",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10149_large_english.99062b7f008efdb33b3557b4aed07fca2105e165.png",
+      "local_file": "10149_card.png"
+    },
+    {
+      "id": 10172,
+      "name": "Temple of War",
+      "artist": "Titus Lunter",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10172_large_english.2f392412095f34b8c919ef36dc278502b4badc8b.png",
+      "local_file": "10172_card.png"
+    },
+    {
+      "id": 10174,
+      "name": "Burning Oil",
+      "artist": "Daarken",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10174_large_english.487d3581e3f33ad2d7ebd4717bec4678b1c84415.png",
+      "local_file": "10174_card.png"
+    },
+    {
+      "id": 10183,
+      "name": "The Omexe Arena",
+      "artist": "Dimitar Marinski",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10183_large_english.33db6236abb7949d27926d07a7eadefdb66c33f3.png",
+      "local_file": "10183_card.png"
+    },
+    {
+      "id": 10178,
+      "name": "Grand Melee",
+      "artist": "JiHun Lee",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10178_large_english.ffdee288a50a678da8e56c8a8b891957b4ada94d.png",
+      "local_file": "10178_card.png"
+    },
+    {
+      "id": 10153,
+      "name": "Path of the Bold",
+      "artist": "Alayna Danner",
+      "url": "https://steamcdn-a.akamaihd.net/apps/583950/icons/set01/10153_large_english.86b8c17f4d2ee399e33ec738d58cdebbd01d2fb6.png",
+      "local_file": "10153_card.png"
     }
   ]
 }

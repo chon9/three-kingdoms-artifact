@@ -1,0 +1,15 @@
+{
+"card": "altar_of_the_mad_moon",
+"source_id": 10170,
+"text": "Allied Melee Creeps have +2 Regeneration.",
+"covers": ["continuous", "regeneration", "allied_melee_creeps"],
+"cases": [
+ {"name": "allied Melee Creeps have +2 Regeneration; other units do not", "clause": 0, "tags": ["continuous", "regeneration", "allied_melee_creeps"], "board": {"lanes": {"0": {"p0": ["magnus#g", "melee_creep#m", "untested_grunt#u"], "p1": ["melee_creep#e", null, null]}}}, "do": [{"play": "altar_of_the_mad_moon", "lane": 0}], "expect": {"m.kw.regeneration": 2, "g.kw.regeneration": 0, "u.kw.regeneration": 0, "e.kw.regeneration": 0}},
+ {"name": "a damaged Melee Creep heals 2 in the combat phase", "clause": 0, "tags": ["continuous", "regeneration"], "board": {"lanes": {"0": {"p0": ["magnus#g", "melee_creep#m:hp=1"], "p1": ["melee_creep#e", null]}}}, "do": [{"play": "altar_of_the_mad_moon", "lane": 0}, {"combat": true}], "expect": {"m.health": 3, "tower.0.1.health": 38}},
+ {"name": "rq_09: Regeneration applies before the death check, so a Melee Creep at 2 survives 3 damage", "clause": 0, "tags": ["edge", "regeneration", "RQ-09"], "board": {"lanes": {"0": {"p0": ["magnus#g", "melee_creep#m:hp=2"], "p1": ["melee_creep#e", "melee_creep#x:atk=3"]}}}, "do": [{"play": "altar_of_the_mad_moon", "lane": 0}, {"combat": true}], "expect": {"m.in_play": true, "m.health": 1}},
+ {"name": "without the Altar the same Melee Creep dies", "clause": 0, "tags": ["negative", "regeneration"], "board": "@2", "do": [{"combat": true}], "expect": {"m.in_play": false}},
+ {"name": "rq_09: healing is capped at maximum Health", "clause": 0, "tags": ["edge", "regeneration", "RQ-09"], "board": {"lanes": {"0": {"p0": ["magnus#g", "melee_creep#m:hp=3"], "p1": ["melee_creep#e", null]}}}, "do": [{"play": "altar_of_the_mad_moon", "lane": 0}, {"combat": true}], "expect": {"m.health": 4}},
+ {"name": "rq_04: Melee Creeps in another lane, and the opponent's, gain nothing", "clause": 0, "tags": ["negative", "allied_melee_creeps", "RQ-04"], "board": {"lanes": {"0": {"p0": ["magnus#g", "melee_creep#m"], "p1": ["melee_creep#e", null]}, "1": {"p0": ["melee_creep#far"], "p1": ["melee_creep#ef"]}}}, "do": [{"play": "altar_of_the_mad_moon", "lane": 1}], "expect": {"m.kw.regeneration": 0, "far.kw.regeneration": 2, "ef.kw.regeneration": 0}},
+ {"name": "Melee Creeps summoned into the lane later get it too", "clause": 0, "tags": ["edge", "allied_melee_creeps"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#e"]}}, "improvements": {"0": {"p0": ["altar_of_the_mad_moon#t"]}}}, "do": [{"play": "dimensional_portal", "as": "s"}], "expect": {"s.kw.regeneration": 2, "units.0.0.melee_creep": 3}},
+ {"name": "two Altars give +4", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["magnus#g", "melee_creep#m"], "p1": ["melee_creep#e", null]}}, "improvements": {"0": {"p0": ["altar_of_the_mad_moon#t"]}}}, "do": [{"play": "altar_of_the_mad_moon", "lane": 0}], "expect": {"m.kw.regeneration": 4}}
+]}

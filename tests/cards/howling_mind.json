@@ -1,0 +1,14 @@
+{
+"card": "howling_mind",
+"source_id": 10171,
+"text": "You and your opponent draw an extra card each round.",
+"covers": ["round_draw", "draw", "opponent"],
+"cases": [
+ {"name": "you and your opponent each draw 3 cards instead of 2 at the next deployment", "clause": 0, "tags": ["round_draw", "draw", "opponent"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}, "deck": {"p0": ["hip_fire", "hip_fire", "hip_fire", "hip_fire", "hip_fire"], "p1": ["slay", "slay", "slay", "slay", "slay"]}}, "do": [{"play": "howling_mind", "lane": 0}, {"end_round": true}], "expect": {"p0.hand": 3, "p1.hand": 3, "p0.hand.hip_fire": 3, "p1.hand.slay": 3}},
+ {"name": "condemned before the round ends, it draws nothing extra", "clause": 0, "tags": ["negative", "round_draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}, "deck": {"p0": ["hip_fire", "hip_fire", "hip_fire", "hip_fire", "hip_fire"], "p1": ["slay", "slay", "slay", "slay", "slay"]}, "improvements": {"0": {"p0": ["howling_mind#h"]}}, "active_player": 1}, "do": [{"play": "obliterating_orb", "target": "h", "player": 1}, {"end_round": true}], "expect": {"h.in_play": false, "p0.hand": 2, "p1.hand": 2}},
+ {"name": "it works from any lane: a Howling Mind in lane 3", "clause": 0, "tags": ["edge", "round_draw"], "board": {"base": "@1", "improvements": {"0": {}, "2": {"p0": ["howling_mind#h"]}}, "active_player": 0}, "do": [{"end_round": true}], "expect": {"p0.hand": 3, "p1.hand": 3}},
+ {"name": "the opponent's Howling Mind gives you the extra card too; two of them give 2 each", "clause": 0, "tags": ["edge", "opponent"], "board": {"base": "@1", "improvements": {"0": {"p1": ["howling_mind#h"]}, "1": {"p0": ["howling_mind#g"]}}, "active_player": 0}, "do": [{"end_round": true}], "expect": {"p0.hand": 4, "p1.hand": 4}},
+ {"name": "it stacks with Troll Soothsayer", "clause": 0, "tags": ["edge", "draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j", "troll_soothsayer#t"], "p1": ["melee_creep#c", null]}}, "deck": {"p0": ["hip_fire", "hip_fire", "hip_fire", "hip_fire", "hip_fire"], "p1": ["slay", "slay", "slay", "slay", "slay"]}, "improvements": {"0": {"p1": ["howling_mind#h"]}}}, "do": [{"end_round": true}], "expect": {"p0.hand": 4, "p1.hand": 3}},
+ {"name": "with too few cards in the deck, a player draws what is left", "clause": 0, "tags": ["edge", "draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": ["melee_creep#c"]}}, "deck": {"p0": ["hip_fire", "hip_fire", "hip_fire", "hip_fire"], "p1": ["slay", "slay"]}, "improvements": {"0": {"p0": ["howling_mind#h"]}}}, "do": [{"end_round": true}], "expect": {"p0.hand": 3, "p1.hand": 2}},
+ {"name": "the opponent's draw stays hidden from you", "clause": 0, "tags": ["edge", "opponent"], "board": "@0", "do": [{"play": "howling_mind", "lane": 0}, {"end_round": true}], "expect": {"p1.hand": 3}, "expect_private": {"viewer": 0, "absent": ["slay"]}}
+]}

@@ -26,7 +26,7 @@ Remaining fidelity work: exact placement/targeting restrictions, general trigger
 - Generated Three Kingdoms art for all 49 supported cards (512x768 JPEG in `assets/art/cards/`, masters kept outside the repository; see `docs/art/`).
 - Classic-style board: one lane at a time with a sliding camera and an all-lanes overview, lane HUD, towers with mana and health, combat arrows and the live damage preview on every unit, drag-to-play with a target arrow (two stages for Battlefield Control), creep position ghosts, cross-lane aiming at the screen edge, the initiative coin, the shop chest with HOLD, deployment staging strips with re-planning until confirmation and an animated, skippable reveal with pathing slabs, inspection, event animations (casts, combat, deaths, lane changes), a match log in the HUD's player names, a main menu, settings and a hot-seat privacy screen.
 
-Remaining: chess clocks, improvements, pets, deck trays, the round-one deployment reveal, timeline replay playback, music, and art for the reserve heroes. The animated presentation is checked by hand and by screenshots; the automated UI test runs with animations skipped.
+Remaining: chess clocks, pets, deck trays, the round-one deployment reveal, timeline replay playback, music, and art for the reserve heroes. The animated presentation is checked by hand and by screenshots; the automated UI test runs with animations skipped.
 
 ## Next — Steam matches between friends
 
@@ -37,7 +37,7 @@ Remaining: chess clocks, improvements, pets, deck trays, the round-one deploymen
 
 ## 0.4 — Full Classic catalog and useful AI
 
-- Implement original hero abilities, signatures, creeps, spells, improvements, items and cross-lane effects. Done for red and green (M3 of `docs/design/EFFECT_SYSTEM_SPEC.md`: 92 cards, three signature improvements and five new presets), blue (M4: 44 cards, two signature improvements and three new presets), black (M5: 39 cards, two signature improvements and three new presets) and the items (M6: 40 cards, the full Classic shop pools and four new presets); the improvements follow (M7).
+- Implement original hero abilities, signatures, creeps, spells, improvements, items and cross-lane effects. Done for red and green (M3 of `docs/design/EFFECT_SYSTEM_SPEC.md`: 92 cards, three signature improvements and five new presets), blue (M4: 44 cards, two signature improvements and three new presets), black (M5: 39 cards, two signature improvements and three new presets) the items (M6: 40 cards, the full Classic shop pools and four new presets) and the improvements (M7: the 32 remaining improvements and four new presets), so the whole Classic catalog is in. Chain Frost, Enough Magic! and Kanna stay drafts until a reference match.
 - Add differential/reference tests for each effect, plus interaction suites and generated legal-action games.
 - Extend the bot with multi-action search, hidden-state sampling and deployment/deck strategy.
 - Benchmark AI strength on held-out positions and human games; publish its limits and difficulty settings.

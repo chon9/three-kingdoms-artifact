@@ -1,0 +1,15 @@
+{
+"card": "grand_melee",
+"source_id": 10178,
+"text": "If there is an allied red hero in this lane, all heroes have +2 Cleave.",
+"covers": ["continuous", "cleave", "all_heroes"],
+"cases": [
+ {"name": "with an allied red hero here, all heroes have +2 Cleave, the opponent's included; creeps do not", "clause": 0, "tags": ["continuous", "cleave", "all_heroes"], "board": {"lanes": {"0": {"p0": ["axe#a", "melee_creep#m"], "p1": ["lion#l", "melee_creep#c"]}}}, "do": [{"play": "grand_melee", "lane": 0}], "expect": {"a.kw.cleave": 2, "l.kw.cleave": 2, "m.kw.cleave": 0, "c.kw.cleave": 0}},
+ {"name": "Cleave in combat: the blocker's allied neighbors take 2", "clause": 0, "tags": ["continuous", "cleave"], "board": {"lanes": {"0": {"p0": [null, "axe#a", null], "p1": ["melee_creep#c1", "melee_creep#c2", "melee_creep#c3"]}}}, "do": [{"play": "grand_melee", "lane": 0}, {"combat": true}], "expect": {"c2.in_play": false, "c1.health": 2, "c3.health": 2}},
+ {"name": "without an allied red hero in its lane, no hero gains Cleave; an enemy red hero does not count", "clause": 0, "tags": ["negative", "all_heroes"], "board": {"lanes": {"0": {"p0": ["magnus#g"], "p1": ["axe#x"]}}, "improvements": {"0": {"p0": ["grand_melee#gm"]}}}, "do": [], "expect": {"g.kw.cleave": 0, "x.kw.cleave": 0}},
+ {"name": "the opponent's Grand Melee with their red hero gives your heroes Cleave too", "clause": 0, "tags": ["edge", "all_heroes"], "board": {"base": "@2", "improvements": {"0": {"p1": ["grand_melee#gm"]}}}, "do": [], "expect": {"g.kw.cleave": 2, "x.kw.cleave": 2}},
+ {"name": "rq_04: a red hero in another lane does not count, and heroes there gain nothing", "clause": 0, "tags": ["negative", "cleave", "RQ-04"], "board": {"lanes": {"0": {"p0": ["magnus#g"], "p1": ["lion#l"]}, "1": {"p0": ["axe#a"], "p1": ["sniper#s"]}}, "improvements": {"0": {"p0": ["grand_melee#gm"]}}}, "do": [], "expect": {"g.kw.cleave": 0, "l.kw.cleave": 0, "a.kw.cleave": 0, "s.kw.cleave": 0}},
+ {"name": "the Cleave ends when the last allied red hero dies", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#a", "magnus#g"], "p1": ["lion#l", null]}}, "improvements": {"0": {"p0": ["grand_melee#gm"]}}}, "do": [{"kill": ["a"]}], "expect": {"a.in_play": false, "g.kw.cleave": 0, "l.kw.cleave": 0}},
+ {"name": "rq_60: a stunned red hero is still in the lane, so it still counts (a stun stops casting, RQ-31, not presence)", "clause": 0, "tags": ["edge", "cleave", "RQ-31", "RQ-60"], "board": {"base": "@5", "give": {"a": ["stun"]}}, "do": [], "expect": {"g.kw.cleave": 2, "l.kw.cleave": 2}},
+ {"name": "rq_07: an unblocked hero attacks the tower and does not cleave", "clause": 0, "tags": ["edge", "cleave", "RQ-07"], "board": {"lanes": {"0": {"p0": ["axe#a", null], "p1": [null, "melee_creep#c"]}}}, "do": [{"play": "grand_melee", "lane": 0}, {"combat": true}], "expect": {"c.health": 4, "tower.0.1.health": 34}}
+]}

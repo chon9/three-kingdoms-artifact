@@ -52,14 +52,14 @@ func _initialize() -> void:
 			_test_purge_and_fountain, _test_locks, _test_add_card_and_counters, _test_hacks, _test_summon_and_fountain,
 			_test_move, _test_swap, _test_control, _test_zone_fuzz, _test_improvements, _test_items, _test_deeds,
 			_test_rules_layer, _test_creep_lane, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_m3_engine, _test_m5_engine,
-			_test_m6_engine, _test_preview_equals_combat]:
+			_test_m6_engine, _test_m7_engine, _test_preview_equals_combat]:
 		var started = Time.get_ticks_msec()
 		test.call()
 		if args.has("--timing"):
 			print("%-36s %6d ms" % [test.get_method(), Time.get_ticks_msec() - started])
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d M2 to M6 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, summoned heroes returning (RQ-29), objects, rules layer, blocking snapshots, RQ-54, granted-text events, cross-lane battle reactions, granted text on item instances, preview_equals_combat on %d boards)." % [
+	print("%s: %d M2 to M7 mechanics checks (keyword matrix, durations, Purge, Fountain, hand state, hacks, zones, summoned heroes returning (RQ-29), objects, rules layer, blocking snapshots, RQ-54, granted-text events, cross-lane battle reactions, granted text on item instances, improvement actives the round they are played, preview_equals_combat on %d boards)." % [
 		"PASS" if failures.is_empty() else "FAIL", checks, boards])
 	quit(0 if failures.is_empty() else 1)
 
@@ -287,7 +287,8 @@ func _test_retaliate() -> void:
 	_check(int(axe.health) == 10 - 1 - 2, "kw_retaliate_5: retaliate answers in a battle outside combat (%d)" % int(axe.health))
 
 ## Regeneration (RQ-09): in the combat phase, after damage and before the
-## death check, capped at the maximum; towers too unless they fell.
+## death check, capped at the maximum; towers and ancients too, before their
+## fall check (a tower that still falls leaves a fresh 80-health ancient).
 func _test_regeneration() -> void:
 	var engine = _engine()
 	var made = _rows(engine, 0, [["fx_regen_2"], ["fx_cleave_3"]])
@@ -317,7 +318,20 @@ func _test_regeneration() -> void:
 	_improve(engine, "fx_tower_guard", 1, 0)
 	_tower(engine, 0, 1).health = 1
 	_combat(engine)
-	_check(bool(_tower(engine, 0, 1).ancient) and int(_tower(engine, 0, 1).health) == 80, "kw_regeneration_5: a tower that fell this combat does not regenerate its ancient")
+	_check(not bool(_tower(engine, 0, 1).ancient) and int(_tower(engine, 0, 1).health) == 1, "kw_regeneration_5: tower Regeneration applies before the fall check (1 - 1 + 1 stands, RQ-09)")
+	engine = _engine()
+	made = _rows(engine, 0, [["fx_cleave_3", "fx_cleave_3"], [null, null]])
+	_improve(engine, "fx_tower_guard", 1, 0)
+	_tower(engine, 0, 1).health = 1
+	_combat(engine)
+	_check(bool(_tower(engine, 0, 1).ancient) and int(_tower(engine, 0, 1).health) == 80, "kw_regeneration_6: a tower still at 0 after Regeneration falls (1 - 2 + 1); its new ancient is not healed")
+	engine = _engine()
+	made = _rows(engine, 0, [["fx_cleave_3"], [null]])
+	_improve(engine, "fx_tower_guard", 1, 0)
+	_tower(engine, 0, 1).ancient = true
+	_tower(engine, 0, 1).health = 1
+	_combat(engine)
+	_check(not bool(_tower(engine, 0, 1).destroyed) and int(_tower(engine, 0, 1).health) == 1 and int(engine.state.winner) == -1, "kw_regeneration_7: an ancient's Regeneration applies before its fall check (1 - 1 + 1 stands, no winner)")
 
 ## Bounty (RQ-02): the dead unit's opponent gains max(0, bounty); 5 for
 ## heroes and 1 for creeps unless modified or printed.
@@ -1736,6 +1750,42 @@ func _test_m5_engine() -> void:
 ## triggers only while the hero is in a lane (RQ-38). The entries stack, leave
 ## with the instance, and the opponent's Purge does not reach them (RQ-12).
 ## Before M6 such a Modify matched no target kind and silently did nothing.
+## M7 (the improvements): an improvement played this round can use its
+## active at once (RQ-24 widened: Zones.add_improvement starts it at cooldown
+## 0), only while its own lane is active, once per cooldown, and the end of
+## the round makes it ready again; it needs no hero, so it works with its
+## lane emptied; the bot's compiled static value flags a gold gain for "you".
+func _test_m7_engine() -> void:
+	var engine = _engine()
+	var caster = _caster(engine, 0, "black")
+	_unit(engine, "melee_creep", 1, 0)
+	_hand(engine, 0, ["fx_improvement_ping"])
+	_check({"type": "play", "hand": 0, "lane": 2} in engine.legal_actions(0), "m7_improvement_lane: an improvement is played into any lane (Cross Lane)")
+	engine.apply_action(0, {"type": "play", "hand": 0, "lane": 0})
+	var arrow_tower: Dictionary = engine.improvements(0, 0).back()
+	_check(str(arrow_tower.card) == "fx_improvement_ping" and int(arrow_tower.cd) == 0, "m7_improvement_ready_1: a played improvement starts at cooldown 0 (RQ-24)")
+	engine.apply_action(1, {"type": "pass"})
+	var volley = {"type": "ability", "unit": int(arrow_tower.oid)}
+	_check(int(engine.state.active_player) == 0 and volley in engine.legal_actions(0), "m7_improvement_ready_2: its active is legal the round it is played")
+	# It needs no hero: with its owner's units gone from the lane it still works.
+	engine._remove_from_lane(caster)
+	_check(volley in engine.legal_actions(0), "m7_improvement_no_hero: an improvement's active needs no hero in the lane")
+	var enemy: Dictionary = engine.state.lanes[0].units[1].filter(func(unit): return unit != null)[0]
+	var health = int(enemy.health)
+	_check(engine.apply_action(0, volley).ok and int(enemy.health) == health - 1 and int(arrow_tower.cd) == 1,
+		"m7_improvement_used: the active resolves and starts the improvement's cooldown")
+	engine.apply_action(1, {"type": "pass"})
+	_check(int(engine.state.active_player) == 0 and not volley in engine.legal_actions(0), "m7_improvement_cooldown: it cannot be used again this round")
+	var elsewhere = _improve(engine, "fx_improvement_ping", 0, 1)
+	_check(not {"type": "ability", "unit": int(elsewhere.oid)} in engine.legal_actions(0), "m7_improvement_own_lane: an improvement in another lane waits for its lane")
+	engine.state.lane = 1
+	_check({"type": "ability", "unit": int(elsewhere.oid)} in engine.legal_actions(0), "m7_improvement_own_lane_2: it can be used when its lane is active")
+	Kernel.end_of_round(engine)
+	_check(int(arrow_tower.cd) == 0, "m7_improvement_round: the end of the round makes it ready again")
+	_check(bool(library.rules("fx_quick_creep").get("ability_static", {}).get("dash", {}).get("gold", false))
+		and not bool(library.rules("fx_improvement_ping").get("ability_static", {}).get("volley", {}).get("gold", true)),
+		"m7_static_gold: the compiled static value flags an active that adds gold for its player, not one that does not")
+
 func _test_m6_engine() -> void:
 	# A granted host aura, added after each combat (Tempered Blade).
 	var engine = _engine()

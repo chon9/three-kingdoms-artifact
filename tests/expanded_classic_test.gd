@@ -25,9 +25,10 @@ func _initialize() -> void:
 	_m4_presets()
 	_m5_presets()
 	_m6_presets()
+	_m7_presets()
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3, M4, M5 and M6 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
+	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3, M4, M5, M6 and M7 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
 	quit(0 if failures.is_empty() else 1)
 
 func _check(condition: bool, message: String) -> void:
@@ -72,10 +73,11 @@ func _profiles() -> void:
 	# green cards plus three heroes' signature improvements; M4 the 44 blue
 	# cards plus two heroes' signature improvements, Barracks and Ignite; M5
 	# the 39 black cards plus two heroes' signature improvements, Assault
-	# Ladders and March of the Machines; M6 the 40 items (EFFECT_SYSTEM_SPEC.md §12).
-	_check(engine.library.heroes.size() == 48 and engine.library.cards.size() == 223,
-		"271 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
-	_check(engine.library.presets().size() == 18, "Eighteen playable deck presets (%d)" % engine.library.presets().size())
+	# Ladders and March of the Machines; M6 the 40 items; M7 the 32 remaining
+	# improvements (EFFECT_SYSTEM_SPEC.md §12): all 303 counted Classic cards.
+	_check(engine.library.heroes.size() == 48 and engine.library.cards.size() == 255,
+		"303 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
+	_check(engine.library.presets().size() == 22, "Twenty-two playable deck presets (%d)" % engine.library.presets().size())
 	for profile in engine.library.presets():
 		_check(engine.library.validate_preset(profile).ok, "Preset passes card/hero/signature validation")
 		_check(engine.library.match_deck(profile.id).size() == 40, "Preset main deck has forty cards")
@@ -341,6 +343,15 @@ const M3_PRESETS = ["sun_liu_alliance", "northern_expedition", "gathering_of_cha
 const M4_PRESETS = ["bronze_sparrow_terrace", "siege_of_xiapi", "longxi_struggle"]
 const M5_PRESETS = ["fengyi_pavilion", "hulao_pass", "yellow_turban_rebellion"]
 const M6_PRESETS = ["five_tigers", "emperor_of_wu", "battle_of_guandu", "warlords_rise"]
+const M7_PRESETS = ["siege_of_ye", "jing_province", "dong_zhuo_tyranny", "xiaoyao_ford"]
+## The 32 improvements M7 adds (EFFECT_SYSTEM_SPEC.md Appendix A; the other
+## seven shipped earlier as heroes' signatures).
+const M7_IMPROVEMENTS = ["assured_destruction", "escape_route", "iron_fog_goldmine", "keenfolk_turret", "steam_cannon",
+	"the_tyler_estate", "trebuchets", "bitter_enemies", "path_of_the_cunning", "revtel_investments", "unsupervised_artillery",
+	"the_oath", "aghanims_sanctum", "conflagration", "messenger_rookery", "fractured_timeline", "howling_mind",
+	"path_of_the_wise", "watchtower", "glyph_of_confusion", "altar_of_the_mad_moon", "mist_of_avernus",
+	"path_of_the_dreamer", "selemenes_favor", "cheating_death", "homefield_advantage", "unearthed_secrets",
+	"temple_of_war", "burning_oil", "the_omexe_arena", "grand_melee", "path_of_the_bold"]
 ## The four basic consumables the Consumables Shop sells (wiki Item Shop).
 const BASIC_CONSUMABLES = ["healing_salve", "potion_of_knowledge", "town_portal_scroll", "fountain_flask"]
 
@@ -400,7 +411,8 @@ func _m4_presets() -> void:
 ## heroes, and their bot matches terminate within 1,500 steps for 6 seeds
 ## against every preset of M1 to M5 in turn (their pool when they landed),
 ## aligned, formatted and replayable. Between them they play every deckable
-## M5 card (Chain Frost is a draft, RQ-16, so Lich cannot fill a deck).
+## M5 card (Chain Frost is a draft, RQ-16, so Lich cannot fill a deck); the
+## black improvements M7 adds are left to the M7 presets.
 func _m5_presets() -> void:
 	var library = MatchEngine.Library.new()
 	var legacy = Legacy.new()
@@ -430,7 +442,8 @@ func _m5_presets() -> void:
 	var missing: Array = []
 	for card_id in library.cards:
 		var card: Dictionary = library.cards[card_id]
-		if str(card.get("color", "")) == "black" and not legacy.cards.has(str(card_id)) and library._deckable(str(card_id)) and not played.has(str(card_id)):
+		if str(card.get("color", "")) == "black" and not legacy.cards.has(str(card_id)) and library._deckable(str(card_id)) \
+				and not played.has(str(card_id)) and str(card_id) not in M7_IMPROVEMENTS:
 			missing.append(card_id)
 	_check(missing.is_empty(), "The M5 presets play every deckable new black card (missing %s)" % [missing])
 
@@ -446,9 +459,7 @@ func _m5_presets() -> void:
 func _m6_presets() -> void:
 	var library = MatchEngine.Library.new()
 	var legacy = Legacy.new()
-	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
-	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS + M6_PRESETS,
-		"The presets are the original three, the M3 five, the M4 three, the M5 three and the M6 four, in order (%s)" % [all_ids])
+	var all_ids: Array = ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS + M6_PRESETS
 	var held: Dictionary = {}
 	for index in range(M6_PRESETS.size()):
 		var preset_id = str(M6_PRESETS[index])
@@ -484,6 +495,35 @@ func _m6_presets() -> void:
 	_check(secret == expected, "The Secret Shop sells every item but the basic consumables (%d of %d)" % [secret.size(), expected.size()])
 	_check(library.catalog.secret_shop.has("golden_ticket") and library.catalog.secret_shop.has("shop_deed") and library.catalog.secret_shop.has("obliterating_orb"),
 		"Golden Ticket, Obliterating Orb and Shop Deed come from the Secret Shop")
+
+## M7 acceptance 5: the presets added with the improvements (two black/blue,
+## red/green and blue/green) validate and are each built on at least five
+## different new improvements; between them they play every M7 improvement.
+## Their bot matches terminate within 1,500 steps for 6 seeds against every
+## preset in turn, aligned, formatted and replayable. With M7 every counted
+## Classic card is in the pack, the 39 improvements among them.
+func _m7_presets() -> void:
+	var library = MatchEngine.Library.new()
+	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
+	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS + M6_PRESETS + M7_PRESETS,
+		"The presets are the original three, the M3 five, the M4 three, the M5 three, the M6 four and the M7 four, in order (%s)" % [all_ids])
+	var played: Dictionary = {}
+	for index in range(M7_PRESETS.size()):
+		var preset_id = str(M7_PRESETS[index])
+		var preset = library.preset(preset_id)
+		_check(not preset.is_empty() and library.validate_preset(preset).ok, "Preset %s validates" % preset_id)
+		if preset.is_empty():
+			continue
+		var improvements = preset.cards.keys().filter(func(card_id): return str(card_id) in M7_IMPROVEMENTS)
+		for card_id in improvements:
+			played[str(card_id)] = true
+		_check(improvements.size() >= 5, "Preset %s is built on new improvements (%d of them)" % [preset_id, improvements.size()])
+		_preset_matches(preset_id, index, all_ids, "M7")
+	var missing: Array = M7_IMPROVEMENTS.filter(func(card_id): return not played.has(card_id))
+	_check(missing.is_empty(), "The M7 presets play every new improvement (missing %s)" % [missing])
+	var in_pack: Array = library.cards.keys().filter(func(card_id): return str(library.cards[card_id].get("kind", "")) == "improvement")
+	_check(in_pack.size() == 39, "The pack has all 39 Classic improvements (%d)" % in_pack.size())
+	_check(M7_IMPROVEMENTS.all(func(card_id): return library._deckable(str(card_id))), "Every M7 improvement is verified and deckable")
 
 ## The sorted hero colours of a preset, "a/b" (or one colour).
 func _colour_pair(library, preset: Dictionary) -> String:

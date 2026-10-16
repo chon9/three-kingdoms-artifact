@@ -1,0 +1,18 @@
+{
+"card": "homefield_advantage",
+"source_id": 10155,
+"text": "Before the action phase disarm a random enemy this round.",
+"covers": ["before_action", "disarm", "random_enemy", "this_round"],
+"cases": [
+ {"name": "before its lane's action phase, the only enemy is disarmed this round", "clause": 0, "tags": ["before_action", "disarm", "random_enemy", "this_round"], "board": {"active_lane": 0, "lanes": {"1": {"p0": ["axe#a"], "p1": ["keefe#k"]}}, "improvements": {"1": {"p0": ["homefield_advantage#h"]}}}, "do": [{"combat": true}], "expect": {"lane": 1, "k.disarmed": true, "a.disarmed": false, "events": {"has": ["trigger", "status"]}}},
+ {"name": "the disarmed enemy deals no combat damage", "clause": 0, "tags": ["disarm"], "board": {"active_lane": 0, "lanes": {"1": {"p0": ["axe#a"], "p1": ["keefe#k"]}}, "improvements": {"1": {"p0": ["homefield_advantage#h"]}}}, "do": [{"combat": true}, {"combat": true}], "expect": {"a.health": 10, "k.health": 6}},
+ {"name": "the enemy is random: each of two enemies is disarmed half of the time, never both", "clause": 0, "tags": ["random_enemy"], "board": {"base": "@0", "lanes": {"1": {"p0": ["axe#a", null], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"combat": true}], "expect_rate": {"k.disarmed": [0.4, 0.6], "c.disarmed": [0.4, 0.6]}, "seeds": {"from": 1, "count": 200}},
+ {"name": "a fixed seed disarms the same enemy on every run", "clause": 0, "tags": ["edge", "random_enemy"], "board": {"base": "@0", "lanes": {"1": {"p0": ["axe#a", null], "p1": ["keefe#k", "melee_creep#c"]}}}, "do": [{"combat": true}], "expect": {"events": {"has": ["status"]}}, "seed": 6},
+ {"name": "this round only: the disarm ends with the round", "clause": 0, "tags": ["this_round"], "board": {"active_lane": 0, "lanes": {"1": {"p0": ["axe#a"], "p1": ["keefe#k"]}}, "improvements": {"1": {"p0": ["homefield_advantage#h"]}}}, "do": [{"combat": true}, {"end_round": true}], "expect": {"k.disarmed": false}},
+ {"name": "a disarmed unit still blocks: Axe attacks it, not the tower", "clause": 0, "tags": ["edge", "disarm"], "board": {"base": "@0", "lanes": {"1": {"p0": ["axe#a"], "p1": ["melee_creep#c"]}}}, "do": [{"combat": true}, {"combat": true}], "expect": {"tower.1.1.health": 40, "c.in_play": false, "a.health": 10}},
+ {"name": "rq_01: with no enemy unit nothing is disarmed (the tower is not a unit)", "clause": 0, "tags": ["negative", "RQ-01", "random_enemy"], "board": {"base": "@0", "lanes": {"1": {"p0": ["axe#a"], "p1": [null]}}}, "do": [{"combat": true}], "expect": {"a.disarmed": false, "events": {"not": ["status"]}}},
+ {"name": "rq_04: in another lane it does not fire before this lane's action phase", "clause": 0, "tags": ["edge", "RQ-04", "before_action"], "board": {"base": "@0", "improvements": {"1": {}, "2": {"p0": ["homefield_advantage#h"]}}}, "do": [{"combat": true}], "expect": {"k.disarmed": false}},
+ {"name": "Purge by the opponent ends the disarm (RQ-12)", "clause": 0, "tags": ["edge", "disarm"], "board": {"base": "@0", "lanes": {"1": {"p0": ["axe#a"], "p1": ["omniknight#o"]}}}, "do": [{"combat": true}, {"pass": 0}, {"play": "cleansing_rite", "player": 1, "target": "o"}], "expect": {"o.disarmed": false}},
+ {"name": "the opponent's Homefield Advantage disarms your unit", "clause": 0, "tags": ["edge", "random_enemy"], "board": {"base": "@0", "improvements": {"1": {"p1": ["homefield_advantage#h"]}}}, "do": [{"combat": true}], "expect": {"a.disarmed": true, "k.disarmed": false}},
+ {"name": "without a green hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "disarm"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": [null]}}}, "do": [], "expect_illegal": [{"play": "homefield_advantage", "lane": 0}]}
+]}

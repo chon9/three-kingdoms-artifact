@@ -565,6 +565,8 @@ func _run() -> void:
 	var black_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
 	catalog.apply_filter("neutral")
 	var neutral_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
+	catalog.apply_filter("red")
+	var red_ids = catalog.cards.filter(func(card): return card.visible).map(func(card): return card.card_id)
 	catalog.apply_filter("all")
 	if not _require(total == pack.heroes.size() + pack.cards.size() and total >= 190 and str(catalog.cards[0].definition.get("kind", "")) == "hero"
 			and greens > 0 and greens < total and "treant_protector" in green_ids and "viper_strike" in green_ids and "duel" not in green_ids
@@ -582,6 +584,14 @@ func _run() -> void:
 	if not _require(["blink_dagger", "stonehall_pike", "apotheosis_blade", "book_of_the_dead", "shop_deed", "golden_ticket", "fountain_flask"].all(func(card_id): return card_id in neutral_ids)
 			and "duel" not in neutral_ids and "gank" not in neutral_ids,
 			"The neutral filter shows the M6 items (%d neutral)" % neutral_ids.size()):
+		return
+	# M7: every Classic card is in the catalog, the 39 improvements under their colours.
+	if not _require(total == 303 and ["burning_oil", "grand_melee", "the_omexe_arena", "path_of_the_bold"].all(func(card_id): return card_id in red_ids)
+			and ["cheating_death", "altar_of_the_mad_moon", "path_of_the_dreamer"].all(func(card_id): return card_id in green_ids)
+			and ["glyph_of_confusion", "aghanims_sanctum", "watchtower"].all(func(card_id): return card_id in blue_ids)
+			and ["the_oath", "steam_cannon", "bitter_enemies", "revtel_investments"].all(func(card_id): return card_id in black_ids)
+			and "the_oath" not in red_ids and "burning_oil" not in neutral_ids,
+			"The catalog holds all 303 Classic cards, each colour filter its M7 improvements (%d red)" % red_ids.size()):
 		return
 	app.close_dialogs()
 	await process_frame
@@ -723,13 +733,15 @@ func _run() -> void:
 		return
 	if not await _check_m6_ui():
 		return
+	if not await _check_m7_ui():
+		return
 	app.show_main_menu()
 	if not _require(app.menu.visible and app.menu.buttons.resume.visible, "The main menu offers to resume the match"):
 		return
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog)." % checks)
 	app.queue_free()
 	await process_frame
 	_restore_settings()
@@ -792,6 +804,55 @@ func _check_m6_ui() -> bool:
 	var line = EventText.format(bought.back()) if not bought.is_empty() else ""
 	if not _require(int(engine.state.players[0].gold) == 14 and line.find("14") != -1 and line.find("-14") == -1,
 			"Buying it pays 14 gold, and the log says so (%s)" % line):
+		return false
+	return true
+
+## The M7 UI (spec §12 M7): with The Oath in the active lane your spells and
+## creeps are dimmed and their note gives REASON_FORBIDDEN, while an
+## improvement and an item stay playable; the opponent's hand is not
+## restricted. An improvement's active with a choice (Keenfolk Turret, played
+## this round, RQ-24) is used from its chip: the click asks for a unit, which
+## takes 2 piercing damage, and the improvement starts its cooldown.
+func _check_m7_ui() -> bool:
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_LOCAL)
+	await _settle()
+	var engine = _engine()
+	var debbi: Dictionary = {}
+	for hero in engine.state.players[0].roster:
+		if str(hero.card) == "debbi":
+			debbi = hero
+	if not _require(not debbi.is_empty(), "The starter deck has Debbi, a black hero"):
+		return false
+	_place_in_lane(debbi, 5)
+	Zones.add_improvement(engine, "the_oath", 0, 0)
+	var mark = engine._make_creep(1)
+	engine._spawn(mark, 0)
+	_act_in_lane_zero(["hip_fire", "untested_grunt", "trebuchets", "short_sword"])
+	await _settle()
+	var forbidden = UiKit.t("REASON_FORBIDDEN")
+	var cards: Array = screen.hand.cards
+	var notes: Array = cards.map(func(card): return str(card.get_meta("note", "")))
+	if not _require(cards.size() == 4 and not cards[0].playable and cards[0].dimmed and notes[0].find(forbidden) != -1
+			and not cards[1].playable and notes[1].find(forbidden) != -1 and cards[2].playable and cards[3].playable,
+			"The Oath dims your spells and creeps in its lane with \"%s\"; improvements and items stay playable (%s)" % [forbidden, notes]):
+		return false
+	if not _require(engine.rules_of(0).forbid_play.size() == 1 and engine.rules_of(1).forbid_play.is_empty(), "The Oath restricts only its owner"):
+		return false
+	var turret = Zones.add_improvement(engine, "keenfolk_turret", 0, 0)
+	_act_in_lane_zero([])
+	await _settle()
+	var chip = screen.board.improvement_chip(int(turret.oid))
+	if not _require(chip != null and chip.usable, "Keenfolk Turret's chip glows: an improvement played this round can use its active (RQ-24)"):
+		return false
+	var health = int(mark.health)
+	_click(screen.improvement_point(int(turret.oid)))
+	if not _require(screen.current_step_type() == "unit", "Clicking Keenfolk Turret's chip asks for a unit"):
+		return false
+	screen.target_unit(int(mark.uid))
+	await _settle()
+	if not _require(int(mark.health) == health - 2 and int(engine.find_object(int(turret.oid)).object.cd) == 1 and not screen.board.improvement_chip(int(turret.oid)).usable,
+			"The Turret deals 2 piercing damage to the chosen unit and goes on cooldown (health %d of %d)" % [int(mark.health), health]):
 		return false
 	return true
 

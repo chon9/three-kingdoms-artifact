@@ -1,0 +1,16 @@
+{
+"card": "temple_of_war",
+"source_id": 10172,
+"text": "All equipped heroes have +2 Attack and +1 Armor.",
+"covers": ["continuous", "stat_attack", "stat_armor", "all_heroes"],
+"cases": [
+ {"name": "All equipped heroes have +2 Attack and +1 Armor, the opponent's included", "clause": 0, "tags": ["continuous", "stat_attack", "stat_armor", "all_heroes"], "board": {"lanes": {"0": {"p0": ["axe#a+short_sword", "keefe#k"], "p1": ["lion#l+leather_armor", "sniper#s+travelers_cloak"]}}}, "do": [{"play": "temple_of_war", "lane": 0}], "expect": {"a.attack": 10, "a.armor": 3, "l.attack": 8, "l.armor": 2, "s.attack": 7, "s.armor": 1, "s.health": 10}},
+ {"name": "a hero with no item gets nothing", "clause": 0, "tags": ["negative", "all_heroes"], "board": "@0", "do": [{"play": "temple_of_war", "lane": 0}], "expect": {"k.attack": 6, "k.armor": 1}},
+ {"name": "rq_04: a Temple of War in another lane changes nothing here", "clause": 0, "tags": ["negative", "all_heroes", "RQ-04"], "board": "@0", "do": [{"play": "temple_of_war", "lane": 1}], "expect": {"a.attack": 8, "a.armor": 2, "l.attack": 6, "l.armor": 1}},
+ {"name": "a creep is not a hero", "clause": 0, "tags": ["negative", "stat_attack"], "board": {"lanes": {"0": {"p0": ["axe#a+short_sword", "melee_creep#m"], "p1": ["melee_creep#c", null]}}}, "do": [{"play": "temple_of_war", "lane": 0}], "expect": {"m.attack": 2, "m.armor": 0, "c.attack": 2}},
+ {"name": "a hero equipped after the Temple is played gets the bonus", "clause": 0, "tags": ["edge", "stat_attack", "stat_armor"], "board": {"lanes": {"0": {"p0": ["axe#a", "keefe#k"], "p1": ["lion#l", "sniper#s"]}}, "improvements": {"0": {"p0": ["temple_of_war#t"]}}}, "do": [{"play": "short_sword", "target": "k"}], "expect": {"k.attack": 10, "k.armor": 2, "a.attack": 6, "a.armor": 2}},
+ {"name": "the bonus stops in the Fountain and comes back with the hero", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#a+short_sword", null], "p1": ["melee_creep#c", null]}}, "improvements": {"0": {"p0": ["temple_of_war#t"]}}, "fountain": {"p0": ["keefe#k+short_sword"]}}, "do": [], "expect": {"a.attack": 10, "k.attack": 8, "k.armor": 1}},
+ {"name": "a deployed equipped hero has it again", "clause": 0, "tags": ["edge", "continuous"], "board": "@5", "do": [{"end_round": true, "deploy": {"k": 0}}], "expect": {"k.lane": 0, "k.attack": 10, "k.armor": 2}},
+ {"name": "the bonus counts in combat: 10 Attack against Keefe's 1 Armor, and 3 Armor against his 6 Attack", "clause": 0, "tags": ["edge", "stat_attack"], "board": {"lanes": {"0": {"p0": ["axe#a+short_sword"], "p1": ["keefe#k"]}}}, "do": [{"play": "temple_of_war", "lane": 0}, {"combat": true}], "expect": {"k.health": 2, "a.health": 7}},
+ {"name": "losing the Temple to Obliterating Orb removes the bonus", "clause": 0, "tags": ["edge", "continuous"], "board": {"lanes": {"0": {"p0": ["axe#a+short_sword"], "p1": ["lion#l"]}}, "improvements": {"0": {"p0": ["temple_of_war#t"]}}, "active_player": 1}, "do": [{"play": "obliterating_orb", "target": "t", "player": 1}], "expect": {"t.in_play": false, "a.attack": 8, "a.armor": 2}}
+]}

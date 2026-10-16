@@ -9,11 +9,18 @@ const VM = preload("res://scripts/core/rules/vm.gd")
 
 ## Action-phase commands of `player` after pass, in the documented order:
 ## unit abilities, item abilities, improvement abilities, then hand cards.
+## The whole listing is one pure read, so it runs in a read frame (spec
+## §13.6): every hand card's gates share one derivation per unit and one scan
+## of the rules-layer auras. M7 made that scan reach every improvement (The
+## Oath and Howling Mind are improvements with rules auras), which took the
+## dense fixture's legal_actions past three times its baseline.
 static func actions(e, player: int) -> Array:
+	Stats.frame_begin(e)
 	var out = ability_actions(e, player, -1)
 	var hand: Array = e.state.players[player].hand
 	for index in range(hand.size()):
 		out.append_array(hand_actions(e, player, index))
+	Stats.frame_end(e)
 	return out
 
 ## The base context of a card played from hand by `player`.

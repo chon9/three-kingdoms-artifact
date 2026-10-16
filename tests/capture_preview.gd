@@ -48,6 +48,16 @@ extends SceneTree
 ## filtered to neutral: the items by slot and price), m6_catalog_zh,
 ## m6_catalog_classic, m6_catalog_classic_zh, m6_decks (the new presets in the
 ## deck dialog) and m6_decks_zh.
+## M7 (improvements, the improvement presets): m7_lane (the Siege of Ye against
+## the Struggle for Jing Province: M7 improvements by both towers of the shown
+## lane, one with a ready active, M7 improvements in hand), m7_lane_zh,
+## m7_lane_classic, m7_lane_classic_zh, m7_hand (an improvement lifted),
+## m7_hand_zh, m7_oath (The Oath in the lane: a dimmed spell's note says it is
+## forbidden), m7_oath_zh, m7_inspect (an improvement chip inspected),
+## m7_inspect_zh, m7_catalog (the catalog filtered to black / Qun, its
+## improvements among them), m7_catalog_zh, m7_catalog_classic,
+## m7_catalog_classic_zh, m7_decks (the new presets in the deck dialog) and
+## m7_decks_zh.
 ## Pass --size=1280x720 to check the smaller window, --out=res://dir/ to save
 ## the shots elsewhere.
 
@@ -80,6 +90,14 @@ const M5_HAND = ["gank", "winters_curse", "coordinated_assault", "assassins_shad
 const M6_SHOTS = ["m6_lane", "m6_lane_zh", "m6_lane_classic", "m6_lane_classic_zh", "m6_hand", "m6_hand_zh", "m6_item_inspect",
 	"m6_item_inspect_zh", "m6_shop", "m6_shop_zh", "m6_shop_paid", "m6_catalog", "m6_catalog_zh", "m6_catalog_classic",
 	"m6_catalog_classic_zh", "m6_decks", "m6_decks_zh"]
+const M7_SHOTS = ["m7_lane", "m7_lane_zh", "m7_lane_classic", "m7_lane_classic_zh", "m7_hand", "m7_hand_zh", "m7_oath",
+	"m7_oath_zh", "m7_inspect", "m7_inspect_zh", "m7_catalog", "m7_catalog_zh", "m7_catalog_classic", "m7_catalog_classic_zh",
+	"m7_decks", "m7_decks_zh"]
+## M7 improvements for the hand, and by each tower of the shown lane (the first
+## of player 0's has a ready active).
+const M7_HAND = ["glyph_of_confusion", "the_oath", "steam_cannon", "path_of_the_wise", "selemenes_favor", "the_omexe_arena", "bitter_enemies"]
+const M7_OWN = ["keenfolk_turret", "trebuchets", "aghanims_sanctum", "fractured_timeline"]
+const M7_ENEMY = ["burning_oil", "grand_melee", "unearthed_secrets"]
 ## M6 items for the hand (EFFECT_SYSTEM_SPEC.md Appendix A).
 const M6_HAND = ["golden_ticket", "obliterating_orb", "fountain_flask", "apotheosis_blade", "horn_of_the_alpha", "claszureme_hourglass", "shop_deed"]
 ## M6 equipment for player 0's heroes in the shown lane, by slot.
@@ -254,6 +272,7 @@ func _run() -> void:
 	await _capture_m4()
 	await _capture_m5()
 	await _capture_m6()
+	await _capture_m7()
 	print("Shots: ", ", ".join(saved))
 	app.queue_free()
 	await process_frame
@@ -1190,3 +1209,169 @@ func _capture_m6() -> void:
 			app.set_locale("en")
 		app.close_dialogs()
 		await _wait(0.2)
+
+
+func _capture_m7() -> void:
+	if not M7_SHOTS.any(func(shot): return _wanted(shot)):
+		return
+	var screen = app.screen
+	app.set_locale("en")
+	app.set_skin("three_kingdoms")
+	app.deck_selections = ["siege_of_ye", "jing_province"]
+	app.controller.current_seed = SEED + 71
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	AnimationQueue.instant = true
+	var reached = _advance(_busy_lane, 1500)
+	var engine = app.controller.engine
+	print("M7 state: ", reached, " round ", engine.state.round, " lane ", engine.state.lane)
+	var lane_index = int(engine.state.lane)
+	# M7 improvements by both towers of the shown lane (the bot may have played
+	# some already: these come on top).
+	var own: Array = []
+	for card_id in M7_OWN:
+		own.append(Zones.add_improvement(engine, card_id, 0, lane_index))
+	for card_id in M7_ENEMY:
+		Zones.add_improvement(engine, card_id, 1, lane_index)
+	engine.state.players[0].hand = M7_HAND.duplicate()
+	engine.state.players[0].hand_state = []
+	# Seven Mana in every lane so the dearer improvements light up (settle
+	# takes a maximum written directly as the new base).
+	for lane in engine.state.lanes:
+		lane.max_mana[0] = maxi(int(lane.max_mana[0]), 7)
+	Zones.sync(engine)
+	engine._reset_transient()
+	Stats.settle(engine)
+	engine._settle_transient()
+	for lane in engine.state.lanes:
+		lane.mana[0] = int(lane.max_mana[0])
+	_publish()
+	await _idle()
+	AnimationQueue.instant = false
+	screen.view_lane(lane_index)
+	_mouse(screen.size * 0.5 + Vector2(0, 40))
+	await _wait(0.8)
+	await _shot("m7_lane")
+	if _wanted("m7_lane_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.3)
+		await _shot("m7_lane_zh")
+		app.set_locale("en")
+		await _wait(0.2)
+	if _wanted("m7_lane_classic") or _wanted("m7_lane_classic_zh"):
+		app.set_skin("classic")
+		await _wait(0.4)
+		await _shot("m7_lane_classic")
+		if _wanted("m7_lane_classic_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m7_lane_classic_zh")
+			app.set_locale("en")
+		app.set_skin("three_kingdoms")
+		await _wait(0.3)
+	if _wanted("m7_hand") or _wanted("m7_hand_zh"):
+		_mouse(screen.hand_card_point(0))
+		await _wait(0.9)
+		await _shot("m7_hand")
+		if _wanted("m7_hand_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m7_hand_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.4)
+	if (_wanted("m7_inspect") or _wanted("m7_inspect_zh")) and not own.is_empty():
+		screen.inspect_improvement(int(own[0].oid))
+		await _wait(0.5)
+		await _shot("m7_inspect")
+		if _wanted("m7_inspect_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m7_inspect_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		screen.inspect.close()
+		await _wait(0.2)
+	if _wanted("m7_oath") or _wanted("m7_oath_zh"):
+		# The Oath in this lane: player 0's spells and creeps are forbidden.
+		Zones.add_improvement(engine, "the_oath", 0, lane_index)
+		engine.state.players[0].hand = ["hip_fire", "lightning_strike", "relentless_zombie", "trebuchets"]
+		engine.state.players[0].hand_state = []
+		Zones.sync(engine)
+		engine._reset_transient()
+		Stats.settle(engine)
+		engine._settle_transient()
+		_publish()
+		await _wait(0.6)
+		_mouse(screen.hand_card_point(0))
+		await _wait(0.9)
+		await _shot("m7_oath")
+		if _wanted("m7_oath_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("m7_oath_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_mouse(screen.size * 0.5 + Vector2(0, 40))
+		await _wait(0.4)
+	if _wanted("m7_catalog") or _wanted("m7_catalog_zh") or _wanted("m7_catalog_classic") or _wanted("m7_catalog_classic_zh"):
+		var catalog = app.open_catalog()
+		await _frames(3)
+		catalog.apply_filter("black")
+		await _wait(0.6)
+		_scroll_to_improvements(catalog)
+		await _wait(0.6)
+		await _shot("m7_catalog")
+		if _wanted("m7_catalog_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			catalog.apply_filter("black")
+			await _wait(0.4)
+			_scroll_to_improvements(catalog)
+			await _wait(0.6)
+			await _shot("m7_catalog_zh")
+			app.set_locale("en")
+			await _wait(0.3)
+		if _wanted("m7_catalog_classic") or _wanted("m7_catalog_classic_zh"):
+			app.set_skin("classic")
+			await _wait(0.6)
+			catalog.apply_filter("black")
+			await _wait(0.4)
+			_scroll_to_improvements(catalog)
+			await _wait(0.6)
+			await _shot("m7_catalog_classic")
+			if _wanted("m7_catalog_classic_zh"):
+				app.set_locale("zh_CN")
+				await _wait(0.6)
+				catalog.apply_filter("black")
+				await _wait(0.4)
+				_scroll_to_improvements(catalog)
+				await _wait(0.6)
+				await _shot("m7_catalog_classic_zh")
+				app.set_locale("en")
+			app.set_skin("three_kingdoms")
+		app.close_dialogs()
+		await _wait(0.2)
+	if _wanted("m7_decks") or _wanted("m7_decks_zh"):
+		app.deck_selections = ["siege_of_ye", "dong_zhuo_tyranny"]
+		app.open_decks()
+		await _wait(0.8)
+		await _shot("m7_decks")
+		if _wanted("m7_decks_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.6)
+			await _shot("m7_decks_zh")
+			app.set_locale("en")
+		app.close_dialogs()
+		await _wait(0.2)
+
+## Scrolls the catalog so its first visible improvement heads the view (the
+## grid lists heroes, then creeps, spells and improvements by cost).
+func _scroll_to_improvements(catalog) -> void:
+	for card in catalog.cards:
+		if card.visible and str(card.definition.get("kind", "")) == "improvement":
+			var scroll = catalog.find_children("*", "ScrollContainer", true, false)
+			if not scroll.is_empty():
+				scroll[0].scroll_vertical = int(card.position.y)
+			return

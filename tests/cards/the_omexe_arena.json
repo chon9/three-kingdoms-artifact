@@ -1,0 +1,17 @@
+{
+"card": "the_omexe_arena",
+"source_id": 10183,
+"text": "Draw a card after a hero dies.",
+"covers": ["hero_death", "draw"],
+"cases": [
+ {"name": "an enemy hero dies in its lane's combat: its owner draws a card", "clause": 0, "tags": ["hero_death", "draw"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["phantom_assassin#q:hp=1"]}}, "improvements": {"0": {"p0": ["the_omexe_arena#o"]}}, "deck": {"p0": ["slay", "foresight"]}}, "do": [{"combat": true}], "expect": {"q.in_play": false, "p0.hand": ["foresight"], "events": {"has": ["trigger", "draw_cards"]}}},
+ {"name": "an allied hero's death draws too (any hero)", "clause": 0, "tags": ["hero_death", "edge"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["phantom_assassin#q:hp=1"]}}, "improvements": {"0": {"p0": ["the_omexe_arena#o"]}}, "deck": {"p0": ["slay", "foresight"]}}, "do": [{"kill": ["a"]}], "expect": {"p0.hand": ["foresight"], "fountain.0.axe": 1}},
+ {"name": "two heroes dying in one Pulse draw two cards", "clause": 0, "tags": ["hero_death", "edge"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["phantom_assassin#q:hp=1"]}}, "improvements": {"0": {"p0": ["the_omexe_arena#o"]}}, "deck": {"p0": ["slay", "foresight"]}}, "do": [{"kill": ["a", "q"]}], "expect": {"p0.hand": ["foresight", "slay"]}},
+ {"name": "a creep's death draws nothing", "clause": 0, "tags": ["negative", "hero_death"], "board": {"base": "@0", "lanes": {"0": {"p0": ["axe#a"], "p1": ["melee_creep#c"]}}}, "do": [{"kill": ["c"]}], "expect": {"p0.hand": 0, "events": {"not": ["draw_cards"]}}},
+ {"name": "rq_03_arena_lane: a hero dying in another lane draws nothing", "clause": 0, "tags": ["edge", "RQ-03", "hero_death"], "board": {"base": "@0", "lanes": {"0": {"p0": ["axe#a"], "p1": [null]}, "1": {"p0": [null], "p1": ["keefe#k"]}}}, "do": [{"kill": ["k"]}], "expect": {"p0.hand": 0, "events": {"not": ["draw_cards"]}}},
+ {"name": "the opponent's Arena draws for the opponent", "clause": 0, "tags": ["edge", "draw"], "board": {"lanes": {"0": {"p0": ["axe#a"], "p1": ["phantom_assassin#q"]}}, "improvements": {"0": {"p1": ["the_omexe_arena#o"]}}, "deck": {"p0": ["slay"], "p1": ["foresight"]}}, "do": [{"kill": ["a"]}], "expect": {"p1.hand": ["foresight"], "p0.hand": 0}},
+ {"name": "a Death Shield saves the hero: nothing is drawn", "clause": 0, "tags": ["edge", "hero_death"], "board": {"base": "@0", "give": {"q": ["death_shield"]}}, "do": [{"kill": ["q"]}], "expect": {"q.in_play": true, "p0.hand": 0}},
+ {"name": "an empty deck: nothing is drawn", "clause": 0, "tags": ["edge", "draw"], "board": {"base": "@0", "deck": {"p0": []}}, "do": [{"kill": ["q"]}], "expect": {"p0.hand": 0, "events": {"not": ["draw_cards"]}}},
+ {"name": "hidden information: the opponent never sees the drawn card", "clause": 0, "tags": ["edge", "draw"], "board": {"base": "@0", "deck": {"p0": ["bolt_of_damocles"]}}, "do": [{"kill": ["q"]}], "expect": {"p0.hand": ["bolt_of_damocles"]}, "expect_private": {"viewer": 1, "absent": ["bolt_of_damocles"]}},
+ {"name": "without a red hero in the active lane it cannot be played", "clause": 0, "tags": ["negative", "draw"], "board": {"lanes": {"0": {"p0": ["jmuy#j"], "p1": [null]}}}, "do": [], "expect_illegal": [{"play": "the_omexe_arena", "lane": 0}]}
+]}

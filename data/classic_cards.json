@@ -10210,6 +10210,1302 @@
         "RQ-51"
       ],
       "valve_text": "Equipped hero has +4 Health. Whenever opponent draws a card, give that card +1 Lock if equipped hero is in any lane."
+    },
+    {
+      "id": "assured_destruction",
+      "source_id": 10141,
+      "name": "Assured Destruction",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10141_card.png",
+      "artist": "Titus Lunter",
+      "text": "All heroes have +{siege} Siege.",
+      "cross_lane": true,
+      "siege": 4,
+      "status": "verified",
+      "rq": [
+        "RQ-04",
+        "RQ-07"
+      ],
+      "abilities": [
+        {
+          "id": "assured",
+          "kind": "aura",
+          "affects": "heroes",
+          "grant": {
+            "siege": {
+              "param": "siege"
+            }
+          }
+        }
+      ],
+      "valve_text": "All heroes have +4 Siege."
+    },
+    {
+      "id": "escape_route",
+      "source_id": 10176,
+      "name": "Escape Route",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10176_card.png",
+      "artist": "Bayard Wu",
+      "text": "Active {ability_cooldown}: Return an allied hero to the Fountain.",
+      "ability_name": "Escape Route",
+      "cross_lane": true,
+      "ability_cooldown": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "escape",
+          "kind": "active",
+          "valve": 10465,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "allied_heroes"
+            }
+          ],
+          "ops": [
+            {
+              "op": "to_fountain",
+              "unit": "$c.target"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-13",
+        "RQ-24"
+      ],
+      "valve_text": "Active 1: Return an allied hero to the Fountain."
+    },
+    {
+      "id": "iron_fog_goldmine",
+      "source_id": 10165,
+      "name": "Iron Fog Goldmine",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10165_card.png",
+      "artist": "James Paick",
+      "text": "Get {gold} gold after the combat phase.",
+      "cross_lane": true,
+      "gold": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "goldmine",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "gold",
+              "player": "you",
+              "add": {
+                "param": "gold"
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Get 3 gold after the combat phase."
+    },
+    {
+      "id": "keenfolk_turret",
+      "source_id": 10184,
+      "name": "Keenfolk Turret",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10184_card.png",
+      "artist": "Robbie Trevino",
+      "text": "Active {ability_cooldown}: Deal {amount} piercing damage to a unit.",
+      "ability_name": "Keenfolk Turret",
+      "cross_lane": true,
+      "ability_cooldown": 1,
+      "amount": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "turret",
+          "kind": "active",
+          "valve": 10467,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "to": "$c.target",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-24"
+      ],
+      "valve_text": "Active 1: Deal 2 piercing damage to a unit."
+    },
+    {
+      "id": "steam_cannon",
+      "source_id": 10185,
+      "name": "Steam Cannon",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 7,
+      "image": "res://assets/classic_cards/10185_card.png",
+      "artist": "Lake Hurwitz",
+      "text": "Active {ability_cooldown}: Deal {amount} piercing damage to a unit in any lane.",
+      "ability_name": "Steam Cannon",
+      "cross_lane": true,
+      "ability_cooldown": 1,
+      "amount": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "cannon",
+          "kind": "active",
+          "valve": 10468,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": {
+                "s": "units",
+                "lane": "all"
+              }
+            }
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "to": "$c.target",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-24",
+        "RQ-33"
+      ],
+      "valve_text": "Active 1: Deal 4 piercing damage to a unit in any lane."
+    },
+    {
+      "id": "the_tyler_estate",
+      "source_id": 10154,
+      "name": "The Tyler Estate",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10154_card.png",
+      "artist": "Dimitar Marinski",
+      "text": "Both towers have -{mana_loss} Mana.",
+      "cross_lane": true,
+      "mana_loss": 2,
+      "status": "verified",
+      "rq": [
+        "RQ-52"
+      ],
+      "abilities": [
+        {
+          "id": "estate",
+          "kind": "aura",
+          "affects": "both_towers",
+          "grant": {
+            "mana": {
+              "neg": {
+                "param": "mana_loss"
+              }
+            }
+          }
+        }
+      ],
+      "valve_text": "Both towers have -2 Mana."
+    },
+    {
+      "id": "trebuchets",
+      "source_id": 10161,
+      "name": "Trebuchets",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10161_card.png",
+      "artist": "Suzanne Helmigh",
+      "text": "Deal {amount} piercing damage to the enemy tower before the action phase.",
+      "cross_lane": true,
+      "amount": 2,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "trebuchets",
+          "kind": "trigger",
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "tower_damage",
+              "to": "enemy_tower",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "valve_text": "Deal 2 piercing damage to the enemy tower before the action phase."
+    },
+    {
+      "id": "bitter_enemies",
+      "source_id": 10156,
+      "name": "Bitter Enemies",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10156_card.png",
+      "artist": "Lius Lasahido",
+      "text": "After the combat phase, remove a charge from Bitter Enemies. Before the action phase, if there are zero charges on Bitter Enemies, deal {amount} damage to both towers.",
+      "cross_lane": true,
+      "amount": 6,
+      "charges": 3,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "countdown",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "charges",
+              "on": "$self",
+              "add": -1,
+              "min": 0
+            }
+          ]
+        },
+        {
+          "id": "feud",
+          "kind": "trigger",
+          "on": "before_action",
+          "where": {
+            "cmp": [
+              {
+                "charges": "$self"
+              },
+              "==",
+              0
+            ]
+          },
+          "ops": [
+            {
+              "op": "tower_damage",
+              "to": "both_towers",
+              "amount": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-27",
+        "RQ-46"
+      ],
+      "valve_text": "After the combat phase, remove a charge from Bitter Enemies. Before the action phase, if there are zero charges on Bitter Enemies, deal 6 damage to both towers."
+    },
+    {
+      "id": "path_of_the_cunning",
+      "source_id": 10150,
+      "name": "Path of the Cunning",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10150_card.png",
+      "artist": "Alayna Danner",
+      "text": "After you play a black card, modify a random ally with +{amount} Siege.",
+      "cross_lane": true,
+      "amount": 1,
+      "status": "verified",
+      "rq": [
+        "RQ-03",
+        "RQ-44"
+      ],
+      "abilities": [
+        {
+          "id": "cunning",
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "color": "black"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": {
+                "use": "allies",
+                "pick": {
+                  "random": 1
+                }
+              },
+              "keywords": {
+                "siege": {
+                  "param": "amount"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "After you play a black card, modify a random ally with +1 Siege."
+    },
+    {
+      "id": "revtel_investments",
+      "source_id": 10164,
+      "name": "Revtel Investments",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10164_card.png",
+      "artist": "Jason Kang",
+      "text": "Add a charge to Revtel Investments after the combat phase. Active {ability_cooldown}: Get {gold_per_charge} gold for each charge. Condemn Revtel Investments.",
+      "ability_name": "Revtel Investments",
+      "cross_lane": true,
+      "ability_cooldown": 1,
+      "gold_per_charge": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "invest",
+          "kind": "trigger",
+          "on": "after_combat",
+          "ops": [
+            {
+              "op": "charges",
+              "on": "$self",
+              "add": 1
+            }
+          ]
+        },
+        {
+          "id": "cash_out",
+          "kind": "active",
+          "valve": 10463,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "gold",
+              "player": "you",
+              "add": {
+                "mul": [
+                  {
+                    "param": "gold_per_charge"
+                  },
+                  {
+                    "charges": "$self"
+                  }
+                ]
+              }
+            },
+            {
+              "op": "condemn",
+              "to": "$self"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-24"
+      ],
+      "valve_text": "Add a charge to Revtel Investments after the combat phase. | Active 1: Get 4 gold for each charge. Condemn Revtel Investments."
+    },
+    {
+      "id": "unsupervised_artillery",
+      "source_id": 10162,
+      "name": "Unsupervised Artillery",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10162_card.png",
+      "artist": "Forrest Imel",
+      "text": "Active {ability_cooldown}: Deal {amount} piercing damage to the enemy tower. May only be used if there are no unblocked enemies.",
+      "ability_name": "Unsupervised Artillery",
+      "cross_lane": true,
+      "ability_cooldown": 1,
+      "amount": 4,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "artillery",
+          "kind": "active",
+          "valve": 10462,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "requires": {
+            "empty": {
+              "use": "enemies",
+              "where": {
+                "unblocked": "$it"
+              }
+            }
+          },
+          "ops": [
+            {
+              "op": "tower_damage",
+              "to": "enemy_tower",
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-05",
+        "RQ-24",
+        "RQ-46"
+      ],
+      "valve_text": "Active 1: Deal 4 piercing damage to the enemy tower. May only be used if there are no unblocked enemies."
+    },
+    {
+      "id": "the_oath",
+      "source_id": 10182,
+      "name": "The Oath",
+      "color": "black",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10182_card.png",
+      "artist": "Daarken",
+      "text": "You can not play spells or creeps while this is the active lane. If there is an allied black hero in this lane, allies have +{amount} Attack.",
+      "cross_lane": true,
+      "amount": 4,
+      "status": "verified",
+      "rq": [
+        "RQ-04",
+        "RQ-60"
+      ],
+      "abilities": [
+        {
+          "id": "oath",
+          "kind": "aura",
+          "affects": "you",
+          "grant": {
+            "rules": {
+              "forbid_play": {
+                "kinds": [
+                  "spell",
+                  "creep"
+                ],
+                "lane": "self"
+              }
+            }
+          }
+        },
+        {
+          "id": "sworn",
+          "kind": "aura",
+          "affects": "allies",
+          "if": {
+            "has": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "black"
+            }
+          },
+          "grant": {
+            "attack": {
+              "param": "amount"
+            }
+          }
+        }
+      ],
+      "valve_text": "You can not play spells or creeps while this is the active lane. If there is an allied black hero in this lane, allies have +4 Attack."
+    },
+    {
+      "id": "aghanims_sanctum",
+      "source_id": 10175,
+      "name": "Aghanim's Sanctum",
+      "color": "blue",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10175_card.png",
+      "artist": "Lake Hurwitz",
+      "text": "Active {ability_cooldown}: Fully restore your tower's Mana.",
+      "ability_name": "Aghanim's Sanctum",
+      "cross_lane": true,
+      "ability_cooldown": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "sanctum",
+          "kind": "active",
+          "valve": 10464,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "ops": [
+            {
+              "op": "mana",
+              "to": "your_tower",
+              "restore": "full"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-24"
+      ],
+      "valve_text": "Active 1: Fully restore your tower's Mana."
+    },
+    {
+      "id": "conflagration",
+      "source_id": 10157,
+      "name": "Conflagration",
+      "color": "blue",
+      "kind": "improvement",
+      "cost": 5,
+      "image": "res://assets/classic_cards/10157_card.png",
+      "artist": "Lius Lasahido",
+      "text": "Deal {amount} damage to each enemy before the action phase.",
+      "cross_lane": true,
+      "amount": 2,
+      "status": "verified",
+      "rq": [
+        "RQ-01",
+        "RQ-03"
+      ],
+      "abilities": [
+        {
+          "id": "conflagration",
+          "kind": "trigger",
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "damage",
+              "to": "enemies",
+              "amount": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Deal 2 damage to each enemy before the action phase."
+    },
+    {
+      "id": "messenger_rookery",
+      "source_id": 10180,
+      "name": "Messenger Rookery",
+      "color": "blue",
+      "kind": "improvement",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10180_card.png",
+      "artist": "Forrest Imel",
+      "text": "Active {ability_cooldown}: Choose an ally. Choose a combat target for it.",
+      "ability_name": "Messenger Rookery",
+      "cross_lane": true,
+      "ability_cooldown": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "rookery",
+          "kind": "active",
+          "valve": 10466,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "allies"
+            },
+            {
+              "key": "destination",
+              "combat_target_of": "$c.target"
+            }
+          ],
+          "ops": [
+            {
+              "op": "retarget",
+              "unit": "$c.target",
+              "to": "$c.destination"
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-19",
+        "RQ-24"
+      ],
+      "valve_text": "Active 1: Choose an ally. Choose a combat target for it."
+    },
+    {
+      "id": "fractured_timeline",
+      "source_id": 10148,
+      "name": "Fractured Timeline",
+      "color": "blue",
+      "kind": "improvement",
+      "cost": 2,
+      "image": "res://assets/classic_cards/10148_card.png",
+      "artist": "Sam Carr",
+      "text": "Before the action phase, give a random card in opponent's hand +{amount} Lock.",
+      "cross_lane": true,
+      "amount": 1,
+      "status": "verified",
+      "rq": [
+        "RQ-14"
+      ],
+      "abilities": [
+        {
+          "id": "timeline",
+          "kind": "trigger",
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "lock",
+              "cards": {
+                "use": "opponent_hand",
+                "pick": {
+                  "random": 1
+                }
+              },
+              "n": {
+                "param": "amount"
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Before the action phase, give a random card in opponent's hand +1 Lock."
+    },
+    {
+      "id": "howling_mind",
+      "source_id": 10171,
+      "name": "Howling Mind",
+      "color": "blue",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10171_card.png",
+      "artist": "James Paick",
+      "text": "You and your opponent draw an extra card each round.",
+      "cross_lane": true,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "howling",
+          "kind": "aura",
+          "affects": "both_players",
+          "grant": {
+            "rules": {
+              "round_draw": 1
+            }
+          }
+        }
+      ],
+      "valve_text": "You and your opponent draw an extra card each round."
+    },
+    {
+      "id": "path_of_the_wise",
+      "source_id": 10151,
+      "name": "Path of the Wise",
+      "color": "blue",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10151_card.png",
+      "artist": "Alayna Danner",
+      "text": "After you play a blue card, deal {amount} piercing damage to a random enemy.",
+      "cross_lane": true,
+      "amount": 1,
+      "status": "verified",
+      "rq": [
+        "RQ-01",
+        "RQ-03",
+        "RQ-44"
+      ],
+      "abilities": [
+        {
+          "id": "wise",
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "color": "blue"
+          },
+          "ops": [
+            {
+              "op": "damage",
+              "to": {
+                "use": "enemies",
+                "pick": {
+                  "random": 1
+                }
+              },
+              "amount": {
+                "param": "amount"
+              },
+              "piercing": true
+            }
+          ]
+        }
+      ],
+      "valve_text": "After you play a blue card, deal 1 piercing damage to a random enemy."
+    },
+    {
+      "id": "watchtower",
+      "source_id": 10194,
+      "name": "Watchtower",
+      "color": "blue",
+      "kind": "improvement",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10194_card.png",
+      "artist": "Forrest Imel",
+      "text": "Whenever an enemy improvement enters this lane, draw a card.",
+      "cross_lane": true,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "watch",
+          "kind": "trigger",
+          "on": "improvement_entered",
+          "filter": {
+            "side": "enemy"
+          },
+          "ops": [
+            {
+              "op": "draw",
+              "player": "you",
+              "n": 1
+            }
+          ]
+        }
+      ],
+      "valve_text": "Whenever an enemy improvement enters this lane, draw a card."
+    },
+    {
+      "id": "glyph_of_confusion",
+      "source_id": 10187,
+      "name": "Glyph of Confusion",
+      "color": "blue",
+      "kind": "improvement",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10187_card.png",
+      "artist": "Stepan Alekseev",
+      "text": "Whenever any unit enters this lane, stun it this round.",
+      "cross_lane": true,
+      "status": "verified",
+      "rq": [
+        "RQ-21"
+      ],
+      "abilities": [
+        {
+          "id": "confusion",
+          "kind": "trigger",
+          "on": "unit_entered",
+          "ops": [
+            {
+              "op": "give",
+              "to": "$e.unit",
+              "until": "round",
+              "keywords": {
+                "stun": 1
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Whenever any unit enters this lane, stun it this round."
+    },
+    {
+      "id": "altar_of_the_mad_moon",
+      "source_id": 10170,
+      "name": "Altar of the Mad Moon",
+      "color": "green",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10170_card.png",
+      "artist": "Dimitar Marinski",
+      "text": "Allied Melee Creeps have +{creep_regeneration} Regeneration.",
+      "cross_lane": true,
+      "creep_regeneration": 2,
+      "status": "verified",
+      "rq": [
+        "RQ-04",
+        "RQ-09"
+      ],
+      "abilities": [
+        {
+          "id": "altar",
+          "kind": "aura",
+          "affects": {
+            "s": "units",
+            "side": "ally",
+            "card": "melee_creep"
+          },
+          "grant": {
+            "regeneration": {
+              "param": "creep_regeneration"
+            }
+          }
+        }
+      ],
+      "valve_text": "Allied Melee Creeps have +2 Regeneration."
+    },
+    {
+      "id": "mist_of_avernus",
+      "source_id": 10169,
+      "name": "Mist of Avernus",
+      "color": "green",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10169_card.png",
+      "artist": "Joseph Meehan",
+      "text": "Modify allies with +{amount} Attack before the action phase.",
+      "cross_lane": true,
+      "amount": 1,
+      "status": "verified",
+      "rq": [
+        "RQ-04"
+      ],
+      "abilities": [
+        {
+          "id": "mist",
+          "kind": "trigger",
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "modify",
+              "to": "allies",
+              "stats": {
+                "attack": {
+                  "param": "amount"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "Modify allies with +1 Attack before the action phase."
+    },
+    {
+      "id": "path_of_the_dreamer",
+      "source_id": 10152,
+      "name": "Path of the Dreamer",
+      "color": "green",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10152_card.png",
+      "artist": "Alayna Danner",
+      "text": "After you play a green card, give your tower +{amount} Regeneration until end of round.",
+      "cross_lane": true,
+      "amount": 3,
+      "status": "verified",
+      "rq": [
+        "RQ-03",
+        "RQ-44"
+      ],
+      "abilities": [
+        {
+          "id": "dreamer",
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "color": "green"
+          },
+          "ops": [
+            {
+              "op": "give",
+              "to": "your_tower",
+              "keywords": {
+                "regeneration": {
+                  "param": "amount"
+                }
+              },
+              "until": "round"
+            }
+          ]
+        }
+      ],
+      "valve_text": "After you play a green card, give your tower +3 Regeneration until end of round."
+    },
+    {
+      "id": "selemenes_favor",
+      "source_id": 10168,
+      "name": "Selemene's Favor",
+      "color": "green",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10168_card.png",
+      "artist": "Tenaya Sims",
+      "text": "Your tower has +{tower_mana} Mana.",
+      "cross_lane": true,
+      "tower_mana": 2,
+      "status": "verified",
+      "rq": [
+        "RQ-52"
+      ],
+      "abilities": [
+        {
+          "id": "favor",
+          "kind": "aura",
+          "affects": "your_tower",
+          "grant": {
+            "mana": {
+              "param": "tower_mana"
+            }
+          }
+        }
+      ],
+      "valve_text": "Your tower has +2 Mana."
+    },
+    {
+      "id": "cheating_death",
+      "source_id": 10181,
+      "name": "Cheating Death",
+      "color": "green",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10181_card.png",
+      "artist": "Daarken",
+      "text": "Active {ability_cooldown}: Give a unit a Death Shield this round. May only be used if there is an allied green hero in this lane.",
+      "ability_name": "Cheating Death",
+      "cross_lane": true,
+      "ability_cooldown": 1,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "cheat",
+          "kind": "active",
+          "valve": 10539,
+          "cooldown": {
+            "param": "ability_cooldown"
+          },
+          "choices": [
+            {
+              "key": "target",
+              "from": "units"
+            }
+          ],
+          "requires": {
+            "has": {
+              "use": "allied_heroes",
+              "color": "green"
+            }
+          },
+          "ops": [
+            {
+              "op": "give",
+              "to": "$c.target",
+              "until": "round",
+              "keywords": {
+                "death_shield": 1
+              }
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-11",
+        "RQ-24",
+        "RQ-60"
+      ],
+      "valve_text": "Active 1: Give a unit a Death Shield this round. May only be used if there is an allied green hero in this lane."
+    },
+    {
+      "id": "homefield_advantage",
+      "source_id": 10155,
+      "name": "Homefield Advantage",
+      "color": "green",
+      "kind": "improvement",
+      "cost": 4,
+      "image": "res://assets/classic_cards/10155_card.png",
+      "artist": "Jason Kang",
+      "text": "Before the action phase disarm a random enemy this round.",
+      "cross_lane": true,
+      "status": "verified",
+      "rq": [
+        "RQ-01",
+        "RQ-04"
+      ],
+      "abilities": [
+        {
+          "id": "homefield",
+          "kind": "trigger",
+          "on": "before_action",
+          "ops": [
+            {
+              "op": "give",
+              "to": {
+                "use": "enemies",
+                "pick": {
+                  "random": 1
+                }
+              },
+              "keywords": {
+                "disarm": 1
+              },
+              "until": "round"
+            }
+          ]
+        }
+      ],
+      "valve_text": "Before the action phase disarm a random enemy this round."
+    },
+    {
+      "id": "unearthed_secrets",
+      "source_id": 10149,
+      "name": "Unearthed Secrets",
+      "color": "green",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10149_card.png",
+      "artist": "David Palumbo",
+      "text": "Draw a card after the combat phase if your tower was dealt damage this round.",
+      "cross_lane": true,
+      "status": "verified",
+      "abilities": [
+        {
+          "id": "secrets",
+          "kind": "trigger",
+          "on": "after_combat",
+          "where": {
+            "log": "tower_hit",
+            "tower": "your_tower"
+          },
+          "ops": [
+            {
+              "op": "draw",
+              "player": "you",
+              "n": 1
+            }
+          ]
+        }
+      ],
+      "rq": [
+        "RQ-04",
+        "RQ-46"
+      ],
+      "valve_text": "Draw a card after the combat phase if your tower was dealt damage this round."
+    },
+    {
+      "id": "temple_of_war",
+      "source_id": 10172,
+      "name": "Temple of War",
+      "color": "red",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10172_card.png",
+      "artist": "Titus Lunter",
+      "text": "All equipped heroes have +{hero_attack} Attack and +{hero_armor} Armor.",
+      "cross_lane": true,
+      "hero_attack": 2,
+      "hero_armor": 1,
+      "status": "verified",
+      "rq": [
+        "RQ-04"
+      ],
+      "abilities": [
+        {
+          "id": "temple",
+          "kind": "aura",
+          "affects": {
+            "s": "units",
+            "kind": "hero",
+            "where": {
+              "has": {
+                "s": "items",
+                "rel": {
+                  "equipped_on": "$it"
+                }
+              }
+            }
+          },
+          "grant": {
+            "attack": {
+              "param": "hero_attack"
+            },
+            "armor": {
+              "param": "hero_armor"
+            }
+          }
+        }
+      ],
+      "valve_text": "All equipped heroes have +2 Attack and +1 Armor."
+    },
+    {
+      "id": "burning_oil",
+      "source_id": 10174,
+      "name": "Burning Oil",
+      "color": "red",
+      "kind": "improvement",
+      "cost": 1,
+      "image": "res://assets/classic_cards/10174_card.png",
+      "artist": "Daarken",
+      "text": "Your tower has +{tower_retaliate} Retaliate.",
+      "cross_lane": true,
+      "tower_retaliate": 2,
+      "status": "verified",
+      "rq": [
+        "RQ-06"
+      ],
+      "abilities": [
+        {
+          "id": "oil",
+          "kind": "aura",
+          "affects": "your_tower",
+          "grant": {
+            "retaliate": {
+              "param": "tower_retaliate"
+            }
+          }
+        }
+      ],
+      "valve_text": "Your tower has +2 Retaliate."
+    },
+    {
+      "id": "the_omexe_arena",
+      "source_id": 10183,
+      "name": "The Omexe Arena",
+      "color": "red",
+      "kind": "improvement",
+      "cost": 6,
+      "image": "res://assets/classic_cards/10183_card.png",
+      "artist": "Dimitar Marinski",
+      "text": "Draw a card after a hero dies.",
+      "cross_lane": true,
+      "status": "verified",
+      "rq": [
+        "RQ-03"
+      ],
+      "abilities": [
+        {
+          "id": "arena",
+          "kind": "trigger",
+          "on": "unit_died",
+          "filter": {
+            "kind": "hero"
+          },
+          "ops": [
+            {
+              "op": "draw",
+              "player": "you",
+              "n": 1
+            }
+          ]
+        }
+      ],
+      "valve_text": "Draw a card after a hero dies."
+    },
+    {
+      "id": "grand_melee",
+      "source_id": 10178,
+      "name": "Grand Melee",
+      "color": "red",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10178_card.png",
+      "artist": "JiHun Lee",
+      "text": "If there is an allied red hero in this lane, all heroes have +{cleave} Cleave.",
+      "cross_lane": true,
+      "cleave": 2,
+      "status": "verified",
+      "rq": [
+        "RQ-04",
+        "RQ-07",
+        "RQ-60"
+      ],
+      "abilities": [
+        {
+          "id": "grand_melee",
+          "kind": "aura",
+          "affects": "heroes",
+          "if": {
+            "has": {
+              "s": "units",
+              "side": "ally",
+              "kind": "hero",
+              "color": "red"
+            }
+          },
+          "grant": {
+            "cleave": {
+              "param": "cleave"
+            }
+          }
+        }
+      ],
+      "valve_text": "If there is an allied red hero in this lane, all heroes have +2 Cleave."
+    },
+    {
+      "id": "path_of_the_bold",
+      "source_id": 10153,
+      "name": "Path of the Bold",
+      "color": "red",
+      "kind": "improvement",
+      "cost": 3,
+      "image": "res://assets/classic_cards/10153_card.png",
+      "artist": "Alayna Danner",
+      "text": "After you play a red card, modify a random ally with +{amount} Attack.",
+      "cross_lane": true,
+      "amount": 1,
+      "status": "verified",
+      "rq": [
+        "RQ-03",
+        "RQ-44"
+      ],
+      "abilities": [
+        {
+          "id": "bold",
+          "kind": "trigger",
+          "on": "card_played",
+          "filter": {
+            "player": "you",
+            "color": "red"
+          },
+          "ops": [
+            {
+              "op": "modify",
+              "to": {
+                "use": "allies",
+                "pick": {
+                  "random": 1
+                }
+              },
+              "stats": {
+                "attack": {
+                  "param": "amount"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "valve_text": "After you play a red card, modify a random ally with +1 Attack."
     }
   ],
   "deck": {
@@ -10999,6 +12295,175 @@
         "ring_of_tarrasque": 1,
         "revtel_signet_ring": 1,
         "ristul_emblem": 1
+      }
+    },
+    {
+      "id": "siege_of_ye",
+      "name": "Blue / Black Siege Works",
+      "description": "Ogre Magi and Debbi wear the towers down with Ignite, Trebuchets, Unsupervised Artillery and a Steam Cannon while Bitter Enemies counts down; Bounty Hunter, Luna and Prellex's Barracks hold the lanes.",
+      "heroes": [
+        "ogre_magi",
+        "debbi",
+        "bounty_hunter",
+        "luna",
+        "prellex"
+      ],
+      "cards": {
+        "ignite": 3,
+        "no_accident": 3,
+        "track": 3,
+        "eclipse": 3,
+        "barracks": 3,
+        "trebuchets": 1,
+        "unsupervised_artillery": 1,
+        "bitter_enemies": 1,
+        "keenfolk_turret": 2,
+        "steam_cannon": 1,
+        "aghanims_sanctum": 1,
+        "messenger_rookery": 1,
+        "watchtower": 1,
+        "fractured_timeline": 1,
+        "path_of_the_wise": 1,
+        "relentless_zombie": 3,
+        "untested_grunt": 3,
+        "pit_fighter_of_quoidge": 2,
+        "hip_fire": 2,
+        "lightning_strike": 2,
+        "slay": 1,
+        "tower_barrage": 1
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "broadsword": 1,
+        "claymore": 1,
+        "chainmail": 1
+      }
+    },
+    {
+      "id": "jing_province",
+      "name": "Red / Green Fortifications",
+      "description": "Keefe, Mazzie and Rix fight behind Burning Oil and Steel Reinforcement under Grand Melee; Treant Protector and Chen heal while Unearthed Secrets, Path of the Dreamer and Homefield Advantage hold the towers.",
+      "heroes": [
+        "keefe",
+        "rix",
+        "mazzie",
+        "treant_protector",
+        "chen"
+      ],
+      "cards": {
+        "fighting_instinct": 3,
+        "act_of_defiance": 3,
+        "steel_reinforcement": 3,
+        "roseleaf_druid": 3,
+        "hand_of_god": 3,
+        "burning_oil": 1,
+        "grand_melee": 2,
+        "path_of_the_bold": 1,
+        "the_omexe_arena": 1,
+        "temple_of_war": 1,
+        "unearthed_secrets": 1,
+        "path_of_the_dreamer": 1,
+        "homefield_advantage": 2,
+        "altar_of_the_mad_moon": 1,
+        "bronze_legionnaire": 2,
+        "stonehall_elite": 2,
+        "legion_standard_bearer": 2,
+        "rampaging_hellbear": 2,
+        "satyr_duelist": 2,
+        "combat_training": 2,
+        "avernus_blessing": 2
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "broadsword": 1,
+        "platemail": 1,
+        "heros_cape": 1
+      }
+    },
+    {
+      "id": "dong_zhuo_tyranny",
+      "name": "Black / Blue Tyranny",
+      "description": "Bloodseeker, Phantom Assassin and Winter Wyvern fight under The Oath and Assured Destruction while The Tyler Estate starves both towers; J'Muy redirects, Debbi finishes off heroes, and Iron Fog Goldmine and Revtel Investments fill the purse.",
+      "heroes": [
+        "bloodseeker",
+        "jmuy",
+        "phantom_assassin",
+        "debbi",
+        "winter_wyvern"
+      ],
+      "cards": {
+        "blood_rage": 3,
+        "battlefield_control": 3,
+        "coup_de_grace": 3,
+        "no_accident": 3,
+        "winters_curse": 3,
+        "the_tyler_estate": 1,
+        "iron_fog_goldmine": 1,
+        "revtel_investments": 1,
+        "the_oath": 1,
+        "escape_route": 1,
+        "path_of_the_cunning": 2,
+        "assured_destruction": 2,
+        "howling_mind": 1,
+        "untested_grunt": 3,
+        "assassins_apprentice": 2,
+        "oglodi_vandal": 2,
+        "pit_fighter_of_quoidge": 1,
+        "hip_fire": 2,
+        "slay": 2,
+        "lightning_strike": 2,
+        "gank": 1
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "claymore": 1,
+        "red_mist_maul": 1,
+        "fur_lined_mantle": 1
+      }
+    },
+    {
+      "id": "xiaoyao_ford",
+      "name": "Blue / Green Bastion",
+      "description": "Earthshaker and Crystal Maiden stun and freeze what Glyph of Confusion and Conflagration let through; Farvhan, Lycan and Abaddon shield and grow the board with Mist of Avernus, Cheating Death and Selemene's Favor.",
+      "heroes": [
+        "earthshaker",
+        "farvhan",
+        "crystal_maiden",
+        "lycan",
+        "abaddon"
+      ],
+      "cards": {
+        "echo_slam": 3,
+        "prowler_vanguard": 3,
+        "frostbite": 3,
+        "savage_wolf": 3,
+        "aphotic_shield": 3,
+        "glyph_of_confusion": 1,
+        "conflagration": 2,
+        "mist_of_avernus": 2,
+        "cheating_death": 2,
+        "selemenes_favor": 1,
+        "satyr_duelist": 2,
+        "selfish_cleric": 2,
+        "rampaging_hellbear": 2,
+        "relentless_zombie": 3,
+        "avernus_blessing": 2,
+        "lightning_strike": 2,
+        "tower_barrage": 2,
+        "thunderstorm": 2
+      },
+      "items": {
+        "leather_armor": 3,
+        "travelers_cloak": 2,
+        "short_sword": 2,
+        "broadsword": 1,
+        "shield_of_basilius": 1
       }
     }
   ]

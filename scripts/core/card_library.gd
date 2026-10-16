@@ -21,7 +21,7 @@ const GLOSSARY_PATH = "res://data/locale/glossary.json"
 const FALLBACK_LOCALE = "en"
 const NO_RULES = {"abilities": [], "auras": [], "events": {}, "grant_events": {}, "grants": [], "active": -1,
 	"host": {}, "play": {}, "enter": [], "keywords": {}, "params": {}, "errors": [], "status": "",
-	"static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0, "hack": 0, "mana": false},
+	"static": {"draw": 0, "initiative": false, "random": false, "bias": 0.0, "lock": 0, "hack": 0, "mana": false, "gold": false},
 	"ability_static": {}}
 static var _locale_data: Dictionary = {}
 static var _glossary: Dictionary = {}

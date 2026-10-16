@@ -1,0 +1,14 @@
+{
+"card": "assured_destruction",
+"source_id": 10141,
+"text": "All heroes have +4 Siege.",
+"covers": ["continuous", "siege", "all_heroes"],
+"cases": [
+ {"name": "All heroes have +4 Siege, the opponent's included; creeps do not", "clause": 0, "tags": ["continuous", "siege", "all_heroes"], "board": {"lanes": {"0": {"p0": ["lion#l", "melee_creep#c"], "p1": ["melee_creep#e", "axe#a"]}}}, "do": [{"play": "assured_destruction", "lane": 0}], "expect": {"l.kw.siege": 4, "a.kw.siege": 4, "c.kw.siege": 0, "e.kw.siege": 0}},
+ {"name": "blocked heroes deal 4 Siege damage to the enemy tower on both sides", "clause": 0, "tags": ["continuous", "siege"], "board": "@0", "do": [{"play": "assured_destruction", "lane": 0}, {"combat": true}], "expect": {"tower.0.1.health": 36, "tower.0.0.health": 36, "e.in_play": false, "c.in_play": false}},
+ {"name": "rq_04: an Assured Destruction in another lane gives these heroes nothing", "clause": 0, "tags": ["negative", "all_heroes", "RQ-04"], "board": "@0", "do": [{"play": "assured_destruction", "lane": 1}, {"combat": true}], "expect": {"l.kw.siege": 0, "tower.0.1.health": 40, "tower.0.0.health": 40}},
+ {"name": "rq_07: an unblocked hero attacks the tower and adds no Siege", "clause": 0, "tags": ["edge", "siege", "RQ-07"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": [null]}}}, "do": [{"play": "assured_destruction", "lane": 0}, {"combat": true}], "expect": {"l.kw.siege": 4, "tower.0.1.health": 34}},
+ {"name": "rq_07: a stunned hero deals no Siege", "clause": 0, "tags": ["negative", "siege", "RQ-07"], "board": {"lanes": {"0": {"p0": ["lion#l", "melee_creep#c"], "p1": ["melee_creep#e", "axe#a"]}}, "improvements": {"0": {"p0": ["assured_destruction#d"]}}, "give": {"l": ["stun"]}}, "do": [{"combat": true}], "expect": {"tower.0.1.health": 40, "tower.0.0.health": 36}},
+ {"name": "tower Armor reduces Siege (Steel Reinforcement)", "clause": 0, "tags": ["edge", "siege"], "board": {"base": "@0", "improvements": {"0": {"p1": ["steel_reinforcement#s"]}}}, "do": [{"play": "assured_destruction", "lane": 0}, {"combat": true}], "expect": {"tower.0.1.health": 37, "tower.0.0.health": 36}},
+ {"name": "a hero entering the lane later gets it too", "clause": 0, "tags": ["edge", "all_heroes"], "board": {"lanes": {"0": {"p0": ["lion#l"], "p1": ["melee_creep#e"]}}, "improvements": {"0": {"p0": ["assured_destruction#d"]}}, "fountain": {"p1": ["axe#a"]}}, "do": [{"end_round": true, "deploy": {"a": 0}}], "expect": {"a.lane": 0, "a.kw.siege": 4}}
+]}
