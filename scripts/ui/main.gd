@@ -13,6 +13,7 @@ const Settings = preload("res://scripts/core/game_settings.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const CardArt = preload("res://scripts/ui/card_art.gd")
 const Sfx = preload("res://scripts/ui/sfx.gd")
+const Music = preload("res://scripts/ui/music.gd")
 const SettingsDialog = preload("res://scripts/ui/settings_dialog.gd")
 const DecksDialog = preload("res://scripts/ui/decks_dialog.gd")
 const DeckListDialog = preload("res://scripts/ui/deck_list_dialog.gd")
@@ -30,6 +31,9 @@ var room: Control
 var menu: Control
 var dialog_layer: Control
 var sfx: Node
+## The app's one music player (music.gd): menu music on the menu, the room
+## and the dialogs over them; the match screen's own state while it shows.
+var music: Node
 ## The opponent's readiness last seen (a chime when it turns on).
 var _opponent_ready: bool = false
 ## Set while the player leaves a running online match on purpose (it is
@@ -68,10 +72,14 @@ func _init() -> void:
 	sfx = Sfx.new()
 	sfx.name = "Sfx"
 	add_child(sfx)
+	music = Music.new()
+	music.name = "Music"
+	add_child(music)
 	screen = MatchScreen.new()
 	screen.name = "MatchScreen"
 	screen.visible = false
 	screen.sfx = sfx
+	screen.music = music
 	add_child(screen)
 	room = RoomScreen.new()
 	room.name = "RoomScreen"
@@ -120,12 +128,16 @@ func show_main_menu() -> void:
 	menu.visible = true
 	menu.set_can_resume(controller.started and not controller.is_finished())
 	menu.refresh_text()
+	music.request("menu")
 
 func show_match() -> void:
 	menu.visible = false
 	room.visible = false
 	screen.visible = true
 	controller.schedule_bot()
+	# The match's own music: its fanfare, battle or urgency, or the menu
+	# music under a result ("" before a new match's first state: it asks).
+	screen.sync_music()
 
 ## The online room (both players' seats, decks and readiness).
 func show_room() -> void:
@@ -134,6 +146,7 @@ func show_room() -> void:
 	screen.visible = false
 	room.visible = true
 	room.refresh()
+	music.request("menu")
 
 ## Starts a match in `new_mode` (MatchController.MODE_*); returns the result.
 ## Online matches start from the room when both players are ready, never

@@ -43,6 +43,7 @@ const UnitCard = preload("res://scripts/ui/unit_card.gd")
 const MatchEngine = preload("res://scripts/core/match_engine.gd")
 const HistoryRail = preload("res://scripts/ui/history_rail.gd")
 const VersusIntro = preload("res://scripts/ui/versus_intro.gd")
+const Music = preload("res://scripts/ui/music.gd")
 const Settings = preload("res://scripts/core/game_settings.gd")
 ## A your-action chime at most this often (ms); the visual cue always shows.
 const CUE_MIN_MS = 800
@@ -62,6 +63,8 @@ const EDGE = 74.0
 var controller: Node
 var queue: Node
 var sfx: Node
+## The app's music player (music.gd), or null (tests that build a bare screen).
+var music: Node
 var board: Control
 var hand: Control
 var hud: Control
@@ -159,6 +162,12 @@ var _suppress_cue: bool = false
 var _intro_pending: bool = false
 ## Intros played (tests count them).
 var intro_count: int = 0
+## The music this match wants (music.gd states): "battle_start" as a new
+## match opens, "battle", "urgency" once any tower has fallen (for the rest
+## of the match: `_urgent`), "menu" under the result; "" until the first
+## state says.
+var _music_state: String = ""
+var _urgent: bool = false
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -175,6 +184,7 @@ func _init() -> void:
 	enemy_hand = _add(CardPile.new(), "EnemyHand")
 	enemy_hand.mode = CardPile.HAND
 	hud = _add(LaneHud.new(), "LaneHud")
+	hud.board = board
 	history = _add(HistoryRail.new(), "History")
 	history.board = board
 	history.visible = false
@@ -226,6 +236,7 @@ func _init() -> void:
 	board.lane_selected.connect(func(_index): _refresh_controls())
 	hand.card_pressed.connect(_on_hand_pressed)
 	hud.lane_pressed.connect(func(index): view_lane(index))
+	hud.inspect_requested.connect(func(card_id, model): inspect.show_card(card_id, model))
 	enemy_panel.menu_pressed.connect(func(): menu_requested.emit())
 	coin.pressed.connect(press_coin)
 	shop.buy_requested.connect(buy)
@@ -354,6 +365,8 @@ func reset() -> void:
 	_cue_elapsed = -1.0
 	_suppress_cue = restoring
 	_intro_pending = not restoring
+	_music_state = ""
+	_urgent = false
 
 func refresh_text() -> void:
 	hand.refresh_text()
@@ -375,6 +388,7 @@ func refresh_text() -> void:
 	pass_screen.refresh_text()
 	log_panel.refresh_text()
 	history.refresh_text()
+	hud.refresh_text()
 	versus.refresh_text()
 	own_panel.refresh_text()
 	enemy_panel.refresh_text()
@@ -408,6 +422,8 @@ func _on_state_changed(view: Dictionary, new_actions: Array) -> void:
 ## The match intro (versus_intro.gd); the queue holds every state (and the
 ## bot) until it is over. Skipped in instant mode (tests) or when turned off.
 func _play_intro(view: Dictionary, viewer: int) -> void:
+	# The fanfare opens every new match, with or without the intro.
+	_set_music("battle_start")
 	if AnimationQueue.instant or not Settings.match_intro or not is_inside_tree():
 		return
 	var info = VersusIntro.versus_info(view, viewer, controller.mode, _intro_names())
@@ -514,6 +530,7 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 	history.reveal(-1)
 	_pending_origin = Vector2(-1, -1)
 	_hand_origin = Vector2(-1, -1)
+	_music_from_view(view)
 	_ensure_phase_ui(view, viewer, new_actions)
 	_note_turn(view, viewer, new_actions)
 	_refresh_controls()
@@ -616,6 +633,7 @@ func _hard_sync(view: Dictionary, new_actions: Array, viewer: int) -> void:
 		board.set_overview(false, 0.0)
 		board.slide_to(int(view.lane), 0.0)
 	_ensure_phase_ui(view, viewer, new_actions)
+	_music_from_view(view)
 	if int(view.get("winner", -1)) != -1 and not _game_over_shown:
 		_game_over_shown = true
 		_show_result(view, viewer)
@@ -1230,6 +1248,9 @@ func _lunge(card: Control, target_point: Vector2, strength: float = 1.0) -> void
 	tween.tween_property(card, "position", rest, AnimationQueue.duration(0.24)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _anim_structure_fall(event: Dictionary, viewer: int, lane_index: int) -> void:
+	# The urgent music starts as the first tower falls (either side).
+	_urgent = true
+	_set_music("urgency")
 	var own = int(event.get("p", 0)) == viewer
 	var tower: Control = board.tower(lane_index, own)
 	fx.burst(tower.emblem_center(), "tower", 2.2)
@@ -1570,12 +1591,47 @@ func _show_game_over(view: Dictionary, viewer: int) -> void:
 	_show_result(view, viewer)
 
 func _show_result(view: Dictionary, viewer: int) -> void:
+	# The battle music fades; the menu music follows after a short pause.
+	_set_music("menu", Music.RESULT_PAUSE)
 	_set_result_actions()
 	game_over.show_result(int(view.winner), viewer, controller.mode == controller.MODE_LOCAL, _towers_text(view, viewer), _matchup_text(view, viewer))
 	if not _closed_text.is_empty():
 		# The session ended while this result was on its way.
 		game_over.set_online_closed(_closed_text)
 	_refresh_controls()
+
+# --- Music ------------------------------------------------------------------------
+
+## The music this match wants now (see _music_state).
+func music_state() -> String:
+	return _music_state
+
+## Asks the music player for this match's state (the screen came back:
+## resuming from the main menu, or a new match shown).
+func sync_music() -> void:
+	if music != null and not _music_state.is_empty():
+		music.request(_music_state)
+
+func _set_music(state: String, delay: float = 0.0) -> void:
+	_music_state = state
+	if music != null and visible:
+		music.request(state, delay)
+
+## Battle or urgency for an undecided state (a decided one leaves the music
+## to the result).
+func _music_from_view(view: Dictionary) -> void:
+	if int(view.get("winner", -1)) != -1:
+		return
+	_urgent = _urgent or tower_fallen(view)
+	_set_music("urgency" if _urgent else "battle")
+
+## True when any tower (either side, any lane) has fallen in `view`.
+static func tower_fallen(view: Dictionary) -> bool:
+	for lane in view.get("lanes", []):
+		for structure in lane.get("structures", []):
+			if structure is Dictionary and (bool(structure.get("ancient", false)) or bool(structure.get("destroyed", false))):
+				return true
+	return false
 
 ## True while this screen shows, or is about to show, a decided match: the
 ## result is up, was dismissed with View board, or its state is still queued

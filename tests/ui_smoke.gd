@@ -49,6 +49,7 @@ const MatchScreen = preload("res://scripts/ui/match_screen.gd")
 const HistoryRail = preload("res://scripts/ui/history_rail.gd")
 const VersusIntro = preload("res://scripts/ui/versus_intro.gd")
 const GameOverOverlay = preload("res://scripts/ui/game_over_overlay.gd")
+const Music = preload("res://scripts/ui/music.gd")
 ## The test's own deck folder (never the player's user://decks).
 const UI_DECKS = "res://.tools/scratch/ui_smoke_decks"
 ## Valve's README example code (Green/Black).
@@ -782,15 +783,21 @@ func _run() -> void:
 		return
 	if not await _check_host_left_result():
 		return
+	if not await _check_music():
+		return
+	if not await _check_hud_hover():
+		return
 	app.show_main_menu()
 	if not _require(app.menu.visible and app.menu.buttons.resume.visible, "The main menu offers to resume the match"):
 		return
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog), and the deck builder (deck list, click and drag edits, locked signature cards, round slots, filters, code import and export, saving, playing a saved deck against the AI, the guest's deck picker), and v0.6.1 (hand repaint, your-action cue, card history, result buttons, the room, the match intro)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog), and the deck builder (deck list, click and drag edits, locked signature cards, round slots, filters, code import and export, saving, playing a saved deck against the AI, the guest's deck picker), and v0.6.1 (hand repaint, your-action cue, card history, result buttons, the room, the match intro), and v0.6.2 (the music states driven by real match events, crossfades, music and effect volumes, the lane HUD's hero hover cards and inspect)." % checks)
 	app.queue_free()
 	await process_frame
+	# The audio thread releases the stopped music tracks on its next mixes.
+	await create_timer(0.3).timeout
 	_clear_decks()
 	DeckStore.root = DeckStore.DEFAULT_ROOT
 	_restore_settings()
@@ -2926,4 +2933,377 @@ func _check_host_left_result() -> bool:
 	# Back to a match against the AI for the checks after this one.
 	app.start_match(MatchController.MODE_AI)
 	await _settle()
+	return true
+
+# --- v0.6.2: music and the lane HUD's hover cards ------------------------------------------
+
+## True when the bus `bus_name` plays at `level` (linear).
+func _bus_at(bus_name: String, level: float) -> bool:
+	var index = AudioServer.get_bus_index(bus_name)
+	return index != -1 and absf(db_to_linear(AudioServer.get_bus_volume_db(index)) - level) < 0.01
+
+## Waits `seconds` of real time (timers run while the tree is paused).
+func _wait_real(seconds: float) -> void:
+	await create_timer(seconds, true).timeout
+
+## The music: buses and routing, the tracks (loops loop), the settings'
+## music and effects sliders (persisted, localized, mute on Master), the
+## states driven by real match events (menu, the fanfare as a match begins,
+## battle, urgency once a tower falls and for the rest of that match, the
+## menu after a result's pause, no fanfare for a restored replay, hot-seat),
+## no restart for the state already playing, crossfades that never stack
+## more than the two players and leave one, and fades while paused.
+func _check_music() -> bool:
+	var music = app.music
+	var players: Array = music.players()
+	var player_children = music.get_children().filter(func(node): return node is AudioStreamPlayer)
+	if not _require(AudioServer.get_bus_index(Settings.MUSIC_BUS) != -1 and AudioServer.get_bus_index(Settings.SFX_BUS) != -1
+			and players.size() == 2 and player_children.size() == 2 and players.all(func(player): return player.bus == Settings.MUSIC_BUS)
+			and app.sfx.players().all(func(player): return player.bus == Settings.SFX_BUS)
+			and music.process_mode == Node.PROCESS_MODE_ALWAYS,
+			"Music plays on two players on the Music bus, effects on the SFX bus, and music runs while paused"):
+		return false
+	for state_name in Music.TRACKS:
+		var stream = music.stream_for(state_name)
+		if not _require(stream != null and stream.get_length() > 5.0 and bool(stream.loop) == (state_name != Music.STING),
+				"Track %s loads, and loops unless it is the fanfare" % state_name):
+			return false
+	# Settings: master, music and effects sliders, persisted and localized.
+	Settings.set_muted(false, false)
+	var dialog = app.open_settings()
+	await process_frame
+	if not _require(dialog.level_labels.music.text == UiKit.t("SETTINGS_VOLUME_MUSIC") and dialog.level_labels.sfx.text == UiKit.t("SETTINGS_VOLUME_SFX")
+			and dialog.level_labels.master.text == UiKit.t("SETTINGS_VOLUME_MASTER") and dialog.level_labels.music.text == "音乐",
+			"The settings name the master, music and effects sliders in the current language"):
+		return false
+	dialog.music_slider.value = 0.35
+	dialog.sfx_slider.value = 0.8
+	dialog.volume_slider.value = 0.9
+	if not _require(_bus_at(Settings.MUSIC_BUS, 0.35) and _bus_at(Settings.SFX_BUS, 0.8) and _bus_at("Master", 0.9)
+			and dialog.level_values.music.text == "35%",
+			"The sliders set the Music, SFX and Master buses at once"):
+		return false
+	var stored = ConfigFile.new()
+	stored.load(Settings.PATH)
+	Settings.music_volume = 0.6
+	Settings.sfx_volume = 1.0
+	Settings.load_settings()
+	if not _require(is_equal_approx(float(stored.get_value("audio", "music_volume", -1.0)), 0.35) and is_equal_approx(Settings.music_volume, 0.35)
+			and is_equal_approx(Settings.sfx_volume, 0.8) and _bus_at(Settings.MUSIC_BUS, 0.35),
+			"The music and effects volumes persist and come back on load"):
+		return false
+	app.set_locale("en")
+	if not _require(dialog.level_labels.music.text == "Music" and dialog.level_labels.sfx.text == "Sound effects", "The volume captions follow a language switch"):
+		return false
+	app.set_locale("zh_CN")
+	dialog.toggles.mute.button_pressed = true
+	var master = AudioServer.get_bus_index("Master")
+	var muted_ok = AudioServer.is_bus_mute(master) and Settings.effective_sfx_volume() == 0.0
+	dialog.toggles.mute.button_pressed = false
+	if not _require(muted_ok and not AudioServer.is_bus_mute(master), "Mute silences Master: the music and the effects"):
+		return false
+	dialog.music_slider.value = 0.0
+	var music_off = AudioServer.is_bus_mute(AudioServer.get_bus_index(Settings.MUSIC_BUS))
+	dialog.music_slider.value = 0.6
+	dialog.sfx_slider.value = 1.0
+	dialog.volume_slider.value = 0.7
+	if not _require(music_off and not AudioServer.is_bus_mute(AudioServer.get_bus_index(Settings.MUSIC_BUS)), "A music volume of 0 mutes only the music"):
+		return false
+	app.close_dialogs()
+	# The states, from the menu through a match.
+	music.fade_seconds = 0.2
+	app.show_main_menu()
+	var started = music.started_count
+	app.open_settings()
+	app.close_dialogs()
+	app.open_deck_list()
+	app.close_dialogs()
+	app.show_main_menu()
+	if not _require(music.state == "menu" and music.started_count == started, "The menu music plays on the menu and its dialogs without restarting"):
+		return false
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	if not _require(music.state == "battle_start" and music.history.back() == "battle_start" and screen.music_state() == "battle",
+			"A new match opens with the fanfare (%s, screen %s)" % [music.state, screen.music_state()]):
+		return false
+	music.finish_sting()
+	started = music.started_count
+	var front = music.front_player()
+	screen.sync_music()
+	app.show_match()
+	app.controller.refresh()
+	await _settle()
+	if not _require(music.state == "battle" and music.started_count == started and music.front_player() == front,
+			"The battle loop follows the fanfare; asking for it again changes nothing"):
+		return false
+	var engine = _engine()
+	Kernel.damage_structure(engine, 0, 1, 100)
+	app.controller.refresh()
+	await _settle()
+	var fell = app.controller.view().events.any(func(event): return str(event.get("k", "")) == "tower_fall")
+	if not _require(fell and music.state == "urgency" and screen.music_state() == "urgency", "A tower falling switches to the urgent music (%s)" % music.state):
+		return false
+	started = music.started_count
+	engine.state.lanes[0].structures[1].ancient = false
+	app.controller.refresh()
+	await _settle()
+	if not _require(music.state == "urgency" and music.started_count == started, "The urgent music stays for the rest of the match"):
+		return false
+	engine.state.lanes[0].structures[1].ancient = true
+	app.show_main_menu()
+	var to_menu = music.state == "menu"
+	var before_resume = music.history.size()
+	app.show_match()
+	if not _require(to_menu and music.state == "urgency" and not music.history.slice(before_resume).has("battle_start"),
+			"Leaving the match plays the menu music; resuming brings the urgent music back without the fanfare"):
+		return false
+	# A restored replay: no fanfare, its own battle state.
+	var replay_path = "res://.tools/scratch/ui_music_replay.json"
+	app.save_replay(replay_path)
+	var before_replay = music.history.size()
+	app.load_replay(replay_path)
+	await _settle()
+	var expected = "urgency" if MatchScreen.tower_fallen(app.controller.view()) else "battle"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(replay_path))
+	if not _require(not music.history.slice(before_replay).has("battle_start") and music.state == expected,
+			"A restored replay plays its battle music without the fanfare (%s)" % music.state):
+		return false
+	# The result: the music fades, the menu music follows after a pause.
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	await _finish_match(0)
+	if not _require(screen.game_over.visible and music.pending == "menu" and music.state == "", "A result fades the battle music out"):
+		return false
+	await _wait_real(Music.RESULT_PAUSE + 0.4)
+	if not _require(music.state == "menu" and music.pending == "", "The menu music follows the result after a pause"):
+		return false
+	# Hot-seat: the fanfare again.
+	app.start_match(MatchController.MODE_LOCAL)
+	await _settle()
+	if not _require(music.state == "battle_start", "A hot-seat match opens with the fanfare"):
+		return false
+	# Crossfades: quick changes never stack more than the two players, and a
+	# finished fade leaves one at full level.
+	music.fade_seconds = Music.FADE_SECONDS
+	for state_name in ["menu", "battle", "urgency", "menu", "battle"]:
+		music.request(state_name)
+		if not _require(music.playing_players().size() <= 2 and music.get_children().filter(func(node): return node is AudioStreamPlayer).size() == 2,
+				"A crossfade never stacks more than two players"):
+			return false
+	if not _require(music.state == "battle" and music.fading(), "The last state asked for fades in"):
+		return false
+	await _wait_real(Music.FADE_SECONDS + 0.3)
+	var sounding: Array = music.playing_players()
+	if not _require(sounding.size() == 1 and sounding[0] == music.front_player() and sounding[0].stream == music.stream_for("battle")
+			and absf(sounding[0].volume_db) < 0.1 and not music.fading(),
+			"A finished crossfade leaves one player at full level (%d playing)" % sounding.size()):
+		return false
+	started = music.started_count
+	for repeat in range(3):
+		music.request("battle")
+	if not _require(music.started_count == started and not music.fading(), "Asking for the playing state again does not restart it"):
+		return false
+	# Paused: the fade still completes.
+	paused = true
+	music.request("urgency")
+	await _wait_real(Music.FADE_SECONDS + 0.3)
+	sounding = music.playing_players()
+	var paused_ok = sounding.size() == 1 and sounding[0].stream == music.stream_for("urgency") and absf(sounding[0].volume_db) < 0.1
+	paused = false
+	if not _require(paused_ok, "Music crossfades while the game is paused"):
+		return false
+	music.fade_seconds = Music.FADE_SECONDS
+	return true
+
+## Hovers the hero chip `uid` with a real mouse move and returns the preview
+## rect (global), or an empty rect when no preview shows.
+func _hover_chip(uid: int) -> Rect2:
+	var hud = screen.hud
+	var point = hud.hero_chip_center(uid)
+	_mouse(point + Vector2(0, 1))
+	_mouse(point)
+	await process_frame
+	await process_frame
+	if hud.hovered_uid != uid or not hud.preview.visible:
+		return Rect2()
+	return hud.preview.get_global_rect()
+
+## The lane HUD's hover cards: every hero chip (fountain and lanes, both
+## sides) shows its card with live stats and status (ready in N rounds, in a
+## lane, fallen), stays on screen at 1440x900 and 1280x720, follows the
+## language and the card theme, hides when the pointer leaves, and a
+## right-click opens the inspector.
+## Script files under `dir` (recursive) with a single-quoted or
+## double-quoted string literal that runs over a raw line break, as
+## "file:line" (triple-quoted strings and comments are skipped).
+func _scripts_with_broken_strings(dir: String) -> Array:
+	var found: Array = []
+	for sub in DirAccess.get_directories_at(dir):
+		found.append_array(_scripts_with_broken_strings(dir.path_join(sub)))
+	for file_name in DirAccess.get_files_at(dir):
+		if not file_name.ends_with(".gd"):
+			continue
+		var path = dir.path_join(file_name)
+		var source = FileAccess.get_file_as_string(path)
+		var line = 1
+		var i = 0
+		var quote = ""
+		var start_line = 0
+		while i < source.length():
+			var ch = source[i]
+			if quote.is_empty():
+				if ch == "#":
+					while i < source.length() and source[i] != "\n":
+						i += 1
+					continue
+				if ch == "\"" or ch == "'":
+					quote = source.substr(i, 3) if source.substr(i, 3) == ch.repeat(3) else ch
+					start_line = line
+					i += quote.length()
+					continue
+			elif ch == "\\":
+				if i + 1 < source.length() and source[i + 1] == "\n":
+					line += 1
+				i += 2
+				continue
+			elif source.substr(i, quote.length()) == quote:
+				i += quote.length()
+				quote = ""
+				continue
+			elif ch == "\n" and quote.length() == 1:
+				found.append("%s:%d" % [path, start_line])
+				quote = ""
+			if ch == "\n":
+				line += 1
+			i += 1
+	return found
+
+func _check_hud_hover() -> bool:
+	var hud = screen.hud
+	app.deck_selections = ["starter", "green_assault"]
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	var engine = _engine()
+	var bot = Bot.new()
+	var guard = 0
+	while not (engine.state.phase == "action" and int(engine.state.active_player) == 0 and int(engine.state.round) >= 1) and guard < 200:
+		var player = int(engine.state.active_player) if engine.state.phase == "action" else (1 if engine.state.players[0].finished else 0)
+		engine.apply_action(player, bot.choose_action(engine, player))
+		guard += 1
+	# An enemy hero falls (as the kernel does it): fountain, two rounds out.
+	var fallen: Dictionary = {}
+	for unit in engine.state.players[1].roster:
+		if int(unit.get("lane", -1)) != -1 and fallen.is_empty():
+			fallen = unit
+	if not _require(not fallen.is_empty(), "An enemy hero stands in a lane"):
+		return false
+	engine._remove_from_lane(fallen)
+	engine._enter_fountain(fallen, int(engine.state.round) + 2)
+	engine._event("death", {"p": 1, "uid": fallen.uid, "card": fallen.card, "gold": 0})
+	app.controller.refresh()
+	await _settle()
+	var chips: Array = hud.hero_chips()
+	var kinds = {"lane_own": false, "lane_enemy": false, "fountain_own": false, "fountain_enemy": false}
+	for entry in chips:
+		kinds[("lane_" if int(entry.lane) >= 0 else "fountain_") + ("own" if int(entry.side) == 1 else "enemy")] = true
+	if not _require(kinds.values().all(func(value): return value), "The HUD shows hero chips in the fountain and the lanes on both sides (%s)" % kinds):
+		return false
+	for size in [Vector2i(1440, 900), Vector2i(1280, 720)]:
+		root.size = size
+		await process_frame
+		await process_frame
+		var inside = Rect2(Vector2.ZERO, screen.size)
+		for entry in hud.hero_chips():
+			var uid = int(entry.hero.uid)
+			var rect: Rect2 = await _hover_chip(uid)
+			if not _require(rect.size.x > 200.0 and inside.encloses(rect) and not rect.intersects(hud.get_global_rect()),
+					"%dx%d: hovering hero %s shows its card on screen, under the HUD (%s)" % [size.x, size.y, entry.hero.card, rect]):
+				root.size = Vector2i(1440, 900)
+				return false
+			var card = hud.preview.card
+			var model = hud.hero_model(entry)
+			if not _require(card.card_id == str(entry.hero.card) and int(card.live.get("health", -1)) == int(model.get("health", -2))
+					and int(card.live.get("attack", -1)) == int(model.get("attack", -2)),
+					"The hover card shows %s with its live stats" % entry.hero.card):
+				root.size = Vector2i(1440, 900)
+				return false
+	root.size = Vector2i(1440, 900)
+	await process_frame
+	await process_frame
+	# Status lines: a lane hero, a waiting hero, the fallen one; whose side.
+	var lane_hero: Dictionary = {}
+	var waiting: Dictionary = {}
+	for entry in hud.hero_chips():
+		if int(entry.lane) >= 0 and int(entry.side) == 1 and lane_hero.is_empty():
+			lane_hero = entry
+		if int(entry.lane) == -1 and int(entry.hero.get("ready_round", 1)) > int(engine.state.round) and int(entry.hero.uid) != int(fallen.uid) and waiting.is_empty():
+			waiting = entry
+	await _hover_chip(int(lane_hero.hero.uid))
+	var lane_text = hud.preview.shown_text()
+	var lane_ok = lane_text.find(UiKit.t("HUD_SIDE_OWN")) != -1 and lane_text.find(UiKit.t("FOUNTAIN_IN_LANE", {"lane": EventText.lane_name(int(lane_hero.lane))})) != -1
+	var wait_ok = true
+	if not waiting.is_empty():
+		await _hover_chip(int(waiting.hero.uid))
+		var rounds = int(waiting.hero.ready_round) - int(engine.state.round)
+		wait_ok = hud.preview.shown_text().find(UiKit.t_n("HUD_HERO_DEPLOYS_IN", rounds)) != -1 and hud.preview.shown_text().find(UiKit.t("HUD_HERO_FALLEN")) == -1
+	await _hover_chip(int(fallen.uid))
+	var fallen_text = hud.preview.shown_text()
+	var fallen_ok = fallen_text.find(UiKit.t("HUD_HERO_FALLEN")) != -1 and fallen_text.find(UiKit.t_n("HUD_HERO_DEPLOYS_IN", 2)) != -1 \
+		and fallen_text.find(UiKit.t("HUD_SIDE_ENEMY")) != -1 and fallen_text.find("回合后可出阵") != -1
+	if not _require(lane_ok and wait_ok and fallen_ok, "The hover card says whose hero it is, where, and when it is ready or that it fell (%s | %s)" % [lane_text, fallen_text]):
+		return false
+	# The deployment wait and the ability cooldown read differently (both
+	# languages, singular and plural): the status line never says the
+	# cooldown's "Ready in N rounds", and no line carries a carriage return.
+	var distinct = true
+	for locale in ["en", "zh_CN"]:
+		app.set_locale(locale)
+		for n in [1, 2, 3]:
+			distinct = distinct and UiKit.t_n("HUD_HERO_DEPLOYS_IN", n) != UiKit.t_n("HUD_COOLDOWN", n) \
+				and UiKit.t_n("HUD_HERO_DEPLOYS_IN", n).find(str(n)) != -1
+		await process_frame
+		var status_text: String = hud.preview.status_label.text
+		distinct = distinct and status_text.find(UiKit.t_n("HUD_HERO_DEPLOYS_IN", 2)) != -1 and status_text.find(UiKit.t_n("HUD_COOLDOWN", 2)) == -1 \
+			and hud.preview.shown_text().find("\r") == -1 and hud.preview.text_label.text.find("\r") == -1
+	app.set_locale("zh_CN")
+	await process_frame
+	if not _require(distinct, "The hover card's deployment wait (\"Deploys in N rounds\") differs from the ability cooldown line, with no stray carriage returns"):
+		return false
+	var broken: Array = _scripts_with_broken_strings("res://scripts") + _scripts_with_broken_strings("res://tests")
+	if not _require(broken.is_empty(), "No script string literal spans a raw line break (a CRLF checkout would add a stray \\r): %s" % [broken]):
+		return false
+	# Language and card theme: the open card follows.
+	app.set_locale("en")
+	app.set_skin("classic")
+	await process_frame
+	var classic_name = hud.preview.name_label.text == Library.loc(str(fallen.card)) and hud.preview.shown_text().find("Fallen in battle") != -1
+	app.set_skin("three_kingdoms")
+	app.set_locale("zh_CN")
+	await process_frame
+	var kingdoms_name = hud.preview.name_label.text == Library.loc(str(fallen.card)) and hud.preview.shown_text().find("已阵亡") != -1
+	if not _require(classic_name and kingdoms_name and hud.preview.z_index > 0, "The hover card follows the language and the card theme, above the panels"):
+		return false
+	# Right-click inspects; leaving the HUD hides the card.
+	var point = hud.hero_chip_center(int(lane_hero.hero.uid))
+	_click(point, MOUSE_BUTTON_RIGHT)
+	await process_frame
+	var inspected = screen.inspect.visible and screen.inspect.card_id == str(lane_hero.hero.card) \
+		and int(screen.inspect.live.get("unit", {}).get("uid", -1)) == int(lane_hero.hero.uid) and not hud.preview.visible
+	screen.inspect.close()
+	_click(hud.hero_chip_center(int(fallen.uid)), MOUSE_BUTTON_RIGHT)
+	await process_frame
+	var inspected_fountain = screen.inspect.visible and screen.inspect.card_id == str(fallen.card)
+	screen.inspect.close()
+	await process_frame
+	await _hover_chip(int(fallen.uid))
+	_mouse(screen.size * 0.5)
+	await process_frame
+	if not _require(inspected and inspected_fountain and not hud.preview.visible and hud.hovered_uid == -1,
+			"Right-clicking a lane or fountain hero chip inspects it; moving away hides the hover card"):
+		return false
+	app.bot_timer.paused = false
 	return true

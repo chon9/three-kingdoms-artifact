@@ -26,7 +26,7 @@ Remaining fidelity work: exact placement/targeting restrictions, general trigger
 - Generated Three Kingdoms art for all 49 supported cards (512x768 JPEG in `assets/art/cards/`, masters kept outside the repository; see `docs/art/`).
 - Classic-style board: one lane at a time with a sliding camera and an all-lanes overview, lane HUD, towers with mana and health, combat arrows and the live damage preview on every unit, drag-to-play with a target arrow (two stages for Battlefield Control), creep position ghosts, cross-lane aiming at the screen edge, the initiative coin, the shop chest with HOLD, deployment staging strips with re-planning until confirmation and an animated, skippable reveal with pathing slabs, inspection, event animations (casts, combat, deaths, lane changes), a match log in the HUD's player names, a main menu, settings and a hot-seat privacy screen.
 
-Remaining: chess clocks, pets, deck trays, the round-one deployment reveal, timeline replay playback, music, and art for the reserve heroes. The animated presentation is checked by hand and by screenshots; the automated UI test runs with animations skipped.
+Remaining: chess clocks, pets, deck trays, the round-one deployment reveal, timeline replay playback, and art for the reserve heroes. Music is in: CC0 and public-domain tracks for the menu, the start of a match, battle, and the rest of a match after any tower falls, crossfaded, with music and sound-effect volumes in Settings. The animated presentation is checked by hand and by screenshots; the automated UI test runs with animations skipped.
 
 ## Next — Steam matches between friends
 
@@ -45,7 +45,7 @@ Remaining: chess clocks, pets, deck trays, the round-one deployment reveal, time
 
 ## 0.5 — Community alpha
 
-- Music and fuller sound, accessibility settings (text size, color-blind cues, reduced motion) and rebindable keys.
+- Fuller sound (music is in), accessibility settings (text size, color-blind cues, reduced motion) and rebindable keys.
 - Remaining original visual/audio content with provenance records (board and UI art, reserve heroes).
 - Signed/reproducible Windows and Linux builds, crash diagnostics and packaging.
 - Contributor onboarding, public issue templates, fidelity dashboard and a playable release announcement.

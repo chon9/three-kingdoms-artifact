@@ -1,0 +1,16 @@
+Chinese Game Music v1.0 ("Lotus Pond", "Dragon Dance") by BiteMe Games
+Source: https://bitemegames.itch.io/chinese-game-music
+
+Licence as stated on the source page:
+  "Asset license: Creative Commons Zero v1.0 Universal"
+  "You can use this asset for commercial projects, without attribution required. You cannot resell this edit."
+
+CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/
+
+Files in this folder (re-encoded to OGG Vorbis q5, gain only to about -18 LUFS):
+  menu_lotus_pond.ogg      "Lotus Pond - Loop", -1.1 dB (main menu, looped 0-64.0 s)
+  battle_dragon_dance.ogg  "Dragon Dance - Loop", -2.9 dB, a 10 ms crossfade at the
+                           loop point (battle, looped 0-68.56 s)
+
+The "cannot resell" line asks that the music is not resold on its own; it is
+bundled here as part of a game. Credit is not required; we give it anyway.

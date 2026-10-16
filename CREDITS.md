@@ -46,6 +46,21 @@ Credit is not required; we give it anyway.
 | `assets/third_party/polyhaven_castle_wall_slates/` | Castle Wall Slates | Rob Tuytel (Poly Haven) | https://polyhaven.com/a/castle_wall_slates | Diffuse map, 1K |
 | `assets/third_party/ambientcg_wood066/` | Wood066 | ambientCG (Lennart Demes) | https://ambientcg.com/view?id=Wood066 | Color map, 1K |
 
+## Music (CC0 1.0 / public domain)
+
+Every track below is dedicated to the public domain (CC0 1.0 Universal, or a
+public-domain notice from the author). Credit is optional; we give it anyway.
+Each folder keeps a `LICENSE.txt` with the source page and the licence quoted
+from it. The files are re-encoded to OGG Vorbis and levelled to about -18 LUFS
+(gain only); the loops loop on import.
+
+| File | Track | Author | Source | Used for |
+|---|---|---|---|---|
+| `assets/third_party/music/bitemegames/menu_lotus_pond.ogg` | Lotus Pond - Loop (Chinese Game Music v1.0) | BiteMe Games | https://bitemegames.itch.io/chinese-game-music | Main menu, decks, room and results (loop) |
+| `assets/third_party/music/spring_spring/battle_start_fanfare.ogg` | 10 Fanfares (chinese-inspired), the fanfare at 27.4-38.6 s; multi-licensed, used under CC0 | Spring Spring | https://opengameart.org/content/10-fanfares | A match begins (once) |
+| `assets/third_party/music/bitemegames/battle_dragon_dance.ogg` | Dragon Dance - Loop (Chinese Game Music v1.0) | BiteMe Games | https://bitemegames.itch.io/chinese-game-music | Battle (loop) |
+| `assets/third_party/music/emma_ma/urgency_determined_pursuit.ogg` | Determined Pursuit (epic orchestra loop) | Emma_MA | https://opengameart.org/content/determined-pursuit-epic-orchestra-loop | After any tower falls, for the rest of the match (loop) |
+
 ## Artwork
 
 The Three Kingdoms card art in `assets/art/` (`assets/art/cards/<card id>.jpg`)

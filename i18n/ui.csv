@@ -32,6 +32,9 @@ SETTINGS_SKIN,Card theme,卡牌主题
 SETTINGS_SKIN_HINT,Changes names and art only. Rules are identical.,仅更改名称与画面，规则完全相同。
 SETTINGS_SOUND,Sound,音效
 SETTINGS_VOLUME,Volume,音量
+SETTINGS_VOLUME_MASTER,Master,总音量
+SETTINGS_VOLUME_MUSIC,Music,音乐
+SETTINGS_VOLUME_SFX,Sound effects,音效
 SETTINGS_ANIMATION_SPEED,Animation speed,动画速度
 SETTINGS_FULLSCREEN,Fullscreen,全屏
 SETTINGS_SHOW_HINTS,Show hints,显示提示
@@ -94,6 +97,13 @@ HUD_WILL_DIE,Will fall,将阵亡
 HUD_COOLDOWN,Ready in {n} rounds,{n}回合后就绪
 HUD_COOLDOWN_ONE,Ready in 1 round,1回合后就绪
 HUD_READY,Ready,就绪
+HUD_SIDE_OWN,Your hero,我方武将
+HUD_SIDE_ENEMY,Enemy hero,敌方武将
+HUD_HERO_FALLEN,Fallen in battle,已阵亡
+HUD_HERO_PLANNED,Deploying to {lane},将出阵{lane}
+HUD_HERO_DEPLOYS_IN,Deploys in {n} rounds,{n}回合后可出阵
+HUD_HERO_DEPLOYS_IN_ONE,Deploys in 1 round,1回合后可出阵
+HUD_HERO_INSPECT,Right-click for details,右键查看详情
 HUD_TIMER,{minutes}:{seconds},{minutes}:{seconds}
 HUD_INCOMING_DAMAGE,Takes {n} damage in combat.,交战中将受到{n}点伤害。
 HUD_WAITING,Waiting,等待中

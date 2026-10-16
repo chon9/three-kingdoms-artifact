@@ -12,7 +12,10 @@ const ANIMATION_SPEEDS = [1.0, 1.5, 2.0]
 static var locale: String = "en"
 static var skin: String = DEFAULT_SKIN
 static var animation_speed: float = 1.0
+## Master volume (every sound), then the music and the sound effects under it.
 static var volume: float = 0.7
+static var music_volume: float = 0.6
+static var sfx_volume: float = 1.0
 ## Every sound off (the M key toggles it in a match).
 static var muted: bool = false
 ## A chime and a banner when it becomes your action.
@@ -34,6 +37,11 @@ static func default_locale() -> String:
 static func normalize_locale(value: String) -> String:
 	return "zh_CN" if value.to_lower().begins_with("zh") else "en"
 
+## A stored audio level in 0..1, or `fallback` when it is not a number.
+static func _level(config: ConfigFile, key: String, fallback: float) -> float:
+	var value = config.get_value("audio", key, fallback)
+	return clampf(float(value), 0.0, 1.0) if value is float or value is int else fallback
+
 ## A stored flag, or `fallback` when the file holds anything but a bool.
 static func _flag(config: ConfigFile, section: String, key: String, fallback: bool) -> bool:
 	var value = config.get_value(section, key, fallback)
@@ -50,7 +58,9 @@ static func load_settings(path: String = PATH) -> void:
 		animation_speed = clampf(float(config.get_value("display", "animation_speed", 1.0)), 0.5, 3.0)
 		show_history = _flag(config, "display", "show_history", true)
 		match_intro = _flag(config, "display", "match_intro", true)
-		volume = clampf(float(config.get_value("audio", "volume", 0.7)), 0.0, 1.0)
+		volume = _level(config, "volume", 0.7)
+		music_volume = _level(config, "music_volume", 0.6)
+		sfx_volume = _level(config, "sfx_volume", 1.0)
 		muted = _flag(config, "audio", "muted", false)
 		turn_alert = _flag(config, "audio", "turn_alert", true)
 		flash_window = _flag(config, "audio", "flash_window", true)
@@ -61,11 +71,14 @@ static func load_settings(path: String = PATH) -> void:
 		show_history = true
 		match_intro = true
 		volume = 0.7
+		music_volume = 0.6
+		sfx_volume = 1.0
 		muted = false
 		turn_alert = true
 		flash_window = true
 	loaded = true
 	apply()
+	apply_audio()
 
 static func save_settings(path: String = PATH) -> Error:
 	var config = ConfigFile.new()
@@ -76,6 +89,8 @@ static func save_settings(path: String = PATH) -> Error:
 	config.set_value("display", "show_history", show_history)
 	config.set_value("display", "match_intro", match_intro)
 	config.set_value("audio", "volume", volume)
+	config.set_value("audio", "music_volume", music_volume)
+	config.set_value("audio", "sfx_volume", sfx_volume)
 	config.set_value("audio", "muted", muted)
 	config.set_value("audio", "turn_alert", turn_alert)
 	config.set_value("audio", "flash_window", flash_window)
@@ -103,11 +118,25 @@ static func set_animation_speed(value: float, persist: bool = true) -> void:
 
 static func set_volume(value: float, persist: bool = true) -> void:
 	volume = clampf(value, 0.0, 1.0)
+	apply_audio()
+	if persist:
+		save_settings()
+
+static func set_music_volume(value: float, persist: bool = true) -> void:
+	music_volume = clampf(value, 0.0, 1.0)
+	apply_audio()
+	if persist:
+		save_settings()
+
+static func set_sfx_volume(value: float, persist: bool = true) -> void:
+	sfx_volume = clampf(value, 0.0, 1.0)
+	apply_audio()
 	if persist:
 		save_settings()
 
 static func set_muted(value: bool, persist: bool = true) -> void:
 	muted = value
+	apply_audio()
 	if persist:
 		save_settings()
 
@@ -134,3 +163,38 @@ static func set_match_intro(value: bool, persist: bool = true) -> void:
 ## The volume sounds play at: 0 while muted.
 static func effective_volume() -> float:
 	return 0.0 if muted else volume
+
+## The level sound effects play at (master times effects): 0 while muted.
+static func effective_sfx_volume() -> float:
+	return effective_volume() * sfx_volume
+
+# --- Audio buses ------------------------------------------------------------------
+
+## The buses every sound plays on: Master, with Music and SFX sending to it.
+const MUSIC_BUS = "Music"
+const SFX_BUS = "SFX"
+
+## Creates the Music and SFX buses when they are missing (the project ships
+## no bus layout; this works with the headless dummy driver too).
+static func ensure_audio_buses() -> void:
+	for bus_name in [MUSIC_BUS, SFX_BUS]:
+		if AudioServer.get_bus_index(bus_name) == -1:
+			AudioServer.add_bus()
+			var index = AudioServer.bus_count - 1
+			AudioServer.set_bus_name(index, bus_name)
+			AudioServer.set_bus_send(index, "Master")
+
+## Pushes volume and mute to the buses: Master carries the master volume and
+## the mute (music and effects both follow it), Music and SFX their own
+## levels. A level of 0 mutes its bus.
+static func apply_audio() -> void:
+	ensure_audio_buses()
+	_set_bus(AudioServer.get_bus_index("Master"), volume, muted)
+	_set_bus(AudioServer.get_bus_index(MUSIC_BUS), music_volume, false)
+	_set_bus(AudioServer.get_bus_index(SFX_BUS), sfx_volume, false)
+
+static func _set_bus(index: int, level: float, mute: bool) -> void:
+	if index < 0:
+		return
+	AudioServer.set_bus_mute(index, mute or level <= 0.0)
+	AudioServer.set_bus_volume_db(index, linear_to_db(maxf(level, 0.0001)))

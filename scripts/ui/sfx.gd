@@ -4,7 +4,8 @@ extends Node
 ## opponent passing or getting ready) and a Kenney Impact Sounds bell (the
 ## match intro's stamp). A small pool of players lets overlapping clicks ring
 ## together; alerts have a player of their own so a click never cuts a chime
-## off. Volume and mute follow the settings.
+## off. Every player plays on the SFX bus: its level is the effects volume,
+## and Master carries the master volume and the mute (game_settings.gd).
 
 const Settings = preload("res://scripts/core/game_settings.gd")
 const UI_PACK = "res://assets/third_party/kenney_ui_pack/sounds/"
@@ -45,13 +46,20 @@ var played_count: int = 0
 var counts: Dictionary = {}
 
 func _ready() -> void:
+	Settings.ensure_audio_buses()
 	for index in range(POOL):
 		var player = AudioStreamPlayer.new()
+		player.bus = Settings.SFX_BUS
 		add_child(player)
 		_players.append(player)
 	_alert = AudioStreamPlayer.new()
 	_alert.name = "Alert"
+	_alert.bus = Settings.SFX_BUS
 	add_child(_alert)
+
+## The players (tests check their bus).
+func players() -> Array:
+	return _players + [_alert]
 
 ## Plays one of SOUNDS from the shared pool.
 func play(sound: String) -> void:
@@ -68,14 +76,15 @@ func play_alert(sound: String) -> void:
 	_start(_alert, sound)
 
 func _start(player: AudioStreamPlayer, sound: String) -> bool:
-	var gain = Settings.effective_volume()
-	if gain <= 0.0:
+	# Silent (muted, or a level at 0): nothing starts.
+	if Settings.effective_sfx_volume() <= 0.0:
 		return false
 	var stream = _stream(sound)
 	if stream == null:
 		return false
 	player.stream = stream
-	player.volume_db = linear_to_db(gain) + float(TRIM_DB.get(sound, 0.0))
+	# The level comes from the buses; only the per-sound trim is set here.
+	player.volume_db = float(TRIM_DB.get(sound, 0.0))
 	player.play()
 	last_played = sound
 	played_count += 1

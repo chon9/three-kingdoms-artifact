@@ -1,0 +1,13 @@
+Determined Pursuit (epic orchestra loop) by Emma_MA
+Source: https://opengameart.org/content/determined-pursuit-epic-orchestra-loop
+File: https://opengameart.org/sites/default/files/determined_pursuit_loop.wav
+
+Licence listed on the source page: CC0 (http://creativecommons.org/publicdomain/zero/1.0/)
+Copyright/attribution notice on the page (quoted):
+  "This track is in the public domain as of January 2017. No attribution necessary."
+
+Files in this folder:
+  urgency_determined_pursuit.ogg  the full loop (0-108.0 s), -5.2 dB gain (about -18 LUFS),
+                                  re-encoded to OGG Vorbis q5 (played after a tower falls)
+
+Credit is not required; we give it anyway.

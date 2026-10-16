@@ -39,6 +39,7 @@ A legal deck has five different heroes, at least 40 main cards (one to three cop
 | Action | Mouse | Keyboard |
 |---|---|---|
 | Switch lane | Edge chevrons, or click a lane in the top-left lane HUD | **1** **2** **3**, **Left** / **Right** |
+| A hero in the lane HUD | Hover its portrait to see its card, stats and side, place and status (ready now, deploying to a lane, deploys in N rounds, fallen in battle, damage it will take, about to fall) and its active ability with its cooldown; right-click to inspect it | |
 | All three lanes | Double-click the board | **Tab** |
 | Play a card | Drag it out of your hand (or click it, then click the target) | |
 | Cancel a held card | Right-click, or drop it back on the hand | **Esc** |
@@ -47,7 +48,7 @@ A legal deck has five different heroes, at least 40 main cards (one to three cop
 | Inspect a card or unit | Right-click, or press and hold | |
 | Match log | Menu button (top right), or the book at the end of the card history | **L** |
 | Card history | The strip under the lane HUD, newest first: hover a card to see it and what it did, click it to open the log there (Settings → **Show card history**) | **H** shows or hides it |
-| Sound on / off | Settings | **M** |
+| Sound on / off | Settings (also the master, music and sound-effect volumes) | **M** |
 | Menu | Menu button | **Esc** |
 
 **Playing cards.** Glowing cards are playable; the others are dimmed and their tooltip says why (a colored card needs a hero of its color in the active lane, and enough mana). Untargeted spells drop anywhere on the board. Targeted cards draw an arrow: legal targets light up, releasing over one plays the card, releasing elsewhere cancels. Creeps drop into a highlighted combat position (an empty slot or a new position at either end). Equipment drops on an allied hero. Cross-lane cards switch lanes while you aim: hold the card at the screen edge (once per visit) or click a chevron. **Command Through the Emperor** (Battlefield Control) has two stages: drop it on the unit to redirect, then pick that unit's new target (a highlighted opposing unit or tower) with the second arrow.
@@ -55,6 +56,8 @@ A legal deck has five different heroes, at least 40 main cards (one to three cop
 **Initiative and combat.** The coin glows when you may act; passing hands the initiative over. When the action becomes yours a chime plays, "Your action" flashes over the river and rings spread from the coin (the taskbar flashes as well while the game is in the background; Settings has **Your-action alert**, **Flash taskbar on your action** and **Mute**, also the **M** key). After your opponent passes, the coin warns that passing now starts combat. Two passes in a row resolve simultaneous combat in the lane, and the first of those passers acts first in the next lane. Every unit shows its combat arrow on the river-facing edge (straight ahead or diagonal, gold when it will hit the tower) and a live damage preview: a red tag with the damage it will take, and a grey card with a red cross when it will die.
 
 **Shop and deployment.** After the right lane the shop chest opens: buy from the Secret Shop (or HOLD it for 1 gold), your item deck or the consumable slot, then click the coin. In deployment, every unit about to enter a lane floats in that lane's staging strip on the left: both players' new creeps, and your heroes once you plan them. Drag each ready hero from the camp onto a lane (or click a hero, then a lane); until you confirm with the coin you can drag a planned hero to another lane or back to the camp. The opponent's ready heroes are shown at the top, but never where they go. When both players have confirmed, the reveal flies every unit into the combat position the game chose, lane by lane, and shows where unblocked units will attack; click to skip it.
+
+**Music and sound.** Calm music plays on the menus; a fanfare opens every new match (not a restored replay or a rejoin) and leads into the battle theme, which turns into a tenser theme once any tower falls and stays until the match ends. After a result the music fades out and the menu theme returns. Tracks crossfade. Settings has **Master**, **Music** and **Sound effects** volume sliders (music 60% and effects 100% by default) next to **Mute**; mute and the master volume cover music and effects alike. The tracks are CC0 / public domain (see `CREDITS.md`).
 
 **Replays.** *Save replay* writes the complete command journal to the Godot user-data directory. **Replays** lists saved replays and restores the final state for local inspection or continuation. Replays reveal both players' cards, so do not share one during a live game. There is no timeline playback yet. A replay only loads with the rules it was recorded with: deck building changed the rules version, so **replays saved with v0.5.0 or earlier no longer load** (they are refused with "Replay was recorded with other card rules").
 
@@ -160,6 +163,10 @@ scripts/ui/card_art.gd            Card art lookup and generated placeholder art
 scripts/ui/*_overlay.gd           Shop, deployment, inspect and game-over overlays
 scripts/ui/*_dialog.gd            Settings, decks, deck list, deck builder, catalog, replays and Steam dialogs
 scripts/ui/deck_widgets.gd        Deck screen parts: collection cards, hero slots, rows, curve, lamps
+scripts/ui/lane_hud.gd            Top-left lane HUD: lanes, hero chips and their hover card
+scripts/ui/music.gd               Music states (menu, fanfare, battle, urgency) with crossfades
+scripts/ui/sfx.gd                 Sound effects on the SFX bus
+assets/third_party/music/         CC0 / public-domain music, one folder per artist with LICENSE.txt
 tests/                            Rule, protocol, i18n, UI and preview checks
 docs/                             Rule coverage, Steam instructions, roadmap, art prompts
 ```

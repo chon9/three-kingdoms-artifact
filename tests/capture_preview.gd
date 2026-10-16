@@ -85,6 +85,10 @@ extends SceneTree
 ## room_long(_zh) (both seats with long names, the opponent ready for a
 ## rematch: the ready marks are labels, not buttons) and
 ## game_over_host_left(_zh) (the guest's win, the session over).
+## v0.6.2: hud_hover(_zh) (a lane hero's hover card from the lane HUD, with
+## its live stats), hud_hover_fallen(_zh) (an enemy hero that fell, waiting
+## in the fountain) and hud_hover_classic (the classic skin). With only these
+## shots requested no other capture runs.
 ## Pass --size=1280x720 to check the smaller window, --out=res://dir/ to save
 ## the shots elsewhere.
 
@@ -140,6 +144,8 @@ const V061_SHOTS = ["turn_cue", "history", "history_zh", "history_hover", "game_
 	"room_waiting", "room_ready", "room_ready_zh", "room_guest", "room_deck", "versus", "versus_zh", "versus_local", "settings", "settings_zh",
 	"versus_online", "versus_online_zh", "board_online", "board_online_zh", "room_long", "room_long_zh", "game_over_host_left",
 	"game_over_host_left_zh"]
+## v0.6.2: the lane HUD's hero hover cards.
+const HUD_SHOTS = ["hud_hover", "hud_hover_zh", "hud_hover_fallen", "hud_hover_fallen_zh", "hud_hover_classic"]
 ## Steam names as long as Steam allows (32 characters) and a long Chinese one.
 const LONG_NAMES = ["ThisIsAVeryLongSteamNameForTest!", "司马懿仲达不死之谋略大将军天下无双第一谋士"]
 const DeckStore = preload("res://scripts/core/deck_store.gd")
@@ -278,6 +284,13 @@ func _run() -> void:
 		await process_frame
 		quit(0)
 		return
+	if not only.is_empty() and only.all(func(shot_name): return shot_name in HUD_SHOTS):
+		await _capture_hud_hover()
+		print("Shots: ", ", ".join(saved))
+		app.queue_free()
+		await process_frame
+		quit(0)
+		return
 	if not only.is_empty() and only.all(func(shot_name): return shot_name in V061_SHOTS):
 		await _capture_v061()
 		print("Shots: ", ", ".join(saved))
@@ -340,6 +353,7 @@ func _run() -> void:
 	await _capture_m6()
 	await _capture_m7()
 	await _capture_v061()
+	await _capture_hud_hover()
 	app.show_main_menu()
 	await _capture_decks()
 	print("Shots: ", ", ".join(saved))
@@ -1982,3 +1996,58 @@ func _capture_review_fixes() -> void:
 			await _shot(spec[0])
 			_leave_stub_room()
 		app.set_locale("en")
+
+## The lane HUD's hover cards mid-game: an enemy hero in the shown lane (live
+## stats) and an enemy hero that fell (in the fountain, two rounds out), in
+## both languages and the classic skin.
+func _capture_hud_hover() -> void:
+	if not HUD_SHOTS.any(func(shot_name): return _wanted(shot_name)):
+		return
+	var screen = app.screen
+	var hud = screen.hud
+	Settings.set_match_intro(false, false)
+	app.controller.current_seed = SEED
+	app.deck_selections = ["starter", "green_assault"]
+	AnimationQueue.instant = true
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	_advance(_busy_lane)
+	var engine = app.engine
+	# An enemy hero outside the shown lane falls (as the kernel does it).
+	var fallen: Dictionary = {}
+	for unit in engine.state.players[1].roster:
+		if int(unit.get("lane", -1)) != -1 and int(unit.lane) != int(engine.state.lane) and fallen.is_empty():
+			fallen = unit
+	if not fallen.is_empty():
+		engine._remove_from_lane(fallen)
+		engine._enter_fountain(fallen, int(engine.state.round) + 2)
+		engine._event("death", {"p": 1, "uid": fallen.uid, "card": fallen.card, "gold": 0})
+	_publish()
+	await _idle()
+	AnimationQueue.instant = false
+	var lane_uid = -1
+	for entry in hud.hero_chips():
+		if int(entry.lane) == int(engine.state.lane) and int(entry.side) == 0 and lane_uid == -1:
+			lane_uid = int(entry.hero.uid)
+	if lane_uid == -1 and not hud.hero_chips().is_empty():
+		lane_uid = int(hud.hero_chips()[0].hero.uid)
+	var fallen_uid = int(fallen.get("uid", lane_uid))
+	for spec in [["hud_hover", "en", "three_kingdoms", lane_uid], ["hud_hover_zh", "zh_CN", "three_kingdoms", lane_uid],
+			["hud_hover_fallen", "en", "three_kingdoms", fallen_uid], ["hud_hover_fallen_zh", "zh_CN", "three_kingdoms", fallen_uid],
+			["hud_hover_classic", "en", "classic", lane_uid]]:
+		if not _wanted(spec[0]):
+			continue
+		app.set_locale(spec[1])
+		app.set_skin(spec[2])
+		_mouse(Vector2(screen.size.x * 0.5, screen.size.y * 0.45))
+		await _wait(0.2)
+		var point = hud.hero_chip_center(int(spec[3]))
+		_mouse(point + Vector2(1, 0))
+		await _frames(2)
+		_mouse(point)
+		await _wait(0.4)
+		await _shot(spec[0])
+	_mouse(Vector2(screen.size.x * 0.5, screen.size.y * 0.45))
+	app.set_locale("en")
+	app.set_skin("three_kingdoms")
+	await _wait(0.2)

@@ -1,6 +1,6 @@
 extends "res://scripts/ui/modal_panel.gd"
-## Settings: language (applied live), card theme, animation speed, volume
-## and mute, the your-action alert (chime and banner), the taskbar flash, the
+## Settings: language (applied live), card theme, animation speed, the
+## master, music and sound-effect volumes and mute, the your-action alert (chime and banner), the taskbar flash, the
 ## card history strip, the match intro and fullscreen. Choices persist in
 ## user://settings.cfg.
 
@@ -9,13 +9,23 @@ signal setting_changed(kind: String)
 const Settings = preload("res://scripts/core/game_settings.gd")
 ## The on/off settings, shown two per row, and their captions.
 const TOGGLES = ["fullscreen", "mute", "turn_alert", "flash_window", "show_history", "match_intro"]
+## The volume sliders and their captions: master (every sound, mute too),
+## music, sound effects.
+const LEVELS = ["master", "music", "sfx"]
+const LEVEL_KEYS = {"master": "SETTINGS_VOLUME_MASTER", "music": "SETTINGS_VOLUME_MUSIC", "sfx": "SETTINGS_VOLUME_SFX"}
 const TOGGLE_KEYS = {"fullscreen": "SETTINGS_FULLSCREEN", "mute": "SETTINGS_MUTE", "turn_alert": "SETTINGS_TURN_ALERT",
 	"flash_window": "SETTINGS_FLASH_WINDOW", "show_history": "SETTINGS_HISTORY", "match_intro": "SETTINGS_MATCH_INTRO"}
 
 var language_buttons: Dictionary = {}
 var skin_buttons: Dictionary = {}
 var speed_buttons: Dictionary = {}
+## The level sliders by name (LEVELS); `volume_slider` is the master one.
 var volume_slider: HSlider
+var music_slider: HSlider
+var sfx_slider: HSlider
+var sliders: Dictionary = {}
+var level_labels: Dictionary = {}
+var level_values: Dictionary = {}
 var fullscreen_toggle: CheckButton
 ## Every toggle by name (TOGGLES), the fullscreen one included.
 var toggles: Dictionary = {}
@@ -25,7 +35,7 @@ var skin_hint: Label
 func _init() -> void:
 	super()
 	title_key = "SETTINGS_TITLE"
-	panel_size = Vector2(760, 640)
+	panel_size = Vector2(760, 740)
 
 func build() -> void:
 	captions.language = _row_caption()
@@ -56,16 +66,34 @@ func build() -> void:
 		choice.pressed.connect(_choose_speed.bind(speed))
 		speed_buttons[speed] = choice
 	captions.volume = _row_caption()
-	volume_slider = HSlider.new()
-	volume_slider.min_value = 0.0
-	volume_slider.max_value = 1.0
-	volume_slider.step = 0.05
-	volume_slider.value = Settings.volume
-	volume_slider.custom_minimum_size = Vector2(320, 28)
-	volume_slider.value_changed.connect(func(value):
-		Settings.set_volume(value)
-		setting_changed.emit("volume"))
-	body.add_child(volume_slider)
+	var levels = GridContainer.new()
+	levels.name = "Levels"
+	levels.columns = 3
+	levels.add_theme_constant_override("h_separation", 16)
+	levels.add_theme_constant_override("v_separation", 2)
+	body.add_child(levels)
+	for level in LEVELS:
+		var caption = label(levels, "", 17)
+		caption.custom_minimum_size.x = 150
+		level_labels[level] = caption
+		var slider = HSlider.new()
+		slider.name = "Volume_" + level
+		slider.min_value = 0.0
+		slider.max_value = 1.0
+		slider.step = 0.05
+		slider.value = _level(level)
+		slider.custom_minimum_size = Vector2(380, 28)
+		slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		slider.value_changed.connect(_on_level_changed.bind(level))
+		levels.add_child(slider)
+		sliders[level] = slider
+		var value = label(levels, _percent(_level(level)), 16, UiKit.PAPER_DIM)
+		value.custom_minimum_size.x = 56
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		level_values[level] = value
+	volume_slider = sliders.master
+	music_slider = sliders.music
+	sfx_slider = sliders.sfx
 	var grid = GridContainer.new()
 	grid.name = "Toggles"
 	grid.columns = 2
@@ -82,6 +110,29 @@ func build() -> void:
 		grid.add_child(toggle)
 		toggles[toggle_name] = toggle
 	fullscreen_toggle = toggles.fullscreen
+
+## The stored level of slider `level` (LEVELS).
+func _level(level: String) -> float:
+	match level:
+		"music":
+			return Settings.music_volume
+		"sfx":
+			return Settings.sfx_volume
+	return Settings.volume
+
+static func _percent(value: float) -> String:
+	return "%d%%" % roundi(value * 100.0)
+
+func _on_level_changed(value: float, level: String) -> void:
+	match level:
+		"music":
+			Settings.set_music_volume(value)
+		"sfx":
+			Settings.set_sfx_volume(value)
+		_:
+			Settings.set_volume(value)
+	level_values[level].text = _percent(value)
+	setting_changed.emit("volume" if level == "master" else level + "_volume")
 
 ## The current value of toggle `toggle_name`.
 func _value(toggle_name: String) -> bool:
@@ -133,6 +184,10 @@ func refresh_text() -> void:
 	captions.skin.text = UiKit.t("SETTINGS_SKIN")
 	captions.speed.text = UiKit.t("SETTINGS_ANIMATION_SPEED")
 	captions.volume.text = UiKit.t("SETTINGS_VOLUME")
+	for level in LEVELS:
+		level_labels[level].text = UiKit.t(LEVEL_KEYS[level])
+		sliders[level].set_value_no_signal(_level(level))
+		level_values[level].text = _percent(_level(level))
 	skin_hint.text = UiKit.t("SETTINGS_SKIN_HINT")
 	for toggle_name in toggles:
 		toggles[toggle_name].text = UiKit.t(TOGGLE_KEYS[toggle_name])

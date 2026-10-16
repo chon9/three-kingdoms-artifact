@@ -77,8 +77,7 @@ func _refresh_tooltip() -> void:
 		for card_id in counts:
 			names.append(Library.loc(card_id) + ("" if int(counts[card_id]) == 1 else " ×%d" % int(counts[card_id])))
 		lines.append(UiKit.t("PANEL_DEEDS", {"deeds": UiKit.t("LIST_SEPARATOR").join(names)}))
-	tooltip_text = "
-".join(lines)
+	tooltip_text = "\n".join(lines)
 
 func menu_rect() -> Rect2:
 	return Rect2(size.x - 44, 5, 36, 36)

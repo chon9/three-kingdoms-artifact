@@ -1,0 +1,15 @@
+10 Fanfares (chinese-inspired) by Spring Spring
+Source: https://opengameart.org/content/10-fanfares
+File: https://opengameart.org/sites/default/files/10%20fanfares_0.ogg
+
+Licences listed on the source page: CC-BY 3.0, CC-BY-SA 3.0, OGA-BY 3.0, CC0.
+The work is multi-licensed; this project uses it under CC0 1.0 Universal:
+https://creativecommons.org/publicdomain/zero/1.0/
+Page description (quoted): "10 chinese-inspired fanfares, in sequence, one after the other."
+
+Files in this folder:
+  battle_start_fanfare.ogg  the fanfare at 27.4-38.6 s of the original file, with a
+                            0.4 s fade-out and -4.4 dB gain (about -18 LUFS),
+                            re-encoded to OGG Vorbis q5 (played once when a match begins)
+
+Credit is not required under CC0; we give it anyway.
