@@ -4,8 +4,8 @@ extends RefCounted
 ## content hash carry it, so a rules change never replays or connects
 ## silently. tests/rules_schema_test.gd fails when it is stale.
 
-const RULES_VERSION = "6b93276c8b59"
-const CODE_HASH = "6b93276c8b598d9556a079baacd02f2e4b7b9d741b524f46cf4a2d3cc544890a"
+const RULES_VERSION = "873b1d204ead"
+const CODE_HASH = "873b1d204ead1e869b02875f71bd91f018fe731572c0e0973640a933ea37a4aa"
 const FILES = [
 	"data/classic_cards.json",
 	"data/training_cards.json",

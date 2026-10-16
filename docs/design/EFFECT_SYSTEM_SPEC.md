@@ -51,7 +51,7 @@ Words in this spec:
 2. **Round 1, lane 0, gets a before-the-action phase** at the end of `start()`.
 3. **Rules code is part of the network content hash and the replay identity.** A generated `RULES_VERSION` is needed because exported builds use `script_export_mode=2` (binary tokens), so the scripts cannot be hashed at runtime.
 4. **Recordings of today's behaviour** (goldens) gate every refactor step.
-5. **Kanna's pending lane creeps are published as `-1`,** so her private lane plan never leaks.
+5. **Kanna's pending lane creeps are published as `-1`,** so her private lane plan never leaks. (Superseded by the RQ-22 ruling: only a Kanna already in a lane redirects, so her lane is public and the creeps are published in it; see "Rulings as built" in §12.)
 6. **Natives are stateless static handlers** with a lint, capped at 5 and planned at 0.
 7. **A spec text-drift meta test:** spec text must equal the Valve text.
 
@@ -446,7 +446,7 @@ A selector is a Ref, a shorthand string, a dictionary, or a list. A list is the 
 | `attackers` | Enemy units in X's lane whose current combat target is X and that are not disarmed (RQ-05). |
 | `equipped_on` | Item instances on hero X (`s: items`). |
 
-If X is a look-back snapshot (it left play during this command), the relation reads the snapshot's lists and keeps only objects that are still in play (RQ-16).
+If X is a look-back snapshot (it left play during this command), the relation reads the snapshot's lists and keeps only objects that are still in play (RQ-16): the units that were beside X when it died and survive.
 
 **Canonical order:**
 
@@ -542,7 +542,7 @@ Every op ignores objects that are not in play (D6). "Set" in this table means a 
 | `gold` | `player`, `add` Expr or `set` Expr, `as` var | Never below 0. With `set`, `as` receives the amount removed (Spend all your gold). | `gold {p, n}` |
 | `mana` | `to` towers, `restore` Expr or `"full"` | Current mana goes up, capped at `max_mana`. Changes to max mana use `give` or `modify` with `stats.mana`. | `mana {lane, p, n}` |
 | `initiative` | — | `ctx.keep_initiative = true` (the same as `play.initiative`). | — |
-| `end_action_phase` | — | When the command finishes, the lane goes to combat with no passes (RQ-20). | — |
+| `end_action_phase` | — | When the command finishes, the action phase ends for both players and the lane goes to combat with no passes (RQ-20). | — |
 | `let` | `name`, `value` Expr, Sel or Ref | Binds a variable. A selection is captured as a list of ids. | — |
 | `if` | `cond`, `then`, `else` | | — |
 | `repeat` | `times` Expr (evaluated once), `ops` | | — |
@@ -630,7 +630,7 @@ Lock is card state, not a keyword. Taunt is an op.
 | `round_draw` | Expr | The round draw is `2 + Σ` (Troll Soothsayer, Howling Mind). |
 | `forbid_play` | `{"kinds": [...], "lane": "self"}` | `legal_actions` drops those card kinds while the active lane is the source's lane (The Oath). |
 | `secret_shop_discount` | Expr | Secret Shop price = `base − Σ × base`. A negative price pays gold (Shop Deed, RQ-26). |
-| `creep_lane` | `"self"` | The player's lane creeps deploy into the source hero's lane (Kanna, RQ-22). Sources are heroes in a lane **or ready to deploy this round**. |
+| `creep_lane` | `"self"` | The player's lane creeps deploy into the source hero's lane (Kanna, RQ-22). Sources are heroes **in a lane** when the lane creeps are assigned; a hero in the Fountain, ready or planned, is none. |
 
 ### 3.12 Granted text and hacks
 
@@ -955,9 +955,9 @@ e._check_winner()
 | `_play` | As described in §1.3. |
 | `apply_action` `"ability"` | The source must be live and usable. `VM.run`, then `cd = cooldown` (quicken), event `ability {p, uid: source id, card, ability}` (the existing key and fields), Pulse, `_check_winner`, `_finish_action(p, false)`. |
 | `_pass`, second pass | Sets `initiative = first_pass` (unchanged) → `Combat.resolve` → if there is a winner, return → if `lane < 2`: `lane += 1`, `active = initiative`, event `lane_open`, `Kernel.lane_open(e, lane, true)`; otherwise the shop (unchanged). |
-| `_end_action_phase` (Enough Magic!) | After `_finish_action(p, false)` (the opponent gets initiative, RQ-20), runs the same path as a second pass. |
-| `_begin_deployment` | First `Kernel.end_of_round(e)` (see the list below). Then the existing body. Before `_event("deployment")`, a player whose `rules_of(p).creep_lane` has a live or ready Kanna has every pending creep lane replaced by `-1`, after the random draws, so randomness is unchanged (RQ-22). |
-| `_reveal_deployment` | Per player: `Zones.draw(p, 2 + rules_of(p).round_draw)`, then hero plans, then creeps, with `-1` resolved to Kanna's planned or current lane. **[CF-9]** The draw comes before any placement, so its `card_drawn` triggers are collected from items whose host is *already* in a lane (a Claszureme Hourglass on a hero returning from the Fountain does not lock these two cards; RQ-51). They resolve in the deployment Pulse below, after `end_of_round`, so a lock they add lasts the whole new round. Then `_place_all` (same shuffle) → for each placed unit in placement order emit `unit_entered{how:"deploy"}` → emit `deployment` → `e._deploying = true`, Pulse, `e._deploying = false` (summons skip their own arrow roll) → `_roll_arrows()` → the existing phase/active/first_pass assignments → `deployment_placed`, with slots read **after** the Pulse → `deployment_revealed` → `Kernel.lane_open(e, 0, false)`. |
+| `_end_action_phase` (Enough Magic!) | After `_finish_action(p, false)` (the opponent gets initiative, the remaining RQ-20 default), runs the same path as a second pass: the action phase ends for both players. |
+| `_begin_deployment` | First `Kernel.end_of_round(e)` (see the list below). Then the existing body. Before `_event("deployment")`, a player with a creep_lane hero in a lane (`Stats.creep_lane_heroes`: Kanna alive on the board) has every pending creep lane replaced by that hero's lane, after the random draws, so randomness is unchanged (RQ-22). |
+| `_reveal_deployment` | Per player: `Zones.draw(p, 2 + rules_of(p).round_draw)`, then hero plans, then creeps in their published lanes (Kanna's already name her lane). **[CF-9]** The draw comes before any placement, so its `card_drawn` triggers are collected from items whose host is *already* in a lane (a Claszureme Hourglass on a hero returning from the Fountain does not lock these two cards; RQ-51). They resolve in the deployment Pulse below, after `end_of_round`, so a lock they add lasts the whole new round. Then `_place_all` (same shuffle) → for each placed unit in placement order emit `unit_entered{how:"deploy"}` → emit `deployment` → `e._deploying = true`, Pulse, `e._deploying = false` (summons skip their own arrow roll) → `_roll_arrows()` → the existing phase/active/first_pass assignments → `deployment_placed`, with slots read **after** the Pulse → `deployment_revealed` → `Kernel.lane_open(e, 0, false)`. |
 | `_prepare_shop` / buy | Prices come from `Kernel.price_of(e, p, source, card)`: Secret Shop `base − discount × base`; others `base`. `legal_actions` and `apply_action` both use it. |
 
 `Kernel.end_of_round(e)`, in this order:
@@ -1233,7 +1233,7 @@ Each block below is a valid card entry, or an array of entries, in schema 4. Ima
 
 ```json
 {"id": "chain_frost", "source_id": 10318, "kind": "spell", "color": "black", "cost": 7, "amount": 3, "repeat": 7,
- "status": "draft", "rq": ["RQ-15", "RQ-16"],
+ "status": "verified", "rq": ["RQ-15", "RQ-16"],
  "play": {"initiative": true,
   "choices": [{"key": "target", "from": "units"}],
   "ops": [
@@ -1246,9 +1246,11 @@ Each block below is a valid card entry, or an array of entries, in schema 4. Ima
      {"op": "damage", "to": "$v.next", "amount": {"param": "amount"}},
      {"op": "let", "name": "prev", "value": "$v.next"}]}]}}
 ```
-- The Pulse at the start of each repetition removes the dead and resolves triggers.
-- If `$v.prev` died, `allied_neighbors` reads its snapshot's neighbor uids that are still in play.
-- When there are none, the remaining bounces fizzle (RQ-16, low confidence). The card stays `draft` until a reference match confirms this; the pinned test is `rq_16_chain_frost_fizzles`.
+- Ruling of the original game (RQ-16): the game pulses between every bounce, and a unit a bounce kills is removed at once, so later bounces cannot target it and look to the adjacent surviving units. The card is `verified`.
+- The Pulse at the start of each repetition removes the dead and resolves triggers, so the bounce after it chooses among survivors only.
+- "Its left or right" is the last unit hit. If `$v.prev` lives, its allied neighbors on the board now (an emptied position that collapsed makes the outer units adjacent; one that stays, with a unit across it, keeps them apart). If `$v.prev` died, it has no position any more: `allied_neighbors` reads its look-back snapshot, the units directly beside it when it died, and keeps those still in play. A neighbor that died in the same Pulse is skipped, not looked past.
+- When there are none, the remaining bounces fizzle. Get initiative follows the last bounce.
+- Tests: `rq_16_chain_frost_fizzles`, `rq_16_chain_frost_pulse` (a Pulse between hits, no hit after a death, `tests/cards/extra/chain_frost_pulses.gd`), `rq_16_chain_frost_gap` (Chain Frost spec) and `rq_16_chain_frost_model` (160 random boards against a model, mechanics test).
 
 ### 5.13 Relentless Pursuit: a cross-lane choice, a random move and a Pulse
 
@@ -1365,12 +1367,14 @@ Each block below is a valid card entry, or an array of entries, in schema 4. Ima
 
 ```json
 {"id": "kanna", "source_id": 10031, "kind": "hero", "color": "blue", "attack": 2, "armor": 0, "health": 12,
- "signature": "prey_on_the_weak", "status": "draft", "rq": ["RQ-22"],
+ "signature": "prey_on_the_weak", "status": "verified", "rq": ["RQ-22"],
  "abilities": [{"id": "bringer_of_conquest", "valve": 10503, "kind": "aura", "affects": "you",
                 "grant": {"rules": {"creep_lane": "self"}}}]}
 ```
-- At `_begin_deployment`, the player's pending creep lanes are still drawn, so randomness is unchanged. They are then published as `-1` ("Kanna's lane") if Kanna is in a lane or ready to deploy.
-- At reveal, `-1` resolves to her planned or current lane. Her private plan never appears in any event before the reveal.
+- Ruling of the original game (RQ-22): normally the two random lane creeps scatter across the lanes; as long as Kanna is alive on the board (in a lane), all of them deploy into her lane. Dead, in the Fountain or not yet deployed, she redirects nothing.
+- At `_begin_deployment`, the player's pending creep lanes are still drawn, so randomness is unchanged. If Kanna is in a lane at that moment, they are replaced by her lane and published so; her lane is public, so nothing leaks.
+- A Kanna in the Fountain, ready or planned this phase, does not redirect: the creeps keep their random lanes and her private plan changes no published lane. Nothing happens between the assignment and the reveal, so the creeps are placed where they were published.
+- (Before the ruling, M4 also redirected for a ready Kanna in the Fountain, publishing `-1` and resolving it to her planned lane at the reveal; that path is gone.)
 
 ### 5.19 Ogre Magi: a 25% base copy of the played card
 
@@ -1517,12 +1521,12 @@ Each block below is a valid card entry, or an array of entries, in schema 4. Ima
   "rq": ["RQ-21"],
   "abilities": [{"id": "confusion", "kind": "trigger", "on": "unit_entered",
                  "ops": [{"op": "give", "to": "$e.unit", "keywords": {"stun": 1}, "until": "round"}]}]},
- {"id": "enough_magic", "source_id": 10326, "kind": "spell", "color": "red", "cost": 5, "status": "draft", "rq": ["RQ-20"],
+ {"id": "enough_magic", "source_id": 10326, "kind": "spell", "color": "red", "cost": 5, "status": "verified", "rq": ["RQ-20"],
   "play": {"ops": [{"op": "end_action_phase"}]}}
 ]
 ```
 - **Glyph of Confusion.** `unit_entered` fires for every placement into the Glyph's lane: deployment (the entrants stay stunned for the whole new round), creep plays, summons, moves in, and control changes. Swaps inside the lane do not fire it (RQ-21).
-- **Enough Magic!** After the card resolves, `_finish_action(p, false)` hands initiative to the opponent, and the lane goes straight to combat as if both players had passed. The card stays `draft` until a reference match confirms RQ-20.
+- **Enough Magic!** Ruling of the original game (RQ-20): playing it ends the action phase at once for both players in that lane, so the opponent gets no further plays, and the lane goes straight to combat. After the card resolves, `_finish_action(p, false)` hands initiative to the opponent and the lane fights as if both players had passed. The ruling does not say who gets initiative for the next lane; the caster's opponent is the one remaining default (low confidence). The card is `verified`.
 
 ---
 
@@ -1885,7 +1889,7 @@ The deployment staging, reveal, shop and coin code is unchanged.
 
    The bot simulates the best 40.
 5. **Random cards** (`static_value.random`) are simulated with seeds 1, 2 and 3 and averaged, from M4.
-6. **Deployment.** `_deployment_lane` treats a pending creep lane of `-1` as the lane where its Kanna is planned. Otherwise it is unchanged.
+6. **Deployment.** `_deployment_lane` counts each pending lane creep in its published lane. (Kanna's are published in her lane since the RQ-22 ruling, so no `-1` remains to resolve.)
 7. **Shop.** It reads `price_of` (Deed prices can be negative). `_should_hold` is unchanged.
 8. **Tests:**
    - Existing bot matches.
@@ -1931,7 +1935,7 @@ The deployment staging, reveal, shop and coin code is unchanged.
 | `plans`, `shop`, `held_secret`, `bought` | visible | redacted (existing) |
 | `deeds`, improvements, items, `mods` | visible | visible (public board) |
 | event `_s` | merged for the viewer | stripped |
-| `pending_creeps` | `-1` for Kanna's player, until the reveal | same |
+| `pending_creeps` | visible (Kanna's name her lane, RQ-22) | same |
 
 Tests (§13.3):
 - **Taint fuzz.** Each player's hidden card ids and `iid`s never appear in `JSON.stringify(player_view(other))`.
@@ -2146,12 +2150,12 @@ Where the acceptance lives: the keyword matrix, durations, Purge, the Fountain, 
 - **Bot.** The prefilter starts above 100 candidates, not 60, and keeps `pass`, every ability and the best 3 combinations per hand card up to 40: at 60 it changed the bot's choices in three golden games (the most legal actions in any golden step is 81). Siege is left out of the `0.3 ×` keyword term: siege already counts through the preview's tower damage, and the term changed two golden games. `bot_budget` runs on the M2 fixture dense board (3 lanes × 8 positions, 6 items, 16 improvements per side, a 10-card hand) and is normalized by the machine's speed (the legacy full match divided by `perf_baseline.json`'s).
 - **Preview.** `heal` is what regeneration actually restores after the combat's damage (up to the maximum), and `dies` includes the lane-local Soulbound closure (shields still save), so it equals what `Combat.resolve` does.
 - **Hacks** run after the played card's ops and their Pulse, each as a `trigger` event with ability `hack` (empty `src`), with `$self` the played card (`{card, state}`), then a Pulse, before `card_played`.
-- **Zones.** A move to a position taken in the meantime fizzles; control of a roster hero fizzles; locks apply only to cards in hand; `add_card` with an unknown id fizzles; lane creeps that follow a hero go to lane 0 when no such hero is found at the reveal. The `swap` event also carries `card`, `other`, `p` and `lane`.
+- **Zones.** A move to a position taken in the meantime fizzles; control of a roster hero fizzles; locks apply only to cards in hand; `add_card` with an unknown id fizzles; lane creeps that follow a hero go to lane 0 when no such hero is found at the reveal (superseded by the RQ-22 ruling: the creeps are now published in the hero's lane, and no `-1` lane exists). The `swap` event also carries `card`, `other`, `p` and `lane`.
 - **Packs.** `CardLibrary.from_file` registers a test pack by id (`known_pack`, `open`); `load_replay` keeps the current library when the replay's pack matches it. Fixture cards are `verified`, so random fuzz decks validate. Test packs carry granted text inline in a `grant_text` card field (the Classic pack uses locale `grants`).
 - **Tests.** Fuzz failures are saved under `res://.tools/fuzz_failures/`, not `user://`. Meta tests 5 to 7 cover the Classic pack (training cards have no `valve_text`) and live in `rules_schema_test`; `tests/data/coverage.json` records the SHA-256 of `tools/coverage.py`, and the schema test fails when the table is stale.
 - **Speed.** Listener contexts are built only for units that listen or carry granted abilities, aura scans skip zones that cannot hold a wanted aura (`CardLibrary.aura_holders`), settle derives only tower mana, and the combat plan maps victims by uid.
 - **Review fixes (after the M2 review).** `next_combat` entries given while their own lane's combat resolves (a death or battle-damage trigger in its Pulse) carry that combat's `combat_seq` and outlast it, ending with the lane's next combat. The `attackers` relation and death snapshots skip stunned and disarmed attackers (`Stats.flag`). Soulbound closes only from units that actually die (the order above; `Combat.plan` matches). Discard and card counters find hand handles by `iid`. The bot scores the locks its own plays add from a compiled static value (`static.lock`: random opponent hand cards a play locks), up to the opponent's unlocked cards (public), because its simulation has no opponent hand.
-- **UI.** Improvement chips start 26 px right of the tower (not 18) to clear the pending-damage tag; while the stepper asks for an improvement, every chip shows, compressed into the usual six-chip span so the row stays clear of the coin. Book marks and charges badges are drawn in a pass above every chip, and the hovered chip is drawn in front, so an overlapping row never hides them. Hovering or clicking a "+n" chip opens its lane's rows the same way (they close when the pointer leaves them or a press lands elsewhere; a press on the "+n" spot right after a hover opened the rows only opens them), and "+n" glows while an own chip it hides can be used. A cooling chip without art darkens its letter almost fully under the number. In a lane step the hint sits in the band below the lane panels. A hand card's note (reason and marks; a lock mark replaces the "Locked" reason) shows in a panel beside the lifted card, level with its art, instead of a cursor tooltip; lock, charges and cooldown strings have singular forms (`*_ONE`). A lane step opens the overview and closes it again. Ability holds start in click mode. Tower badges sit under the health plate; hand badges run down the card's left edge (the visible spine of the fan). Inspect adds a statuses line and one line per badge explaining it (`BADGE_*`), and hand tooltips explain their marks. The hard sync now happens only when events rolled out of the window; a longer burst animates its first 60 animated events and applies the rest at once. Your own hero-following lane creeps are staged in that hero's lane during deployment; the opponent's stay hidden until the reveal.
+- **UI.** Improvement chips start 26 px right of the tower (not 18) to clear the pending-damage tag; while the stepper asks for an improvement, every chip shows, compressed into the usual six-chip span so the row stays clear of the coin. Book marks and charges badges are drawn in a pass above every chip, and the hovered chip is drawn in front, so an overlapping row never hides them. Hovering or clicking a "+n" chip opens its lane's rows the same way (they close when the pointer leaves them or a press lands elsewhere; a press on the "+n" spot right after a hover opened the rows only opens them), and "+n" glows while an own chip it hides can be used. A cooling chip without art darkens its letter almost fully under the number. In a lane step the hint sits in the band below the lane panels. A hand card's note (reason and marks; a lock mark replaces the "Locked" reason) shows in a panel beside the lifted card, level with its art, instead of a cursor tooltip; lock, charges and cooldown strings have singular forms (`*_ONE`). A lane step opens the overview and closes it again. Ability holds start in click mode. Tower badges sit under the health plate; hand badges run down the card's left edge (the visible spine of the fan). Inspect adds a statuses line and one line per badge explaining it (`BADGE_*`), and hand tooltips explain their marks. The hard sync now happens only when events rolled out of the window; a longer burst animates its first 60 animated events and applies the rest at once. Your own hero-following lane creeps are staged in that hero's lane during deployment; the opponent's stay hidden until the reveal (superseded by the RQ-22 ruling: both players see the creeps in Kanna's lane from the start of deployment).
 
 ### M3 to M7. Card batches
 
@@ -2180,7 +2184,7 @@ Each card lands in the milestone where all its mechanics exist. The lists are in
 |---|---|---|
 | **M3 Red and Green** | 92 | Retaliate in Duel and Berserker's Call; Routed in the Fountain (RQ-28); Enough Magic! (RQ-20); Caught Unprepared across rounds and in the Fountain (RQ-35); Chen's control and bounty; Tidehunter's distribution; Heroic Resolve and Rising Anger seeing their own play (RQ-44); Primal Roar's random-lane moves, one independent lane roll per neighbor (CF-1; randomness reproduced in replay); Aphotic Shield and Cleansing Rite provenance; Viper Strike until death; Dark Seer's two-step lane choice in the UI; the Spring the Trap token (RQ-48 decision recorded) |
 | **M4 Blue** | 44 | Luna/Eclipse: hidden charges in hand and deck, the hidden swap, an untouched and a base-copied Eclipse each repeating exactly once (CF-2); Lost in Time and Buying Time distinct picks (RQ-14); Self Sabotage hack privacy and resolution order; Kanna `-1` lanes, then her lane at reveal (RQ-22); Meepo Soulbound and Divided We Stand `roster: true`, the summoned Meepo returning to the Fountain (RQ-29); Ogre Magi base copies (RQ-36); Wrath of Gold op budget; Mystic Flare rounding (RQ-28); Venomancer summoning at deployment (RQ-23) and in round 1 (RQ-49, CF-7); Prellex likewise |
-| **M5 Black** | 39 | Chain Frost (RQ-16 pinned, stays `draft` until a reference match); Gank across lanes; Relentless Pursuit; Storm Spirit any-lane and `next_combat`; Lich and Ravenous Mass reading values before condemn; Assassin's Shadow scope (RQ-04) and self-count (RQ-50); Payday and Lodestone Demolition arithmetic; Winter Wyvern and Ball Lightning positions (RQ-42), including a same-lane move to each end and to an inner empty slot whose old slot compacts away (CF-1); Rebel Instigator copying after a Friendly Fire battle (CF-4); Bounty Hunter's chance |
+| **M5 Black** | 39 | Chain Frost (RQ-16 pinned, stays `draft` until a reference match; verified later from a ruling, see "Rulings as built"); Gank across lanes; Relentless Pursuit; Storm Spirit any-lane and `next_combat`; Lich and Ravenous Mass reading values before condemn; Assassin's Shadow scope (RQ-04) and self-count (RQ-50); Payday and Lodestone Demolition arithmetic; Winter Wyvern and Ball Lightning positions (RQ-42), including a same-lane move to each end and to an inner empty slot whose old slot compacts away (CF-1); Rebel Instigator copying after a Friendly Fire battle (CF-4); Bounty Hunter's chance |
 | **M6 Items** | 40 | Ability buttons on item icons; Book of the Dead; Golden Ticket privacy; Shop Deed with negative prices (RQ-26, RQ-41); Claszureme Hourglass timing and privacy (round draw before placement, RQ-51); Apotheosis Blade Lethal against immunity and shield; Phase Boots arrows (RQ-30); Blink Dagger and Nyctasha's Guard moves (one roll per enemy neighbor, CF-1); Ravenhook's gold equal to the condemned item's price (CF-3); Jasper Daggers Equip Effect purge; Stonehall granted stacking; Secret Shop and consumable pools updated in `classic_cards.json` |
 | **M7 Improvements** | 39 | The 16 cap (RQ-47); The Tyler Estate with Tyler Estate Censor and Mana Drain below 0 maximum mana, then each removed in turn (CF-5); The Oath's forbid with `REASON_FORBIDDEN`; Howling Mind's symmetric draw; Glyph of Confusion stunning deployment entrants (RQ-21); Watchtower on enemy improvements; Bitter Enemies (RQ-27 closed by Valve data, CF-8); Trebuchets' piercing damage against Steel Reinforcement's armor; Path of the X lane scope (RQ-03); Unearthed Secrets' round log; Revtel Investments condemning itself; Unsupervised Artillery and Cheating Death `requires` |
 
@@ -2258,6 +2262,17 @@ Each card lands in the milestone where all its mechanics exist. The lists are in
 - **Fonts.** The subsets were rebuilt for 夙, 瞭, 癫 and 霭 (Valve's Chinese names of Bitter Enemies, Watchtower, Altar of the Mad Moon and Mist of Avernus).
 - **Docs and data.** `docs/design/MECHANICS.md` was regenerated (303 implemented, none mapped but unimplemented), `tests/data/coverage.json` regenerated (all 303 shipped), and `docs/RULES.md` lists the M7 cards under their rules questions. The Three Kingdoms name of Aghanim's Sanctum, Bronze Sparrow Terrace (铜雀台, from `catalog_mapping.json`), is also the name of the M4 preset `bronze_sparrow_terrace`; neither was renamed.
 - **Review fixes.** The adversarial review of the 32 improvements found one rules defect and one stale note. (1) Tower Regeneration ran only after `Kernel.damage_structure` had already turned a tower at 0 into an ancient, so Path of the Dreamer's +3 could not keep a tower at 2 standing against 2 damage, against RQ-09 and the glossary ("Regeneration is applied before checking for death"); §4.5 also said "unless the tower fell". `damage_structure` now takes the combat's tower Regeneration and heals (cap 40, 80 for an ancient) before the fall check; a tower that still reaches 0 falls into a fresh, unhealed 80-health ancient, and damage the Regeneration outheals still counts as dealt (round log). Regression: five `rq_09_*` cases in `path_of_the_dreamer.json`; `kw_regeneration_5`, which pinned the old order, now expects the tower to stand, with `_6` (falls) and `_7` (an ancient stands) beside it. No golden game changed. (2) `tools/mechanics.py` still said Bitter Enemies' starting charges were "not in data"; Valve's set 01 gives 3 (RQ-27/CF-8), and `MECHANICS.md` was regenerated.
+
+#### Rulings as built: the last three drafts
+
+Rulings from the original game settled RQ-16, RQ-20 and RQ-22, so Chain Frost, Enough Magic! and Kanna ship `verified` and every one of the 303 cards is playable.
+- **Chain Frost (RQ-15, RQ-16).** The data already matched: a Pulse at the start of each repetition removes a unit a bounce killed before the next bounce chooses, and the bounce reads the last unit hit (its look-back snapshot when it died, keeping the neighbors still in play). New spec cases pin the Pulse between every two hits and that no hit lands on a unit after its death (`tests/cards/extra/chain_frost_pulses.gd`), the target's only neighbor removed mid-chain (three hits), and a dead link whose position stays because a unit stands across it (one bounce, then the rest fizzle); `rq_16_chain_frost_model` in the mechanics test replays 160 random boards against an independent model. Lich becomes deckable with his signature.
+- **Enough Magic! (RQ-20).** The engine already ended the action phase for both players; a new spec case checks that an opponent with mana and a playable card never acts in that lane. The initiative for the next lane (the caster's opponent) is the only default left.
+- **Kanna (RQ-22).** `Stats.creep_lane_heroes` now returns only heroes in a lane with health above 0 (one left at 0 or less, awaiting its Pulse, is not alive), and `_begin_deployment` publishes the redirected lane creeps in her lane at once instead of `-1`; the reveal, the bot and the deployment overlay no longer resolve `-1` (`_creep_lane_of`, the bot's `_kanna_lane` and the `EV_HERO_LANE` text are gone). A ready or planned Kanna in the Fountain redirects nothing. The privacy cases stay: plans remain private and change no published lane.
+- **Tests.** `deck_test` checks the draft paths of deck codes and deck rules on a library that marks Chain Frost and Kanna as drafts again (private copies of their compiled rules); `ui_smoke` expects all 48 heroes in the builder; `expanded_classic_test` counts 24 presets.
+- **Presets.** Two presets play the three cards: Southern Campaign (black/red: Ursa, Lich, Timbersaw, Sniper, Pugna; Chain Frost, Enough Magic!) and Welcoming the Emperor (blue: Kanna, J'Muy, Crystal Maiden, Skywrath Mage, Meepo; Call the Reserves, Dimensional Portal, Better Late Than Never). In 192 bot games against every preset (2 seeds, both seats, each preset's own mirror included), the Southern Campaign won 46 of 96 and Welcoming the Emperor 40, with one draw each, within the 31-to-47-of-88 spread of the M7 presets; no game took more than 347 steps. `expanded_classic_test` plays each for 6 seeds against every preset in turn; the M7 presets keep their 22-preset opponent pool. The golden matrix stays the original three presets, and no golden changed.
+- **Docs and data.** `RULES_VERSION` and `docs/design/MECHANICS.md` (the RQ-16, RQ-20 and RQ-22 answers) were regenerated; `tests/data/coverage.json` was regenerated and is unchanged (it reads the rules, not the status). The new preset names use only characters the font subsets already hold.
+
 ---
 
 ## 13. Testing
@@ -2480,10 +2495,10 @@ Existing RQs that this design pins explicitly:
 |---|---|
 | RQ-01 | FX-1 |
 | RQ-15 | FX-3 |
-| RQ-16 | Chain Frost spec |
+| RQ-16 | Chain Frost spec, `rq_16_chain_frost_model` |
 | RQ-19 | FX-2 |
 | RQ-20 | `_end_action_phase` |
-| RQ-22 | Kanna `-1` |
+| RQ-22 | `Stats.creep_lane_heroes`, `_begin_deployment` |
 | RQ-24 | `const HERO_ACTIVE_START_COOLDOWN = 0` in `kernel.gd` |
 | RQ-27 | The `charges` param, equal to Valve's `charges` field (closed, CF-8) |
 | RQ-28 | The `half` expression and `damage_split` |
@@ -2506,7 +2521,7 @@ Existing RQs that this design pins explicitly:
 | Every rules change invalidates saved replays | It is deliberate (`replay_rules`); the error names both versions. Replays are debugging records, not an archive. |
 | Write-through Modify and Purge drift apart | Invariant I11 in fuzzing; Purge reverses only its own entries' deltas. |
 | M1 bot choices change from floating-point drift | Static values are computed exactly as today's constants. Goldens compare the chosen actions step by step. |
-| Kanna or other hidden plans leak | `-1` publication, a reveal-time resolution test, and the privacy fuzz with deployment phases. |
+| Kanna or other hidden plans leak | Kanna redirects only from a lane (public), privacy cases that plan her and other heroes without changing any published lane, and the privacy fuzz with deployment phases. |
 
 ---
 
@@ -2648,9 +2663,7 @@ These were checked against the glossary and are consistent with the spec as writ
 ### C.6 Questions that remain open
 
 Each has a default and a single switch or entry, and is pinned by a named test:
-- **RQ-16**: Chain Frost when the previous unit has no neighbor. The card stays `draft`.
-- **RQ-20**: initiative after Enough Magic!. The card stays `draft`.
-- **RQ-22**: Kanna's lane resolution. Draft.
+- **RQ-20**: initiative after Enough Magic! (the rest of RQ-20, and RQ-16 and RQ-22, were settled by rulings of the original game; all three cards are `verified`).
 - **RQ-24**: whether hero actives start ready.
 - **RQ-28**: rounding of "half" and of evenly divided damage.
 - **RQ-29**: summoned Meepo.

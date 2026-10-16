@@ -37,11 +37,11 @@ Remaining: chess clocks, pets, deck trays, the round-one deployment reveal, time
 
 ## 0.4 — Full Classic catalog and useful AI
 
-- Implement original hero abilities, signatures, creeps, spells, improvements, items and cross-lane effects. Done for red and green (M3 of `docs/design/EFFECT_SYSTEM_SPEC.md`: 92 cards, three signature improvements and five new presets), blue (M4: 44 cards, two signature improvements and three new presets), black (M5: 39 cards, two signature improvements and three new presets) the items (M6: 40 cards, the full Classic shop pools and four new presets) and the improvements (M7: the 32 remaining improvements and four new presets), so the whole Classic catalog is in. Chain Frost, Enough Magic! and Kanna stay drafts until a reference match.
+- Implement original hero abilities, signatures, creeps, spells, improvements, items and cross-lane effects. Done for red and green (M3 of `docs/design/EFFECT_SYSTEM_SPEC.md`: 92 cards, three signature improvements and five new presets), blue (M4: 44 cards, two signature improvements and three new presets), black (M5: 39 cards, two signature improvements and three new presets) the items (M6: 40 cards, the full Classic shop pools and four new presets) and the improvements (M7: the 32 remaining improvements and four new presets), so the whole Classic catalog is in. Chain Frost, Enough Magic! and Kanna, the last drafts, were verified from rulings of the original game (two more presets play them), so every card is playable.
 - Add differential/reference tests for each effect, plus interaction suites and generated legal-action games.
 - Extend the bot with multi-action search, hidden-state sampling and deployment/deck strategy.
 - Benchmark AI strength on held-out positions and human games; publish its limits and difficulty settings.
-- Done: deck building (collection filters, click and drag editing, hero slots by deploy round, locked signature cards, Classic deck rules with localized reasons, mana curve), deck codes in Valve's format, own decks for both seats, the AI, replays and online guests. Remaining: draft (Gauntlet), deck statistics from played matches, and Lich in decks once his signature card Chain Frost leaves draft status.
+- Done: deck building (collection filters, click and drag editing, hero slots by deploy round, locked signature cards, Classic deck rules with localized reasons, mana curve), deck codes in Valve's format, own decks for both seats, the AI, replays and online guests. Lich and Kanna can now fill decks. Remaining: draft (Gauntlet) and deck statistics from played matches.
 
 ## 0.5 — Community alpha
 

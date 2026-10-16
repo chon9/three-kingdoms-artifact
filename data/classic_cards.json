@@ -1109,7 +1109,7 @@
       "attack": 2,
       "armor": 0,
       "health": 12,
-      "status": "draft",
+      "status": "verified",
       "abilities": [
         {
           "id": "bringer_of_conquest",
@@ -4301,7 +4301,7 @@
       "image": "res://assets/classic_cards/10326_card.png",
       "artist": "JiHun Lee",
       "text": "Proceed to the combat phase.",
-      "status": "draft",
+      "status": "verified",
       "play": {
         "ops": [
           {
@@ -7640,7 +7640,7 @@
       "text": "Deal {amount} damage to a unit. Repeat {repeat} times: Deal {amount} damage to a random unit to its left or right. Get initiative.",
       "amount": 3,
       "repeat": 7,
-      "status": "draft",
+      "status": "verified",
       "play": {
         "choices": [
           {
@@ -12457,6 +12457,84 @@
         "lightning_strike": 2,
         "tower_barrage": 2,
         "thunderstorm": 2
+      },
+      "items": {
+        "leather_armor": 3,
+        "travelers_cloak": 2,
+        "short_sword": 2,
+        "broadsword": 1,
+        "shield_of_basilius": 1
+      }
+    },
+    {
+      "id": "southern_campaign",
+      "name": "Black / Red Chain Reaction",
+      "description": "Lich's Chain Frost bounces through crowded lanes while Ursa, Timbersaw and Sniper push; Enough Magic! sends a lane straight to combat before the opponent can answer, and Pugna's Nether Ward punishes their spells.",
+      "heroes": [
+        "ursa",
+        "lich",
+        "timbersaw",
+        "sniper",
+        "pugna"
+      ],
+      "cards": {
+        "enrage": 3,
+        "chain_frost": 3,
+        "whirling_death": 3,
+        "assassinate": 3,
+        "nether_ward": 3,
+        "enough_magic": 2,
+        "hip_fire": 3,
+        "slay": 2,
+        "untested_grunt": 3,
+        "bronze_legionnaire": 2,
+        "pit_fighter_of_quoidge": 2,
+        "legion_standard_bearer": 2,
+        "fight_through_the_pain": 2,
+        "poised_to_strike": 2,
+        "stonehall_elite": 2,
+        "grazing_shot": 1,
+        "marrowfell_brawler": 2
+      },
+      "items": {
+        "short_sword": 2,
+        "leather_armor": 2,
+        "travelers_cloak": 2,
+        "broadsword": 1,
+        "claymore": 1,
+        "chainmail": 1
+      }
+    },
+    {
+      "id": "welcoming_the_emperor",
+      "name": "Blue Conquest",
+      "description": "Kanna gathers both lane creeps into her lane every round, where Call the Reserves and Dimensional Portal add more; J'Muy, Crystal Maiden, Skywrath Mage and Meepo hold the other lanes with Frostbite, Tower Barrage and Thunderstorm.",
+      "heroes": [
+        "kanna",
+        "jmuy",
+        "crystal_maiden",
+        "skywrath_mage",
+        "meepo"
+      ],
+      "cards": {
+        "prey_on_the_weak": 3,
+        "battlefield_control": 3,
+        "frostbite": 3,
+        "mystic_flare": 3,
+        "divided_we_stand": 3,
+        "call_the_reserves": 2,
+        "dimensional_portal": 2,
+        "better_late_than_never": 2,
+        "tower_barrage": 2,
+        "lightning_strike": 2,
+        "relentless_zombie": 3,
+        "troll_soothsayer": 2,
+        "foresight": 1,
+        "arcane_assault": 2,
+        "thunderstorm": 2,
+        "strafing_run": 2,
+        "satyr_magician": 1,
+        "cunning_plan": 2
       },
       "items": {
         "leather_armor": 3,

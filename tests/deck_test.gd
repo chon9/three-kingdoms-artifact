@@ -2,7 +2,7 @@ extends SceneTree
 ## Players' own decks (no UI): Valve's ArtifactDeckCode format (the README's
 ## two example codes, every preset round trip, CJK names cut at 63 bytes, "+"
 ## in codes, pasted links, malformed and oversized codes, unknown and draft
-## cards), deck rules with their coded, localized messages (item copies,
+## cards on a library that marks some drafts again), deck rules with their coded, localized messages (item copies,
 ## orphan signature cards), the deck store (save, list, load, delete,
 ## corrupt and hostile files, its own test folder), the builder's edits
 ## (signature cards locked to their hero, slots by deploy round, copy
@@ -224,12 +224,15 @@ func _test_malformed_codes() -> void:
 	var unknown = DeckDecodeCase.new(DeckCode.encode_raw(heroes, [{"id": 3000, "count": 3}, {"id": 99999, "count": 2}], "x"))
 	var result = DeckCode.decode(unknown.code, library)
 	_check(not result.ok and result.code == "deck_code_unknown_card" and int(result.args.id) == 99999, "An unknown Valve id is named (%s)" % [result])
-	var draft_source = library.source_of("chain_frost")
-	result = DeckCode.decode(DeckCode.encode_raw(heroes, [{"id": draft_source, "count": 3}], ""), library)
+	# Every shipped card is verified, so drafts come from a library that
+	# marks Chain Frost and Kanna as drafts again (_drafted).
+	var drafted = _drafted(["chain_frost", "kanna"])
+	var draft_source = drafted.source_of("chain_frost")
+	result = DeckCode.decode(DeckCode.encode_raw(heroes, [{"id": draft_source, "count": 3}], ""), drafted)
 	_check(not result.ok and result.code == "deck_code_unavailable" and result.args.card == "chain_frost", "A draft card cannot be imported (%s)" % [result])
 	Settings.set_skin("classic", false)
 	_check(EventText.error_text(result).find("Chain Frost") != -1, "The draft card's message names it: %s" % EventText.error_text(result))
-	result = DeckCode.decode(DeckCode.encode_raw([{"id": library.source_of("kanna"), "turn": 1}], []), library)
+	result = DeckCode.decode(DeckCode.encode_raw([{"id": drafted.source_of("kanna"), "turn": 1}], []), drafted)
 	_check(not result.ok and result.code == "deck_code_unavailable" and result.args.card == "kanna", "A draft hero cannot be imported")
 	result = DeckCode.decode(DeckCode.encode_raw([{"id": 4003, "turn": 1}, {"id": 4005, "turn": 2}, {"id": 10006, "turn": 2}], []), library)
 	_check(not result.ok and result.code == "deck_code_hero_turns", "Two round-2 heroes are rejected")
@@ -296,40 +299,63 @@ func _test_control_bytes_in_names() -> void:
 	_check(decoded_count > 1000, "Most random names decode (%d of 2000)" % decoded_count)
 	_check(errors.messages.size() == before, "Names with zero and control bytes log no engine errors (%s)" % [errors.messages.slice(before, before + 3)])
 
-## Lich is a playable hero but his signature card Chain Frost is a draft: no
-## deck holding him could be legal, so he is not offered, cannot be added,
-## is refused by deck rules with his own name, and a code naming him fails.
+## A library of the shipped pack whose `ids` are drafts again (status
+## "draft" on private copies of their compiled rules; the shared pack cache
+## stays untouched). Every shipped card is verified, so the draft paths of
+## deck codes and deck rules are tested on such a library.
+func _drafted(ids: Array):
+	var drafted = Library.new()
+	drafted.compiled = drafted.compiled.duplicate()
+	for card_id in ids:
+		var entry: Dictionary = drafted.compiled[card_id].duplicate()
+		entry["status"] = "draft"
+		drafted.compiled[card_id] = entry
+	return drafted
+
+## Every card ships verified: Lich (with Chain Frost), Kanna and Enough Magic!
+## can enter decks. A hero whose signature card is a draft (Lich, on a
+## library where Chain Frost is a draft again) could never make a legal deck,
+## so he is not offered, cannot be added, is refused by deck rules with his
+## own name, and a code naming him fails.
 func _test_heroes_with_draft_signatures() -> void:
-	_check(library.deckable("lich") and not library.deckable("chain_frost"), "Lich is deckable but Chain Frost is a draft (the case under test)")
-	_check(not library.hero_deckable("lich") and library.hero_deckable("axe") and not library.hero_deckable("kanna") and not library.hero_deckable("berserkers_call"),
+	_check(library.hero_deckable("lich") and library.hero_deckable("kanna") and library.deckable("chain_frost") and library.main_deckable("enough_magic"),
+		"Lich, Kanna, Chain Frost and Enough Magic! are verified and deckable")
+	_check(library.heroes.all(func(hero): return library.hero_deckable(str(hero.id))), "Every shipped hero can enter a deck")
+	var drafted = _drafted(["chain_frost", "kanna"])
+	_check(drafted.deckable("lich") and not drafted.deckable("chain_frost") and str(library.compiled.chain_frost.status) == "verified",
+		"Lich is deckable but Chain Frost is a draft on the drafted library, and the shipped library is untouched (the case under test)")
+	_check(not drafted.hero_deckable("lich") and drafted.hero_deckable("axe") and not drafted.hero_deckable("kanna") and not drafted.hero_deckable("berserkers_call"),
 		"hero_deckable needs the hero and its signature card to be deckable")
-	for hero in library.heroes:
+	for hero in drafted.heroes:
 		var hero_id = str(hero.id)
 		var signature = str(hero.get("signature", ""))
-		var expected = library.deckable(hero_id) and not signature.is_empty() and library.deckable(signature)
-		if library.hero_deckable(hero_id) != expected:
+		var expected = drafted.deckable(hero_id) and not signature.is_empty() and drafted.deckable(signature)
+		if drafted.hero_deckable(hero_id) != expected:
 			_check(false, "hero_deckable(%s) matches its card and signature card" % hero_id)
 	var deck = DeckStore.blank("Lich")
-	_check(not DeckModel.can_add(deck, "lich", library) and not DeckModel.add(deck, "lich", library), "The builder cannot add Lich")
-	_check(not DeckModel.place_hero(deck, "lich", 0, library) and DeckModel.hero_count(deck) == 0 and not deck.cards.has("chain_frost"),
+	_check(not DeckModel.can_add(deck, "lich", drafted) and not DeckModel.add(deck, "lich", drafted), "The builder cannot add Lich")
+	_check(not DeckModel.place_hero(deck, "lich", 0, drafted) and DeckModel.hero_count(deck) == 0 and not deck.cards.has("chain_frost"),
 		"Lich cannot be dropped into a hero slot")
-	var preset = library.preset("starter")
+	var preset = drafted.preset("starter")
 	var with_lich = {"name": "Lich", "heroes": preset.heroes.duplicate(), "cards": preset.cards.duplicate(), "items": preset.items.duplicate()}
-	var old_signature = str(library.definition(with_lich.heroes[0]).get("signature", ""))
+	var old_signature = str(drafted.definition(with_lich.heroes[0]).get("signature", ""))
 	with_lich.cards.erase(old_signature)
 	with_lich.heroes[0] = "lich"
 	with_lich.cards["chain_frost"] = 3
-	var result = library.validate_preset(with_lich)
+	var result = drafted.validate_preset(with_lich)
 	_check(not result.ok and result.code == "deck_hero_invalid" and result.args.card == "lich",
 		"A deck with Lich fails on Lich himself, not on a locked card (%s)" % [result])
+	_check(library.validate_preset(with_lich).ok, "The same deck is legal with the shipped (verified) Chain Frost")
 	var stored = with_lich.duplicate(true)
-	var dropped = DeckModel.repair(stored, library)
+	var dropped = DeckModel.repair(stored, drafted)
 	_check("lich" in dropped and "chain_frost" in dropped and stored.heroes[0] == "" and not stored.cards.has("chain_frost"),
 		"A stored deck with Lich loses him and Chain Frost when repaired (%s)" % [dropped])
-	var heroes = [{"id": library.source_of("lich"), "turn": 1}, {"id": 4005, "turn": 1}, {"id": 10006, "turn": 1}, {"id": 10014, "turn": 2}, {"id": 10017, "turn": 3}]
-	result = DeckCode.decode(DeckCode.encode_raw(heroes, [{"id": 3000, "count": 3}], "Lich"), library)
+	var heroes = [{"id": drafted.source_of("lich"), "turn": 1}, {"id": 4005, "turn": 1}, {"id": 10006, "turn": 1}, {"id": 10014, "turn": 2}, {"id": 10017, "turn": 3}]
+	result = DeckCode.decode(DeckCode.encode_raw(heroes, [{"id": 3000, "count": 3}], "Lich"), drafted)
 	_check(not result.ok and result.code == "deck_code_unavailable" and result.args.card == "lich", "A Lich deck code is refused naming Lich (%s)" % [result])
 	_check(EventText.error_text(result).find(Library.loc("lich")) != -1, "The refusal names Lich: %s" % EventText.error_text(result))
+	stored = with_lich.duplicate(true)
+	_check(DeckModel.repair(stored, library).is_empty() and stored.heroes[0] == "lich", "The shipped library keeps Lich and Chain Frost in a stored deck")
 
 ## A tiny holder so the malformed-code cases read clearly.
 class DeckDecodeCase:
@@ -367,10 +393,10 @@ func _test_validation_messages() -> void:
 	cases.append([bad, "deck_hero_count", ""])
 	bad = base.duplicate(true)
 	bad.heroes[4] = "kanna"
-	cases.append([bad, "deck_hero_invalid", "kanna"])
+	cases.append([bad, "deck_hero_invalid", "kanna", _drafted(["kanna"])])
 	bad = base.duplicate(true)
 	bad.cards.chain_frost = 1
-	cases.append([bad, "deck_main_card", "chain_frost"])
+	cases.append([bad, "deck_main_card", "chain_frost", _drafted(["chain_frost"])])
 	bad = base.duplicate(true)
 	bad.cards.berserkers_call = 2
 	bad.cards.ogre_conscript = 3
@@ -379,7 +405,7 @@ func _test_validation_messages() -> void:
 	bad.items.healing_salve = 1
 	cases.append([bad, "deck_item_card", "healing_salve"])
 	for case in cases:
-		var result = library.validate_preset(case[0])
+		var result = (case[3] if case.size() > 3 else library).validate_preset(case[0])
 		_check(not result.ok and result.code == case[1], "Deck rule %s (got %s)" % [case[1], result])
 		if case[2] != "":
 			_check(str(result.get("args", {}).get("card", "")) == case[2], "%s names the card %s" % [case[1], case[2]])
@@ -509,7 +535,8 @@ func _test_model() -> void:
 		and int(deck.cards.get("gust", 0)) == 3, "A hero placed on a taken slot replaces that hero and its signature cards")
 	_check(DeckModel.place_hero(deck, "debbi", 3, library) and deck.heroes == ["drow", "", "", "debbi", ""], "Placing a hero already in the deck moves it")
 	_check(DeckModel.remove_hero(deck, 3, library) and not deck.cards.has("no_accident"), "Removing a hero removes its signature cards")
-	_check(not DeckModel.add(deck, "kanna", library) and not DeckModel.add(deck, "chain_frost", library) and not DeckModel.add(deck, "melee_creep", library)
+	var drafted = _drafted(["chain_frost", "kanna"])
+	_check(not DeckModel.add(deck, "kanna", drafted) and not DeckModel.add(deck, "chain_frost", drafted) and not DeckModel.add(deck, "melee_creep", library)
 		and not DeckModel.add(deck, "healing_salve", library), "Drafts, tokens and consumables are never added")
 	for copy in range(3):
 		DeckModel.add(deck, "payday", library)
@@ -521,7 +548,7 @@ func _test_model() -> void:
 		and not deck.items.has("short_sword"), "The last copy leaves the list")
 	var damaged = {"heroes": ["axe", "kanna", "axe", "nobody", "zeus"], "cards": {"payday": 9, "chain_frost": 1, "berserkers_call": 1, "gust": 3},
 		"items": {"healing_salve": 1, "short_sword": 5}}
-	var dropped = DeckModel.repair(damaged, library)
+	var dropped = DeckModel.repair(damaged, drafted)
 	_check(damaged.heroes == ["axe", "", "", "", "zeus"] and int(damaged.cards.payday) == 3 and int(damaged.cards.berserkers_call) == 3
 		and int(damaged.cards.get("thundergods_wrath", 0)) == 3 and not damaged.cards.has("gust") and damaged.items == {"short_sword": 3},
 		"repair() drops what cannot be edited and restores signature cards (%s)" % [damaged])

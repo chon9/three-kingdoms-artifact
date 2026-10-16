@@ -430,9 +430,10 @@ static func rules_of(e, player: int) -> Dictionary:
 			out.creep_lane.append(ctx.src)
 	return out
 
-## Heroes of `player` whose aura grants creep_lane (Kanna, RQ-22): heroes in a
-## lane, then roster heroes in the Fountain that are ready to deploy this round
-## (spec §3.11: "in a lane or ready to deploy").
+## Heroes of `player` in a lane whose aura grants creep_lane (Kanna, RQ-22),
+## in lane order. Only a hero alive on the board counts: one in the Fountain,
+## ready or planned to deploy, does not (spec §3.11), and neither does one in
+## a lane whose health is 0 or less, still awaiting its Pulse.
 static func creep_lane_heroes(e, player: int) -> Array:
 	var out: Array = []
 	if not e.library.aura_fields.has("players:rules"):
@@ -440,11 +441,8 @@ static func creep_lane_heroes(e, player: int) -> Array:
 	var candidates: Array = []
 	for lane_index in range(3):
 		for unit in e.state.lanes[lane_index].units[player]:
-			if unit != null and bool(unit.get("hero", false)):
+			if unit != null and bool(unit.get("hero", false)) and int(unit.get("health", 0)) > 0:
 				candidates.append(unit)
-	for hero in e.state.players[player].get("roster", []):
-		if int(hero.get("lane", -1)) == -1 and int(hero.get("ready_round", 1)) <= int(e.state.get("round", 1)):
-			candidates.append(hero)
 	var handle = {"player": player}
 	for unit in candidates:
 		var rules: Dictionary = e.library.rules(str(unit.get("card", "")))

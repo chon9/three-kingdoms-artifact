@@ -357,10 +357,6 @@ func _position_bonus(engine, view: Dictionary, player: int, card: Dictionary, po
 func _deployment_lane(engine, view: Dictionary, player: int) -> int:
 	var best_lane = 0
 	var best_score = -INF
-	# A pending creep lane of -1 follows the player's Kanna (RQ-22, spec
-	# §9.6): her planned lane, else her current lane. The opponent's -1 lanes
-	# are unknown and count nowhere.
-	var creep_lane = _kanna_lane(engine, view, player)
 	for lane_index in range(3):
 		var lane = view.lanes[lane_index]
 		var ally_strength = 0.0
@@ -371,14 +367,12 @@ func _deployment_lane(engine, view: Dictionary, player: int) -> int:
 		for planned_lane in view.players[player].plans.values():
 			if planned_lane == lane_index:
 				ally_strength += 10.0
-		# Lane creeps for this round are public before heroes are chosen.
+		# Lane creeps for this round are public before heroes are chosen
+		# (Kanna's already name her lane, RQ-22).
 		var pending = view.get("pending_creeps", [[], []])
 		for side in range(2):
 			for creep_value in pending[side]:
-				var creep_at = int(creep_value)
-				if creep_at < 0 and side == player:
-					creep_at = creep_lane
-				if creep_at == lane_index:
+				if int(creep_value) == lane_index:
 					if side == player:
 						ally_strength += 2.0
 					else:
@@ -393,20 +387,6 @@ func _deployment_lane(engine, view: Dictionary, player: int) -> int:
 			best_score = score
 			best_lane = lane_index
 	return best_lane
-
-## The lane `player`'s -1 creeps go to: the planned lane of a creep_lane hero
-## (Kanna), else its current lane; -1 when there is none.
-func _kanna_lane(engine, view: Dictionary, player: int) -> int:
-	var pending: Array = view.get("pending_creeps", [[], []])[player]
-	if not pending.any(func(value): return int(value) < 0):
-		return -1
-	var plans: Dictionary = view.players[player].get("plans", {})
-	for hero in Stats.creep_lane_heroes(engine, player):
-		if plans.has(str(hero.uid)):
-			return int(plans[str(hero.uid)])
-		if int(hero.lane) >= 0:
-			return int(hero.lane)
-	return -1
 
 ## The evaluation only reads the engine, so it runs in one read frame
 ## (derived stats are cached for its duration).

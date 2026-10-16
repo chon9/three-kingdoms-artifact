@@ -552,7 +552,6 @@ TERM_ACTIVE_LANE,Active lane,当前路
 TERM_NEUTRAL,Neutral,中立
 TERM_ATTACK_STRAIGHT_AHEAD,Attack straight ahead,攻击正前方
 TERM_DEPLOYMENT,Deployment,部署
-EV_HERO_LANE,the hero's lane,武将所在路
 EV_AN_EFFECT,An effect,某效果
 EV_TRIGGER,{card}: {ability} takes effect.,{card}的{ability}生效。
 EV_DAMAGE,{card} deals {n} damage.,{card}造成{n}点伤害。

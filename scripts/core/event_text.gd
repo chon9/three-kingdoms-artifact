@@ -134,7 +134,7 @@ static func format(event: Dictionary, _library = null, names: Array = []) -> Str
 			for side in range(creeps.size()):
 				var lanes: Array = []
 				for lane_index in creeps[side]:
-					lanes.append(lane_name(lane_index) if int(lane_index) >= 0 else t("EV_HERO_LANE"))
+					lanes.append(lane_name(lane_index))
 				parts.append(t("EV_DEPLOYMENT_CREEPS", {"player": _player(side, names),
 					"lanes": t("LIST_SEPARATOR").join(lanes) if not lanes.is_empty() else t("WORD_NONE")}))
 			return t("EV_DEPLOYMENT", {"round": int(event.get("round", 1)),

@@ -296,7 +296,7 @@ Cards with complexity 5 or a curated reason. Sorted by complexity, then id.
 | Luna (10006) | Hero | 5 | Luna: before-action random piercing ping plus charges written onto Eclipse cards in hand AND deck (per-card state on hidden cards). |
 | Eclipse (10007) | Spell | 5 | Eclipse: repeat once per charge stored on this card instance; Pulse between hits; random enemy re-chosen each time (dead units excluded). |
 | Chen (10017) | Hero | 5 | Chen: get control of an enemy creep (owner change, position on your side, bounty owner flips). |
-| Kanna (10031) | Hero | 5 | Kanna: overrides where this round's random lane creeps deploy; interacts with the public pending-creep reveal (privacy) and with her own deployment choice. |
+| Kanna (10031) | Hero | 5 | Kanna: while she is alive in a lane as this round's random lane creeps are assigned, they all deploy into her lane (public, since her lane is); from the Fountain she redirects nothing. |
 | Ogre Magi (10043) | Hero | 5 | Ogre Magi: 25% copy of the played blue spell's BASE card into hand (hidden RNG, card provenance). |
 | The Oath (10182) | Improvement | 5 | The Oath: play restriction on the active lane for its owner plus conditional +4 attack aura. |
 | Glyph of Confusion (10187) | Improvement | 5 | Glyph of Confusion: any unit entering the lane (deploy, summon, move, control change) is stunned this round. |
@@ -306,8 +306,8 @@ Cards with complexity 5 or a curated reason. Sorted by complexity, then id.
 | Shop Deed (10255) | Item | 5 | Shop Deed: Secret Shop prices reduced by base cost; stacks into negative prices (gold gain on purchase). |
 | Apotheosis Blade (10263) | Item | 5 | Apotheosis Blade: lethal-to-anything on battle damage, plus active condemning all enemy improvements and the blocker's items. |
 | Self Sabotage (10302) | Spell | 5 | Self Sabotage: hacks two random cards in the opponent's hand with an on-play 6 damage to a random allied tower in any lane. |
-| Chain Frost (10318) | Spell | 5 | Chain Frost: 7 bounces to a random left/right neighbor of the previous unit with Pulses; get initiative. |
-| Enough Magic! (10326) | Spell | 5 | Enough Magic!: ends the action phase immediately; initiative for the next lane is not specified. |
+| Chain Frost (10318) | Spell | 5 | Chain Frost: 7 bounces to a random left/right neighbor of the previous unit with a Pulse between every bounce (the dead are removed before the next bounce chooses); get initiative. |
+| Enough Magic! (10326) | Spell | 5 | Enough Magic!: ends the action phase immediately for both players and the lane fights; initiative for the next lane is not specified. |
 | Wrath of Gold (10331) | Spell | 5 | Wrath of Gold: spend all gold, repeat 4 damage to random ally OR enemy per gold spent (can be dozens of Pulses). |
 | Caught Unprepared (10396) | Spell | 5 | Caught Unprepared: stun that lasts until the hero equips an item (crosses rounds and the Fountain? see rules). |
 | Winter Wyvern (10010) | Hero | 4 | Winter Wyvern: move self to an empty combat position (same lane) and temporary attack; pathing/blocking recalculated. |
@@ -447,8 +447,8 @@ Cards with complexity 5 or a curated reason. Sorted by complexity, then id.
 
 **RQ-16. Chain Frost bounce target.**
 
-- Best answer: 'its' is the unit damaged by the previous hit; candidates are that unit's existing allied neighbors (same row). Best guess: if it has no neighbor (or both died), the remaining bounces fizzle. Needs a reference match.
-- Source: Valve text 10318; glossary Allied Neighbors. Confidence: low.
+- Best answer: 'its' is the unit damaged by the previous hit; candidates are that unit's allied neighbors (same row). The game pulses between every bounce: a unit a bounce kills is removed at once, so later bounces cannot target it and look to the adjacent surviving units (for a dead unit, its neighbors when it died that are still in play). With no candidate the remaining bounces fizzle.
+- Source: Valve text 10318; glossary Allied Neighbors; original-game ruling (Pulse between bounces, dead units removed). Confidence: high (fizzle when no neighbor survives: medium).
 
 **RQ-17. Where do summoned / moved / stolen units go?**
 
@@ -467,8 +467,8 @@ Cards with complexity 5 or a curated reason. Sorted by complexity, then id.
 
 **RQ-20. Initiative after Enough Magic! (proceed to combat without passes).**
 
-- Best answer: Not specified. Best guess: the caster's opponent gets initiative for the next lane (same as any action without Get Initiative: engine _finish_action(player, false)). Needs a reference match.
-- Source: Valve text 10326; glossary Get Initiative. Confidence: low.
+- Best answer: Playing it ends the action phase at once for both players in that lane (the opponent gets no further plays) and the lane goes to combat. Initiative for the next lane is not specified; default: the caster's opponent gets it (as after any action without Get Initiative: engine _finish_action(player, false)).
+- Source: Valve text 10326; glossary Get Initiative; original-game ruling (both players' action phase ends). Confidence: high for the phase, low for initiative.
 
 **RQ-21. Glyph of Confusion: what counts as 'enters this lane'?**
 
@@ -477,8 +477,8 @@ Cards with complexity 5 or a curated reason. Sorted by complexity, then id.
 
 **RQ-22. Kanna: when and where do the random allied Melee Creeps go?**
 
-- Best answer: If Kanna is in play (already in a lane or being deployed this phase), both of her player's lane creeps enter her lane after deployment is revealed. The public pending-creep reveal must therefore show them as 'to Kanna's lane' (her destination stays private until reveal). If Kanna is in the Fountain, creeps use their random lanes.
-- Source: Valve text 10503; wiki Phases (creeps randomly assigned before hero choice). Confidence: medium.
+- Best answer: As long as Kanna is alive on the board (in a lane) when the random lane creeps are assigned at the start of deployment, both of her player's lane creeps go to her lane; the public pending-creep reveal shows that lane (it is public). When she is dead, in the Fountain or not yet deployed (even if she deploys this phase), the creeps use their random lanes.
+- Source: Valve text 10503; wiki Phases (creeps randomly assigned before hero choice); original-game ruling. Confidence: high.
 
 **RQ-23. Order of deployment-phase summons (Venomancer, Prellex, Barracks).**
 

@@ -26,9 +26,10 @@ func _initialize() -> void:
 	_m5_presets()
 	_m6_presets()
 	_m7_presets()
+	_ruling_presets()
 	for failure in failures:
 		printerr("FAIL: " + failure)
-	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3, M4, M5, M6 and M7 presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
+	print("%s: %d expansion checks; all 18 seeded deck matchups, the M3, M4, M5, M6 and M7 presets' and the ruling presets' bot matches (6 seeds each) and replay round trips tested." % ["PASS" if failures.is_empty() else "FAIL", checks])
 	quit(0 if failures.is_empty() else 1)
 
 func _check(condition: bool, message: String) -> void:
@@ -77,7 +78,7 @@ func _profiles() -> void:
 	# improvements (EFFECT_SYSTEM_SPEC.md §12): all 303 counted Classic cards.
 	_check(engine.library.heroes.size() == 48 and engine.library.cards.size() == 255,
 		"303 real definitions are available (%d heroes, %d cards)" % [engine.library.heroes.size(), engine.library.cards.size()])
-	_check(engine.library.presets().size() == 22, "Twenty-two playable deck presets (%d)" % engine.library.presets().size())
+	_check(engine.library.presets().size() == 24, "Twenty-four playable deck presets (%d)" % engine.library.presets().size())
 	for profile in engine.library.presets():
 		_check(engine.library.validate_preset(profile).ok, "Preset passes card/hero/signature validation")
 		_check(engine.library.match_deck(profile.id).size() == 40, "Preset main deck has forty cards")
@@ -344,6 +345,12 @@ const M4_PRESETS = ["bronze_sparrow_terrace", "siege_of_xiapi", "longxi_struggle
 const M5_PRESETS = ["fengyi_pavilion", "hulao_pass", "yellow_turban_rebellion"]
 const M6_PRESETS = ["five_tigers", "emperor_of_wu", "battle_of_guandu", "warlords_rise"]
 const M7_PRESETS = ["siege_of_ye", "jing_province", "dong_zhuo_tyranny", "xiaoyao_ford"]
+## The presets added when the last three drafts were verified from the
+## original game's rulings (RQ-16, RQ-20, RQ-22).
+const RULING_PRESETS = ["southern_campaign", "welcoming_the_emperor"]
+## Cards that were drafts until those rulings (left out of the M3 to M5
+## coverage checks; the ruling presets play them).
+const RULING_CARDS = ["chain_frost", "enough_magic", "kanna", "lich"]
 ## The 32 improvements M7 adds (EFFECT_SYSTEM_SPEC.md Appendix A; the other
 ## seven shipped earlier as heroes' signatures).
 const M7_IMPROVEMENTS = ["assured_destruction", "escape_route", "iron_fog_goldmine", "keenfolk_turret", "steam_cannon",
@@ -410,9 +417,10 @@ func _m4_presets() -> void:
 ## black/red, black/blue) validate, are built from new black cards and
 ## heroes, and their bot matches terminate within 1,500 steps for 6 seeds
 ## against every preset of M1 to M5 in turn (their pool when they landed),
-## aligned, formatted and replayable. Between them they play every deckable
-## M5 card (Chain Frost is a draft, RQ-16, so Lich cannot fill a deck); the
-## black improvements M7 adds are left to the M7 presets.
+## aligned, formatted and replayable. Between them they play every new
+## black card but Chain Frost (a draft until the RQ-16 ruling, so Lich could
+## not fill a deck; the ruling presets play it); the black improvements M7
+## adds are left to the M7 presets.
 func _m5_presets() -> void:
 	var library = MatchEngine.Library.new()
 	var legacy = Legacy.new()
@@ -443,7 +451,7 @@ func _m5_presets() -> void:
 	for card_id in library.cards:
 		var card: Dictionary = library.cards[card_id]
 		if str(card.get("color", "")) == "black" and not legacy.cards.has(str(card_id)) and library._deckable(str(card_id)) \
-				and not played.has(str(card_id)) and str(card_id) not in M7_IMPROVEMENTS:
+				and not played.has(str(card_id)) and str(card_id) not in M7_IMPROVEMENTS and str(card_id) not in RULING_CARDS:
 			missing.append(card_id)
 	_check(missing.is_empty(), "The M5 presets play every deckable new black card (missing %s)" % [missing])
 
@@ -505,8 +513,10 @@ func _m6_presets() -> void:
 func _m7_presets() -> void:
 	var library = MatchEngine.Library.new()
 	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
-	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS + M6_PRESETS + M7_PRESETS,
-		"The presets are the original three, the M3 five, the M4 three, the M5 three, the M6 four and the M7 four, in order (%s)" % [all_ids])
+	_check(all_ids == ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS + M6_PRESETS + M7_PRESETS + RULING_PRESETS,
+		"The presets are the original three, the M3 five, the M4 three, the M5 three, the M6 four, the M7 four and the two ruling presets, in order (%s)" % [all_ids])
+	# The M7 presets keep the 22-preset opponent pool they had when they landed.
+	all_ids = ORIGINAL_PRESETS + M3_PRESETS + M4_PRESETS + M5_PRESETS + M6_PRESETS + M7_PRESETS
 	var played: Dictionary = {}
 	for index in range(M7_PRESETS.size()):
 		var preset_id = str(M7_PRESETS[index])
@@ -524,6 +534,32 @@ func _m7_presets() -> void:
 	var in_pack: Array = library.cards.keys().filter(func(card_id): return str(library.cards[card_id].get("kind", "")) == "improvement")
 	_check(in_pack.size() == 39, "The pack has all 39 Classic improvements (%d)" % in_pack.size())
 	_check(M7_IMPROVEMENTS.all(func(card_id): return library._deckable(str(card_id))), "Every M7 improvement is verified and deckable")
+
+## The ruling presets (black/red Southern Campaign, mono-blue Welcoming the
+## Emperor) validate and play the three cards verified from the original
+## game's rulings: Lich with Chain Frost (RQ-16), Enough Magic! (RQ-20) and
+## Kanna (RQ-22). Their bot matches terminate within 1,500 steps for 6 seeds
+## against every preset in turn, aligned, formatted and replayable.
+func _ruling_presets() -> void:
+	var library = MatchEngine.Library.new()
+	var all_ids: Array = library.presets().map(func(entry): return str(entry.id))
+	var heroes: Dictionary = {}
+	var cards: Dictionary = {}
+	for index in range(RULING_PRESETS.size()):
+		var preset_id = str(RULING_PRESETS[index])
+		var preset = library.preset(preset_id)
+		_check(not preset.is_empty() and library.validate_preset(preset).ok, "Preset %s validates" % preset_id)
+		if preset.is_empty():
+			continue
+		for hero_id in preset.heroes:
+			heroes[str(hero_id)] = true
+		for card_id in preset.cards:
+			cards[str(card_id)] = int(preset.cards[card_id])
+		_preset_matches(preset_id, index, all_ids, "Rulings")
+	_check(heroes.has("lich") and heroes.has("kanna") and int(cards.get("chain_frost", 0)) == 3 and int(cards.get("enough_magic", 0)) > 0,
+		"The ruling presets play Lich with Chain Frost, Kanna and Enough Magic!")
+	_check(library.catalog.cards.all(func(card): return str(card.get("status", "")) == "verified")
+		and library.heroes.all(func(hero): return str(hero.get("status", "")) == "verified"), "Every shipped card and hero is verified")
 
 ## The sorted hero colours of a preset, "a/b" (or one colour).
 func _colour_pair(library, preset: Dictionary) -> String:

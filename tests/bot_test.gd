@@ -7,7 +7,7 @@ extends SceneTree
 ## * the prefilter: above PREFILTER_LIMIT candidates, pass, every ability and
 ##   the best combinations per hand card by compile-time polarity, at most
 ##   PREFILTER_KEEP, in legal order;
-## * Kanna's -1 lane creeps in the deployment choice (§9.6);
+## * Kanna's lane creeps (published in her lane) in the deployment choice (§9.6);
 ## * M7: the static value of gold gains (Revtel Investments cashes in once its
 ##   charges outweigh the improvement);
 ## * M4: the static values of hacks (Self Sabotage) and mana restores (Satyr
@@ -388,7 +388,7 @@ func _test_prefilter() -> void:
 	var choice = bot.choose_action(engine, 0)
 	_check(choice in actions, "The bot still chooses a legal action from a pruned set")
 
-## Spec §9.6: the player's -1 lane creeps count in Kanna's lane.
+## Spec §9.6: Kanna's lane creeps are published in her lane, so both bots count them there.
 func _test_kanna_deployment() -> void:
 	var engine = _engine()
 	var kanna = engine._make_unit(engine.library.definition("fx_kanna"), 0, true)
@@ -396,12 +396,11 @@ func _test_kanna_deployment() -> void:
 	engine._place(kanna, 2, 0)
 	_unit(engine, "fx_retaliate_2", 1, 2)
 	engine._begin_deployment()
-	_check(engine.state.pending_creeps[0] == [-1, -1], "Kanna's creeps are published as -1")
-	var view = engine.player_view(0)
-	_check(bot._kanna_lane(engine, view, 0) == 2, "The bot reads its own Kanna's lane for -1 creeps")
-	_check(bot._kanna_lane(engine, engine.player_view(1), 1) == -1, "The opponent's -1 creeps are not placed anywhere")
+	_check(engine.state.pending_creeps[0] == [2, 2], "Kanna's creeps are published in her lane")
+	_check(engine.player_view(1).pending_creeps[0] == [2, 2], "The opponent sees them in her lane too")
 	var action = bot.choose_action(engine, 0)
-	_check(str(action.get("type", "")) in ["deploy", "finish_deployment"], "The bot deploys with -1 lane creeps")
+	_check(str(action.get("type", "")) in ["deploy", "finish_deployment"], "The bot deploys with Kanna's lane creeps")
+	_check(str(bot.choose_action(engine, 1).get("type", "")) in ["deploy", "finish_deployment"], "The opponent's bot deploys facing them")
 
 ## bot_purity and bot_hidden_swap over seeded fixture games.
 func _test_purity_and_swap() -> void:

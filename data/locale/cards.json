@@ -3947,6 +3947,26 @@
 						"en": "Zhang Liao's eight hundred storm Sun Quan's camp past horse pitfalls and crossbow batteries; Gan Ning and Zhou Tai cut a way out, heaven protects Sun Quan's leap over the broken bridge, and Xiahou Dun brings up the reinforcements.",
 						"zh_CN": "张辽率八百勇士冲破陷马坑与强弩营直扑孙权大营；甘宁、周泰杀出重围，孙权跃马飞渡断桥，吉人天相，夏侯惇援军随后杀到。"
 					}
+				},
+				"southern_campaign": {
+					"name": {
+						"en": "The Southern Campaign",
+						"zh_CN": "诸葛亮南征"
+					},
+					"description": {
+						"en": "Zhuge Liang crosses the Lu River in the fifth month: Zhao Yun and Wei Yan lead the vanguard, Meng Huo and Lady Zhurong are captured seven times and freed seven times, until the south submits for good.",
+						"zh_CN": "五月渡泸，深入不毛：赵云、魏延为先锋，孟获与祝融夫人七擒七纵，南方从此不复反。"
+					}
+				},
+				"welcoming_the_emperor": {
+					"name": {
+						"en": "Welcoming the Emperor",
+						"zh_CN": "奉迎天子"
+					},
+					"description": {
+						"en": "Xun Yu counsels Cao Cao to welcome the Emperor to Xu: the troops of every camp gather under one banner, Xiahou Dun and Xiahou Yuan escort the court, and Dian Wei guards the gate of the camp.",
+						"zh_CN": "荀彧劝曹操奉迎天子都许：各营兵马聚于一面大旗之下，夏侯惇、夏侯渊护驾，典韦守卫营门。"
+					}
 				}
 			}
 		},
@@ -7474,6 +7494,26 @@
 					"description": {
 						"en": "Earthshaker and Crystal Maiden stun and freeze what Glyph of Confusion and Conflagration let through; Farvhan, Lycan and Abaddon shield and grow the board with Mist of Avernus, Cheating Death and Selemene's Favor.",
 						"zh_CN": "撼地者与冰晶圣女震晕、冰冻困惑符文与烈焰放过的敌人；梦者法瓦汗、狼人与亚巴顿借魔霭迷雾、命不该绝与赛莉蒙妮的眷顾护盾并壮大战线。"
+					}
+				},
+				"southern_campaign": {
+					"name": {
+						"en": "Black / Red Chain Reaction",
+						"zh_CN": "黑红连锁反应"
+					},
+					"description": {
+						"en": "Lich's Chain Frost bounces through crowded lanes while Ursa, Timbersaw and Sniper push; Enough Magic! sends a lane straight to combat before the opponent can answer, and Pugna's Nether Ward punishes their spells.",
+						"zh_CN": "巫妖的连环霜冻在拥挤的兵线间来回弹射，熊战士、伐木机与狙击手全力推进；废话少说！让一路在对手应对之前直接进入战斗，帕格纳的幽冥守卫惩罚对手的每一个法术。"
+					}
+				},
+				"welcoming_the_emperor": {
+					"name": {
+						"en": "Blue Conquest",
+						"zh_CN": "纯蓝征服"
+					},
+					"description": {
+						"en": "Kanna gathers both lane creeps into her lane every round, where Call the Reserves and Dimensional Portal add more; J'Muy, Crystal Maiden, Skywrath Mage and Meepo hold the other lanes with Frostbite, Tower Barrage and Thunderstorm.",
+						"zh_CN": "卡娜每回合把两个兵线小兵都召集到自己所在的路，呼叫预备军与次元传送门再添兵力；睿智的姆伊、冰晶圣女、天怒法师与米波以冰封禁制、塔楼齐射与雷暴守住其余两路。"
 					}
 				}
 			}

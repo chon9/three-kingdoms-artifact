@@ -289,7 +289,7 @@ Each pattern is the actual entry (rules only). Draft patterns come from `tests/d
          "ops": [{"op": "chance", "pct": {"param": "chance"}, "then": [{"op": "give", "to": "$v.u", "until": "round", "keywords": {"stun": 1}}]}]}]
 ```
 
-**Repeat with Pulses and a random bounce** (Chain Frost, draft, RQ-15/RQ-16):
+**Repeat with Pulses and a random bounce** (Chain Frost, RQ-15/RQ-16: a Pulse between every bounce removes the dead before the next bounce chooses):
 ```json
 "play": {"choices": [{"key": "target", "from": "units"}], "initiative": true,
   "ops": [{"op": "damage", "to": "$c.target", "amount": {"param": "amount"}},
@@ -497,4 +497,4 @@ Nothing per card is needed: actives of units, items and improvements get buttons
 
 ## Not yet supported
 
-- Nothing in the Classic catalog: every hero, creep, spell, item and improvement ships (M1 and M3 to M7), each with its spec. Chain Frost (RQ-16), Enough Magic! (RQ-20) and Kanna (RQ-22) ship as drafts until a reference match.
+- Nothing in the Classic catalog: every hero, creep, spell, item and improvement ships (M1 and M3 to M7), each with its spec, all `verified`; Chain Frost (RQ-16), Enough Magic! (RQ-20) and Kanna (RQ-22) follow rulings of the original game.

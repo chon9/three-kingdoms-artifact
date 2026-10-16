@@ -1614,8 +1614,8 @@ func _check_deck_builder() -> bool:
 	var list = _top_dialog()
 	if not _require(list is DeckListDialog, "Main menu Decks opens the deck list"):
 		return false
-	if not _require(list.decks.is_empty() and list.entry_buttons.size() == 22 and list.panel.get_global_rect().end.y <= 900.0
-			and list.actions.play.is_visible_in_tree(), "The deck list shows the 22 presets and no own decks yet, and fits"):
+	if not _require(list.decks.is_empty() and list.entry_buttons.size() == 24 and list.panel.get_global_rect().end.y <= 900.0
+			and list.actions.play.is_visible_in_tree(), "The deck list shows the 24 presets and no own decks yet, and fits"):
 		return false
 	# A preset is read-only: Edit a copy opens a new deck from it; leaving it
 	# unsaved asks first.
@@ -1704,8 +1704,8 @@ func _check_deck_builder() -> bool:
 	# Filters: kind, cost, slot, colour, search.
 	builder.set_kind_filter("hero")
 	var shown: Array = builder.shown_cards()
-	if not _require(shown.size() == 46 and shown.all(func(card_id): return str(Library.raw_definition(card_id).get("kind", "")) == "hero"),
-			"The hero filter shows the 46 heroes a deck can hold (%d; not Kanna, a draft, nor Lich, whose Chain Frost is a draft)" % shown.size()):
+	if not _require(shown.size() == 48 and shown.all(func(card_id): return str(Library.raw_definition(card_id).get("kind", "")) == "hero"),
+			"The hero filter shows all 48 heroes, Lich and Kanna included (%d)" % shown.size()):
 		return false
 	builder.set_kind_filter("hero")
 	builder.set_cost_filter(8)
@@ -2006,12 +2006,15 @@ func _check_deck_review() -> bool:
 	await process_frame
 	return true
 
-## The collection holds exactly the cards a deck may hold: no drafts, tokens,
-## consumables, Deeds or signature cards.
+## The collection holds exactly the cards a deck may hold: no tokens,
+## consumables, Deeds or signature cards (every shipped card is verified, so
+## Lich, Kanna and Enough Magic! are offered).
 func _check_collection_contents(builder) -> bool:
 	var ids = builder.collection.map(func(card): return card.card_id)
 	var library = Library.new()
-	if not _require(not ("kanna" in ids or "lich" in ids or "chain_frost" in ids or "melee_creep" in ids or "healing_salve" in ids or "shop_deed" in ids
-			or "berserkers_call" in ids or "coup_de_grace" in ids), "The collection hides drafts, tokens, consumables, Deeds, signature cards and heroes whose signature is a draft (Lich)"):
+	if not _require(not ("chain_frost" in ids or "melee_creep" in ids or "healing_salve" in ids or "shop_deed" in ids
+			or "berserkers_call" in ids or "coup_de_grace" in ids), "The collection hides tokens, consumables, Deeds and signature cards"):
+		return false
+	if not _require("lich" in ids and "kanna" in ids and "enough_magic" in ids, "The collection offers Lich, Kanna and Enough Magic!"):
 		return false
 	return _require(ids.all(func(card_id): return library.deckable(card_id)), "Every collection card can enter a deck")

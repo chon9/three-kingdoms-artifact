@@ -51,7 +51,7 @@ func _initialize() -> void:
 			_test_silence, _test_disarm, _test_rapid_deployment, _test_soulbound, _test_tower_stats, _test_durations,
 			_test_purge_and_fountain, _test_locks, _test_add_card_and_counters, _test_hacks, _test_summon_and_fountain,
 			_test_move, _test_swap, _test_control, _test_zone_fuzz, _test_improvements, _test_items, _test_deeds,
-			_test_rules_layer, _test_creep_lane, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_m3_engine, _test_m5_engine,
+			_test_rules_layer, _test_creep_lane, _test_chain_frost_model, _test_taunt_and_end_phase, _test_hourglass_round_draw, _test_review_fixes, _test_m3_engine, _test_m5_engine,
 			_test_m6_engine, _test_m7_engine, _test_preview_equals_combat]:
 		var started = Time.get_ticks_msec()
 		test.call()
@@ -1352,7 +1352,10 @@ func _test_rules_layer() -> void:
 	_caster(engine, 0, "red", 1)
 	_check(engine.legal_actions(0).any(func(action): return str(action.type) == "play" and int(action.hand) == 0), "rules_forbid_2: creeps are allowed in other lanes")
 
-## Kanna (RQ-22): -1 lane creeps, resolved at the reveal, randomness unchanged.
+## Kanna (RQ-22): while a creep_lane hero is alive in a lane as the lane
+## creeps are assigned, they are published in her lane and placed there; the
+## lanes are still drawn, so randomness is unchanged. A hero in the Fountain,
+## ready or planned, redirects nothing.
 func _test_creep_lane() -> void:
 	var states: Array = []
 	var pendings: Array = []
@@ -1366,7 +1369,7 @@ func _test_creep_lane() -> void:
 		states.append(engine.rng.state)
 		pendings.append(engine.state.pending_creeps.duplicate(true))
 		if with_kanna:
-			_check(engine.player_view(1).pending_creeps[0] == [-1, -1], "rq_22_kanna_lane: the opponent sees -1 lane creeps")
+			_check(engine.player_view(1).pending_creeps[0] == [2, 2], "rq_22_kanna_lane: the opponent sees both lane creeps in Kanna's lane")
 			var before = engine.state.lanes[2].units[0].filter(func(unit): return unit != null and str(unit.card) == "melee_creep").size()
 			for player in range(2):
 				for hero in engine.state.players[player].roster:
@@ -1377,29 +1380,160 @@ func _test_creep_lane() -> void:
 			var after = engine.state.lanes[2].units[0].filter(func(unit): return unit != null and str(unit.card) == "melee_creep").size()
 			_check(after == before + 2, "rq_22_kanna_lane: both lane creeps deploy into Kanna's current lane")
 			_check(Invariants.violations(engine).is_empty(), "Invariants hold after Kanna's deployment")
-	_check(states[0] == states[1] and pendings[1][0] == [-1, -1] and pendings[1][1] == pendings[0][1], "rq_22_kanna_lane: the lanes are still drawn, so randomness is unchanged")
-	# A ready Kanna in the Fountain counts, and her planned lane wins.
+	_check(states[0] == states[1] and pendings[1][0] == [2, 2] and pendings[1][1] == pendings[0][1], "rq_22_kanna_lane: the lanes are still drawn, so randomness is unchanged")
+	# A Kanna left in her lane at 0 health (no Pulse between the end of the
+	# round and the creep assignment) is not alive: she redirects nothing.
+	var lethal = _engine(5)
+	var dying = lethal._make_unit(lethal.library.definition("fx_kanna"), 0, true)
+	lethal.state.players[0].roster.append(dying)
+	lethal._place(dying, 2, 0)
+	dying.health = 0
+	lethal._begin_deployment()
+	_check(lethal.state.pending_creeps == pendings[0] and lethal.rng.state == states[0],
+		"rq_22_kanna_dying: a Kanna in a lane at 0 health redirects nothing (%s)" % [lethal.state.pending_creeps])
+	# A ready Kanna in the Fountain redirects nothing, planned or not.
+	var reference = _engine(6)
+	reference._begin_deployment()
 	var engine = _engine(6)
 	var kanna = engine._make_unit(engine.library.definition("fx_kanna"), 0, true)
 	kanna.ready_round = 1
 	engine.state.players[0].roster.append(kanna)
 	engine._begin_deployment()
-	_check(engine.state.pending_creeps[0] == [-1, -1], "rq_22_kanna_ready: a ready Kanna in the Fountain redirects the creeps")
+	var published: Array = engine.state.pending_creeps.duplicate(true)
+	_check(published == reference.state.pending_creeps and engine.rng.state == reference.rng.state,
+		"rq_22_kanna_ready: a ready Kanna in the Fountain redirects nothing (the random lanes, %s)" % [published])
 	for player in range(2):
 		for hero in engine.state.players[player].roster:
 			if int(hero.lane) == -1 and int(hero.ready_round) <= int(engine.state.round):
 				engine.state.players[player].plans[str(hero.uid)] = 1 if str(hero.card) == "fx_kanna" else 0
 		engine.state.players[player].finished = true
-	_check(engine.player_view(1).players[0].plans.is_empty(), "Kanna's plan stays private")
+	_check(engine.player_view(1).players[0].plans.is_empty() and engine.player_view(1).pending_creeps == published, "Kanna's plan stays private and changes no published lane")
+	var counts: Array = [0, 0, 0]
+	for lane_index in published[0]:
+		counts[int(lane_index)] += 1
+	var existing: Array = []
+	for lane_index in range(3):
+		existing.append(engine.state.lanes[lane_index].units[0].filter(func(unit): return unit != null and str(unit.card) == "melee_creep").size())
 	engine._reveal_deployment()
-	_check(engine.state.lanes[1].units[0].filter(func(unit): return unit != null and str(unit.card) == "melee_creep").size() == 2 and int(kanna.lane) == 1,
-		"rq_22_kanna_planned: the creeps follow Kanna's planned lane")
+	var placed: Array = []
+	for lane_index in range(3):
+		placed.append(engine.state.lanes[lane_index].units[0].filter(func(unit): return unit != null and str(unit.card) == "melee_creep").size() - int(existing[lane_index]))
+	_check(int(kanna.lane) == 1 and placed == counts, "rq_22_kanna_planned: Kanna deploys to her planned lane; the creeps keep their random lanes (%s, published %s)" % [placed, counts])
 	engine = _engine(7)
 	kanna = engine._make_unit(engine.library.definition("fx_kanna"), 0, true)
 	kanna.ready_round = 9
 	engine.state.players[0].roster.append(kanna)
 	engine._begin_deployment()
-	_check(not engine.state.pending_creeps[0].has(-1), "rq_22_kanna_not_ready: a Kanna who cannot deploy redirects nothing")
+	_check(engine.state.pending_creeps[0].all(func(value): return int(value) >= 0 and int(value) <= 2), "rq_22_kanna_not_ready: a Kanna who cannot deploy redirects nothing")
+
+## Chain Frost (RQ-15, RQ-16) against a model over random boards: the caster
+## stands in one slot of its row (that position never collapses), five enemy
+## creeps of random health stand across. A Pulse comes between every two hits;
+## a killed unit is removed before the next bounce chooses; the next bounce
+## hits a random unit beside the last unit hit: its live neighbors when it
+## lives, otherwise the neighbors it had when it died that still live; with
+## none, the rest fizzle. The caster keeps initiative.
+func _test_chain_frost_model() -> void:
+	var problems: Array = []
+	var choices = {"two": 0, "left": 0}
+	for seed_value in range(1, 161):
+		var engine = _engine(seed_value)
+		var dice = RandomNumberGenerator.new()
+		dice.seed = seed_value * 31
+		var caster_slot = dice.randi_range(0, 4)
+		var hero: Dictionary = {}
+		for candidate in engine.state.players[0].roster:
+			if str(candidate.color) == "black":
+				hero = candidate
+				break
+		var top: Array = [null, null, null, null, null]
+		top[caster_slot] = hero
+		var bottom: Array = []
+		for slot in range(5):
+			bottom.append("thunderhide_pack" if dice.randi_range(0, 3) == 0 else "melee_creep")
+		var made = _rows(engine, 0, [top, bottom])
+		var health: Dictionary = {}
+		var row: Array = []
+		var across: Array = []
+		for slot in range(5):
+			var unit: Dictionary = made[1][slot]
+			unit.health = dice.randi_range(1, int(unit.max_health))
+			health[int(unit.uid)] = int(unit.health)
+			row.append(int(unit.uid))
+			across.append(slot == caster_slot)
+		var target = row[dice.randi_range(0, 4)]
+		var seen = int(engine.state.event_seq)
+		if not _play(engine, 0, "chain_frost", {"target": target}).ok:
+			problems.append("seed %d: Chain Frost plays" % seed_value)
+			continue
+		var events: Array = engine.state.events.slice(engine.state.events.size() - mini(int(engine.state.event_seq) - seen, engine.state.events.size()))
+		var hits: Array = []
+		var pulsed = true
+		for event in events:
+			if str(event.k) == "pulse":
+				pulsed = true
+			elif str(event.k) == "damage" and str(event.get("src", "")) == "chain_frost":
+				if not hits.is_empty() and not pulsed:
+					problems.append("seed %d: no Pulse before hit %d" % [seed_value, hits.size() + 1])
+				hits.append(int(event.hits[0][0]))
+				pulsed = false
+		if hits.is_empty() or hits[0] != target:
+			problems.append("seed %d: the first hit is the target (%s)" % [seed_value, hits])
+			continue
+		# The model: hit `prev`, remove it if it died, then pick the next one.
+		var dead: Dictionary = {}
+		var prev = target
+		var index = 0
+		while true:
+			health[prev] = int(health[prev]) - 3
+			index += 1
+			if int(health[prev]) <= 0:
+				var slot = row.find(prev)
+				var neighbors: Array = []
+				for side in [slot - 1, slot + 1]:
+					if side >= 0 and side < row.size() and row[side] != null:
+						neighbors.append(row[side])
+				dead[prev] = neighbors
+				row[slot] = null
+				if not across[slot]:
+					row.remove_at(slot)
+					across.remove_at(slot)
+			if index == 8:
+				break
+			var candidates: Array = []
+			if dead.has(prev):
+				candidates = dead[prev].filter(func(uid): return not dead.has(uid))
+			else:
+				var slot = row.find(prev)
+				for side in [slot - 1, slot + 1]:
+					if side >= 0 and side < row.size() and row[side] != null:
+						candidates.append(row[side])
+			if candidates.is_empty():
+				break
+			if index >= hits.size():
+				problems.append("seed %d: bounce %d had targets %s but fizzled" % [seed_value, index, candidates])
+				break
+			if hits[index] not in candidates:
+				problems.append("seed %d: bounce %d hit %d, not one of %s" % [seed_value, index, hits[index], candidates])
+				break
+			if candidates.size() == 2:
+				choices.two += 1
+				if hits[index] == candidates[0]:
+					choices.left += 1
+			prev = hits[index]
+		if index != hits.size():
+			problems.append("seed %d: the model makes %d hits, the engine %d (%s)" % [seed_value, index, hits.size(), hits])
+		for slot in range(5):
+			var unit: Dictionary = made[1][slot]
+			var gone = dead.has(int(unit.uid))
+			if gone != (int(unit.lane) == -1) or (not gone and int(unit.health) != int(health[int(unit.uid)])):
+				problems.append("seed %d: unit %d ends with %d health (in play %s), the model %d" % [seed_value, int(unit.uid), int(unit.health), int(unit.lane) != -1, int(health[int(unit.uid)])])
+		if int(engine.state.active_player) != 0:
+			problems.append("seed %d: Get initiative: the caster acts next" % seed_value)
+	_check(problems.is_empty(), "rq_16_chain_frost_model: 160 random boards follow the model (%s)" % [problems.slice(0, 4)])
+	var left_rate = float(choices.left) / maxf(1.0, float(choices.two))
+	_check(choices.two >= 100 and left_rate > 0.35 and left_rate < 0.65,
+		"rq_16_chain_frost_model: with two candidates the bounce picks either side (%d of %d left)" % [choices.left, choices.two])
 
 ## Taunt (RQ-18), Enough Magic! (RQ-20), granted triggers (RQ-44), the
 ## attackers relation (RQ-05), "half" (RQ-28), ancients (RQ-46) and allies

@@ -104,7 +104,7 @@ func _random_deck(rng: RandomNumberGenerator, preset_id: String) -> String:
 	var heroes: Array = []
 	for hero in library.heroes:
 		# A hero needs a deckable signature card of the pack to fill a legal
-		# deck (Lich's Chain Frost is a draft, RQ-16).
+		# deck (a hero whose signature card is a draft could not).
 		var signature = str(hero.get("signature", ""))
 		if str(hero.get("kind", "hero")) == "hero" and library._deckable(str(hero.id)) and library.cards.has(signature) and library._deckable(signature):
 			heroes.append(str(hero.id))

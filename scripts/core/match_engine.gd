@@ -618,13 +618,15 @@ func _begin_deployment() -> void:
 	for player in range(2):
 		for creep in range(2):
 			state.pending_creeps[player].append(Kernel.rand_index(self, 3))
-	# Kanna (RQ-22): with a creep_lane hero in a lane or ready to deploy, the
-	# player's lane creeps are published as -1 ("her lane") after the random
-	# draws, so randomness is unchanged and her private plan never leaks.
+	# Kanna (RQ-22): while a creep_lane hero of the player is alive in a lane
+	# as the lane creeps are assigned, they all go to her lane (the first such
+	# hero's). The lanes are drawn first, so randomness is unchanged; her lane
+	# is public, and a hero in the Fountain (ready or planned) counts for nothing.
 	for player in range(2):
-		if not Stats.creep_lane_heroes(self, player).is_empty():
+		var followed: Array = Stats.creep_lane_heroes(self, player)
+		if not followed.is_empty():
 			for index in range(state.pending_creeps[player].size()):
-				state.pending_creeps[player][index] = -1
+				state.pending_creeps[player][index] = int(followed[0].lane)
 	_event("deployment", {"round": state.round, "creeps": state.pending_creeps.duplicate(true)})
 
 func _reveal_deployment() -> void:
@@ -640,12 +642,10 @@ func _reveal_deployment() -> void:
 				hero.health = max_health_of(hero)
 				hero["hp_seen"] = int(hero.health)
 				placements.append([hero, int(owner.plans[str(hero.uid)])])
-		# A -1 lane creep goes to Kanna's planned (or current) lane (RQ-22).
-		var creep_lane = _creep_lane_of(player) if pending[player].any(func(value): return int(value) < 0) else -1
 		owner.plans.clear()
 		owner.finished = false
 		for lane_index in pending[player]:
-			placements.append([_make_creep(player), int(lane_index) if int(lane_index) >= 0 else maxi(0, creep_lane)])
+			placements.append([_make_creep(player), int(lane_index)])
 	state.pending_creeps = [[], []]
 	# _place_all shuffles `placements` in place: read back the placement
 	# order (and each unit's final combat position) for the reveal animation.
@@ -665,17 +665,6 @@ func _reveal_deployment() -> void:
 	_event("deployment_placed", {"units": placed})
 	_event("deployment_revealed")
 	Kernel.lane_open(self, 0)
-
-## The lane `player`'s lane creeps follow (Kanna, RQ-22): the planned lane of
-## the first creep_lane hero, else its current lane; -1 when there is none.
-func _creep_lane_of(player: int) -> int:
-	var plans: Dictionary = state.players[player].get("plans", {})
-	for hero in Stats.creep_lane_heroes(self, player):
-		if plans.has(str(hero.uid)):
-			return int(plans[str(hero.uid)])
-		if int(hero.lane) >= 0:
-			return int(hero.lane)
-	return -1
 
 func _make_unit(definition: Dictionary, player: int, is_hero: bool) -> Dictionary:
 	# Units carry ids and numbers only; display text is looked up by "card".
