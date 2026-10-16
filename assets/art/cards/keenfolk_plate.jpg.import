@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/keenfolk_plate.jpg-491a85e7a5de99da5493268e4b
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/chen.jpg-55f8fbd7fd3a60eaf40aee6e2fcd3f90.cte
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
