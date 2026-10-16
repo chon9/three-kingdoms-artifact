@@ -5,13 +5,19 @@ extends SceneTree
 ## loaded the names, argument counts and enum values are cross-checked against
 ## ClassDB). FakeHub routes lobbies, lobby callbacks and Networking Messages
 ## between fake clients, so two real MatchControllers play an online match
-## in-process: handshake, commands, disconnects, rejoin, concede.
+## in-process: handshake, commands, disconnects, rejoin, concede, and the
+## guest's own deck (protocol 9): sent as a deck code after the welcome,
+## validated by the host, answered, hidden from the other player's view;
+## malformed, oversized, foreign, flooded and missing deck packets.
 
 const Bridge = preload("res://scripts/network/steam_bridge.gd")
 const Controller = preload("res://scripts/game/match_controller.gd")
 const MatchEngine = preload("res://scripts/core/match_engine.gd")
 const EventText = preload("res://scripts/core/event_text.gd")
 const Settings = preload("res://scripts/core/game_settings.gd")
+const Library = preload("res://scripts/core/card_library.gd")
+const DeckCode = preload("res://scripts/core/deck_code.gd")
+const DeckStore = preload("res://scripts/core/deck_store.gd")
 const HOST_ID = 76561198000000101
 const GUEST_ID = 76561198000000202
 const STRANGER_ID = 76561198000000303
@@ -263,6 +269,7 @@ func _run() -> void:
 	_test_online_match()
 	_test_steam_events()
 	_test_review_fixes()
+	_test_guest_decks()
 	for node in nodes:
 		if is_instance_valid(node):
 			node.free()
@@ -271,7 +278,7 @@ func _run() -> void:
 			client.hub = null
 		hub.clients.clear()
 	if failures.is_empty():
-		print("PASS: %d Steam checks (fake GodotSteam 4.23 boundary: lobbies, browser, invites, launch join, handshake, race, normalization, heartbeat, disconnect/rejoin, seat binding, host leave, concede)." % checks)
+		print("PASS: %d Steam checks (fake GodotSteam 4.23 boundary: lobbies, browser, invites, launch join, handshake, race, normalization, heartbeat, disconnect/rejoin, seat binding, host leave, concede, guest decks)." % checks)
 		quit(0)
 	else:
 		for failure in failures:
@@ -1030,3 +1037,158 @@ func _test_review_fixes() -> void:
 	var pair4 = _online_pair()
 	pair4[1].leave_online()
 	_check(pair4[1].steam_bridge.status_code == "left_lobby" and pair4[1].steam_status_text() == EventText.steam_status("left_lobby"), "Leaving shows 'You left the lobby'")
+
+# --- The guest's own deck (protocol 9) ----------------------------------------------------
+
+## A custom deck (DeckStore shape) from a preset with its heroes reordered.
+func _own_deck(preset_id: String, order: Array, name: String) -> Dictionary:
+	var library = Library.new()
+	var deck = DeckStore.copy_of(library.preset(preset_id), name)
+	deck.heroes = order.map(func(index): return library.preset(preset_id).heroes[index])
+	return deck
+
+## Deck packets the client sent, decoded.
+func _deck_packets(steam: FakeSteam, kind: String) -> Array:
+	return steam.packets_to().filter(func(packet): return packet is Dictionary and packet.get("kind") == kind)
+
+func _test_guest_decks() -> void:
+	_check(Bridge.PROTOCOL == 9 and MatchEngine.PROTOCOL_VERSION == 8, "Steam protocol 9 (guest decks), match format 8")
+	var library = Library.new()
+	var hub = _hub()
+	var host_steam = hub.add(HOST_ID, "Liu Bei")
+	var guest_steam = hub.add(GUEST_ID, "Cao Cao")
+	var host = _controller(host_steam)
+	var guest = _controller(guest_steam)
+	var mine = _own_deck("siege_of_ye", [4, 0, 2, 1, 3], "Guest Deck")
+	guest.set_own_deck(mine)
+	var answers: Array = []
+	guest.own_deck_answered.connect(func(result): answers.append(result))
+	host.steam_bridge.host_lobby()
+	_pump([host.steam_bridge])
+	guest.steam_bridge.join_lobby(str(host.steam_bridge.lobby_id))
+	_pump([guest.steam_bridge, host.steam_bridge], 12)
+	var sent = _deck_packets(guest_steam, "deck")
+	_check(sent.size() == 1 and sent[0].code is String and DeckCode.decode(sent[0].code, library).ok, "After the welcome the guest sends its deck code once")
+	# The deck's name is text the player typed: it never leaves the guest.
+	_check(DeckCode.decode(sent[0].code, library).deck.name == "" and DeckCode.decode(host.steam_bridge.guest_deck_code, library).deck.name == ""
+		and str(host.guest_deck.get("name", "")) == "" and not JSON.stringify(guest_steam.packets_to()).contains("Guest Deck"),
+		"The guest's deck code carries no name and the host keeps none")
+	_check(host.started and host.mode == Controller.MODE_ONLINE and host.guest_deck_state == "ok", "The host starts the match once the guest's deck is validated")
+	# Deck codes keep each hero's round (Valve's "turn"); round 1 is listed by card id.
+	var played: Array = host.engine.state.players[1].roster.map(func(hero): return hero.card)
+	var round_one: Array = played.slice(0, 3)
+	var wanted: Array = mine.heroes.slice(0, 3)
+	round_one.sort()
+	wanted.sort()
+	_check(round_one == wanted and played[3] == mine.heroes[3] and played[4] == mine.heroes[4], "The guest plays its own deck, each hero in its round (%s)" % [played])
+	var held = host.engine.deck_ids[1]
+	_check(host.engine.state.players[1].preset == "custom" and held is Dictionary and held.cards == Library.canonical_deck(mine).cards
+		and held.items == Library.canonical_deck(mine).items, "The host holds the guest's list only in the engine (\"custom\" in state)")
+	_check(answers.size() == 1 and answers[0].ok and guest.own_deck_result.ok, "The guest is told its deck was accepted")
+	_check(guest.notice == EventText.t("HINT_CONNECTED_GUEST") or guest.notice == EventText.t("DECK_ONLINE_ACCEPTED"), "The guest's notice is a localized message")
+	var guest_view = guest.view()
+	var host_view = host.view()
+	_check(guest_view.players[0].preset == Controller.HIDDEN_DECK and guest_view.players[0].deck.is_empty() and guest_view.players[0].item_deck.is_empty()
+		and guest_view.players[0].hand.is_empty(), "The guest's view hides the host's deck (no preset, no piles, no hand)")
+	_check(host_view.players[1].preset == Controller.HIDDEN_DECK and host_view.players[1].deck.is_empty(), "The host's screen hides the guest's deck too")
+	var state_packets = _deck_packets(host_steam, "state")
+	var hides_host = func(packet): return packet.view.players[0].preset == Controller.HIDDEN_DECK and not JSON.stringify(packet.view).contains("starter")
+	_check(not state_packets.is_empty() and state_packets.all(hides_host), "No state packet names the host's deck")
+	_check(guest.deck_name_in(guest_view, 1) == "Guest Deck" and guest.deck_name_in(guest_view, 0) == EventText.t("DECK_HIDDEN"),
+		"The guest's game names its own deck and hides the host's")
+	# A new deck mid-match is kept for the next match.
+	var roster_before = host.engine.state.players[1].roster.map(func(hero): return hero.card)
+	time.ms += Bridge.DECK_MIN_MS
+	guest.set_own_deck("five_tigers")
+	_pump([guest.steam_bridge, host.steam_bridge], 4)
+	_check(answers.size() == 2 and answers[1].ok and host.engine.state.players[1].roster.map(func(hero): return hero.card) == roster_before,
+		"A deck change is accepted and leaves the running match alone")
+	_check(guest.deck_name_in(guest.view(), 1) == "Guest Deck", "Mid-match, the guest's label still names the deck being played (%s)" % guest.deck_name_in(guest.view(), 1))
+	# The host changes its own deck mid-match too: its label keeps the played deck.
+	var host_before = host.deck_name_in(host.view(), 0)
+	host.set_own_deck("green_assault")
+	_check(host.deck_name_in(host.view(), 0) == host_before and host.engine.state.players[0].preset != "green_assault",
+		"Mid-match, the host's label still names the deck being played (%s)" % host.deck_name_in(host.view(), 0))
+	host.start_match(Controller.MODE_ONLINE)
+	_pump([host.steam_bridge, guest.steam_bridge], 4)
+	_check(host.deck_name_in(host.view(), 0) == Library.preset_text("green_assault"), "The host's next match names its new deck")
+	# The guest's preset reaches the host as a code ("custom" in state) but is
+	# named as the preset on the guest's screen.
+	_check(guest.view().players[1].preset == "custom" and guest.deck_name_in(guest.view(), 1) == Library.preset_text("five_tigers"),
+		"A guest's preset is named as that preset, not \"Custom deck\" (%s)" % guest.deck_name_in(guest.view(), 1))
+	var next_roster: Array = host.engine.state.players[1].roster.map(func(hero): return hero.card)
+	_check(next_roster.slice(3) == library.preset("five_tigers").heroes.slice(3) and _sorted(next_roster.slice(0, 3)) == _sorted(library.preset("five_tigers").heroes.slice(0, 3)),
+		"The next match uses the new deck (%s)" % [next_roster])
+	# An illegal deck: rejected with its reason; the guest plays the fallback preset.
+	var short = _own_deck("starter", [0, 1, 2, 3, 4], "Short")
+	short.cards.erase("bronze_legionnaire")
+	time.ms += Bridge.DECK_MIN_MS
+	guest.set_own_deck(short)
+	_pump([guest.steam_bridge, host.steam_bridge], 4)
+	_check(answers.size() == 3 and not answers[2].ok and answers[2].code == "deck_main_size" and int(answers[2].args.n) == 37,
+		"An illegal deck is rejected with its coded reason (%s)" % [answers.back()])
+	var rejected_text = EventText.error_text(answers.back())
+	_check(rejected_text.find("37/40") != -1 and guest.notice.find(rejected_text) != -1, "The guest's notice explains the rejection: %s" % guest.notice)
+	Settings.set_locale("zh_CN", false)
+	_check(EventText.t("DECK_ONLINE_REJECTED", {"reason": EventText.error_text(answers.back())}).find("37/40") != -1 and EventText.error_text(answers.back()).find("主牌组") != -1,
+		"The rejection reads in Chinese too")
+	Settings.set_locale("en", false)
+	host.start_match(Controller.MODE_ONLINE)
+	_pump([host.steam_bridge, guest.steam_bridge], 4)
+	_check(host.guest_deck_state == "rejected" and host.engine.state.players[1].preset == host.fallback_guest_deck()
+		and host.engine.state.players[1].roster.map(func(hero): return hero.card) == library.preset(host.fallback_guest_deck()).heroes,
+		"After a rejection the guest plays the fallback preset")
+	# Malformed, oversized, wrongly typed and foreign deck packets.
+	var results_before = _deck_packets(host_steam, "deck_result").size()
+	var envelope = {"protocol": Bridge.PROTOCOL, "game": Bridge.GAME_TAG, "kind": "deck", "code": "ADC!!!!"}
+	time.ms += Bridge.DECK_MIN_MS
+	host.steam_bridge._handle_packet(GUEST_ID, envelope)
+	var last_result = _deck_packets(host_steam, "deck_result").back()
+	_check(_deck_packets(host_steam, "deck_result").size() == results_before + 1 and not last_result.ok and last_result.code == "deck_code_base64",
+		"A damaged code is answered with its reason (%s)" % [last_result])
+	results_before = _deck_packets(host_steam, "deck_result").size()
+	time.ms += Bridge.DECK_MIN_MS
+	var huge = envelope.duplicate()
+	huge.code = "ADC" + "A".repeat(Bridge.MAX_DECK_CODE_CHARS)
+	host.steam_bridge._handle_packet(GUEST_ID, huge)
+	var typed = envelope.duplicate()
+	typed.code = {"heroes": ["axe"]}
+	host.steam_bridge._handle_packet(GUEST_ID, typed)
+	var foreign = envelope.duplicate()
+	foreign.code = DeckCode.encode(library.preset("starter"), library)
+	host.steam_bridge._handle_packet(STRANGER_ID, foreign)
+	_check(_deck_packets(host_steam, "deck_result").size() == results_before and host.guest_deck_state == "rejected",
+		"Oversized codes, non-text codes and packets from anyone but the bound guest are ignored")
+	# A flood of deck changes: the first is handled, the last one after DECK_MIN_MS.
+	results_before = _deck_packets(host_steam, "deck_result").size()
+	time.ms += Bridge.DECK_MIN_MS
+	for preset_id in ["starter", "green_assault", "blue_black_control"]:
+		var packet = envelope.duplicate()
+		packet.code = DeckCode.encode(library.preset(preset_id), library)
+		host.steam_bridge._handle_packet(GUEST_ID, packet)
+	var flooded = _deck_packets(host_steam, "deck_result").size() - results_before
+	time.ms += Bridge.DECK_MIN_MS
+	host.steam_bridge.poll()
+	_check(flooded == 1 and _deck_packets(host_steam, "deck_result").size() - results_before == 2
+		and host.guest_deck.heroes[3] == library.preset("blue_black_control").heroes[3], "A burst of deck packets costs two answers; the latest deck wins")
+	# A guest that never sends a deck: after the wait it plays the fallback.
+	var hub2 = _hub()
+	var lone_host = _controller(hub2.add(HOST_ID, "Liu Bei"))
+	var silent_steam = hub2.add(GUEST_ID, "Cao Cao")
+	var silent = _bridge(silent_steam)
+	lone_host.steam_bridge.host_lobby()
+	_pump([lone_host.steam_bridge])
+	silent.join_lobby(str(lone_host.steam_bridge.lobby_id))
+	_pump([silent, lone_host.steam_bridge], 10)
+	_check(silent.handshake_done and lone_host.awaiting_guest_deck and not lone_host.started, "The host waits for a new guest's deck before the first match")
+	time.ms += Controller.GUEST_DECK_WAIT_MS
+	_pump([silent, lone_host.steam_bridge], 4)
+	var missing = _deck_packets(lone_host.steam_bridge.steam, "deck_result")
+	_check(lone_host.started and not lone_host.awaiting_guest_deck and lone_host.guest_deck_state == "missing"
+		and missing.size() == 1 and missing[0].code == "deck_online_missing", "Without a deck in time the match starts with the fallback and the guest is told")
+	_check(EventText.error_text({"code": "deck_online_missing"}).find("{") == -1, "The missing-deck message is translated")
+
+func _sorted(values: Array) -> Array:
+	var copy = values.duplicate()
+	copy.sort()
+	return copy

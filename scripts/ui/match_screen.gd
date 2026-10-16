@@ -1643,7 +1643,11 @@ func _towers_text(view: Dictionary, viewer: int) -> String:
 	var names = _player_names(viewer)
 	return UiKit.t("RESULT_TOWERS", {"player1": names[0], "n1": fallen[1 - viewer], "player2": names[1], "n2": fallen[viewer]})
 
+## "<own deck> vs <opponent's deck>": preset names, own decks by their name,
+## and online the opponent's deck stays unnamed (its list is hidden).
 func _matchup_text(view: Dictionary, viewer: int) -> String:
+	if controller != null and controller.has_method("deck_name_in"):
+		return UiKit.t("DECKS_VS", {"deck1": controller.deck_name_in(view, viewer), "deck2": controller.deck_name_in(view, 1 - viewer)})
 	return UiKit.t("DECKS_VS", {"deck1": Library.preset_text(str(view.players[viewer].get("preset", ""))),
 		"deck2": Library.preset_text(str(view.players[1 - viewer].get("preset", "")))})
 

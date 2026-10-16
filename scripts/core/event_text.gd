@@ -289,8 +289,16 @@ static func animated(event: Dictionary) -> bool:
 	return str(event.get("k", "")) in ANIMATED
 
 ## Display text for a failed engine/library result ({"code", "args", "error"}).
+## Card ids in `card` and `hero` args (deck rules, deck codes) show as the
+## card's name in the current skin and language.
 static func error_text(result: Dictionary) -> String:
-	return _coded("ERR_", str(result.get("code", "")), result.get("args", {}), str(result.get("error", "")))
+	var args = result.get("args", {})
+	if args is Dictionary and (args.has("card") or args.has("hero")):
+		args = args.duplicate()
+		for key in ["card", "hero"]:
+			if args.has(key):
+				args[key] = Library.loc(str(args[key]))
+	return _coded("ERR_", str(result.get("code", "")), args, str(result.get("error", "")))
 
 ## Display text for a SteamBridge status code and its args.
 static func steam_status(code: String, args: Dictionary = {}, fallback: String = "") -> String:

@@ -290,7 +290,7 @@ func _test_replays_and_bot_matches() -> void:
 		_check(emitted.has(key), "Bot matches emit and format event key " + key)
 	_check(emitted.has("win") or emitted.has("draw"), "Bot matches emit a result event")
 	var replay = _new().replay_data()
-	_check(int(replay.protocol) == 7, "Replay format version is 7")
+	_check(int(replay.protocol) == 8, "Replay format version is 8")
 	replay.actions.append({"player": 0, "command": {"type": "play", "hand": -1}})
 	_check(not EngineClass.new().load_replay(replay).ok, "Corrupt replay action rejected")
 	var legacy = _new().replay_data()
@@ -682,7 +682,7 @@ func _test_language_neutral_state() -> void:
 	replay.protocol = 4
 	var stale = EngineClass.new().load_replay(replay)
 	_check(stale.get("code") == "replay_version", "Protocol 4 replays are rejected with replay_version")
-	_check(EngineClass.PROTOCOL_VERSION == 7 and BridgeClass.PROTOCOL == 8, "Replay format 7; Steam network protocol 8 (tests/steam_test.gd covers the boundary)")
+	_check(EngineClass.PROTOCOL_VERSION == 8 and BridgeClass.PROTOCOL == 9, "Replay format 8; Steam network protocol 9 (tests/steam_test.gd covers the boundary)")
 	_check(EventFormatter.error_text(illegal) == "That action is not legal in the current state.", "Error codes translate to English")
 	Settings.set_locale("zh_CN", false)
 	_check(EventFormatter.error_text(illegal) == "当前局面下不能执行该操作。", "Error codes translate to Chinese")

@@ -4,8 +4,15 @@ extends "res://scripts/ui/modal_panel.gd"
 ## lobbies of this game, invite friends, copy the ID or leave. Without a
 ## working Steam client it explains why; offline play needs nothing extra.
 
+signal deck_change_requested
+
 var controller: Node
 var status_label: Label
+## The deck this player brings online (seat 0) and the host's answer to it.
+var deck_row: HBoxContainer
+var deck_label: Label
+var deck_status: Label
+var deck_button: Button
 var host_row: HBoxContainer
 var host_button: Button
 var host_public_button: Button
@@ -39,6 +46,18 @@ func build() -> void:
 	var bridge = controller.steam_bridge
 	status_label = label(body, "", 16, UiKit.PAPER_DIM, true)
 	status_label.name = "Status"
+	deck_row = HBoxContainer.new()
+	deck_row.name = "DeckRow"
+	body.add_child(deck_row)
+	deck_label = label(deck_row, "", 17, UiKit.GOLD_BRIGHT)
+	deck_label.add_theme_font_override("font", UiKit.title_font())
+	deck_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	deck_label.clip_text = true
+	deck_button = button(deck_row, "", 16)
+	deck_button.name = "ChangeDeck"
+	deck_button.pressed.connect(func(): deck_change_requested.emit())
+	deck_status = label(body, "", 14, UiKit.MUTED, true)
+	deck_status.name = "DeckStatus"
 	host_row = HBoxContainer.new()
 	body.add_child(host_row)
 	host_button = button(host_row, "")
@@ -90,6 +109,7 @@ func build() -> void:
 	version_label = label(body, "", 13, UiKit.MUTED, true)
 	docs_label = label(body, "", 14, UiKit.MUTED, true)
 	controller.steam_status_changed.connect(_on_status)
+	controller.own_deck_answered.connect(func(_result): _on_status(""))
 	bridge.lobbies_listed.connect(_on_lobbies)
 
 func _on_status(_text: String) -> void:
@@ -146,9 +166,13 @@ func refresh_text() -> void:
 	version_label.text = UiKit.t("STEAM_VERSION_INFO", {"version": bridge.godotsteam_version if not bridge.godotsteam_version.is_empty() else "-",
 		"protocol": bridge.PROTOCOL, "content": bridge.content_hash.substr(0, 8)})
 	docs_label.text = UiKit.t("STEAM_DOCS_HINT")
+	deck_label.text = UiKit.t("STEAM_YOUR_DECK", {"name": controller.own_deck_name()})
+	deck_button.text = UiKit.t("STEAM_CHANGE_DECK")
+	deck_status.text = own_deck_status(controller)
+	deck_status.visible = not deck_status.text.is_empty()
 	var available = bridge.available
 	var in_lobby = int(bridge.lobby_id) != 0
-	for control in [host_row, lobby_input, join_button, browser_title, refresh_button, browser_hint, browser_list]:
+	for control in [host_row, lobby_input, join_button, browser_title, refresh_button, browser_hint, browser_list, deck_row]:
 		control.visible = available
 	join_button.get_parent().visible = available
 	lobby_label.visible = in_lobby
@@ -163,6 +187,18 @@ func refresh_text() -> void:
 		control.tooltip_text = leave_hint
 	lobby_input.editable = not in_lobby
 	docs_label.visible = not available
+
+## What the host made of our deck (only while connected to a host as guest).
+static func own_deck_status(match_controller: Node) -> String:
+	var bridge = match_controller.steam_bridge
+	if bridge.is_host or not bridge.handshake_done:
+		return ""
+	var result: Dictionary = match_controller.own_deck_result
+	if result.is_empty():
+		return UiKit.t("DECK_ONLINE_PENDING")
+	if result.get("ok", false):
+		return UiKit.t("DECK_ONLINE_ACCEPTED")
+	return UiKit.t("DECK_ONLINE_REJECTED", {"reason": UiKit.EventText.error_text(result)})
 
 ## Join is offered only for lobbies of this build that wait for a player (a
 ## "reconnecting" lobby keeps its seat for the original opponent), and never

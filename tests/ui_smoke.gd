@@ -14,7 +14,13 @@ extends SceneTree
 ## badges, lock badges on an own card and an enemy card back, the
 ## lane-then-position stepper, an improvement choice, an improvement chip
 ## click and an item ability click (with its lane step), and every event
-## animation played in real time (sped up) without a script error.
+## animation played in real time (sped up) without a script error. The
+## deck screens: the deck list from the main menu, the builder driven by
+## clicks and drags (a hero clicked in, its locked signature cards, a hero
+## dragged onto a round slot, slots swapped, copies added to the limit and
+## removed with "-" and by dragging rows and heroes back), filters, inspect,
+## code import (bad and good) and export, both sizes and languages, saving,
+## and playing the saved deck against the AI; the guest's deck picker.
 ## Every check exits with code 1 on failure; a watchdog also exits with code 1
 ## if a script error stops the coroutine before it can finish.
 
@@ -30,6 +36,15 @@ const Bot = preload("res://scripts/ai/heuristic_bot.gd")
 const Kernel = preload("res://scripts/core/rules/kernel.gd")
 const Zones = preload("res://scripts/core/rules/zones.gd")
 const FIXTURES = "res://tests/fixtures/rules_fixtures.json"
+const DeckStore = preload("res://scripts/core/deck_store.gd")
+const DeckListDialog = preload("res://scripts/ui/deck_list_dialog.gd")
+const DeckBuilderDialog = preload("res://scripts/ui/deck_builder_dialog.gd")
+const DecksDialog = preload("res://scripts/ui/decks_dialog.gd")
+const CatalogDialog = preload("res://scripts/ui/catalog_dialog.gd")
+## The test's own deck folder (never the player's user://decks).
+const UI_DECKS = "res://.tools/scratch/ui_smoke_decks"
+## Valve's README example code (Green/Black).
+const VALVE_CODE = "ADCJWkTZX05uwGDCRV4XQGy3QGLmqUBg4GQJgGLGgO7AaABR3JlZW4vQmxhY2sgRXhhbXBsZQ__"
 const WATCHDOG_SECONDS = 240.0
 var app
 var screen
@@ -130,6 +145,8 @@ func _focus_player_zero(hand: Array) -> void:
 	app.controller.refresh()
 
 func _run() -> void:
+	DeckStore.root = UI_DECKS
+	_clear_decks()
 	if FileAccess.file_exists(Settings.PATH):
 		saved_settings = FileAccess.get_file_as_string(Settings.PATH)
 	root.size = Vector2i(1440, 900)
@@ -653,6 +670,10 @@ func _run() -> void:
 		return
 	if not _require(_engine().state.players[0].roster[0].card == "drow" and _engine().state.players[1].roster[0].card == "zeus", "Starting from the deck dialog begins the chosen matchup"):
 		return
+	if not await _check_deck_builder():
+		return
+	if not await _check_deck_review():
+		return
 	# --- Online pieces without Steam: lobby browser, pause overlay, link quality ----
 	var steam_dialog = app.open_steam()
 	await process_frame
@@ -741,9 +762,11 @@ func _run() -> void:
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog), and the deck builder (deck list, click and drag edits, locked signature cards, round slots, filters, code import and export, saving, playing a saved deck against the AI, the guest's deck picker)." % checks)
 	app.queue_free()
 	await process_frame
+	_clear_decks()
+	DeckStore.root = DeckStore.DEFAULT_ROOT
 	_restore_settings()
 	quit(0)
 
@@ -1542,3 +1565,453 @@ func _check_ai_deployment() -> bool:
 	if not _require(idle, "A skipped reveal hands control back within a second"):
 		return false
 	return _require(engine.state.phase == "action" and _board_settled() and _check_reveal_result(), "A skipped reveal leaves the board exactly settled")
+
+# --- Decks: the deck list and the builder ---------------------------------------------------
+
+func _clear_decks() -> void:
+	if DirAccess.dir_exists_absolute(UI_DECKS):
+		for file_name in DirAccess.get_files_at(UI_DECKS):
+			DirAccess.remove_absolute("%s/%s" % [UI_DECKS, file_name])
+
+## A real mouse drag: press, eight held motions with their relative movement
+## (Godot's drag and drop starts from it), release.
+func _drag(from: Vector2, to: Vector2) -> void:
+	_mouse(from)
+	_mouse(from, MOUSE_BUTTON_LEFT, true)
+	var last = from
+	for step in range(1, 9):
+		var point = from.lerp(to, step / 8.0)
+		var motion = InputEventMouseMotion.new()
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		motion.position = point
+		motion.global_position = point
+		motion.relative = point - last
+		root.push_input(motion, true)
+		last = point
+	_mouse(to, MOUSE_BUTTON_LEFT, false)
+
+func _center(control: Control) -> Vector2:
+	return control.get_global_rect().get_center()
+
+func _top_dialog():
+	var open: Array = app.dialogs()
+	return open.back() if not open.is_empty() else null
+
+## Scrolls a collection card into view and returns its centre.
+func _card_point(builder, card_id: String) -> Vector2:
+	var card = builder.collection_card(card_id)
+	builder.collection_scroll.ensure_control_visible(card)
+	await process_frame
+	await process_frame
+	return _center(card)
+
+func _check_deck_builder() -> bool:
+	var selections_before: Array = app.deck_selections.duplicate(true)
+	app.show_main_menu()
+	app.menu.action_requested.emit("decks")
+	await process_frame
+	await process_frame
+	var list = _top_dialog()
+	if not _require(list is DeckListDialog, "Main menu Decks opens the deck list"):
+		return false
+	if not _require(list.decks.is_empty() and list.entry_buttons.size() == 22 and list.panel.get_global_rect().end.y <= 900.0
+			and list.actions.play.is_visible_in_tree(), "The deck list shows the 22 presets and no own decks yet, and fits"):
+		return false
+	# A preset is read-only: Edit a copy opens a new deck from it; leaving it
+	# unsaved asks first.
+	list.select("preset", "green_assault")
+	if not _require(not list.actions.rename.visible and not list.actions.delete.visible and list.actions.edit.text == UiKit.t("DECKLIST_EDIT_COPY"),
+			"A preset offers Edit a copy, not Rename or Delete"):
+		return false
+	list.actions.edit.pressed.emit()
+	await process_frame
+	await process_frame
+	var copy = _top_dialog()
+	if not _require(copy is DeckBuilderDialog and copy.is_new and copy.deck.heroes == Library.new().preset("green_assault").heroes and copy.issues.is_empty()
+			and copy.deck.name.find(Library.preset_text("green_assault")) != -1, "Editing a preset opens a new copy of it (%s)" % copy.deck.get("name", "")):
+		return false
+	copy.close()
+	if not _require(copy.prompt != null and copy.prompt.is_inside_tree() and copy.is_inside_tree(), "Leaving an unsaved deck asks first"):
+		return false
+	copy.prompt.confirm_button.pressed.emit()
+	await process_frame
+	await process_frame
+	list = _top_dialog()
+	if not _require(list is DeckListDialog and DeckStore.list().is_empty(), "Leaving without saving returns to the list and stores nothing"):
+		return false
+	list.new_button.pressed.emit()
+	await process_frame
+	await process_frame
+	var builder = _top_dialog()
+	if not _require(builder is DeckBuilderDialog and builder.is_new and builder.deck.heroes == ["", "", "", "", ""],
+			"New deck opens an empty builder"):
+		return false
+	if not _require(builder.panel.get_global_rect().end.y <= 900.0 and builder.play_button.is_visible_in_tree() and builder.play_button.disabled
+			and builder.collection.size() == builder.eligible_cards().size() and builder.collection.size() > 200,
+			"The builder fits, lists every deckable card (%d), and Play waits for a legal deck" % builder.collection.size()):
+		return false
+	if not _check_collection_contents(builder):
+		return false
+	# A click adds a hero to the first slot, with its locked signature cards.
+	_click(await _card_point(builder, "axe"))
+	await process_frame
+	var signature_row = builder.rows.get("berserkers_call")
+	if not _require(builder.deck.heroes[0] == "axe" and signature_row != null and signature_row.locked and not signature_row.minus.visible
+			and int(builder.deck.cards.get("berserkers_call", 0)) == 3, "Clicking a hero fills slot 1 and locks its three signature cards in the list"):
+		return false
+	if not _require(not builder.remove_card("berserkers_call") and int(builder.deck.cards.berserkers_call) == 3, "A signature card cannot be removed on its own"):
+		return false
+	# Drag a hero onto the round 3 slot, then move a hero by dragging its slot.
+	_drag(await _card_point(builder, "debbi"), _center(builder.hero_slots[4]))
+	await process_frame
+	if not _require(builder.deck.heroes[4] == "debbi" and int(builder.deck.cards.get("no_accident", 0)) == 3,
+			"Dragging a hero onto the round 3 slot puts it there (%s)" % [builder.deck.heroes]):
+		return false
+	_drag(_center(builder.hero_slots[0]), _center(builder.hero_slots[3]))
+	await process_frame
+	if not _require(builder.deck.heroes == ["", "", "", "axe", "debbi"], "Dragging a hero onto another slot moves it to that round (%s)" % [builder.deck.heroes]):
+		return false
+	# Copies: clicks add up to three, the fourth is refused.
+	var payday = await _card_point(builder, "payday")
+	for click in range(4):
+		_click(payday)
+		await process_frame
+	if not _require(int(builder.deck.cards.get("payday", 0)) == 3 and builder.collection_card("payday").dimmed, "Clicks add copies up to three; the card dims at its limit"):
+		return false
+	_click(_center(builder.rows["payday"].minus))
+	await process_frame
+	if not _require(int(builder.deck.cards.get("payday", 0)) == 2, "The row's - removes a copy"):
+		return false
+	_drag(_center(builder.rows["payday"]) + Vector2(-80, 0), _center(builder.collection_scroll))
+	await process_frame
+	if not _require(int(builder.deck.cards.get("payday", 0)) == 1, "Dragging a row back to the collection removes a copy"):
+		return false
+	_drag(await _card_point(builder, "payday"), _center(builder.list_scroll))
+	await process_frame
+	if not _require(int(builder.deck.cards.get("payday", 0)) == 2, "Dragging a card onto the deck list adds a copy"):
+		return false
+	_drag(_center(builder.hero_slots[4]), _center(builder.collection_scroll))
+	await process_frame
+	if not _require(builder.deck.heroes[4] == "" and not builder.deck.cards.has("no_accident"), "Dragging a hero back to the collection removes it and its signature cards"):
+		return false
+	# Right-click inspects.
+	_click(await _card_point(builder, "payday"), MOUSE_BUTTON_RIGHT)
+	if not _require(builder.inspector.visible and builder.inspector.title_label.text == Library.loc("payday"), "Right-clicking a card inspects it"):
+		return false
+	_click(Vector2(720, 450))
+	if not _require(not builder.inspector.visible, "A click closes the builder's inspector"):
+		return false
+	# Filters: kind, cost, slot, colour, search.
+	builder.set_kind_filter("hero")
+	var shown: Array = builder.shown_cards()
+	if not _require(shown.size() == 46 and shown.all(func(card_id): return str(Library.raw_definition(card_id).get("kind", "")) == "hero"),
+			"The hero filter shows the 46 heroes a deck can hold (%d; not Kanna, a draft, nor Lich, whose Chain Frost is a draft)" % shown.size()):
+		return false
+	builder.set_kind_filter("hero")
+	builder.set_cost_filter(8)
+	shown = builder.shown_cards()
+	var costly = func(card_id): return int(Library.raw_definition(card_id).get("cost", 0)) >= 8 and str(Library.raw_definition(card_id).get("kind", "")) in ["creep", "spell", "improvement"]
+	if not _require(not shown.is_empty() and shown.all(costly), "The 8+ cost filter shows only main cards costing 8 or more"):
+		return false
+	builder.set_cost_filter(8)
+	builder.set_kind_filter("weapon")
+	shown = builder.shown_cards()
+	if not _require(not shown.is_empty() and shown.all(func(card_id): return str(Library.raw_definition(card_id).get("slot", "")) == "weapon"), "The weapon filter shows weapons"):
+		return false
+	builder.set_kind_filter("weapon")
+	builder.set_color_filter("blue")
+	shown = builder.shown_cards()
+	if not _require(not shown.is_empty() and shown.all(func(card_id): return CatalogDialog.filter_of(card_id) == "blue"), "The Wei (blue) filter"):
+		return false
+	builder.set_color_filter("all")
+	builder.set_search(Library.loc("jmuy"))
+	shown = builder.shown_cards()
+	if not _require("jmuy" in shown and shown.size() < 10, "Search finds a hero by its name in the current language (%s)" % Library.loc("jmuy")):
+		return false
+	builder.set_search("")
+	if not _require(builder.shown_cards().size() == builder.collection.size(), "Clearing the filters shows every card again"):
+		return false
+	# Import: a damaged code explains itself; Valve's example code fills the deck.
+	var box = builder.open_import()
+	await process_frame
+	box.field.text = VALVE_CODE.substr(0, VALVE_CODE.length() - 12)
+	box.confirm_button.pressed.emit()
+	if not _require(box.is_inside_tree() and box.error_label.visible and box.error_label.text.find("{") == -1 and not box.error_label.text.begins_with("ERR_"),
+			"A damaged code keeps the import box open with a localized reason (%s)" % box.error_label.text):
+		return false
+	box.field.text = "  https://playartifact.com/d/" + VALVE_CODE + "  "
+	box.confirm_button.pressed.emit()
+	await process_frame
+	if not _require((not is_instance_valid(box) or not box.is_inside_tree()) and builder.deck.name == "Green/Black Example" and builder.issues.is_empty()
+			and builder.lamps.states.all(func(met): return met) and not builder.play_button.disabled,
+			"Importing Valve's example code gives a legal deck: every lamp green, Play enabled (%s)" % [builder.issues]):
+		return false
+	if not _require(builder.deck.heroes[3] == "debbi" and builder.deck.heroes[4] == "chen" and builder.name_field.text == "Green/Black Example",
+			"The imported heroes keep their deploy rounds (%s)" % [builder.deck.heroes]):
+		return false
+	if not _require(builder.export_code() == VALVE_CODE and builder.prompt.field.text == VALVE_CODE, "Copy code gives back the same code"):
+		return false
+	builder.prompt.cancel()
+	# Both languages and the smaller window.
+	app.set_locale("en")
+	if not _require(builder.title_label.text == "Deck builder" and builder.save_button.text.begins_with("Save"), "The builder re-renders in English"):
+		return false
+	root.size = Vector2i(1280, 720)
+	await process_frame
+	await process_frame
+	var small: Rect2 = builder.panel.get_global_rect()
+	var fits_small = small.position.x >= 0.0 and small.position.y >= 0.0 and small.end.x <= screen.size.x + 1.0 and small.end.y <= screen.size.y + 1.0 \
+		and builder.play_button.is_visible_in_tree() and builder.list_scroll.size.y > 120.0 and builder.collection_scroll.size.y > 200.0
+	root.size = Vector2i(1440, 900)
+	await process_frame
+	await process_frame
+	app.set_locale("zh_CN")
+	if not _require(fits_small and builder.title_label.text == UiKit.t("DECKB_TITLE"), "The builder fits a 1280x720 window (%s) and switches back to Chinese" % small):
+		return false
+	# Save, back to the list, play it against the AI.
+	builder.save_button.pressed.emit()
+	var stored = DeckStore.list()
+	if not _require(stored.size() == 1 and stored[0].name == "Green/Black Example" and builder.deck.id == stored[0].id and not builder.dirty()
+			and FileAccess.file_exists("%s/%s.json" % [UI_DECKS, stored[0].id]), "Save writes the deck to the deck folder"):
+		return false
+	builder.close_button.pressed.emit()
+	await process_frame
+	await process_frame
+	list = _top_dialog()
+	if not _require(list is DeckListDialog and list.selected.get("id", "") == stored[0].id and list.entry_buttons.has("custom:" + stored[0].id)
+			and not list.actions.play.disabled, "Back returns to the deck list with the saved deck selected and playable"):
+		return false
+	# Duplicate, rename and delete (through its confirmation).
+	list.actions.duplicate.pressed.emit()
+	var two = DeckStore.list()
+	if not _require(two.size() == 2 and list.selected.get("id", "") != stored[0].id and list.selected_deck().heroes == stored[0].heroes,
+			"Duplicate saves a copy and selects it"):
+		return false
+	var renamer = list.open_rename()
+	renamer.field.text = "  Shu [Vanguard]  "
+	renamer.confirm_button.pressed.emit()
+	if not _require(list.selected_deck().get("name", "") == "Shu Vanguard" and list.name_label.text == "Shu Vanguard", "Rename stores a cleaned name"):
+		return false
+	var asker = list.open_delete()
+	asker.confirm_button.pressed.emit()
+	await process_frame
+	if not _require(DeckStore.list().size() == 1 and list.decks.size() == 1, "Delete removes the deck after the confirmation"):
+		return false
+	list.select("custom", stored[0].id)
+	list.actions.play.pressed.emit()
+	await process_frame
+	await process_frame
+	var decks = _top_dialog()
+	if not _require(decks is DecksDialog and decks.choices[0] is Dictionary and decks.choices[0].get("id", "") == stored[0].id
+			and decks.selectors[0].get_item_text(decks.selectors[0].selected) == "Green/Black Example",
+			"Play with this deck opens the matchup with the deck as yours"):
+		return false
+	decks.mode_buttons[MatchController.MODE_AI].pressed.emit()
+	decks.start_button.pressed.emit()
+	await _settle()
+	app.bot_timer.stop()
+	var roster = _engine().state.players[0].roster.map(func(hero): return hero.card)
+	if not _require(app.mode == MatchController.MODE_AI and roster == stored[0].heroes and _engine().state.players[0].preset == "custom",
+			"The AI match starts with the saved deck in its deploy order (%s)" % [roster]):
+		return false
+	if not _require(app.controller.deck_name_in(app.controller.view(), 0) == "Green/Black Example" and app.controller.view().players[1].preset != "custom",
+			"The match names your deck"):
+		return false
+	# The guest's picker: one column, it sets this player's deck.
+	var picker = app.open_decks(true)
+	await process_frame
+	if not _require(picker.guest and picker.selectors.size() == 1 and picker.panel.get_global_rect().end.y <= 900.0, "The guest's deck picker has one column"):
+		return false
+	picker.selectors[0].item_selected.emit(2)
+	picker.start_button.pressed.emit()
+	await process_frame
+	if not _require(app.deck_selections[0] is String and app.deck_selections[0] == "blue_black_control", "The guest's picker sets this player's deck (%s)" % [app.deck_selections[0]]):
+		return false
+	app.close_dialogs()
+	app.deck_selections = selections_before
+	app.start_match(MatchController.MODE_LOCAL)
+	await _settle()
+	return _require(_engine().state.players[0].preset == "green_assault", "The earlier matchup is restored for the checks that follow")
+
+## True when `control` lies inside the visible part of its viewport.
+func _on_screen(control: Control) -> bool:
+	var view: Rect2 = control.get_viewport().get_visible_rect()
+	var rect: Rect2 = control.get_global_rect()
+	return rect.position.x >= view.position.x - 0.5 and rect.position.y >= view.position.y - 0.5 \
+		and rect.end.x <= view.end.x + 0.5 and rect.end.y <= view.end.y + 0.5
+
+## A code prompt showing an error stays a compact box inside the window.
+func _prompt_fits(box, label: String) -> bool:
+	var rect: Rect2 = box.panel.get_global_rect()
+	var view: Rect2 = box.get_viewport().get_visible_rect()
+	return _require(box.error_label.visible and _on_screen(box.panel) and rect.size.y < view.size.y * 0.6 and rect.position.y > 20.0
+		and box.confirm_button.is_visible_in_tree() and _on_screen(box.confirm_button),
+		"%s: the import prompt with an error fits the window (%s in %s)" % [label, rect, view.size])
+
+## The deck screens after review: a four-faction deck fits every window in
+## both languages, the code prompt with an error stays compact (builder and
+## list), messages are a toast that never resizes the footer and clears
+## after fading, a template asks before replacing a deck, copy badges stay
+## off card names and emblems, and a click on an empty hero slot shows the
+## heroes and fills that slot with the next hero clicked.
+func _check_deck_review() -> bool:
+	var locale_before = TranslationServer.get_locale()
+	var library = Library.new()
+	var four = DeckStore.copy_of(library.preset("starter"), "Contest of Warlords, a copy with a long name")
+	var builder = app.open_deck_builder(four, false)
+	await process_frame
+	await process_frame
+	if not _require(builder is DeckBuilderDialog and builder.color_counts.counts.size() == 4, "The review deck has four factions"):
+		return false
+	for locale in ["en", "zh_CN"]:
+		app.set_locale(locale)
+		for window in [Vector2i(1440, 900), Vector2i(1280, 800), Vector2i(1280, 720)]:
+			root.size = window
+			for frame in range(4):
+				await process_frame
+			var parts = [builder.panel, builder.export_button, builder.import_button, builder.close_button, builder.play_button, builder.save_button,
+				builder.lamps, builder.issue_label, builder.deck_panel]
+			var off: Array = parts.filter(func(part): return not _on_screen(part)).map(func(part): return part.name)
+			if not _require(off.is_empty(), "A four-faction deck fits %s in %s (off screen: %s; panel %s)" % [window, locale, off, builder.panel.get_global_rect()]):
+				return false
+			if not _require(builder.footer.get_combined_minimum_size().x < builder.panel.size.x - 20.0 and builder.stats_holder.size.x > 200.0,
+					"The footer's minimum width stays inside the panel (%s of %s)" % [builder.footer.get_combined_minimum_size().x, builder.panel.size.x]):
+				return false
+	root.size = Vector2i(1440, 900)
+	for frame in range(3):
+		await process_frame
+	# The code prompt with an error: compact in both languages, builder and list.
+	for locale in ["en", "zh_CN"]:
+		app.set_locale(locale)
+		for bad in ["nonsense", VALVE_CODE.substr(0, VALVE_CODE.length() - 12)]:
+			var box = builder.open_import()
+			box.field.text = bad
+			box.confirm_button.pressed.emit()
+			for frame in range(3):
+				await process_frame
+			if not _prompt_fits(box, "Builder, %s, %s" % [locale, bad.substr(0, 12)]):
+				return false
+			box.cancel()
+	await process_frame
+	# Messages: a toast over the collection; the footer and the lists keep their size.
+	app.set_locale("en")
+	for frame in range(3):
+		await process_frame
+	var footer_h = builder.footer.size.y
+	var collection_h = builder.collection_scroll.size.y
+	var list_h = builder.list_scroll.size.y
+	var outsider = ""
+	for card_id in builder.eligible_cards():
+		if outsider.is_empty() and str(Library.raw_definition(card_id).get("kind", "")) == "hero" and card_id not in builder.deck.heroes:
+			outsider = card_id
+	_click(await _card_point(builder, outsider))
+	for frame in range(3):
+		await process_frame
+	var toast: Control = builder.status_toast
+	var zone: Rect2 = builder.collection_zone.get_global_rect()
+	if not _require(builder.status_label.text == UiKit.t("DECKB_HEROES_FULL") and toast.visible and zone.encloses(toast.get_global_rect())
+			and toast.size.y < 60.0, "A full set of heroes says so in a one-line toast over the collection (%s in %s)" % [toast.get_global_rect(), zone]):
+		return false
+	builder.show_status(UiKit.t("DECKB_SAVED", {"name": "A very long deck name that goes on and on ".repeat(4)}))
+	for frame in range(3):
+		await process_frame
+	if not _require(zone.encloses(toast.get_global_rect()) and toast.size.y < 140.0, "A long message wraps inside the toast (%s)" % toast.get_global_rect()):
+		return false
+	if not _require(is_equal_approx(builder.footer.size.y, footer_h) and is_equal_approx(builder.collection_scroll.size.y, collection_h)
+			and is_equal_approx(builder.list_scroll.size.y, list_h), "Messages leave the footer (%s -> %s), the collection and the deck list alone"
+			% [footer_h, builder.footer.size.y]):
+		return false
+	builder._status_tween.custom_step(10.0)
+	if not _require(builder.status_label.text.is_empty() and not toast.visible, "A faded message is cleared"):
+		return false
+	# Copy badges sit on the art, below the name strip and any emblem.
+	var badged: Array = builder.deck.heroes.duplicate() + builder.deck.cards.keys().slice(0, 4) + builder.deck.items.keys().slice(0, 2)
+	var drawn = 0
+	for card_id in badged:
+		var card = builder.collection_card(str(card_id))
+		if card == null or card.count <= 0:
+			continue
+		drawn += 1
+		var s = card.size.x / 180.0
+		var layout = card._layout()
+		var top = card.badge_center().y - maxf(11.0, 15.0 * s)
+		var clear_below = layout.title_h + (27.0 * s if layout.stat_bar else 0.0)
+		if not _require(top >= clear_below, "%s's copy badge clears its name strip and emblem (%s >= %s)" % [card_id, top, clear_below]):
+			return false
+	if not _require(drawn >= 6, "Heroes, cards and items of the deck show copy badges (%d checked)" % drawn):
+		return false
+	# Start from a preset: asks first; Cancel keeps the deck, Replace swaps it.
+	var heroes_before: Array = builder.deck.heroes.duplicate()
+	var main_before = builder.deck.cards.duplicate()
+	var index = library.presets().map(func(preset): return str(preset.id)).find("green_assault") + 1
+	builder.template_button.item_selected.emit(index)
+	await process_frame
+	if not _require(builder.prompt != null and is_instance_valid(builder.prompt) and builder.prompt.is_inside_tree() and builder.deck.heroes == heroes_before
+			and builder.deck.cards == main_before, "Starting from a preset asks before replacing a deck with cards"):
+		return false
+	builder.prompt.cancel_button.pressed.emit()
+	await process_frame
+	if not _require(builder.deck.heroes == heroes_before and builder.deck.cards == main_before, "Cancel keeps the deck"):
+		return false
+	builder.template_button.item_selected.emit(index)
+	await process_frame
+	builder.prompt.confirm_button.pressed.emit()
+	await process_frame
+	if not _require(builder.deck.heroes == library.preset("green_assault").heroes and (builder.prompt == null or not is_instance_valid(builder.prompt)
+			or not builder.prompt.is_inside_tree()), "Replace loads the preset"):
+		return false
+	# An empty hero slot: a click shows the heroes; the next hero fills that slot.
+	builder.remove_hero(0)
+	builder.remove_hero(3)
+	builder.set_cost_filter(3)
+	_click(_center(builder.hero_slots[3]))
+	await process_frame
+	if not _require(builder.filter_kind == "hero" and builder.filter_cost == 0 and builder.hero_slots[3].waiting and builder.pending_slot == 3
+			and builder.shown_cards().size() > 40, "Clicking an empty slot shows the heroes and marks the slot"):
+		return false
+	var hero = ""
+	for card_id in builder.eligible_cards():
+		if hero.is_empty() and str(Library.raw_definition(card_id).get("kind", "")) == "hero" and card_id not in builder.deck.heroes:
+			hero = card_id
+	_click(await _card_point(builder, hero))
+	await process_frame
+	if not _require(builder.deck.heroes[3] == hero and builder.deck.heroes[0] == "" and not builder.hero_slots[3].waiting and builder.pending_slot == -1,
+			"The next hero clicked fills the chosen round 2 slot, not the first free one (%s)" % [builder.deck.heroes]):
+		return false
+	_click(_center(builder.hero_slots[0]))
+	await process_frame
+	_click(_center(builder.hero_slots[0]))
+	await process_frame
+	if not _require(builder.pending_slot == -1 and not builder.hero_slots[0].waiting, "A second click on the slot cancels the choice"):
+		return false
+	app.close_dialogs()
+	await process_frame
+	# The deck list's import prompt with an error.
+	var list = app.open_deck_list()
+	await process_frame
+	await process_frame
+	for locale in ["zh_CN", "en"]:
+		app.set_locale(locale)
+		var box = list.open_import()
+		box.field.text = "nonsense"
+		box.confirm_button.pressed.emit()
+		for frame in range(3):
+			await process_frame
+		if not _prompt_fits(box, "Deck list, %s" % locale):
+			return false
+		box.cancel()
+	app.close_dialogs()
+	app.set_locale(locale_before)
+	await process_frame
+	await process_frame
+	return true
+
+## The collection holds exactly the cards a deck may hold: no drafts, tokens,
+## consumables, Deeds or signature cards.
+func _check_collection_contents(builder) -> bool:
+	var ids = builder.collection.map(func(card): return card.card_id)
+	var library = Library.new()
+	if not _require(not ("kanna" in ids or "lich" in ids or "chain_frost" in ids or "melee_creep" in ids or "healing_salve" in ids or "shop_deed" in ids
+			or "berserkers_call" in ids or "coup_de_grace" in ids), "The collection hides drafts, tokens, consumables, Deeds, signature cards and heroes whose signature is a draft (Lich)"):
+		return false
+	return _require(ids.all(func(card_id): return library.deckable(card_id)), "Every collection card can enter a deck")

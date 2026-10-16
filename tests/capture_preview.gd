@@ -58,6 +58,19 @@ extends SceneTree
 ## improvements among them), m7_catalog_zh, m7_catalog_classic,
 ## m7_catalog_classic_zh, m7_decks (the new presets in the deck dialog) and
 ## m7_decks_zh.
+## Decks (the player's own decks): deck_list (My decks with a legal deck
+## selected), deck_list_zh, deck_builder (an unfinished deck: an empty round 3
+## slot, lamps red and green, the curve, a hovered row's card), deck_builder_zh,
+## deck_builder_classic (the classic skin), deck_builder_drag (a card dragged
+## onto the deck panel), deck_builder_valid (a legal deck: every lamp green,
+## the item deck and the item filter) and deck_import (the import prompt);
+## after review: deck_builder_four(_zh) (a four-faction deck with a message
+## toast), deck_import_error(_zh) and deck_list_import_error (the import
+## prompt with an error), deck_builder_slot (an empty slot clicked: the
+## heroes shown, the slot marked) and deck_template (the question before a
+## preset replaces a deck). With
+## only deck shots requested (--only=deck_list,...) no match is played. The
+## decks are written to res://.tools/scratch/capture_decks, never user://.
 ## Pass --size=1280x720 to check the smaller window, --out=res://dir/ to save
 ## the shots elsewhere.
 
@@ -103,6 +116,13 @@ const M6_HAND = ["golden_ticket", "obliterating_orb", "fountain_flask", "apotheo
 ## M6 equipment for player 0's heroes in the shown lane, by slot.
 const M6_GEAR = [["stonehall_pike", "stonehall_plate", "stonehall_cloak"], ["blink_dagger", "vesture_of_the_tyrant", "phase_boots"],
 	["wingfall_hammer", "seraphim_shield", "book_of_the_dead"]]
+const DECK_SHOTS = ["deck_list", "deck_list_zh", "deck_builder", "deck_builder_zh", "deck_builder_classic", "deck_builder_drag", "deck_import",
+	"deck_builder_valid", "deck_builder_four", "deck_builder_four_zh", "deck_import_error", "deck_import_error_zh", "deck_list_import_error",
+	"deck_builder_slot", "deck_template"]
+const DECK_STORE = "res://.tools/scratch/capture_decks"
+const DeckStore = preload("res://scripts/core/deck_store.gd")
+const DeckCode = preload("res://scripts/core/deck_code.gd")
+const DeckModel = preload("res://scripts/core/deck_model.gd")
 const OUT = "res://.tools/shots/"
 const SEED = 20482
 
@@ -207,6 +227,11 @@ func _mouse(position: Vector2, button: int = 0, pressed: bool = false) -> void:
 	root.push_input(event, true)
 
 func _run() -> void:
+	# The player's own decks and remembered choices never reach the shots.
+	DeckStore.root = DECK_STORE
+	if DirAccess.dir_exists_absolute(DECK_STORE):
+		for file_name in DirAccess.get_files_at(DECK_STORE):
+			DirAccess.remove_absolute("%s/%s" % [DECK_STORE, file_name])
 	root.size = window_size
 	# Ignore the real cursor: only the scripted events below may move the mouse.
 	DisplayServer.window_set_mouse_passthrough(PackedVector2Array([Vector2(0, 0), Vector2(1, 0), Vector2(1, 1)]))
@@ -219,6 +244,13 @@ func _run() -> void:
 	await _frames(4)
 	await _wait(0.5)
 	await _shot("main_menu")
+	if not only.is_empty() and only.all(func(shot_name): return shot_name in DECK_SHOTS):
+		await _capture_decks()
+		print("Shots: ", ", ".join(saved))
+		app.queue_free()
+		await process_frame
+		quit(0)
+		return
 	app.controller.current_seed = SEED
 	app.start_match(MatchController.MODE_AI)
 	app.bot_timer.paused = true
@@ -273,6 +305,8 @@ func _run() -> void:
 	await _capture_m5()
 	await _capture_m6()
 	await _capture_m7()
+	app.show_main_menu()
+	await _capture_decks()
 	print("Shots: ", ", ".join(saved))
 	app.queue_free()
 	await process_frame
@@ -1375,3 +1409,190 @@ func _scroll_to_improvements(catalog) -> void:
 			if not scroll.is_empty():
 				scroll[0].scroll_vertical = int(card.position.y)
 			return
+
+# --- Decks ---------------------------------------------------------------------------
+
+## The deck screens on a scratch store: a legal deck and an unfinished one.
+func _capture_decks() -> void:
+	if not DECK_SHOTS.any(func(shot_name): return _wanted(shot_name)):
+		return
+	DeckStore.root = DECK_STORE
+	if DirAccess.dir_exists_absolute(DECK_STORE):
+		for file_name in DirAccess.get_files_at(DECK_STORE):
+			DirAccess.remove_absolute("%s/%s" % [DECK_STORE, file_name])
+	var library = Library.new()
+	# A legal deck from Valve's Green/Black example code.
+	var decoded = DeckCode.decode("ADCJWkTZX05uwGDCRV4XQGy3QGLmqUBg4GQJgGLGgO7AaABR3JlZW4vQmxhY2sgRXhhbXBsZQ__", library)
+	var legal = DeckStore.blank("Green/Black Example")
+	legal.heroes = decoded.deck.heroes
+	legal.cards = decoded.deck.cards
+	legal.items = decoded.deck.items
+	DeckStore.save(legal)
+	# An unfinished deck: four heroes, a short main deck, a few items.
+	var draft = DeckStore.blank("Jiangdong Fleet")
+	for hero_id in ["drow", "treant_protector", "lycan", "farvhan"]:
+		DeckModel.add(draft, hero_id, library)
+	DeckModel.move_hero(draft, 3, 4)
+	DeckModel.move_hero(draft, 2, 3)
+	for card_id in ["thunderhide_pack", "thunderhide_pack", "selemenes_favor", "selemenes_favor", "rampaging_hellbear", "rampaging_hellbear",
+			"satyr_duelist", "vhoul_martyr", "vhoul_martyr", "rebel_decoy", "intimidation", "intimidation", "bellow", "bellow",
+			"defend_the_weak", "mist_of_avernus", "stars_align", "stars_align", "juke", "rumusque_blessing", "avernus_blessing",
+			"champion_of_the_ancient", "short_sword", "short_sword", "leather_armor", "travelers_cloak", "rumusque_vestments"]:
+		DeckModel.add(draft, card_id, library)
+	var saved_draft = DeckStore.save(draft)
+	var stored = DeckStore.list()
+	var legal_id = ""
+	for deck in stored:
+		if str(deck.name) == "Green/Black Example":
+			legal_id = str(deck.id)
+	for locale in ["en", "zh_CN"]:
+		var shot_name = "deck_list" if locale == "en" else "deck_list_zh"
+		if _wanted(shot_name):
+			app.set_locale(locale)
+			app.open_deck_list(legal_id)
+			await _wait(0.5)
+			await _shot(shot_name)
+			app.close_dialogs()
+			await _frames(2)
+	for spec in [["deck_builder", "en", "three_kingdoms"], ["deck_builder_zh", "zh_CN", "three_kingdoms"], ["deck_builder_classic", "en", "classic"]]:
+		if not _wanted(spec[0]):
+			continue
+		app.set_locale(spec[1])
+		app.set_skin(spec[2])
+		# The Chinese shot names the deck in traditional characters, beyond the
+		# bundled font subsets (the system font fallback draws them).
+		var shown_draft: Dictionary = (saved_draft.deck if saved_draft.ok else draft).duplicate(true)
+		shown_draft.name = "江東艦隊" if spec[1] == "zh_CN" else "Jiangdong Fleet"
+		var builder = app.open_deck_builder(shown_draft, false)
+		await _wait(0.6)
+		var row = builder.rows.get("thunderhide_pack")
+		if row != null:
+			_mouse(row.get_global_rect().get_center() + Vector2(-60, 0))
+			await _wait(0.3)
+		await _shot(spec[0])
+		_mouse(Vector2(4, 4))
+		app.close_dialogs()
+		await _frames(2)
+	app.set_locale("en")
+	app.set_skin("three_kingdoms")
+	if _wanted("deck_builder_drag"):
+		var builder = app.open_deck_builder(saved_draft.deck if saved_draft.ok else draft, false)
+		await _wait(0.6)
+		builder.set_color_filter("green")
+		await _wait(0.2)
+		var card = builder.collection_card("revtel_convoy")
+		if card == null:
+			card = builder.collection[8]
+		builder.collection_scroll.ensure_control_visible(card)
+		await _wait(0.2)
+		var start = card.get_global_rect().get_center()
+		var finish = builder.deck_panel.get_global_rect().get_center() + Vector2(0, 60)
+		_mouse(start)
+		await _frames(2)
+		_mouse(start, MOUSE_BUTTON_LEFT, true)
+		await _frames(2)
+		var last = start
+		for step in range(1, 13):
+			# Godot's drag and drop starts from the motion's relative movement.
+			var point = start.lerp(finish, step / 12.0)
+			_drag_motion(point, last)
+			last = point
+			await _frames(1)
+		await _wait(0.3)
+		await _shot("deck_builder_drag")
+		_mouse(finish, MOUSE_BUTTON_LEFT, false)
+		await _wait(0.2)
+		app.close_dialogs()
+		await _frames(2)
+	if _wanted("deck_builder_valid"):
+		# The legal deck: every lamp green, the item deck in view.
+		var stored_legal = DeckStore.load_deck(legal_id)
+		var builder = app.open_deck_builder(stored_legal, false)
+		await _wait(0.5)
+		builder.list_scroll.scroll_vertical = 100000
+		builder.set_kind_filter("item")
+		await _wait(0.4)
+		await _shot("deck_builder_valid")
+		app.close_dialogs()
+		await _frames(2)
+	if _wanted("deck_import"):
+		var builder = app.open_deck_builder(DeckStore.blank("New deck"), true)
+		await _wait(0.5)
+		var box = builder.open_import()
+		box.field.text = "https://playartifact.com/d/ADCJQUQI30zuwEYg2ABeF1Bu94BmWIBTEkLtAKlAZakAYmHh0JsdWUvUmVkIEV4YW1wbGU_"
+		await _wait(0.3)
+		await _shot("deck_import")
+		app.close_dialogs()
+		await _frames(2)
+	for spec in [["deck_builder_four", "en"], ["deck_builder_four_zh", "zh_CN"]]:
+		if not _wanted(spec[0]):
+			continue
+		app.set_locale(spec[1])
+		var four = DeckStore.copy_of(library.preset("starter"), Library.preset_text("starter") + (" (copy)" if spec[1] == "en" else "（副本）"))
+		var builder = app.open_deck_builder(four, false)
+		await _wait(0.6)
+		var outsider = ""
+		for card_id in builder.eligible_cards():
+			if outsider.is_empty() and str(Library.raw_definition(card_id).get("kind", "")) == "hero" and card_id not in builder.deck.heroes:
+				outsider = card_id
+		builder.add_card(outsider)
+		await _wait(0.3)
+		await _shot(spec[0])
+		app.close_dialogs()
+		await _frames(2)
+	app.set_locale("en")
+	for spec in [["deck_import_error", "en", "nonsense"], ["deck_import_error_zh", "zh_CN", "ADCJWkTZX05uwGDCRV4XQGy3QGLmqUBg4GQJgGLGgO7AaABR3JlZW4vQmxhY2sgRXhhbX"]]:
+		if not _wanted(spec[0]):
+			continue
+		app.set_locale(spec[1])
+		var builder = app.open_deck_builder(DeckStore.copy_of(library.preset("green_assault"), "Green Assault"), false)
+		await _wait(0.5)
+		var box = builder.open_import()
+		box.field.text = spec[2]
+		box.confirm_button.pressed.emit()
+		await _wait(0.3)
+		await _shot(spec[0])
+		app.close_dialogs()
+		await _frames(2)
+	app.set_locale("en")
+	if _wanted("deck_list_import_error"):
+		var list = app.open_deck_list(legal_id)
+		await _wait(0.5)
+		var box = list.open_import()
+		box.field.text = "ADCnotacode"
+		box.confirm_button.pressed.emit()
+		await _wait(0.3)
+		await _shot("deck_list_import_error")
+		app.close_dialogs()
+		await _frames(2)
+	if _wanted("deck_builder_slot"):
+		var builder = app.open_deck_builder(saved_draft.deck if saved_draft.ok else draft, false)
+		await _wait(0.6)
+		var slot = builder.deck.heroes.find("")
+		var point = builder.hero_slots[maxi(slot, 0)].get_global_rect().get_center()
+		_mouse(point)
+		_mouse(point, MOUSE_BUTTON_LEFT, true)
+		_mouse(point, MOUSE_BUTTON_LEFT, false)
+		await _wait(0.4)
+		await _shot("deck_builder_slot")
+		app.close_dialogs()
+		await _frames(2)
+	if _wanted("deck_template"):
+		var builder = app.open_deck_builder(saved_draft.deck if saved_draft.ok else draft, false)
+		await _wait(0.6)
+		builder.template_button.item_selected.emit(2)
+		await _wait(0.3)
+		await _shot("deck_template")
+		app.close_dialogs()
+		await _frames(2)
+	DeckStore.root = DeckStore.DEFAULT_ROOT
+
+## A held-button mouse motion with its relative movement (Godot's drag and
+## drop needs it to start a drag).
+func _drag_motion(position: Vector2, last: Vector2) -> void:
+	var event = InputEventMouseMotion.new()
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT
+	event.position = position
+	event.global_position = position
+	event.relative = position - last
+	root.push_input(event, true)

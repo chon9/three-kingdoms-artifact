@@ -35,6 +35,9 @@ static var _packs: Dictionary = {}
 ## loaded, the static helpers (raw_definition, compiled_rules, loc) and
 ## replays find their cards too.
 static var _extra: Dictionary = {}
+## Per-pack lookup indexes (see _lookup): Valve id -> card id and signature
+## card -> hero.
+static var _lookups: Dictionary = {}
 var cards: Dictionary = {}
 var heroes: Array = []
 var content_pack: String
@@ -373,10 +376,12 @@ func definition(card_id: String) -> Dictionary:
 			return hero
 	return {}
 
-func match_deck(preset_id: String = "starter") -> Array:
+## The main deck of a deck entry (a preset id, or a deck dictionary such as a
+## player's own deck; see resolve_deck), one id per copy.
+func match_deck(deck = "starter") -> Array:
 	if not catalog.has("deck"):
 		return training_deck()
-	return expand_counts(preset(preset_id).get("cards", catalog.deck))
+	return expand_counts(resolve_deck(deck).get("cards", catalog.deck))
 
 func expand_counts(counts: Dictionary) -> Array:
 	var result: Array = []
@@ -395,64 +400,203 @@ func preset(preset_id: String) -> Dictionary:
 			return entry
 	return {}
 
-func match_heroes(preset_id: String = "starter") -> Array:
+## The heroes of a deck entry in deploy order (the first three deploy in
+## round 1, the fourth in round 2 and the fifth in round 3).
+func match_heroes(deck = "starter") -> Array:
 	if presets().is_empty():
 		return heroes
 	var result: Array = []
-	for hero_id in preset(preset_id).heroes:
-		result.append(definition(hero_id))
+	for hero_id in resolve_deck(deck).get("heroes", []):
+		result.append(definition(str(hero_id)))
 	return result
 
-func item_deck(preset_id: String) -> Array:
-	return expand_counts(preset(preset_id).get("items", {}))
+func item_deck(deck) -> Array:
+	return expand_counts(resolve_deck(deck).get("items", {}))
 
+## A deck entry as a deck dictionary: a preset id (String) gives that preset,
+## a Dictionary ({heroes, cards, items}, a player's own deck) is used as is.
+## Anything else, or an unknown preset id, gives {}.
+func resolve_deck(deck) -> Dictionary:
+	if deck is String or deck is StringName:
+		return preset(str(deck))
+	if deck is Dictionary:
+		return deck
+	return {}
+
+## The rules content of a player's own deck, in a fixed shape and order:
+## {"heroes": [5 ids], "cards": {id: n}, "items": {id: n}} with the card ids
+## sorted and whole-number counts. Names, ids and other display fields are
+## dropped (match state, replays and packets hold no display text), and
+## equal decks give equal dictionaries however they were built (the deck
+## order a match shuffles from depends only on the cards).
+static func canonical_deck(entry: Dictionary) -> Dictionary:
+	var result = {"heroes": [], "cards": {}, "items": {}}
+	var hero_list = entry.get("heroes", [])
+	if hero_list is Array:
+		for hero_id in hero_list:
+			result.heroes.append(str(hero_id))
+	for list_name in ["cards", "items"]:
+		var list = entry.get(list_name, {})
+		if not list is Dictionary:
+			continue
+		var pairs: Array = []
+		for card_id in list:
+			var value = list[card_id]
+			pairs.append([str(card_id), int(value) if (value is int or value is float) else 0])
+		pairs.sort_custom(func(a, b): return a[0] < b[0])
+		for pair in pairs:
+			result[list_name][pair[0]] = pair[1]
+	return result
+
+## Deck rules (Classic constructed, wiki Decks): five different supported
+## heroes, at least 40 main cards (creeps, spells and improvements, one to
+## three copies each) holding exactly three copies of each hero's signature
+## card and no signature card without its hero, and at least nine item deck
+## cards (weapons, armor and accessories only, one to three copies each).
+## Only verified, playable, non-token cards count (K13). {"ok": true} or the
+## first problem as {"ok": false, "code", "args", "error"} (deck_issues lists
+## them all).
 func validate_preset(entry: Dictionary) -> Dictionary:
-	if not entry.get("heroes") is Array or entry.heroes.size() != 5:
-		return {"ok": false, "code": "deck_hero_count", "args": {}, "error": "A deck needs five heroes."}
+	var issues = deck_issues(entry)
+	return {"ok": true} if issues.is_empty() else issues[0]
+
+## Every rule a deck breaks, in check order (see validate_preset). Each issue
+## is {"ok": false, "code", "args", "error"}; `args` name the card (`card`,
+## a card id) and counts (`n`) so messages can say what is wrong.
+func deck_issues(entry: Dictionary) -> Array:
+	var issues: Array = []
+	var hero_list = entry.get("heroes")
+	var hero_ids: Array = []
+	if hero_list is Array:
+		for hero_id in hero_list:
+			if not str(hero_id).is_empty():
+				hero_ids.append(str(hero_id))
+	if not hero_list is Array or hero_list.size() != 5 or hero_ids.size() != 5:
+		issues.append(_issue("deck_hero_count", "A deck needs five heroes.", {"n": hero_ids.size()}))
 	var seen: Array = []
-	for hero_id in entry.heroes:
-		var hero = definition(str(hero_id))
-		if hero.is_empty() or hero.get("kind", "") != "hero" or hero_id in seen or not _deckable(str(hero_id)):
-			return {"ok": false, "code": "deck_hero_invalid", "args": {}, "error": "Heroes must be supported and unique."}
+	var valid_heroes: Array = []
+	for hero_id in hero_ids:
+		var hero = definition(hero_id)
+		if hero.is_empty() or hero.get("kind", "") != "hero" or hero_id in seen or not hero_deckable(hero_id):
+			issues.append(_issue("deck_hero_invalid", "Heroes must be supported and unique.", {"card": hero_id}))
+		else:
+			valid_heroes.append(hero_id)
 		seen.append(hero_id)
 	if not entry.get("cards") is Dictionary or not entry.get("items") is Dictionary:
-		return {"ok": false, "code": "deck_missing_lists", "args": {}, "error": "Missing main or item deck."}
+		issues.append(_issue("deck_missing_lists", "Missing main or item deck."))
+		return issues
 	var main_count = 0
 	for card_id in entry.cards:
 		var card = get_card(str(card_id))
 		var count = entry.cards[card_id]
 		if card.is_empty() or card.kind not in ["creep", "spell", "improvement"] or not _deckable(str(card_id)):
-			return {"ok": false, "code": "deck_main_card", "args": {}, "error": "Unsupported main-deck card."}
-		if not (count is int or count is float) or float(count) != floor(float(count)) or count < 1 or count > 3:
-			return {"ok": false, "code": "deck_main_copies", "args": {}, "error": "Main cards need one to three whole copies."}
-		main_count += int(count)
+			issues.append(_issue("deck_main_card", "Unsupported main-deck card.", {"card": str(card_id)}))
+		elif not _whole(count) or count < 1 or count > 3:
+			issues.append(_issue("deck_main_copies", "Main cards need one to three whole copies.",
+				{"card": str(card_id), "n": count if _whole(count) else 0}))
+		if _whole(count) and count > 0:
+			main_count += int(count)
 	if main_count < 40:
-		return {"ok": false, "code": "deck_main_size", "args": {}, "error": "The main deck needs at least forty cards."}
-	for hero_id in entry.heroes:
+		issues.append(_issue("deck_main_size", "The main deck needs at least forty cards.", {"n": main_count}))
+	var own_signatures: Array = []
+	for hero_id in hero_ids:
 		# A hero without a signature card in the pack cannot fill a deck.
-		var signature = str(definition(str(hero_id)).get("signature", ""))
-		if signature.is_empty() or int(entry.cards.get(signature, 0)) != 3:
-			return {"ok": false, "code": "deck_signatures", "args": {}, "error": "Each hero requires three signature copies."}
+		var signature = str(definition(hero_id).get("signature", ""))
+		own_signatures.append(signature)
+		if hero_id in valid_heroes and (signature.is_empty() or not _whole(entry.cards.get(signature, 0)) or int(entry.cards.get(signature, 0)) != 3):
+			issues.append(_issue("deck_signatures", "Each hero requires three signature copies.",
+				{"card": signature, "hero": hero_id}))
+	for card_id in entry.cards:
+		# A signature card comes only with its hero (Classic decks cannot hold
+		# another hero's signature card).
+		var owner = signature_owner(str(card_id))
+		if not owner.is_empty() and str(card_id) not in own_signatures:
+			issues.append(_issue("deck_signature_orphan", "A signature card needs its hero in the deck.",
+				{"card": str(card_id), "hero": owner}))
 	var item_count = 0
 	for card_id in entry.items:
-		var card = get_card(str(card_id))
 		var count = entry.items[card_id]
 		# The item deck "can only contain Weapon, Armor and Accessory cards"
 		# (wiki Item Shop): consumables and Deeds come from the shops only.
-		if card.is_empty() or card.kind != "item" or str(card.get("slot", "")) not in EQUIPMENT_SLOTS \
-				or card.get("consumable", false) or not _deckable(str(card_id)):
-			return {"ok": false, "code": "deck_item_card", "args": {}, "error": "Item decks use supported equipment."}
-		if not (count is int or count is float) or float(count) != floor(float(count)) or count < 1:
-			return {"ok": false, "code": "deck_item_copies", "args": {}, "error": "Item counts must be positive whole numbers."}
-		item_count += int(count)
+		if not item_deckable(str(card_id)):
+			issues.append(_issue("deck_item_card", "Item decks use supported equipment.", {"card": str(card_id)}))
+		elif not _whole(count) or count < 1 or count > 3:
+			# "You may not have more than 3 of the same item" (wiki Decks).
+			issues.append(_issue("deck_item_copies", "Item decks need one to three whole copies of each item.",
+				{"card": str(card_id), "n": count if _whole(count) else 0}))
+		if _whole(count) and count > 0:
+			item_count += int(count)
 	if item_count < 9:
-		return {"ok": false, "code": "deck_item_size", "args": {}, "error": "The item deck needs at least nine cards."}
-	return {"ok": true}
+		issues.append(_issue("deck_item_size", "The item deck needs at least nine cards.", {"n": item_count}))
+	return issues
+
+static func _issue(code: String, message: String, args: Dictionary = {}) -> Dictionary:
+	return {"ok": false, "code": code, "args": args, "error": message}
+
+static func _whole(value) -> bool:
+	return (value is int or value is float) and is_finite(float(value)) and float(value) == floor(float(value))
 
 ## Verified, playable and not a token: the only cards a deck may hold (K13).
 func _deckable(card_id: String) -> bool:
 	var entry = rules(card_id)
 	return playable(card_id) and str(entry.get("status", "")) == "verified" and not bool(entry.get("token", false))
+
+func deckable(card_id: String) -> bool:
+	return _deckable(card_id)
+
+## A hero a player may put in a deck: the hero is deckable and so is its
+## signature card (a hero whose signature card is still a draft, such as Lich
+## while Chain Frost is unfinished, could never make a legal deck).
+func hero_deckable(hero_id: String) -> bool:
+	var hero = definition(hero_id)
+	if hero.is_empty() or str(hero.get("kind", "")) != "hero" or not _deckable(hero_id):
+		return false
+	var signature = str(hero.get("signature", ""))
+	return not signature.is_empty() and not get_card(signature).is_empty() and _deckable(signature)
+
+## A card a player may add to a main deck by hand: a deckable creep, spell or
+## improvement that is not a hero's signature card (those come with their hero).
+func main_deckable(card_id: String) -> bool:
+	var card = get_card(card_id)
+	return not card.is_empty() and str(card.get("kind", "")) in ["creep", "spell", "improvement"] \
+		and _deckable(card_id) and signature_owner(card_id).is_empty()
+
+## Equipment an item deck may hold (weapons, armor, accessories).
+func item_deckable(card_id: String) -> bool:
+	var card = get_card(card_id)
+	return not card.is_empty() and str(card.get("kind", "")) == "item" and str(card.get("slot", "")) in EQUIPMENT_SLOTS \
+		and not card.get("consumable", false) and _deckable(card_id)
+
+## The hero whose signature card `card_id` is, or "".
+func signature_owner(card_id: String) -> String:
+	return str(_lookup().signatures.get(card_id, ""))
+
+## The Valve card id (`source_id`) of a hero or card, or 0.
+func source_of(card_id: String) -> int:
+	return int(definition(card_id).get("source_id", 0))
+
+## The hero or card with Valve card id `source_id`, or "".
+func card_by_source(source_id: int) -> String:
+	return str(_lookup().sources.get(source_id, ""))
+
+## Per-pack indexes: Valve id -> card id, signature card -> hero.
+func _lookup() -> Dictionary:
+	var key = "%s|%d|%d" % [content_pack, heroes.size(), cards.size()]
+	if _lookups.has(key):
+		return _lookups[key]
+	var result = {"sources": {}, "signatures": {}}
+	for hero in heroes:
+		var signature = str(hero.get("signature", ""))
+		if not signature.is_empty():
+			result.signatures[signature] = str(hero.id)
+		if int(hero.get("source_id", 0)) > 0:
+			result.sources[int(hero.source_id)] = str(hero.id)
+	for card_id in cards:
+		var source = int(cards[card_id].get("source_id", 0))
+		if source > 0 and not result.sources.has(source):
+			result.sources[source] = str(card_id)
+	_lookups[key] = result
+	return result
 
 func training_deck() -> Array:
 	# Forty cards; original test content, not a legal Classic constructed deck.

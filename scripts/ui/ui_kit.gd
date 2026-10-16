@@ -86,6 +86,7 @@ static var _title: FontVariation
 static var _title_language: String = ""
 static var _boxes: Dictionary = {}
 static var _theme: Theme
+static var _system_fallback: SystemFont
 
 # --- Resources ---------------------------------------------------------------
 
@@ -192,7 +193,11 @@ static func title_font() -> Font:
 		var regular = load("res://assets/fonts/NotoSansSC-Regular.otf")
 		var chinese = language == "zh_CN"
 		_title.base_font = kai if chinese else bold
-		_title.fallbacks = [regular] if chinese else [kai]
+		var fallbacks: Array[Font] = []
+		fallbacks.append(regular if chinese else kai)
+		if _system_fallback != null:
+			fallbacks.append(_system_fallback)
+		_title.fallbacks = fallbacks
 	return _title
 
 ## Calligraphy in every language (seals, card backs, Chinese placeholders).
@@ -209,6 +214,21 @@ static func _font(path: String) -> Font:
 	if not _fonts.has(path):
 		_fonts[path] = load(path)
 	return _fonts[path]
+
+## Players type deck names with any characters, while the bundled fonts are
+## subsets (tools/build_fonts.py): the system's CJK fonts back up the game
+## fonts for characters they lack. Not in headless runs (no system fonts).
+static func add_system_fallback() -> void:
+	if _system_fallback != null or DisplayServer.get_name() == "headless":
+		return
+	_system_fallback = SystemFont.new()
+	_system_fallback.font_names = PackedStringArray(["Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Source Han Sans SC",
+		"WenQuanYi Micro Hei", "Hiragino Sans GB", "SimHei", "sans-serif"])
+	for font in [body_font(), bold_font(), kai_font(), title_font()]:
+		if font is FontVariation and not font.fallbacks.has(_system_fallback):
+			var fallbacks: Array[Font] = font.fallbacks.duplicate()
+			fallbacks.append(_system_fallback)
+			font.fallbacks = fallbacks
 
 ## Translated UI string with {named} placeholders.
 static func t(key: String, args: Dictionary = {}) -> String:

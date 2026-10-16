@@ -34,7 +34,16 @@ const RulesVersion = preload("res://scripts/core/rules/rules_version.gd")
 # instance ids, modifier entries with provenance, item instances,
 # improvements, deeds, the round log, a 400-event window and private event
 # fields; replays carry RULES_VERSION and reject other rules.
-const PROTOCOL_VERSION = 7
+# 8: a deck entry is a preset id or a player's own deck as a full list
+# ({"heroes", "cards", "items"}, CardLibrary.canonical_deck); its player's
+# "preset" is "custom". Replays of format 7 (preset ids only) still load.
+const PROTOCOL_VERSION = 8
+const REPLAY_PROTOCOLS = [7, 8]
+## The "preset" of a player whose deck is their own list (never the list itself).
+const CUSTOM_DECK = "custom"
+## Bounds for a deck list read from a replay (start() validates the rest).
+const MAX_DECK_ENTRIES = 300
+const MAX_ID_CHARS = 64
 const CONCEDE = {"type": "concede"}
 const HOLD_COST = 1
 const EVENT_WINDOW = 400
@@ -51,6 +60,8 @@ var state: Dictionary = {}
 var journal: Array = []
 var match_seed: int = 1
 var next_id: int = 1
+## Per player: a preset id, or a player's own deck list (canonical_deck).
+## Never part of state: an own list reaches neither views nor the bot.
 var deck_ids: Array = ["starter", "starter"]
 # Transient rules fields (spec §1.2): never in state, reset at the start of
 # start() and apply_action(), empty again when they return.
@@ -90,17 +101,24 @@ func _settle_transient() -> void:
 	_lookback = {}
 	_causes = {}
 
+## Starts a match. `selected_decks` holds one deck per player: a preset id or
+## a player's own deck ({"heroes", "cards", "items"}; other fields such as a
+## name are ignored). Every deck is validated; an own deck is kept as its
+## canonical list, so equal decks shuffle the same way however they were
+## built (the deck order is drawn from the match seed).
 func start(seed_value: int = 1, selected_decks: Array = ["starter", "starter"]) -> Dictionary:
+	var decks: Array = selected_decks.duplicate(true)
 	if not library.presets().is_empty():
-		if selected_decks.size() != 2:
+		if decks.size() != 2:
 			return _fail("deck_selection", "Choose one deck for each player.")
-		for preset_id in selected_decks:
-			var entry = library.preset(str(preset_id))
-			var validation = library.validate_preset(entry)
+		for index in range(decks.size()):
+			var validation = library.validate_preset(library.resolve_deck(decks[index]))
 			if not validation.ok:
 				return validation
+			if decks[index] is Dictionary:
+				decks[index] = Library.canonical_deck(decks[index])
 	_reset_transient()
-	deck_ids = selected_decks.duplicate()
+	deck_ids = decks
 	match_seed = seed_value
 	rng.seed = seed_value
 	journal.clear()
@@ -111,20 +129,21 @@ func start(seed_value: int = 1, selected_decks: Array = ["starter", "starter"]) 
 		"pending_creeps": [[], []], "next_oid": OID_START, "round_log": Kernel.new_round_log(),
 		"combat_seq": 0, "order_seq": 0}
 	for player in range(2):
-		var deck = library.match_deck(str(deck_ids[player]))
+		var entry = deck_ids[player] if deck_ids[player] is Dictionary else str(deck_ids[player])
+		var deck = library.match_deck(entry)
 		_shuffle(deck)
 		var roster: Array = []
-		var hero_list = library.match_heroes(str(deck_ids[player]))
+		var hero_list = library.match_heroes(entry)
 		for index in range(hero_list.size()):
 			var hero = _make_unit(hero_list[index], player, true)
 			hero["ready_round"] = 1 if index < 3 else index - 1
 			hero["cooldown"] = Kernel.HERO_ACTIVE_START_COOLDOWN
 			roster.append(hero)
-		var item_deck = library.item_deck(str(deck_ids[player])) if not library.presets().is_empty() else []
+		var item_deck = library.item_deck(entry) if not library.presets().is_empty() else []
 		_shuffle(item_deck)
 		state.players.append({"hand": [], "hand_state": [], "deck": deck, "deck_state": [], "gold": 0,
 			"roster": roster, "plans": {}, "finished": false, "bought": [], "deeds": [],
-			"item_deck": item_deck, "shop": {}, "held_secret": "", "preset": str(deck_ids[player])})
+			"item_deck": item_deck, "shop": {}, "held_secret": "", "preset": deck_label(entry)})
 	for lane in range(3):
 		state.lanes.append({"units": [[], []], "mana": [3, 3],
 			"max_mana": [3, 3], "mana_bonus": [0, 0], "max_mana_base": [3, 3], "improvements": [[], []],
@@ -965,15 +984,24 @@ func simulation_from_view(player: int):
 	simulation.state = player_view(player, false)
 	simulation.rng.seed = 1
 	simulation.next_id = next_id
-	simulation.deck_ids = deck_ids.duplicate()
+	# The simulation never needs deck lists: a player's own list (the
+	# opponent's hidden deck) is not handed to the bot.
+	simulation.deck_ids = deck_ids.map(func(entry): return entry if entry is String else CUSTOM_DECK)
 	return simulation
+
+## What a player's "preset" field shows for a deck entry: the preset id, or
+## CUSTOM_DECK for a player's own list.
+static func deck_label(entry) -> String:
+	return CUSTOM_DECK if entry is Dictionary else str(entry)
 
 func replay_data() -> Dictionary:
 	return {"protocol": PROTOCOL_VERSION, "rules": RulesVersion.RULES_VERSION, "content_pack": library.content_pack,
-		"seed": match_seed, "decks": deck_ids.duplicate(), "actions": journal.duplicate(true)}
+		"seed": match_seed, "decks": deck_ids.duplicate(true), "actions": journal.duplicate(true)}
 
 func load_replay(data: Dictionary) -> Dictionary:
-	if data.get("protocol") != PROTOCOL_VERSION or not Library.known_pack(str(data.get("content_pack", ""))):
+	var protocol = data.get("protocol")
+	if not (protocol is int or protocol is float) or float(protocol) != floor(float(protocol)) \
+			or int(protocol) not in REPLAY_PROTOCOLS or not Library.known_pack(str(data.get("content_pack", ""))):
 		return _fail("replay_version", "Replay version or card pack does not match.")
 	if str(data.get("rules", "")) != RulesVersion.RULES_VERSION:
 		return _fail("replay_rules", "Replay was recorded with other card rules.",
@@ -982,8 +1010,12 @@ func load_replay(data: Dictionary) -> Dictionary:
 		return _fail("replay_seed", "Replay has no valid seed.")
 	if not data.get("actions") is Array or data.actions.size() > 20000:
 		return _fail("replay_actions", "Invalid replay actions.")
-	if not data.get("decks") is Array:
+	if not data.get("decks") is Array or data.decks.size() > 2:
 		return _fail("replay_decks", "Replay has no valid deck selection.")
+	for entry in data.decks:
+		# Format 7 names presets only; format 8 may hold full deck lists.
+		if not (entry is String and entry.length() <= MAX_ID_CHARS) and not (int(protocol) >= 8 and _replay_deck(entry)):
+			return _fail("replay_decks", "Replay has no valid deck selection.")
 	# An engine already holding the replay's pack keeps it (a test pack may
 	# carry generated presets); otherwise the pack is opened by id.
 	if str(library.content_pack) != str(data.content_pack):
@@ -999,6 +1031,23 @@ func load_replay(data: Dictionary) -> Dictionary:
 			return _fail("replay_illegal", "Replay contains an illegal action at revision %d." % state.revision,
 				{"revision": int(state.revision)})
 	return {"ok": true}
+
+## A deck list from a replay has the right shape and size (start() then
+## checks it against the deck rules).
+static func _replay_deck(entry) -> bool:
+	if not entry is Dictionary or not entry.get("heroes") is Array or entry.heroes.size() > 5:
+		return false
+	for hero_id in entry.heroes:
+		if not hero_id is String or hero_id.length() > MAX_ID_CHARS:
+			return false
+	for list_name in ["cards", "items"]:
+		var list = entry.get(list_name)
+		if not list is Dictionary or list.size() > MAX_DECK_ENTRIES:
+			return false
+		for card_id in list:
+			if not card_id is String or card_id.length() > MAX_ID_CHARS or not (list[card_id] is int or list[card_id] is float):
+				return false
+	return true
 
 ## Failed command or load result. `code` and `args` are stable for UI
 ## translation (i18n key ERR_<CODE>); `error` is an English fallback only.

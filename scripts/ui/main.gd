@@ -14,6 +14,9 @@ const CardArt = preload("res://scripts/ui/card_art.gd")
 const Sfx = preload("res://scripts/ui/sfx.gd")
 const SettingsDialog = preload("res://scripts/ui/settings_dialog.gd")
 const DecksDialog = preload("res://scripts/ui/decks_dialog.gd")
+const DeckListDialog = preload("res://scripts/ui/deck_list_dialog.gd")
+const DeckBuilderDialog = preload("res://scripts/ui/deck_builder_dialog.gd")
+const DeckStore = preload("res://scripts/core/deck_store.gd")
 const CatalogDialog = preload("res://scripts/ui/catalog_dialog.gd")
 const ReplaysDialog = preload("res://scripts/ui/replays_dialog.gd")
 const SteamDialog = preload("res://scripts/ui/steam_dialog.gd")
@@ -73,6 +76,9 @@ func _init() -> void:
 
 func _ready() -> void:
 	Settings.load_settings()
+	UiKit.add_system_fallback()
+	# The decks chosen last time (an own deck as it is stored now).
+	controller.deck_selections = DeckStore.load_choices(controller.deck_selections, controller.library)
 	AnimationQueue.speed = Settings.animation_speed
 	for node in [screen, menu, dialog_layer]:
 		node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -146,7 +152,7 @@ func _on_menu_action(action: String) -> void:
 		"online":
 			open_steam()
 		"decks":
-			open_decks()
+			open_deck_list()
 		"replays":
 			open_replays()
 		"settings":
@@ -183,16 +189,55 @@ func open_settings() -> Control:
 	dialog.setting_changed.connect(_on_setting_changed)
 	return _open(dialog)
 
-func open_decks() -> Control:
-	if controller.is_guest():
-		return null
+## The matchup: a deck for each seat. An online guest picks only its own
+## deck, which goes to the host (`back_to_steam` reopens the Steam dialog).
+func open_decks(back_to_steam: bool = false) -> Control:
 	var dialog = DecksDialog.new()
-	dialog.setup(controller.deck_selections)
-	dialog.start_requested.connect(func(decks):
-		controller.deck_selections = decks.duplicate()
-		start_match(controller.mode))
+	var guest = controller.is_guest() or back_to_steam or (not controller.steam_bridge.is_host and controller.steam_bridge.handshake_done)
+	var host_online = controller.mode == MatchController.MODE_ONLINE and controller.steam_bridge.is_host
+	dialog.setup(controller.deck_selections, guest, controller.mode if host_online or controller.mode != MatchController.MODE_ONLINE else MatchController.MODE_AI)
+	dialog.start_requested.connect(func(decks, play_mode):
+		controller.deck_selections = decks.duplicate(true)
+		_remember_decks()
+		start_match(play_mode))
+	dialog.own_deck_chosen.connect(func(entry):
+		controller.set_own_deck(entry)
+		_remember_decks()
+		if back_to_steam:
+			open_steam.call_deferred())
 	dialog.catalog_requested.connect(open_catalog)
+	dialog.manage_requested.connect(func(): open_deck_list.call_deferred())
 	return _open(dialog)
+
+## The chosen decks are remembered for the next session.
+func _remember_decks() -> void:
+	DeckStore.save_choices(controller.deck_selections)
+
+## The player's own decks and the presets (main menu "Decks").
+func open_deck_list(select_id: String = "") -> Control:
+	var dialog = DeckListDialog.new()
+	dialog.setup(select_id)
+	dialog.edit_requested.connect(func(deck, new_deck): open_deck_builder.call_deferred(deck, new_deck))
+	dialog.play_requested.connect(func(entry): _play_with.call_deferred(entry))
+	return _open(dialog)
+
+## The deck builder for `deck` (a stored deck, or a new one when `new_deck`).
+func open_deck_builder(deck: Dictionary, new_deck: bool = false) -> Control:
+	var dialog = DeckBuilderDialog.new()
+	dialog.setup(deck, new_deck)
+	dialog.back_requested.connect(func(deck_id): open_deck_list.call_deferred(deck_id))
+	dialog.play_requested.connect(func(entry): _play_with.call_deferred(entry))
+	return _open(dialog)
+
+## "Play with this deck": it becomes this player's deck; offline the matchup
+## opens to pick the opponent, online (as guest) it goes to the host.
+func _play_with(entry) -> void:
+	controller.set_own_deck(entry)
+	_remember_decks()
+	if not controller.steam_bridge.is_host and controller.steam_bridge.handshake_done:
+		open_steam()
+	else:
+		open_decks()
 
 func open_catalog() -> Control:
 	return _open(CatalogDialog.new())
@@ -205,12 +250,14 @@ func open_replays() -> Control:
 func open_steam() -> Control:
 	var dialog = SteamDialog.new()
 	dialog.setup(controller)
+	dialog.deck_change_requested.connect(func(): open_decks.call_deferred(true))
 	return _open(dialog)
 
 func open_menu() -> Control:
 	var dialog = MatchMenu.new()
 	if controller.is_guest():
-		dialog.disabled_actions = ["new", "decks", "save", "replays"]
+		# A guest's Decks picks its own deck for the host's next match.
+		dialog.disabled_actions = ["new", "save", "replays"]
 	if not controller.can_concede():
 		dialog.disabled_actions.append("concede")
 	dialog.selected.connect(_on_match_menu)

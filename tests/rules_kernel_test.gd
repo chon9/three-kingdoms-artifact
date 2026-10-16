@@ -801,7 +801,7 @@ func _test_replay_versions() -> void:
 	engine.start(3)
 	engine.apply_action(int(engine.state.active_player), {"type": "pass"})
 	var replay = engine.replay_data()
-	_check(int(replay.protocol) == 7 and str(replay.rules) == RulesVersion.RULES_VERSION, "Replays record protocol 7 and RULES_VERSION")
+	_check(int(replay.protocol) == 8 and str(replay.rules) == RulesVersion.RULES_VERSION, "Replays record protocol 8 and RULES_VERSION")
 	var restored = EngineClass.new()
 	_check(restored.load_replay(JSON.parse_string(JSON.stringify(replay))).ok and restored.state_digest() == engine.state_digest(), "A replay round trip reproduces the digest")
 	replay.rules = "000000000000"

@@ -62,7 +62,7 @@ offline play still works.
   with "Leave the current lobby first", so a running match is never dropped
   by accident. Starting Versus AI, Local play or a replay leaves the lobby.
 - **Handshake.** After joining, the guest sends `hello` with the protocol number
-  (6), its content hash and its GodotSteam version, and repeats it every 2
+  (9), its content hash and its GodotSteam version, and repeats it every 2
   seconds until the host replies. The content hash is a hash of
   `data/classic_cards.json`, `data/locale/cards.json` and the protocol number,
   with line endings normalized. If anything differs, the host sends `reject`
@@ -77,6 +77,23 @@ offline play still works.
   into integers. Packets that are malformed, wrongly typed or nested deeper
   than 32 levels are dropped without logging. Display names come from Steam,
   not from what the other side reports, and are cut to 32 characters.
+- **Decks (protocol 9).** Each player brings their own deck. After every
+  `welcome`, and whenever they pick another deck (Steam dialog: Change deck,
+  or Decks in the match menu), the guest sends `{"kind": "deck", "code":
+  "ADC…"}`: its deck as a deck code (Valve's ArtifactDeckCode format, at most
+  512 characters) without the deck's name (text the player typed is not
+  needed to play; the deck the host plays carries no name even when another
+  client puts one in the code). The host accepts it only from the bound guest after the
+  handshake, handles at most one per 250 ms (the latest wins), decodes it,
+  checks it against the deck rules and answers `{"kind": "deck_result", "ok",
+  "code", "args"}`; the guest shows the reason in its language. A new guest's
+  first match starts as soon as its deck arrives (or after 3 seconds); a
+  missing or illegal deck is replaced by a preset, and the guest is told. A
+  deck changed during a match is used from the next match (each screen keeps
+  naming the deck being played until then). Neither player's
+  view names the other's deck or preset (it shows as "Opponent's deck"); the
+  heroes are public, as in Classic. The host's game holds the guest's list,
+  like the rest of the authoritative state.
 - **Commands.** In the action phase a guest command must match the current
   revision. In the shop and deployment phases both players plan at once, so a
   guest command that is still legal is applied even if the host acted first.
@@ -121,7 +138,7 @@ public lobby or the ID works without that.
    and press F5, but the Steam overlay often doesn't attach to an editor-launched
    game, so use `run.ps1` to test invites.
 2. Both: open **Online (Steam)** from the main menu. The dialog should say
-   *Steam connected* and show `GodotSteam 4.23.1 · protocol 6 · content xxxxxxxx`.
+   *Steam connected* and show `GodotSteam 4.23.1 · protocol 9 · content xxxxxxxx`.
    The content value must be the same on both machines.
 3. Host: choose **Host friends-only lobby** or **Host public lobby**.
 4. Guest: join in one of these ways:
@@ -134,8 +151,10 @@ public lobby or the ID works without that.
      friends list and chooses **Join game** (game already running).
    - **By browser** (public lobbies only): the guest presses **Refresh** under
      *Public lobbies* and joins the host's row.
-5. The match starts on both screens as soon as the handshake completes. It
-   uses the decks last chosen on the host under **Decks**.
+5. The match starts on both screens as soon as the guest's deck has reached
+   the host (right after the handshake). The host plays the deck it last
+   chose; the guest plays its own deck (Steam dialog: **Your deck** /
+   **Change deck**, chosen before or after joining).
 
 ### App 480 caveats
 
@@ -201,6 +220,9 @@ each machine.
 | 18 | Busy in a lobby | During a match, open Online (Steam) on either side; guest also accepts an invite to another lobby | Host and Join are disabled; the invite is refused with "Leave the current lobby first"; the match continues | | | |
 | 19 | Leave for offline | Guest in a lobby picks Versus AI from the main menu | Guest leaves the lobby (host sees the guest left); the AI match is not replaced | | | |
 | 20 | Network drop | Guest disables the network adapter for 30 s mid-match, then enables it | Guest gets "connection to Steam was lost" (or waits, if only the peer link dropped); host waits; guest rejoins by ID and continues | | | |
+| 21 | Guest's own deck | Guest builds a deck (Decks → New deck), picks it with Change deck, joins | Guest gets "The host accepted your deck"; the guest's heroes are those of its deck, in their rounds; neither end-of-match screen names the other's deck | | | |
+| 22 | Illegal guest deck | Guest picks an unfinished deck with Change deck during a match | Guest is told why the host cannot use it (in its language); the next match gives the guest a preset | | | |
+| 23 | Deck change mid-match | Guest picks another legal deck (or a preset) with Change deck during a match | The guest's matchup line keeps naming the deck being played until the next match, then names the new one (a preset by its name, not "Custom deck") | | | |
 
 ## Files
 
@@ -208,7 +230,8 @@ each machine.
   handshake, messages, heartbeat and disconnects. All Steam calls go through
   this file.
 - `scripts/game/match_controller.gd`: the online match: starting, resuming,
-  pausing, claim victory and concede.
+  pausing, claim victory and concede, and the guest's deck (sent, validated,
+  answered, hidden from the other player's view).
 - `scripts/ui/steam_dialog.gd`, `scripts/ui/reconnect_overlay.gd` and
   `scripts/ui/player_panel.gd`: the lobby dialog, the pause overlay and the
   connection display.

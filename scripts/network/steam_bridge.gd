@@ -39,6 +39,13 @@ signal opponent_lost(reason: String)
 signal session_ended(code: String)
 ## Connection quality changed: see connection_info().
 signal connection_changed(info: Dictionary)
+## Host: the bound guest sent its deck code (the controller validates it and
+## replies with answer_deck). Coalesced: at most one per DECK_MIN_MS.
+signal deck_received(code: String)
+## Host: expect_deck's wait ended without a deck from the guest.
+signal deck_wait_expired
+## Guest: the host's answer to our deck: {"ok": bool, "code": String, "args": Dictionary}.
+signal deck_answered(result: Dictionary)
 
 const RulesVersion = preload("res://scripts/core/rules/rules_version.gd")
 const APP_ID = 480
@@ -48,7 +55,13 @@ const GAME_TAG = "sanguo_classic_revival"
 ## 7: match format 6 (deploy re-plans, undeploy, the deployment_placed event).
 ## 8: match format 7 (the rules engine: hand state, modifier entries, item
 ## instances, private event fields); the content hash covers RULES_VERSION.
-const PROTOCOL = 8
+## 9: the guest plays its own deck. After every "welcome" (and whenever it
+## picks another deck) the guest sends {"kind": "deck", "code": <deck code>}
+## (an ArtifactDeckCode, scripts/core/deck_code.gd); the host decodes and
+## validates it and answers {"kind": "deck_result", "ok", "code", "args"}.
+## A new guest's first match starts once its deck arrived (or after
+## DECK_WAIT_MS). Match format 8.
+const PROTOCOL = 9
 const CHANNEL = 71
 # Steam Networking Messages send flags (k_nSteamNetworkingSend_*).
 const SEND_RELIABLE = 8
@@ -87,6 +100,13 @@ const LOBBY_MEMBERS_RESERVED = 3
 ## Deepest JSON nesting accepted from the network (views need about 8).
 const MAX_PACKET_DEPTH = 32
 const MAX_NAME_CHARS = 32
+## Longest deck code accepted from the guest (DeckCode.MAX_CODE_CHARS).
+const MAX_DECK_CODE_CHARS = 512
+## Host: deck packets are handled at most once per this many ms (the latest
+## one waiting meanwhile wins), so a flood of deck changes costs little.
+const DECK_MIN_MS = 250
+## Fields of a deck_result's args the guest keeps (all short ids or numbers).
+const DECK_RESULT_ARGS = ["card", "hero", "n", "id", "version"]
 const CONTENT_FILES = ["res://data/classic_cards.json", "res://data/locale/cards.json"]
 const REQUIRED = ["steamInitEx", "run_callbacks", "getSteamID", "getPersonaName", "createLobby",
 	"joinLobby", "leaveLobby", "setLobbyData", "getLobbyData", "getLobbyOwner", "getNumLobbyMembers",
@@ -134,6 +154,13 @@ var _last_welcome: int = -HELLO_RETRY_MS
 var _last_resend: int = -RESEND_MS
 ## Host: refused SteamIDs -> time to close their session (0 once closed).
 var _refused: Dictionary = {}
+## Host: the last deck code the bound guest sent ("" until one arrives).
+var guest_deck_code: String = ""
+## Host: a deck packet held back by DECK_MIN_MS, and when the last was handled.
+var _pending_deck: String = ""
+var _last_deck: int = -DECK_MIN_MS
+## Host: while >= 0, the clock time at which expect_deck's wait ends.
+var _deck_wait_until: int = -1
 
 func _ready() -> void:
 	content_hash = compute_content_hash()
@@ -376,6 +403,10 @@ func leave_lobby() -> void:
 	match_serial = 0
 	_last_welcome = -HELLO_RETRY_MS
 	_last_resend = -RESEND_MS
+	guest_deck_code = ""
+	_pending_deck = ""
+	_last_deck = -DECK_MIN_MS
+	_deck_wait_until = -1
 	if available and steam.has_method("clearRichPresence"):
 		steam.call("clearRichPresence")
 	lobby_id = 0
@@ -430,6 +461,45 @@ func reject_command(revision: int) -> void:
 func send_command(command: Dictionary, revision: int) -> void:
 	if not is_host and handshake_done and peer_id != 0:
 		_send({"kind": "command", "command": command, "revision": revision})
+
+## Guest: sends our deck code to the host (after the welcome, and again
+## whenever we pick another deck). False when not connected to a host.
+func send_deck(code: String) -> bool:
+	if is_host or not handshake_done or peer_id == 0 or code.is_empty() or code.length() > MAX_DECK_CODE_CHARS:
+		return false
+	return _send({"kind": "deck", "code": code})
+
+## Host: answers the guest's deck ({"ok": true} or a failed validation
+## result with its code and args, translated on the guest).
+func answer_deck(result: Dictionary) -> void:
+	if not is_host or not handshake_done:
+		return
+	var args: Dictionary = {}
+	var raw_args = result.get("args", {})
+	if raw_args is Dictionary:
+		for key in DECK_RESULT_ARGS:
+			if raw_args.has(key) and (raw_args[key] is int or raw_args[key] is String):
+				args[key] = raw_args[key]
+	_send({"kind": "deck_result", "ok": bool(result.get("ok", false)), "code": str(result.get("code", "")), "args": args}, false)
+
+## Host: waits `milliseconds` for the guest's deck; deck_wait_expired fires
+## if none arrives by then (a deck arriving ends the wait).
+func expect_deck(milliseconds: int) -> void:
+	_deck_wait_until = int(clock.call()) + maxi(0, milliseconds)
+
+## Host: a deck packet from the bound guest, handled now or after DECK_MIN_MS.
+func _queue_deck(code: String, now: int) -> void:
+	if now - _last_deck >= DECK_MIN_MS:
+		_take_deck(code, now)
+	else:
+		_pending_deck = code
+
+func _take_deck(code: String, now: int) -> void:
+	_last_deck = now
+	_pending_deck = ""
+	_deck_wait_until = -1
+	guest_deck_code = code
+	deck_received.emit(code)
 
 func _send(packet: Dictionary, report: bool = true, target: int = -1) -> bool:
 	var remote = peer_id if target == -1 else target
@@ -664,6 +734,24 @@ func _handle_packet(sender: int, raw: Dictionary) -> void:
 					var serial = packet.get("match")
 					match_serial = serial if serial is int else 0
 					match_received.emit(packet.view, packet.actions, match_serial)
+		"deck":
+			# Only the bound guest gets here (checked above); the code is
+			# decoded and validated by the controller, never trusted.
+			var code = packet.get("code")
+			if is_host and code is String and code.length() <= MAX_DECK_CODE_CHARS:
+				_queue_deck(code, now)
+		"deck_result":
+			var accepted = packet.get("ok")
+			if not is_host and handshake_done and accepted is bool:
+				var args: Dictionary = {}
+				var raw_args = packet.get("args")
+				if raw_args is Dictionary:
+					for key in DECK_RESULT_ARGS:
+						var value = raw_args.get(key)
+						if value is int or (value is String and value.length() <= 64):
+							args[key] = value
+				var result_code = packet.get("code")
+				deck_answered.emit({"ok": accepted, "code": result_code if result_code is String and result_code.length() <= 64 else "", "args": args})
 
 func _host_hello(sender: int, packet: Dictionary) -> void:
 	var name = _trusted_name(sender, str(packet.get("name", "")) if packet.get("name") is String else "")
@@ -686,6 +774,11 @@ func _host_hello(sender: int, packet: Dictionary) -> void:
 			_send(cached_match)
 		return
 	var rejoin = bound_opponent == sender
+	if not rejoin:
+		# A new guest: the previous guest's deck is not theirs.
+		guest_deck_code = ""
+		_pending_deck = ""
+		_deck_wait_until = -1
 	bound_opponent = sender
 	peer_id = sender
 	peer_name = name
@@ -730,6 +823,11 @@ func _tick(now: int) -> void:
 		return
 	if not handshake_done:
 		return
+	if is_host and not _pending_deck.is_empty() and now - _last_deck >= DECK_MIN_MS:
+		_take_deck(_pending_deck, now)
+	if is_host and _deck_wait_until >= 0 and now >= _deck_wait_until:
+		_deck_wait_until = -1
+		deck_wait_expired.emit()
 	if now - _last_ping >= HEARTBEAT_MS:
 		_last_ping = now
 		_send({"kind": "ping", "t": now}, false)

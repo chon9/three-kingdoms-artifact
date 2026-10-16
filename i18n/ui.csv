@@ -240,6 +240,95 @@ DECKS_START,Start this matchup,以此对阵开局
 DECKS_VIEW_HEROES,View current heroes,查看当前武将
 DECKS_BROWSE,Browse all supported cards,浏览全部卡牌
 DECKS_VS,{deck1} vs {deck2},{deck1} 对阵 {deck2}
+DECKS_MANAGE,My decks…,我的牌组……
+DECKS_CUSTOM_SUMMARY,"Your own decks appear here once they are legal: 5 heroes, 40+ main cards with their signature cards, and 9+ equipment cards.",自组牌组合规后即会列于此处：5名武将、40张以上主牌（含专属卡）与9张以上装备。
+DECKS_GUEST_TITLE,Choose your deck,选择你的牌组
+DECKS_GUEST_USE,Use this deck online,联机使用此牌组
+DECKS_GUEST_NOTE,"Your deck goes to the host's game, which checks it before the match. Your opponent's screen shows only your heroes.",你的牌组会发送至房主的游戏，开局前进行校验；对手画面只显示你的武将。
+DECK_CUSTOM,Custom deck,自组牌组
+DECK_HIDDEN,Opponent's deck,对手牌组
+DECK_UNNAMED,Unnamed deck,未命名牌组
+DECK_ONLINE_WAITING,Waiting for your opponent's deck…,正在等待对手的牌组……
+DECK_ONLINE_ACCEPTED,The host accepted your deck.,房主已接受你的牌组。
+DECK_ONLINE_REJECTED,The host cannot use your deck: {reason} You play a preset deck until you choose a legal one.,房主无法使用你的牌组：{reason}在你选择合规牌组之前，将使用预设牌组。
+DECK_ONLINE_PENDING,Sent to the host…,已发送给房主……
+DECKLIST_TITLE,Decks,牌组
+DECKLIST_MINE,My decks,我的牌组
+DECKLIST_PRESETS,Preset decks,预设牌组
+DECKLIST_EMPTY,"No decks of your own yet. Build one, copy a preset or import a code.",还没有自己的牌组。可以新建、复制预设，或导入代码。
+DECKLIST_NEW,New deck,新建牌组
+DECKLIST_IMPORT,Import code,导入代码
+DECKLIST_EDIT,Edit,编辑
+DECKLIST_EDIT_COPY,Edit a copy,复制并编辑
+DECKLIST_DUPLICATE,Duplicate,复制
+DECKLIST_RENAME,Rename,重命名
+DECKLIST_DELETE,Delete,删除
+DECKLIST_EXPORT,Copy code,复制代码
+DECKLIST_PLAY,Play with this deck,使用此牌组对战
+DECKLIST_VALID,Ready to play,可以出战
+DECKLIST_INVALID,Not ready: {reason},尚不可出战：{reason}
+DECKLIST_DELETE_TITLE,Delete this deck?,删除此牌组？
+DECKLIST_DELETE_BODY,{name} will be deleted for good.,「{name}」将被永久删除。
+DECKLIST_COPY_NAME,{name} (copy),{name}（副本）
+DECKLIST_NEW_NAME,New deck,新牌组
+DECKLIST_SUMMARY,Main deck {main} · Item deck {items},主牌组 {main} · 军备牌组 {items}
+DECKLIST_PRESET_NOTE,Preset decks cannot be changed. Edit a copy to make it your own.,预设牌组不可修改。复制后即可自行编辑。
+DECKLIST_RENAME_TITLE,Rename deck,重命名牌组
+DECKLIST_DELETED,{name} was deleted.,已删除「{name}」。
+DECKCODE_IMPORT_TITLE,Import a deck code,导入牌组代码
+DECKCODE_IMPORT_HINT,Paste a deck code (ADC…) or a playartifact.com/d/ link. Codes from Artifact deck sites work too.,粘贴牌组代码（ADC……）或 playartifact.com/d/ 链接。Artifact 牌组网站的代码同样可用。
+DECKCODE_PASTE,Paste,粘贴
+DECKCODE_IMPORT,Import,导入
+DECKCODE_EXPORT_TITLE,Deck code,牌组代码
+DECKCODE_COPIED,Copied to the clipboard. Anyone can import it here or open it on Artifact deck sites.,已复制到剪贴板。他人可在本游戏导入，或在 Artifact 牌组网站打开。
+DECKCODE_IMPORTED,Imported {name}.,已导入「{name}」。
+DECKB_TITLE,Deck builder,组建牌组
+DECKB_NAME_PLACEHOLDER,Deck name,牌组名称
+DECKB_SEARCH,Search names and text,搜索名称与描述
+DECKB_COST_TOOLTIP,Cost {n},{n}军令
+DECKB_HEROES_COUNT,Heroes {n}/5,武将 {n}/5
+DECKB_ROUND,Round {n},第{n}回合
+DECKB_SLOT_EMPTY,Add a hero,放入武将
+DECKB_MAIN_COUNT,Main deck {n}/40,主牌组 {n}/40
+DECKB_ITEMS_COUNT,Item deck {n}/9,军备牌组 {n}/9
+DECKB_GROUP_CREEP,Creeps,兵卒
+DECKB_GROUP_SPELL,Spells,计策
+DECKB_GROUP_IMPROVEMENT,Improvements,营建
+DECKB_GROUP_WEAPON,Weapons,兵器
+DECKB_GROUP_ARMOR,Armor,防具
+DECKB_GROUP_ACCESSORY,Accessories,坐骑
+DECKB_SIGNATURE_TAG,Signature,专属
+DECKB_EMPTY_MAIN,Click or drag cards from the collection to add them.,点击或拖动左侧卡牌即可加入。
+DECKB_EMPTY_ITEMS,"Add weapons, armor and accessories for the item shop.",加入兵器、防具与坐骑，供军市出售。
+DECKB_AVERAGE,Mana curve · average cost {n},军令曲线 · 平均 {n}
+DECKB_KIND_COUNTS,Creeps {creeps} · Spells {spells} · Improvements {improvements},兵卒 {creeps} · 计策 {spells} · 营建 {improvements}
+DECKB_SLOT_COUNTS,Weapons {weapon} · Armor {armor} · Accessories {accessory},兵器 {weapon} · 防具 {armor} · 坐骑 {accessory}
+DECKB_REQ_HEROES,Five heroes,五名武将
+DECKB_REQ_MAIN,40+ main cards,主牌40张以上
+DECKB_REQ_SIGNATURES,Signature cards,专属卡齐全
+DECKB_REQ_ITEMS,9+ items,军备9张以上
+DECKB_REQ_LEGAL,Legal cards,卡牌合规
+DECKB_SAVE,Save,保存
+DECKB_SAVED,Saved {name}.,已保存「{name}」。
+DECKB_UNSAVED,Unsaved changes,有未保存的修改
+DECKB_TEMPLATE,Start from a preset…,以预设牌组为模板……
+DECKB_TEMPLATE_DONE,Loaded {name} as a starting point.,已载入「{name}」作为模板。
+DECKB_DISCARD_TITLE,Leave without saving?,不保存就离开？
+DECKB_DISCARD_BODY,Your changes to this deck will be lost.,对此牌组所做的修改将会丢失。
+DECKB_DISCARD,Leave,离开
+DECKB_HINT,Click or drag cards to add · right-click to inspect · drag heroes between rounds,点击或拖动卡牌加入 · 右键查看 · 拖动武将调整出阵回合
+DECKB_IN_DECK,In deck: {n},牌组中：{n}
+DECKB_REMOVE_HERO,Remove from the deck,移出牌组
+DECKB_ADD_ONE,Add a copy,加一张
+DECKB_REMOVE_ONE,Remove a copy,减一张
+DECKB_NO_MATCHES,No cards match these filters.,没有符合条件的卡牌。
+DECKB_LOCKED,Signature card of {hero}: it comes and goes with its hero.,{hero}的专属卡：随武将加入或移出。
+DECKB_HEROES_FULL,All five hero slots are taken. Drag a hero onto a slot to swap it in.,五个武将位已满。将武将拖到某一位置即可替换。
+DECKB_COLOR_TIP,"{name}: {heroes} heroes, {cards} main cards",{name}：武将 {heroes} · 主牌 {cards}
+DECKB_TEMPLATE_TITLE,Replace this deck?,替换此牌组？
+DECKB_TEMPLATE_BODY,Start from {name}? The heroes and cards in this deck will be replaced.,以「{name}」为模板？此牌组现有的武将与卡牌将被替换。
+DECKB_TEMPLATE_REPLACE,Replace,替换
+DECKB_PICK_HERO,Click a hero to put it in this round {n} slot.,点击一名武将，放入这个第{n}回合的位置。
 ROSTER_TITLE,Your five heroes,我方五名武将
 CATALOG_TITLE,Card catalog,卡牌图鉴
 CATALOG_FILTER_ALL,All,全部
@@ -261,6 +350,8 @@ STEAM_JOIN,Join lobby,加入房间
 STEAM_INVITE,Invite Steam friends,邀请 Steam 好友
 STEAM_COPY_ID,Copy lobby ID,复制房间号
 STEAM_LEAVE,Leave lobby,离开房间
+STEAM_YOUR_DECK,Your deck: {name},你的牌组：{name}
+STEAM_CHANGE_DECK,Change deck,更换牌组
 STEAM_LOBBY,Lobby: {lobby},房间：{lobby}
 STEAM_LOBBY_PLACEHOLDER,Paste a lobby ID or +connect_lobby link,粘贴房间号或 +connect_lobby 链接
 STEAM_DOCS_HINT,"GodotSteam is bundled in addons/godotsteam. Start the Steam client and sign in, then restart the game. See docs/STEAM.md.",GodotSteam 已随项目附带（addons/godotsteam）。请先启动并登录 Steam 客户端，再重新启动游戏。详见 docs/STEAM.md。
@@ -350,16 +441,31 @@ ERR_REPLAY_DECKS,Replay has no valid deck selection.,回放缺少有效的牌组
 ERR_REPLAY_ENTRY,Invalid replay entry.,回放记录条目无效。
 ERR_REPLAY_ILLEGAL,Replay contains an illegal action at revision {revision}.,回放在第{revision}步含有非法操作。
 ERR_REPLAY_INVALID_JSON,Invalid JSON replay.,回放文件不是有效的 JSON。
-ERR_DECK_HERO_COUNT,A deck needs five heroes.,牌组需要五名武将。
-ERR_DECK_HERO_INVALID,Heroes must be supported and unique.,武将必须为已支持的卡牌且不可重复。
+ERR_DECK_HERO_COUNT,A deck needs five heroes ({n}/5).,牌组需要五名武将（{n}/5）。
+ERR_DECK_HERO_INVALID,{card} cannot lead this deck: heroes must be available and different.,{card}不能加入此牌组：武将须为可用卡牌且不可重复。
 ERR_DECK_MISSING_LISTS,Missing main or item deck.,缺少主牌组或军备牌组。
-ERR_DECK_MAIN_CARD,Unsupported main-deck card.,主牌组含有不支持的卡牌。
-ERR_DECK_MAIN_COPIES,Main cards need one to three whole copies.,主牌组每张卡需1至3张。
-ERR_DECK_MAIN_SIZE,The main deck needs at least forty cards.,主牌组至少需要四十张牌。
-ERR_DECK_SIGNATURES,Each hero requires three signature copies.,每名武将需配三张专属卡。
-ERR_DECK_ITEM_CARD,Item decks use supported equipment.,军备牌组只能使用已支持的装备。
-ERR_DECK_ITEM_COPIES,Item counts must be positive whole numbers.,军备数量必须为正整数。
-ERR_DECK_ITEM_SIZE,The item deck needs at least nine cards.,军备牌组至少需要九张牌。
+ERR_DECK_MAIN_CARD,{card} cannot be in a main deck.,{card}不能加入主牌组。
+ERR_DECK_MAIN_COPIES,{card}: a main deck holds one to three copies of a card.,{card}：主牌组每张卡需1至3张。
+ERR_DECK_MAIN_SIZE,The main deck needs at least forty cards ({n}/40).,主牌组至少需要四十张牌（{n}/40）。
+ERR_DECK_SIGNATURES,{hero} brings exactly three copies of {card}.,{hero}须配恰好三张{card}。
+ERR_DECK_ITEM_CARD,"{card} cannot be in an item deck: weapons, armor and accessories only.",{card}不能加入军备牌组：仅限兵器、防具与坐骑。
+ERR_DECK_ITEM_COPIES,{card}: an item deck holds one to three copies of an item.,{card}：军备牌组每件军备需1至3件。
+ERR_DECK_ITEM_SIZE,The item deck needs at least nine cards ({n}/9).,军备牌组至少需要九张牌（{n}/9）。
+ERR_DECK_SIGNATURE_ORPHAN,{card} is {hero}'s signature card: it comes only with {hero}.,{card}是{hero}的专属卡，只能随{hero}加入。
+ERR_DECK_CODE_PREFIX,This is not a deck code. Deck codes start with ADC.,这不是牌组代码。牌组代码以 ADC 开头。
+ERR_DECK_CODE_TOO_LONG,This deck code is too long.,牌组代码过长。
+ERR_DECK_CODE_BASE64,This deck code is damaged: it contains invalid characters.,牌组代码已损坏：含有无效字符。
+ERR_DECK_CODE_VERSION,"This is not a deck code, or it is damaged (unknown format version {version}).",这不是牌组代码，或代码已损坏（未知格式版本 {version}）。
+ERR_DECK_CODE_CHECKSUM,This deck code is damaged (checksum mismatch). Copy it again.,牌组代码已损坏（校验不符），请重新复制。
+ERR_DECK_CODE_TRUNCATED,This deck code is incomplete. Copy all of it.,牌组代码不完整，请完整复制。
+ERR_DECK_CODE_UNKNOWN_CARD,This deck code holds a card this game does not have (#{id}).,牌组代码含有本游戏没有的卡牌（#{id}）。
+ERR_DECK_CODE_UNAVAILABLE,{card} cannot be used in decks.,{card}不能加入牌组。
+ERR_DECK_CODE_HERO_TURNS,A deck code needs three heroes for round 1 and one each for rounds 2 and 3.,牌组代码须含第1回合出阵的三名武将，及第2、第3回合各一名。
+ERR_DECK_STORE_INVALID,This deck cannot be saved.,此牌组无法保存。
+ERR_DECK_STORE_FULL,"You already have {n} decks, the most allowed. Delete one first.",牌组已达上限（{n}套），请先删除一套。
+ERR_DECK_STORE_WRITE,The deck file could not be written ({error}).,无法写入牌组文件（{error}）。
+ERR_DECK_STORE_MISSING,This deck no longer exists.,此牌组已不存在。
+ERR_DECK_ONLINE_MISSING,The host did not receive your deck in time.,房主未能及时收到你的牌组。
 EV_MATCH_START,Round 1. Left lane opens. Destroy two towers or one ancient to win.,第1回合，左路开战。摧毁两座城楼或一座都城即可获胜。
 EV_PASS,{player} passes.,{player}按兵不动。
 EV_LANE_OPEN,{lane} opens. {player} has initiative.,{lane}开战，{player}持有先手。

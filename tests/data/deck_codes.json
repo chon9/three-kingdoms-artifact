@@ -1,0 +1,249 @@
+{
+ "source": "Valve's ArtifactDeckCode README (github.com/ValveSoftware/ArtifactDeckCode, BSD) example codes; local preset codes and an edge case from a reference Python port of deck_encoder.php / deck_decoder.php.",
+ "valve_readme": [
+  {
+   "code": "ADCJWkTZX05uwGDCRV4XQGy3QGLmqUBg4GQJgGLGgO7AaABR3JlZW4vQmxhY2sgRXhhbXBsZQ__",
+   "decoded": {
+    "version": 2,
+    "checksum": 105,
+    "heroes": [
+     {
+      "id": 4005,
+      "turn": 2
+     },
+     {
+      "id": 10014,
+      "turn": 1
+     },
+     {
+      "id": 10017,
+      "turn": 3
+     },
+     {
+      "id": 10026,
+      "turn": 1
+     },
+     {
+      "id": 10047,
+      "turn": 1
+     }
+    ],
+    "cards": [
+     {
+      "id": 3000,
+      "count": 2
+     },
+     {
+      "id": 3001,
+      "count": 1
+     },
+     {
+      "id": 10091,
+      "count": 3
+     },
+     {
+      "id": 10102,
+      "count": 3
+     },
+     {
+      "id": 10128,
+      "count": 3
+     },
+     {
+      "id": 10165,
+      "count": 3
+     },
+     {
+      "id": 10168,
+      "count": 3
+     },
+     {
+      "id": 10169,
+      "count": 3
+     },
+     {
+      "id": 10185,
+      "count": 3
+     },
+     {
+      "id": 10223,
+      "count": 1
+     },
+     {
+      "id": 10234,
+      "count": 3
+     },
+     {
+      "id": 10260,
+      "count": 1
+     },
+     {
+      "id": 10263,
+      "count": 1
+     },
+     {
+      "id": 10322,
+      "count": 3
+     },
+     {
+      "id": 10354,
+      "count": 3
+     }
+    ],
+    "name": "Green/Black Example",
+    "raw_hex": "256913657d39bb01830915785d01b2dd018b9aa50183819026018b1a03bb01a001477265656e2f426c61636b204578616d706c65"
+   }
+  },
+  {
+   "code": "ADCJQUQI30zuwEYg2ABeF1Bu94BmWIBTEkLtAKlAZakAYmHh0JsdWUvUmVkIEV4YW1wbGU_",
+   "decoded": {
+    "version": 2,
+    "checksum": 5,
+    "heroes": [
+     {
+      "id": 4003,
+      "turn": 1
+     },
+     {
+      "id": 10006,
+      "turn": 1
+     },
+     {
+      "id": 10030,
+      "turn": 1
+     },
+     {
+      "id": 10033,
+      "turn": 3
+     },
+     {
+      "id": 10065,
+      "turn": 2
+     }
+    ],
+    "cards": [
+     {
+      "id": 3000,
+      "count": 2
+     },
+     {
+      "id": 3001,
+      "count": 2
+     },
+     {
+      "id": 10132,
+      "count": 3
+     },
+     {
+      "id": 10157,
+      "count": 3
+     },
+     {
+      "id": 10191,
+      "count": 2
+     },
+     {
+      "id": 10203,
+      "count": 2
+     },
+     {
+      "id": 10212,
+      "count": 2
+     },
+     {
+      "id": 10223,
+      "count": 1
+     },
+     {
+      "id": 10307,
+      "count": 3
+     },
+     {
+      "id": 10344,
+      "count": 3
+     },
+     {
+      "id": 10366,
+      "count": 3
+     },
+     {
+      "id": 10402,
+      "count": 3
+     },
+     {
+      "id": 10411,
+      "count": 3
+     },
+     {
+      "id": 10418,
+      "count": 3
+     },
+     {
+      "id": 10425,
+      "count": 3
+     }
+    ],
+    "name": "Blue/Red Example",
+    "raw_hex": "250510237d33bb0118836001785d41bbde019962014c490bb402a50196a401898787426c75652f526564204578616d706c65"
+   }
+  }
+ ],
+ "local_presets": [
+  {
+   "preset": "starter",
+   "code": "ADCJWAPIH1DggM8uwG4XYGBvt0BV4FxBKIBm5KDrwFDbGFzc2ljIFN0YXJ0ZXI_",
+   "heroes_in_order": [
+    "axe",
+    "jmuy",
+    "farvhan",
+    "keefe",
+    "debbi"
+   ]
+  },
+  {
+   "preset": "green_assault",
+   "code": "ADCJQgNYH0+uwEGhga4XUFBfN0BgodQOAIXuwGDi5eiAUdyZWVuIEFzc2F1bHQ_",
+   "heroes_in_order": [
+    "drow",
+    "lycan",
+    "axe",
+    "farvhan",
+    "rix"
+   ]
+  },
+  {
+   "preset": "blue_black_control",
+   "code": "ADCJVgUo31CAze8ARK4XYGBtt4BsQSiAUilAUKBrwGIQmx1ZSAvIEJsYWNrIENvbnRyb2w_",
+   "heroes_in_order": [
+    "zeus",
+    "phantom_assassin",
+    "jmuy",
+    "debbi",
+    "keefe"
+   ]
+  }
+ ],
+ "edge": [
+  {
+   "code": "ADCIfwMJX34XQXonIDmsYnlhYjplIs_",
+   "decoded": {
+    "version": 2,
+    "checksum": 252,
+    "heroes": [
+     {
+      "id": 4005,
+      "turn": 1
+     }
+    ],
+    "cards": [
+     {
+      "id": 3000,
+      "count": 5
+     }
+    ],
+    "name": "蜀汉先锋",
+    "raw_hex": "21fc0c257df85d05e89c80e6b189e58588e9948b"
+   }
+  }
+ ]
+}

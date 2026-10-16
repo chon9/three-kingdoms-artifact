@@ -117,7 +117,8 @@ func _random_deck(rng: RandomNumberGenerator, preset_id: String) -> String:
 	var cards: Dictionary = {}
 	for hero_id in chosen:
 		cards[str(library.definition(hero_id).signature)] = 3
-	var main = _pool(["creep", "spell", "improvement"])
+	# Another hero's signature card cannot enter a deck (deck_signature_orphan).
+	var main = _pool(["creep", "spell", "improvement"]).filter(func(card_id): return library.signature_owner(card_id).is_empty() or cards.has(card_id))
 	var total = 15
 	while total < 40:
 		var card_id = main[rng.randi_range(0, main.size() - 1)]
@@ -126,9 +127,13 @@ func _random_deck(rng: RandomNumberGenerator, preset_id: String) -> String:
 			total += 1
 	var items: Dictionary = {}
 	var equipment = _pool(["item"], true)
-	for count in range(rng.randi_range(9, 12)):
+	var item_total = rng.randi_range(9, 12)
+	while item_total > 0:
+		# At most three copies of an item (wiki Decks).
 		var item_id = equipment[rng.randi_range(0, equipment.size() - 1)]
-		items[item_id] = int(items.get(item_id, 0)) + 1
+		if int(items.get(item_id, 0)) < 3:
+			items[item_id] = int(items.get(item_id, 0)) + 1
+			item_total -= 1
 	var preset = {"id": preset_id, "name": preset_id, "heroes": chosen, "cards": cards, "items": items}
 	var validation = library.validate_preset(preset)
 	_check(validation.ok, "A generated deck is legal: %s" % [validation])

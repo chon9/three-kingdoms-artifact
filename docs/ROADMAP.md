@@ -18,7 +18,7 @@ Godot project, three-lane training matches, validated commands, seeded RNG, basi
 
 49 real definitions, ten supported heroes, three deck presets, independent player/opponent choices, nine-card item decks, supported secret/consumable pools, silence, cross-lane damage, condemnation, siege, growth and Fountain return. Native archived-card overlays reflect verified Classic patches. Rule, privacy and UI tests include every preset matchup.
 
-Remaining fidelity work: exact placement/targeting restrictions, general trigger queue, complete shops and custom deck editing.
+Remaining fidelity work: exact placement/targeting restrictions, general trigger queue and complete shops.
 
 ## Three Kingdoms theme and match interface (implemented)
 
@@ -41,7 +41,7 @@ Remaining: chess clocks, pets, deck trays, the round-one deployment reveal, time
 - Add differential/reference tests for each effect, plus interaction suites and generated legal-action games.
 - Extend the bot with multi-action search, hidden-state sampling and deployment/deck strategy.
 - Benchmark AI strength on held-out positions and human games; publish its limits and difficulty settings.
-- Add deck building, legal deck validation and draft.
+- Done: deck building (collection filters, click and drag editing, hero slots by deploy round, locked signature cards, Classic deck rules with localized reasons, mana curve), deck codes in Valve's format, own decks for both seats, the AI, replays and online guests. Remaining: draft (Gauntlet), deck statistics from played matches, and Lich in decks once his signature card Chain Frost leaves draft status.
 
 ## 0.5 — Community alpha
 
