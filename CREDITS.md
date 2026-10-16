@@ -40,6 +40,8 @@ Credit is not required; we give it anyway.
 | `assets/third_party/kenney_board_game_icons/` | Board Game Icons 1.1 | Kenney (kenney.nl) | https://kenney.nl/assets/board-game-icons | 16 icons at 128 px |
 | `assets/third_party/kenney_particle_pack/` | Particle Pack 1.1 | Kenney Vleugels (kenney.nl) | https://kenney.nl/assets/particle-pack | 11 transparent particles, downscaled to 256 px |
 | `assets/third_party/kenney_ui_pack/` | UI Pack 2.0 | Kenney (kenney.nl) | https://kenney.nl/assets/ui-pack | UI click, switch and tap sounds |
+| `assets/third_party/kenney_interface_sounds/` | Interface Sounds 1.0 | Kenney (kenney.nl) | https://kenney.nl/assets/interface-sounds | 3 sounds: `confirmation_002` (your action), `confirmation_004` (the opponent is ready), `glass_001` (the opponent passed) |
+| `assets/third_party/kenney_impact_sounds/` | Impact Sounds 1.0 | Kenney (kenney.nl) | https://kenney.nl/assets/impact-sounds | 1 sound: `impactBell_heavy_000` (the match intro's seal) |
 | `assets/third_party/polyhaven_dark_wooden_planks/` | Dark Wooden Planks | Amal Kumar (Poly Haven) | https://polyhaven.com/a/dark_wooden_planks | Diffuse map, 1K |
 | `assets/third_party/polyhaven_castle_wall_slates/` | Castle Wall Slates | Rob Tuytel (Poly Haven) | https://polyhaven.com/a/castle_wall_slates | Diffuse map, 1K |
 | `assets/third_party/ambientcg_wood066/` | Wood066 | ambientCG (Lennart Demes) | https://ambientcg.com/view?id=Wood066 | Color map, 1K |

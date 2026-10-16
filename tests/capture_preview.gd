@@ -71,6 +71,20 @@ extends SceneTree
 ## preset replaces a deck). With
 ## only deck shots requested (--only=deck_list,...) no match is played. The
 ## decks are written to res://.tools/scratch/capture_decks, never user://.
+## v0.6.1: turn_cue (the your-action banner and rings), history, history_zh,
+## history_hover (a tile's hover card), game_over_online(_zh) (Rematch,
+## Change deck, Save, View board, Leave room; the opponent wants a rematch),
+## room_waiting (the host's empty seat), room_ready(_zh) (both seats, both
+## ready, the countdown), room_guest (the guest's side, its deck pending),
+## room_deck (Change deck over the room: your own deck only),
+## versus, versus_zh, versus_local (the match intro), settings(_zh). With
+## only these shots requested no other capture runs. Review fixes (long
+## Steam names, the guest's result after the host left): versus_online(_zh)
+## (the online intro, a 32-character name and a long Chinese one),
+## board_online(_zh) (the opponent's plate with a long name and the ping),
+## room_long(_zh) (both seats with long names, the opponent ready for a
+## rematch: the ready marks are labels, not buttons) and
+## game_over_host_left(_zh) (the guest's win, the session over).
 ## Pass --size=1280x720 to check the smaller window, --out=res://dir/ to save
 ## the shots elsewhere.
 
@@ -120,6 +134,14 @@ const DECK_SHOTS = ["deck_list", "deck_list_zh", "deck_builder", "deck_builder_z
 	"deck_builder_valid", "deck_builder_four", "deck_builder_four_zh", "deck_import_error", "deck_import_error_zh", "deck_list_import_error",
 	"deck_builder_slot", "deck_template"]
 const DECK_STORE = "res://.tools/scratch/capture_decks"
+## v0.6.1: the your-action cue, the card history, results, the room, the
+## match intro and the settings' new toggles.
+const V061_SHOTS = ["turn_cue", "history", "history_zh", "history_hover", "game_over_online", "game_over_online_zh",
+	"room_waiting", "room_ready", "room_ready_zh", "room_guest", "room_deck", "versus", "versus_zh", "versus_local", "settings", "settings_zh",
+	"versus_online", "versus_online_zh", "board_online", "board_online_zh", "room_long", "room_long_zh", "game_over_host_left",
+	"game_over_host_left_zh"]
+## Steam names as long as Steam allows (32 characters) and a long Chinese one.
+const LONG_NAMES = ["ThisIsAVeryLongSteamNameForTest!", "司马懿仲达不死之谋略大将军天下无双第一谋士"]
 const DeckStore = preload("res://scripts/core/deck_store.gd")
 const DeckCode = preload("res://scripts/core/deck_code.gd")
 const DeckModel = preload("res://scripts/core/deck_model.gd")
@@ -238,14 +260,26 @@ func _run() -> void:
 	Settings.set_locale("en", false)
 	Settings.set_skin("three_kingdoms", false)
 	app = MainScene.instantiate()
+	# The intro only shows in its own shots; the history strip shows on the board.
+	Settings.match_intro = false
+	Settings.show_history = true
 	root.add_child(app)
 	app.set_locale("en")
 	app.set_skin("three_kingdoms")
 	await _frames(4)
 	await _wait(0.5)
 	await _shot("main_menu")
+	Settings.set_match_intro(false, false)
+	Settings.set_show_history(true, false)
 	if not only.is_empty() and only.all(func(shot_name): return shot_name in DECK_SHOTS):
 		await _capture_decks()
+		print("Shots: ", ", ".join(saved))
+		app.queue_free()
+		await process_frame
+		quit(0)
+		return
+	if not only.is_empty() and only.all(func(shot_name): return shot_name in V061_SHOTS):
+		await _capture_v061()
 		print("Shots: ", ", ".join(saved))
 		app.queue_free()
 		await process_frame
@@ -305,6 +339,7 @@ func _run() -> void:
 	await _capture_m5()
 	await _capture_m6()
 	await _capture_m7()
+	await _capture_v061()
 	app.show_main_menu()
 	await _capture_decks()
 	print("Shots: ", ", ".join(saved))
@@ -1596,3 +1631,354 @@ func _drag_motion(position: Vector2, last: Vector2) -> void:
 	event.global_position = position
 	event.relative = position - last
 	root.push_input(event, true)
+
+# --- v0.6.1: the your-action cue, card history, results, the room, the match intro ---------
+
+## Enough of GodotSteam for the room's screenshots: two avatars (card art) and
+## no-op lobby calls. Nothing reaches the real Steam client.
+class SteamStub:
+	extends RefCounted
+	var images: Dictionary = {}
+	var handles: Dictionary = {}
+	var persona: String = "Corosso"
+	func getMediumFriendAvatar(steam_id: int) -> int:
+		return int(handles.get(steam_id, 0))
+	func getLargeFriendAvatar(steam_id: int) -> int:
+		return int(handles.get(steam_id, 0))
+	func getImageSize(image_handle: int) -> Dictionary:
+		if not images.has(image_handle):
+			return {"success": false, "width": 0, "height": 0}
+		return {"success": true, "width": images[image_handle].get_width(), "height": images[image_handle].get_height()}
+	func getImageRGBA(image_handle: int) -> Dictionary:
+		if not images.has(image_handle):
+			return {}
+		return {"success": true, "buffer": images[image_handle].get_data()}
+	func getPersonaName() -> String:
+		return persona
+	func run_callbacks() -> void:
+		pass
+	func receiveMessagesOnChannel(_channel: int, _max_messages: int) -> Array:
+		return []
+	func sendMessageToUser(_remote: int, _data: PackedByteArray, _flags: int, _channel: int) -> int:
+		return 1
+	func setLobbyData(_lobby: int, _key: String, _value: String) -> bool:
+		return true
+	func setLobbyMemberLimit(_lobby: int, _members: int) -> bool:
+		return true
+	func closeSessionWithUser(_remote: int) -> bool:
+		return true
+	func leaveLobby(_lobby: int) -> void:
+		pass
+	func clearRichPresence() -> void:
+		pass
+
+const HOST_STEAM_ID = 76561198000000101
+const GUEST_STEAM_ID = 76561198000000202
+
+## An avatar image (184 px) from a card's art.
+func _avatar_image(card_id: String) -> Image:
+	var texture: Texture2D = null
+	for extension in ["jpg", "png", "webp"]:
+		var path = "res://assets/art/cards/%s.%s" % [card_id, extension]
+		if ResourceLoader.exists(path):
+			texture = load(path)
+			break
+	var image: Image = texture.get_image() if texture != null else Image.create(184, 184, false, Image.FORMAT_RGBA8)
+	if image.is_compressed():
+		image.decompress()
+	var side = mini(image.get_width(), image.get_height())
+	image = image.get_region(Rect2i((image.get_width() - side) / 2, int(image.get_height() * 0.08), side, side))
+	image.convert(Image.FORMAT_RGBA8)
+	image.resize(184, 184, Image.INTERPOLATE_LANCZOS)
+	return image
+
+## Puts the controller in a room on the stub (no real Steam calls).
+func _stub_room(host: bool, guest_here: bool) -> void:
+	var bridge = app.controller.steam_bridge
+	var stub = SteamStub.new()
+	stub.images = {1: _avatar_image("zhang_fei" if ResourceLoader.exists("res://assets/art/cards/zhang_fei.jpg") else "axe"), 2: _avatar_image("drow")}
+	stub.handles = {HOST_STEAM_ID: 1 if host else 2, GUEST_STEAM_ID: 2 if host else 1}
+	bridge.steam = stub
+	bridge.available = true
+	bridge._avatars.clear()
+	bridge.local_id = HOST_STEAM_ID if host else GUEST_STEAM_ID
+	bridge.lobby_id = 109775241000000777
+	bridge.is_host = host
+	bridge.lobby_public = false
+	bridge.handshake_done = guest_here
+	bridge.opponent_present = guest_here
+	bridge.peer_id = (GUEST_STEAM_ID if host else HOST_STEAM_ID) if guest_here else 0
+	bridge.bound_opponent = bridge.peer_id if host else 0
+	bridge.host_id = HOST_STEAM_ID
+	bridge.peer_name = ("zucchini" if host else "zucchini") if guest_here else ""
+	bridge.ping_ms = 48
+	bridge.quality = 1.0
+	app.controller.room_phase = "room" if guest_here else "waiting"
+	app.controller.room_ready = [false, false]
+	app.controller.room_starting = false
+	app.controller.room_series = [0, 0]
+	app.controller.guest_deck_state = "ok" if guest_here else ""
+	app.controller.own_deck_result = {"ok": true}
+
+## Leaves the stub room without a word to Steam.
+func _leave_stub_room() -> void:
+	var bridge = app.controller.steam_bridge
+	bridge.leave_lobby()
+	bridge.available = false
+	bridge.steam = null
+	app.controller._reset_room("none")
+	app.controller.mode = MatchController.MODE_AI
+	app.close_dialogs()
+
+func _capture_v061() -> void:
+	if not V061_SHOTS.any(func(shot_name): return _wanted(shot_name)):
+		return
+	var screen = app.screen
+	Settings.set_show_history(true, false)
+	Settings.set_turn_alert(true, false)
+	# The card history in a busy lane, a tile hovered, and the your-action cue.
+	if _wanted("history") or _wanted("history_zh") or _wanted("history_hover") or _wanted("turn_cue"):
+		Settings.set_match_intro(false, false)
+		app.controller.current_seed = SEED
+		AnimationQueue.instant = true
+		app.start_match(MatchController.MODE_AI)
+		app.bot_timer.paused = true
+		_advance(_busy_lane)
+		AnimationQueue.instant = false
+		_mouse(Vector2(screen.size.x * 0.5, screen.size.y * 0.45))
+		await _wait(0.8)
+		await _idle()
+		await _wait(0.4)
+		await _shot("history")
+		if _wanted("history_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.3)
+			await _shot("history_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		if _wanted("history_hover"):
+			var rail = screen.history
+			# The newest drawn play (or ability) with effects listed under it.
+			var spot = Vector2(-1, -1)
+			for entry in rail._rects:
+				var tile: Dictionary = rail._tile_by_id(int(entry[1]))
+				if str(tile.get("kind", "")) in ["play", "ability"] and spot.x < 0.0:
+					spot = rail.get_global_transform() * entry[0].get_center()
+			if spot.x < 0.0 and not rail._rects.is_empty():
+				spot = rail.get_global_transform() * rail._rects[0][0].get_center()
+			_mouse(spot + Vector2(1, 0))
+			await _frames(2)
+			_mouse(spot)
+			await _wait(0.4)
+			await _shot("history_hover")
+			_mouse(Vector2(screen.size.x * 0.5, screen.size.y * 0.45))
+			await _wait(0.2)
+		if _wanted("turn_cue"):
+			var engine = app.engine
+			if engine.state.phase == "action" and int(engine.state.active_player) == 0:
+				screen.press_coin()
+				await _idle()
+			var guard = 0
+			while engine.state.phase == "action" and int(engine.state.active_player) == 1 and guard < 4:
+				engine.apply_action(1, bot.choose_action(engine, 1))
+				_publish()
+				guard += 1
+			await _idle()
+			await _wait(0.3 if not screen.fx.banners_showing() else 0.75)
+			await _shot("turn_cue")
+	# The results: online (the opponent wants a rematch).
+	if _wanted("game_over_online") or _wanted("game_over_online_zh"):
+		Settings.set_match_intro(false, false)
+		AnimationQueue.instant = true
+		app.start_match(MatchController.MODE_AI)
+		app.bot_timer.paused = true
+		_stub_room(true, true)
+		app.controller.mode = MatchController.MODE_ONLINE
+		app.controller.room_phase = "match"
+		_advance(func(state): return int(state.round) >= 2 and state.phase == "action")
+		var engine = app.engine
+		engine.state.lanes[0].structures[1].ancient = true
+		engine.state.lanes[0].structures[1].health = 80
+		engine.state.lanes[1].structures[1].ancient = true
+		engine.state.lanes[1].structures[1].health = 80
+		engine.state.winner = 0
+		engine.state.phase = "finished"
+		engine._event("win", {"p": 0})
+		_publish()
+		app.controller._note_result()
+		app.controller.room_ready = [false, true]
+		app.controller.room_changed.emit()
+		AnimationQueue.instant = false
+		await _wait(1.2)
+		await _shot("game_over_online")
+		if _wanted("game_over_online_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.3)
+			await _shot("game_over_online_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_leave_stub_room()
+	# The room: the host waiting, both seats with a countdown, the guest's side.
+	if _wanted("room_waiting") or _wanted("room_ready") or _wanted("room_ready_zh") or _wanted("room_guest") or _wanted("room_deck"):
+		app.show_main_menu()
+		_stub_room(true, false)
+		app.show_room()
+		await _wait(0.5)
+		await _shot("room_waiting")
+		_stub_room(true, true)
+		app.controller.room_series = [1, 2]
+		app.controller.room_phase = "result"
+		app.controller.set_ready(true)
+		app.controller._on_ready_received(true)
+		app.room.refresh()
+		await _wait(0.4)
+		await _shot("room_ready")
+		if _wanted("room_ready_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.3)
+			await _shot("room_ready_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		app.controller.set_ready(false)
+		_stub_room(false, true)
+		app.controller.own_deck_result = {}
+		app.controller.room_ready = [true, false]
+		app.controller.room_phase = "result"
+		app.controller.room_series = [2, 1]
+		app.room.refresh()
+		await _wait(0.4)
+		await _shot("room_guest")
+		if _wanted("room_deck"):
+			# Change deck in the room: your own deck only.
+			app.room.buttons.deck.pressed.emit()
+			await _wait(0.6)
+			await _shot("room_deck")
+			app.close_dialogs()
+		_leave_stub_room()
+	# The match intro: against the AI (en and zh) and in hot-seat play.
+	if _wanted("versus") or _wanted("versus_zh") or _wanted("versus_local"):
+		Settings.set_match_intro(true, false)
+		AnimationQueue.instant = false
+		for spec in [["versus", "en", MatchController.MODE_AI], ["versus_zh", "zh_CN", MatchController.MODE_AI], ["versus_local", "en", MatchController.MODE_LOCAL]]:
+			if not _wanted(spec[0]):
+				continue
+			app.set_locale(spec[1])
+			app.controller.current_seed = SEED + 3
+			app.deck_selections = ["starter", "green_assault"]
+			app.start_match(spec[2])
+			app.bot_timer.paused = true
+			await _wait(2.3)
+			await _shot(spec[0])
+			screen.versus.skip()
+			await _idle()
+			if screen.pass_screen.visible:
+				screen.pass_screen.confirm()
+		app.set_locale("en")
+		Settings.set_match_intro(false, false)
+	await _capture_review_fixes()
+	# Settings: the new toggles.
+	if _wanted("settings") or _wanted("settings_zh"):
+		app.show_main_menu()
+		app.open_settings()
+		await _wait(0.4)
+		await _shot("settings")
+		if _wanted("settings_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.3)
+			await _shot("settings_zh")
+			app.set_locale("en")
+		app.close_dialogs()
+		await _wait(0.2)
+
+## Review fixes: long Steam names in the online intro, on the opponent's
+## plate and in the room; the guest's win after the host conceded and left.
+func _capture_review_fixes() -> void:
+	var screen = app.screen
+	if _wanted("versus_online") or _wanted("versus_online_zh") or _wanted("board_online") or _wanted("board_online_zh"):
+		Settings.set_match_intro(false, false)
+		AnimationQueue.instant = true
+		app.controller.current_seed = SEED + 3
+		app.deck_selections = ["starter", "green_assault"]
+		app.start_match(MatchController.MODE_AI)
+		app.bot_timer.paused = true
+		_stub_room(true, true)
+		app.controller.steam_bridge.steam.persona = LONG_NAMES[0]
+		app.controller.steam_bridge.peer_name = LONG_NAMES[1]
+		app.controller.mode = MatchController.MODE_ONLINE
+		app.controller.room_phase = "match"
+		_advance(func(state): return state.phase == "action" and int(state.active_player) == 0)
+		await _idle()
+		AnimationQueue.instant = false
+		for spec in [["versus_online", "en"], ["versus_online_zh", "zh_CN"]]:
+			if not _wanted(spec[0]):
+				continue
+			app.set_locale(spec[1])
+			Settings.set_match_intro(true, false)
+			screen._play_intro(app.controller.view(), 0)
+			Settings.set_match_intro(false, false)
+			await _wait(2.3)
+			await _shot(spec[0])
+			screen.versus.skip()
+			await _wait(0.4)
+		for spec in [["board_online", "en"], ["board_online_zh", "zh_CN"]]:
+			if not _wanted(spec[0]):
+				continue
+			app.set_locale(spec[1])
+			screen._refresh_controls()
+			await _wait(0.4)
+			await _shot(spec[0])
+		app.set_locale("en")
+		_leave_stub_room()
+	if _wanted("room_long") or _wanted("room_long_zh"):
+		app.show_main_menu()
+		_stub_room(true, true)
+		app.controller.steam_bridge.steam.persona = LONG_NAMES[0]
+		app.controller.steam_bridge.peer_name = LONG_NAMES[1]
+		app.controller.room_phase = "result"
+		app.controller.room_series = [1, 1]
+		app.controller.room_ready = [false, true]
+		app.show_room()
+		await _wait(0.5)
+		await _shot("room_long")
+		if _wanted("room_long_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.3)
+			await _shot("room_long_zh")
+			app.set_locale("en")
+			await _wait(0.2)
+		_leave_stub_room()
+	if _wanted("game_over_host_left") or _wanted("game_over_host_left_zh"):
+		for spec in [["game_over_host_left", "en"], ["game_over_host_left_zh", "zh_CN"]]:
+			if not _wanted(spec[0]):
+				continue
+			app.set_locale(spec[1])
+			Settings.set_match_intro(false, false)
+			AnimationQueue.instant = true
+			app.controller.current_seed = SEED + 5
+			app.start_match(MatchController.MODE_AI)
+			app.bot_timer.paused = true
+			_advance(func(state): return int(state.round) >= 2 and state.phase == "action")
+			var engine = app.engine
+			_stub_room(false, true)
+			app.controller.steam_bridge.peer_name = "Sun Quan" if spec[1] == "en" else "孙权"
+			app.controller.mode = MatchController.MODE_ONLINE
+			app.controller.room_phase = "match"
+			app.controller.match_serial = 0
+			var publish = func() -> void:
+				var view = engine.player_view(1)
+				view.players[0]["preset"] = MatchController.HIDDEN_DECK
+				app.controller._online_state(view, engine.legal_actions(1), 7)
+			publish.call()
+			await _idle()
+			# The host concedes and leaves: result, room and goodbye in one poll.
+			AnimationQueue.instant = false
+			engine.state.lanes[0].structures[0].ancient = true
+			engine.state.lanes[0].structures[0].health = 80
+			engine.apply_action(0, {"type": "concede"})
+			publish.call()
+			app.controller.steam_bridge._end_session("host_left")
+			await _idle()
+			await _wait(1.2)
+			await _shot(spec[0])
+			_leave_stub_room()
+		app.set_locale("en")

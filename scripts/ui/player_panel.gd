@@ -22,6 +22,12 @@ var connection: Dictionary = {}
 ## Card ids in the player's deeds zone.
 var deeds: Array = []
 var _menu_hover: bool = false
+## The name did not fit and was cut (the tooltip then shows it whole).
+var name_cut: bool = false
+## The name as drawn (shrunk and cut to the room left by the stats).
+var shown_name: String = ""
+## The name's area as last drawn: [left, right].
+var name_span: Vector2 = Vector2.ZERO
 
 func _init() -> void:
 	size = Vector2(380, 46)
@@ -57,6 +63,8 @@ func refresh_text() -> void:
 
 func _refresh_tooltip() -> void:
 	var lines: Array = []
+	if name_cut and not player_name.is_empty():
+		lines.append(player_name)
 	if not connection.is_empty():
 		var ping = int(connection.get("ping", -1))
 		lines.append(UiKit.t("NET_TOOLTIP", {"state": UiKit.t("NET_" + str(connection.get("level", "unknown")).to_upper()),
@@ -111,12 +119,23 @@ func _draw() -> void:
 		UiKit.draw_text_left(self, UiKit.bold_font(), str(deeds.size()), Vector2(x + 24, center_y), 17, UiKit.GOLD_BRIGHT, -1.0, 2)
 	var name_right = size.x - (52.0 if show_menu else 14.0)
 	var name_left = x + 56.0
-	if not connection.is_empty():
-		name_left = _draw_connection(Vector2(name_left, center_y)) + 8.0
 	var font = UiKit.title_font()
-	var font_size = UiKit.fit_size(font, player_name, name_right - name_left, 21, 12)
-	var width = font.get_string_size(player_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	UiKit.draw_text_left(self, font, player_name, Vector2(name_right - width, center_y), font_size, tint.lightened(0.45), -1.0, 2)
+	if not connection.is_empty():
+		# The ping number gives way to a long name (the tooltip has it too).
+		var room = name_right - name_left - 8.0 - _connection_width(true)
+		var wanted = minf(font.get_string_size(player_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x, 120.0)
+		name_left = _draw_connection(Vector2(name_left, center_y), room >= wanted) + 8.0
+	# Fitted between the stats and the menu: shrunk, then cut with an
+	# ellipsis, never drawn over the numbers or the signal bars.
+	var room_width = maxf(0.0, name_right - name_left)
+	var font_size = UiKit.fit_size(font, player_name, room_width, 21, 12)
+	shown_name = UiKit.elide(font, player_name, room_width, font_size)
+	name_span = Vector2(name_left, name_right)
+	var width = font.get_string_size(shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	UiKit.draw_text_left(self, font, shown_name, Vector2(name_right - width, center_y), font_size, tint.lightened(0.45), -1.0, 2)
+	if (shown_name != player_name) != name_cut:
+		name_cut = shown_name != player_name
+		_refresh_tooltip()
 	if show_menu:
 		var menu = menu_rect()
 		UiKit.draw_round_rect(self, menu, Color(1, 1, 1, 0.12 if _menu_hover else 0.04), 4.0, Color(UiKit.GOLD, 0.6 if _menu_hover else 0.3), 1.0)
@@ -124,9 +143,17 @@ func _draw() -> void:
 			var y = menu.position.y + 11 + line * 7
 			draw_line(Vector2(menu.position.x + 9, y), Vector2(menu.end.x - 9, y), UiKit.PAPER, 2.0)
 
-## Signal bars (1-3 lit by quality, crossed out when lost) and the ping.
-## Returns the right edge of what was drawn.
-func _draw_connection(left_center: Vector2) -> float:
+## The width of the signal bars, with the ping number when `ping`.
+func _connection_width(ping: bool) -> float:
+	var width = 18.0
+	var ms = int(connection.get("ping", -1))
+	if ping and ms >= 0 and str(connection.get("level", "")) != "lost":
+		width += 5.0 + UiKit.body_font().get_string_size(UiKit.t("NET_PING", {"ms": ms}), HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+	return width
+
+## Signal bars (1-3 lit by quality, crossed out when lost) and the ping
+## (`show_ping`). Returns the right edge of what was drawn.
+func _draw_connection(left_center: Vector2, show_ping: bool = true) -> float:
 	var level = str(connection.get("level", "unknown"))
 	var lit = {"good": 3, "fair": 2, "poor": 1}.get(level, 0)
 	var color = {"good": UiKit.HEAL, "fair": UiKit.GOLD, "poor": UiKit.DAMAGE, "lost": UiKit.DAMAGE}.get(level, UiKit.MUTED)
@@ -137,7 +164,7 @@ func _draw_connection(left_center: Vector2) -> float:
 	if level == "lost":
 		draw_line(Vector2(left_center.x - 1, left_center.y - 8), Vector2(right, left_center.y + 8), UiKit.DAMAGE, 2.0)
 	var ping = int(connection.get("ping", -1))
-	if ping >= 0 and level != "lost":
+	if show_ping and ping >= 0 and level != "lost":
 		var text = UiKit.t("NET_PING", {"ms": ping})
 		UiKit.draw_text_left(self, UiKit.body_font(), text, Vector2(right + 5.0, left_center.y), 12, UiKit.PAPER_DIM, -1.0, 2)
 		right += 5.0 + UiKit.body_font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x

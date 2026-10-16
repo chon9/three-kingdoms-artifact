@@ -1,14 +1,26 @@
 extends Control
 ## End of match: a calligraphy banner (Victory / Defeat / Draw) over an ink
-## wash, the result line and the towers that fell, with Play again, Save
-## replay, View board and Main menu.
+## wash, the result line and the towers that fell, the ways on, and a status
+## line under them. Against the AI or hot-seat: Play again, Change deck, Save
+## replay, View board, Main menu. Online: Rematch (ready for the next match,
+## in the room), Change deck, View board, Save replay (the host's), Leave
+## room; the status line says when the opponent wants a rematch or left. When
+## the online session is over, only View board, Main menu and Find a lobby
+## stay.
 
 signal action_requested(action: String)
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
-const ACTIONS = ["again", "save", "board", "menu"]
-const KEYS = {"again": "RESULT_PLAY_AGAIN", "save": "MENU_SAVE_REPLAY", "board": "BTN_VIEW_BOARD", "menu": "MENU_MAIN_MENU"}
+## Every action, in the order they appear.
+const ACTIONS = ["again", "rematch", "room", "decks", "save", "board", "leave", "menu", "steam"]
+const KEYS = {"again": "RESULT_PLAY_AGAIN", "rematch": "RESULT_REMATCH", "room": "RESULT_BACK_TO_ROOM",
+	"decks": "RESULT_CHANGE_DECK", "save": "MENU_SAVE_REPLAY", "board": "BTN_VIEW_BOARD", "leave": "ROOM_BTN_LEAVE",
+	"menu": "MENU_MAIN_MENU", "steam": "RESULT_FIND_LOBBY"}
+## The action sets.
+const OFFLINE_ACTIONS = ["again", "decks", "save", "board", "menu"]
+const ONLINE_ACTIONS = ["rematch", "decks", "save", "board", "leave"]
+const CLOSED_ACTIONS = ["board", "menu", "steam"]
 ## Decorative victory seal stamp ("win").
 const SEAL_GLYPH = "胜"
 
@@ -16,24 +28,32 @@ var result_key: String = "RESULT_VICTORY"
 var subtitle: String = ""
 var detail: String = ""
 var buttons: Dictionary = {}
-## Actions shown but not available (an online guest can neither restart the
-## host's match nor save it).
+## The actions shown, in order.
+var actions: Array = OFFLINE_ACTIONS.duplicate()
+## Actions shown but not available (with `disabled_hint` as their tooltip).
 var disabled_actions: Array = []
+var disabled_hint: String = "HINT_HOST_ONLY_RESULT"
+## The line under the buttons ("" for none) and whether it calls for action.
+var status: String = ""
+var status_alert: bool = false
 var victory: bool = true
 ## Rebuilds [towers text, matchup text] in the current language (set by the
 ## match screen), so a language switch re-renders the result.
 var text_source: Callable
+## The online session ended under this result (set_online_closed).
+var closed: bool = false
 var _winner: int = -1
 var _hot_seat: bool = false
 var _reveal: float = 1.0
+var _row: HBoxContainer
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
-	var row = HBoxContainer.new()
-	row.name = "Buttons"
-	row.add_theme_constant_override("separation", 16)
-	add_child(row)
+	_row = HBoxContainer.new()
+	_row.name = "Buttons"
+	_row.add_theme_constant_override("separation", 16)
+	add_child(_row)
 	for action in ACTIONS:
 		var button = Button.new()
 		button.name = action.capitalize()
@@ -42,14 +62,41 @@ func _init() -> void:
 		button.add_theme_font_override("font", UiKit.title_font())
 		button.add_theme_font_size_override("font_size", 21)
 		button.pressed.connect(func(): action_requested.emit(action))
-		row.add_child(button)
+		_row.add_child(button)
 		buttons[action] = button
+	set_actions(OFFLINE_ACTIONS)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
-		var row: Control = get_node("Buttons")
-		row.size = row.get_combined_minimum_size()
-		row.position = Vector2((size.x - row.size.x) * 0.5, size.y * 0.645)
+		_place()
+
+func _place() -> void:
+	_row.size = _row.get_combined_minimum_size()
+	_row.position = Vector2((size.x - _row.size.x) * 0.5, size.y * 0.645)
+
+## Shows these actions, in this order.
+func set_actions(list: Array) -> void:
+	actions = list.duplicate()
+	for action in ACTIONS:
+		buttons[action].visible = action in actions
+	for index in range(actions.size()):
+		_row.move_child(buttons[actions[index]], index)
+	refresh_text()
+	_place()
+
+## The status line under the buttons.
+func set_status(text: String, alert: bool = false) -> void:
+	status = text
+	status_alert = alert
+	queue_redraw()
+
+## The online session is over: only the board, the menu and the lobby
+## browser remain, with `text` saying why.
+func set_online_closed(text: String) -> void:
+	closed = true
+	disabled_actions = []
+	set_actions(CLOSED_ACTIONS)
+	set_status(text)
 
 ## `winner` is the engine winner (0, 1 or 2 for a draw); `viewer` the local
 ## player; `hot_seat` names the winner instead of saying victory/defeat.
@@ -63,11 +110,12 @@ func show_result(winner: int, viewer: int, hot_seat: bool, towers_text: String, 
 		result_key = "RESULT_VICTORY" if winner == viewer else "RESULT_DEFEAT"
 	_winner = winner
 	_hot_seat = hot_seat
+	closed = false
 	subtitle = matchup
 	detail = towers_text
 	visible = true
 	refresh_text()
-	_notification(NOTIFICATION_RESIZED)
+	_place()
 	if not AnimationQueue.instant:
 		_reveal = 0.0
 		var tween = create_tween()
@@ -77,13 +125,14 @@ func refresh_text() -> void:
 	for action in ACTIONS:
 		buttons[action].text = UiKit.t(KEYS[action])
 		buttons[action].disabled = action in disabled_actions
-		buttons[action].tooltip_text = UiKit.t("HINT_HOST_ONLY_RESULT") if action in disabled_actions else ""
+		buttons[action].tooltip_text = UiKit.t(disabled_hint) if action in disabled_actions else ""
 	if visible and text_source.is_valid():
 		var texts: Array = text_source.call()
 		detail = str(texts[0])
 		subtitle = str(texts[1])
 	if _hot_seat and _winner != -1 and _winner != 2:
 		subtitle = UiKit.t("RESULT_PLAYER_WINS", {"player": UiKit.t("PLAYER_N", {"n": _winner + 1})})
+	_place()
 	queue_redraw()
 
 func _draw() -> void:
@@ -103,6 +152,10 @@ func _draw() -> void:
 		Color(color, _reveal), -1.0, 8, Color(0.1, 0.02, 0.0, 0.8 * _reveal))
 	UiKit.draw_text(self, UiKit.title_font(), subtitle, Vector2(size.x * 0.5, size.y * 0.5), 30, Color(UiKit.PAPER, _reveal), -1.0, 3)
 	UiKit.draw_text(self, UiKit.body_font(), detail, Vector2(size.x * 0.5, size.y * 0.56), 18, Color(UiKit.PAPER, _reveal), size.x * 0.8, 4)
+	if not status.is_empty():
+		var y = _row.position.y + _row.size.y + 30.0
+		UiKit.draw_text(self, UiKit.title_font(), status, Vector2(size.x * 0.5, y), 21,
+			Color(UiKit.GOLD_BRIGHT if status_alert else UiKit.PAPER_DIM, _reveal), size.x * 0.8, 3)
 	if victory and result_key != "RESULT_DRAW":
 		var title_width = UiKit.title_font().get_string_size(UiKit.t(result_key), HORIZONTAL_ALIGNMENT_LEFT, -1, title_size).x
 		UiKit.draw_seal(self, Vector2(size.x * 0.5 + maxf(240.0, title_width * 0.5 + 56.0), size.y * 0.33), 56.0, SEAL_GLYPH)

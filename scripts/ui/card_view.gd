@@ -24,12 +24,43 @@ var card_id: String = ""
 var definition: Dictionary = {}
 ## Live values for units: attack, armor, health, max_health, items.
 var live: Dictionary = {}
-var playable: bool = false
-var selected: bool = false
-var dimmed: bool = false
-var face_down: bool = false
-var hovered: bool = false
-var glow_color: Color = UiKit.PLAYABLE
+## The look flags repaint the card when they change: a card that stops being
+## playable (its lane's turn ended, the active lane moved on, the opponent
+## got initiative, a purchase made another offer unaffordable) must not keep
+## its last frame's glow, since nothing else redraws a card that stops pulsing.
+var playable: bool = false:
+	set(value):
+		if playable != value:
+			playable = value
+			if value:
+				# The glow fades in the same way every time it comes back.
+				_pulse = 0.0
+			queue_redraw()
+var selected: bool = false:
+	set(value):
+		if selected != value:
+			selected = value
+			queue_redraw()
+var dimmed: bool = false:
+	set(value):
+		if dimmed != value:
+			dimmed = value
+			queue_redraw()
+var face_down: bool = false:
+	set(value):
+		if face_down != value:
+			face_down = value
+			queue_redraw()
+var hovered: bool = false:
+	set(value):
+		if hovered != value:
+			hovered = value
+			queue_redraw()
+var glow_color: Color = UiKit.PLAYABLE:
+	set(value):
+		if glow_color != value:
+			glow_color = value
+			queue_redraw()
 ## An item's price after the rules layer (a shop offer under a Shop Deed,
 ## RQ-26), or null for its printed price. A lower price shows green; a
 ## negative one, which pays gold, as "+N".

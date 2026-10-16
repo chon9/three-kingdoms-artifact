@@ -25,6 +25,9 @@ const MODES = [[0, "MODE_AI"], [1, "MODE_LOCAL"]]
 const MODE_ONLINE = 2
 
 var library = Library.new()
+## The note under a single-column picker (the host's says its deck is used
+## from its next match; the guest's that its deck goes to the host).
+var note_key: String = "DECKS_GUEST_NOTE"
 ## Per side: a preset id or an own deck dictionary.
 var choices: Array = ["starter", "green_assault"]
 var guest: bool = false
@@ -147,7 +150,7 @@ func refresh_text() -> void:
 		_fill_selector(side)
 		columns[side].heading.text = UiKit.t("DECKS_YOURS" if side == 0 else "DECKS_OPPONENT")
 		_fill(side)
-	summary.text = UiKit.t("DECKS_GUEST_NOTE") if guest else UiKit.t("DECKS_SUMMARY") + " " + UiKit.t("DECKS_CUSTOM_SUMMARY")
+	summary.text = UiKit.t(note_key) if guest else UiKit.t("DECKS_SUMMARY") + " " + UiKit.t("DECKS_CUSTOM_SUMMARY")
 	start_button.text = UiKit.t("DECKS_GUEST_USE" if guest else "DECKS_START")
 	browse_button.text = UiKit.t("DECKS_BROWSE")
 	manage_button.text = UiKit.t("DECKS_MANAGE")

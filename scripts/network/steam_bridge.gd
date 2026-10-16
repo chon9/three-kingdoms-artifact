@@ -42,10 +42,25 @@ signal connection_changed(info: Dictionary)
 ## Host: the bound guest sent its deck code (the controller validates it and
 ## replies with answer_deck). Coalesced: at most one per DECK_MIN_MS.
 signal deck_received(code: String)
-## Host: expect_deck's wait ended without a deck from the guest.
-signal deck_wait_expired
 ## Guest: the host's answer to our deck: {"ok": bool, "code": String, "args": Dictionary}.
 signal deck_answered(result: Dictionary)
+## Host: the lobby was created (the room opens with the guest's seat empty).
+signal lobby_hosted(lobby_id: int)
+## Host: the bound guest is ready (or not) for the next match. Coalesced: at
+## most one per READY_MIN_MS, the latest value wins.
+signal ready_received(ready: bool)
+## Guest: the host's room state (see sanitize_room).
+signal room_received(room: Dictionary)
+## Host: the bound guest left on purpose ("bye"); `concede` when it gave up
+## a running match by leaving.
+signal bye_received(concede: bool)
+## Host: the guest's seat is free again (it left between matches or after a
+## result): `code` is the status shown, `name` the guest who left.
+signal opponent_released(code: String, name: String)
+## A player's Steam name or avatar became available (see avatar()).
+signal profile_changed(steam_id: int)
+## Every poll in a lobby, with the clock (drives the room's countdown).
+signal ticked(now: int)
 
 const RulesVersion = preload("res://scripts/core/rules/rules_version.gd")
 const APP_ID = 480
@@ -59,9 +74,15 @@ const GAME_TAG = "sanguo_classic_revival"
 ## picks another deck) the guest sends {"kind": "deck", "code": <deck code>}
 ## (an ArtifactDeckCode, scripts/core/deck_code.gd); the host decodes and
 ## validates it and answers {"kind": "deck_result", "ok", "code", "args"}.
-## A new guest's first match starts once its deck arrived (or after
-## DECK_WAIT_MS). Match format 8.
-const PROTOCOL = 9
+## Match format 8.
+## 10: the room. A match starts only when both players are ready: the guest
+## sends {"kind": "ready", "ready": bool}; the host sends {"kind": "room",
+## "phase", "ready": [host, guest], "deck" (the guest's deck state),
+## "starting", "series", "serial"} whenever it changes (never a name, a deck
+## list or a hero). Leaving on purpose sends {"kind": "bye", "concede":
+## bool}: a guest leaving frees its seat for a new opponent (conceding a
+## running match), a host leaving ends the guest's session. Match format 8.
+const PROTOCOL = 10
 const CHANNEL = 71
 # Steam Networking Messages send flags (k_nSteamNetworkingSend_*).
 const SEND_RELIABLE = 8
@@ -107,6 +128,19 @@ const MAX_DECK_CODE_CHARS = 512
 const DECK_MIN_MS = 250
 ## Fields of a deck_result's args the guest keeps (all short ids or numbers).
 const DECK_RESULT_ARGS = ["card", "hero", "n", "id", "version"]
+## Host: ready packets are handled at most once per this many ms (the latest
+## one waiting meanwhile wins).
+const READY_MIN_MS = 250
+## Leaving on purpose: the lobby is left this long after the "bye" (and a
+## guest's concession), so Steam delivers them before the session closes.
+const LEAVE_LINGER_MS = 400
+## A room packet's phase and the guest's deck state as the host sees it.
+const ROOM_PHASES = ["room", "match", "result"]
+const ROOM_DECK_STATES = ["", "ok", "rejected", "missing"]
+const ROOM_KEYS = ["phase", "ready", "deck", "starting", "series", "serial"]
+## Avatar images accepted from Steam (square, 32/64/184 px in practice).
+const AVATAR_MIN = 16
+const AVATAR_MAX = 256
 const CONTENT_FILES = ["res://data/classic_cards.json", "res://data/locale/cards.json"]
 const REQUIRED = ["steamInitEx", "run_callbacks", "getSteamID", "getPersonaName", "createLobby",
 	"joinLobby", "leaveLobby", "setLobbyData", "getLobbyData", "getLobbyOwner", "getNumLobbyMembers",
@@ -117,7 +151,8 @@ const SIGNALS = {"lobby_created": "_lobby_created", "lobby_joined": "_lobby_join
 	"join_requested": "_join_requested", "join_game_requested": "_join_game_requested",
 	"network_messages_session_request": "_session_requested",
 	"network_messages_session_failed": "_session_failed", "steam_shutdown": "_steam_shutdown",
-	"lobby_kicked": "_lobby_kicked", "steam_server_disconnected": "_steam_server_disconnected"}
+	"lobby_kicked": "_lobby_kicked", "steam_server_disconnected": "_steam_server_disconnected",
+	"avatar_loaded": "_avatar_loaded", "persona_state_change": "_persona_changed"}
 
 var steam: Object
 var available = false
@@ -154,13 +189,27 @@ var _last_welcome: int = -HELLO_RETRY_MS
 var _last_resend: int = -RESEND_MS
 ## Host: refused SteamIDs -> time to close their session (0 once closed).
 var _refused: Dictionary = {}
+## Host: why each refused SteamID was turned away ("seat_taken" or
+## "version_mismatch"). A seat_taken refusal ends when the seat is freed;
+## any refusal ends when that player leaves the lobby (a later join is a
+## new attempt, answered again).
+var _refused_reason: Dictionary = {}
 ## Host: the last deck code the bound guest sent ("" until one arrives).
 var guest_deck_code: String = ""
 ## Host: a deck packet held back by DECK_MIN_MS, and when the last was handled.
 var _pending_deck: String = ""
 var _last_deck: int = -DECK_MIN_MS
-## Host: while >= 0, the clock time at which expect_deck's wait ends.
-var _deck_wait_until: int = -1
+## Host: a ready packet held back by READY_MIN_MS (-1 none, 0 false, 1 true),
+## and when the last was handled.
+var _pending_ready: int = -1
+var _last_ready: int = -READY_MIN_MS
+## Host: the room state last sent (sent again with a repeated welcome).
+var cached_room: Dictionary = {}
+## While >= 0, the clock time at which a graceful leave leaves the lobby.
+var _leave_at: int = -1
+## Avatar textures by "<steam id>:<m|l>", and ids whose avatar is loading.
+var _avatars: Dictionary = {}
+var _avatar_wait: Dictionary = {}
 
 func _ready() -> void:
 	content_hash = compute_content_hash()
@@ -228,6 +277,11 @@ func poll() -> void:
 		join_started.emit(launch_lobby)
 	if lobby_id == 0 or not available:
 		return
+	if _leave_at >= 0:
+		# Leaving: the bye is on its way; nothing else is read or sent.
+		if int(clock.call()) >= _leave_at:
+			leave_by_user()
+		return
 	for message in steam.call("receiveMessagesOnChannel", CHANNEL, 32):
 		var bytes = message.get("payload", PackedByteArray())
 		if not bytes is PackedByteArray or bytes.size() > MAX_PACKET_BYTES:
@@ -237,9 +291,12 @@ func poll() -> void:
 		var json = JSON.new()
 		if json.parse(bytes.get_string_from_utf8()) == OK and json.data is Dictionary:
 			_handle_packet(int(message.get("identity", 0)), json.data)
-		if lobby_id == 0:
+		if lobby_id == 0 or _leave_at >= 0:
 			return
-	_tick(int(clock.call()))
+	var now = int(clock.call())
+	_tick(now)
+	if lobby_id != 0:
+		ticked.emit(now)
 
 # --- Pure helpers (unit tested) ----------------------------------------------
 
@@ -386,12 +443,40 @@ func request_lobby_list() -> bool:
 func in_session() -> bool:
 	return lobby_id != 0 and handshake_done
 
+## True while we are in a lobby and not on our way out of it.
+func in_lobby() -> bool:
+	return lobby_id != 0 and _leave_at < 0
+
+## True during a graceful leave's linger.
+func leaving() -> bool:
+	return _leave_at >= 0
+
 ## The player chose to leave: leaves the lobby and says so.
 func leave_by_user() -> void:
 	var was_in_lobby = lobby_id != 0
 	leave_lobby()
 	if available and was_in_lobby:
 		_set_status("left_lobby", "You left the lobby.")
+
+## Tells the other side we leave on purpose: a "bye", after a guest's
+## concession when it gives up a running match.
+func send_bye(concede: bool = false) -> void:
+	if not available or lobby_id == 0 or not handshake_done or not opponent_present or peer_id == 0:
+		return
+	if concede and not is_host:
+		_send({"kind": "command", "command": {"type": "concede"}, "revision": 0}, false)
+	_send({"kind": "bye", "concede": concede}, false)
+
+## Leaves on purpose: the "bye" (see send_bye), then the lobby is left
+## LEAVE_LINGER_MS later so Steam can deliver it. Packets that arrive
+## meanwhile are ignored.
+func leave_gracefully(concede: bool = false) -> void:
+	if not available or lobby_id == 0:
+		leave_by_user()
+		return
+	send_bye(concede)
+	_leave_at = int(clock.call()) + LEAVE_LINGER_MS
+	_set_status("leaving_lobby", "Leaving the lobby…")
 
 func leave_lobby() -> void:
 	if available and lobby_id != 0:
@@ -400,13 +485,16 @@ func leave_lobby() -> void:
 		if available and remote != 0:
 			steam.call("closeSessionWithUser", remote)
 	_refused.clear()
+	_refused_reason.clear()
 	match_serial = 0
 	_last_welcome = -HELLO_RETRY_MS
 	_last_resend = -RESEND_MS
 	guest_deck_code = ""
 	_pending_deck = ""
 	_last_deck = -DECK_MIN_MS
-	_deck_wait_until = -1
+	_pending_ready = -1
+	_last_ready = -READY_MIN_MS
+	_leave_at = -1
 	if available and steam.has_method("clearRichPresence"):
 		steam.call("clearRichPresence")
 	lobby_id = 0
@@ -419,7 +507,43 @@ func leave_lobby() -> void:
 	ping_ms = -1
 	quality = -1.0
 	cached_match.clear()
+	cached_room.clear()
 	is_host = false
+
+## Host: the guest's seat is free again (it left on purpose, or left the
+## lobby while no match was running): its session closes, the lobby waits
+## for a player and any account may take the seat.
+func release_opponent(code: String = "opponent_left_lobby") -> void:
+	if not is_host or lobby_id == 0:
+		return
+	var name = _display_name() if peer_id != 0 else peer_name
+	if peer_id != 0 and available:
+		steam.call("closeSessionWithUser", peer_id)
+	# Players turned away because the seat was taken may take it now.
+	for refused_id in _refused.keys():
+		if str(_refused_reason.get(refused_id, "")) == "seat_taken":
+			_forget_refused(refused_id)
+	bound_opponent = 0
+	peer_id = 0
+	peer_name = ""
+	handshake_done = false
+	opponent_present = false
+	guest_deck_code = ""
+	_pending_deck = ""
+	_last_deck = -DECK_MIN_MS
+	_pending_ready = -1
+	_last_ready = -READY_MIN_MS
+	ping_ms = -1
+	quality = -1.0
+	cached_match.clear()
+	cached_room.clear()
+	if available:
+		steam.call("setLobbyData", lobby_id, "status", "waiting")
+		if steam.has_method("setLobbyMemberLimit"):
+			steam.call("setLobbyMemberLimit", lobby_id, LOBBY_MEMBERS)
+	_set_status(code, "%s left the lobby. Waiting for a new opponent." % name, {"name": name})
+	opponent_released.emit(code, name)
+	connection_changed.emit(connection_info())
 
 ## Ping, link quality and presence of the opponent:
 ## {"level": "good"|"fair"|"poor"|"lost"|"unknown", "ping": ms, "quality": 0..1 or -1}.
@@ -482,10 +606,47 @@ func answer_deck(result: Dictionary) -> void:
 				args[key] = raw_args[key]
 	_send({"kind": "deck_result", "ok": bool(result.get("ok", false)), "code": str(result.get("code", "")), "args": args}, false)
 
-## Host: waits `milliseconds` for the guest's deck; deck_wait_expired fires
-## if none arrives by then (a deck arriving ends the wait).
-func expect_deck(milliseconds: int) -> void:
-	_deck_wait_until = int(clock.call()) + maxi(0, milliseconds)
+## Guest: tells the host whether we are ready for the next match. False when
+## not connected to a host.
+func send_ready(value: bool) -> bool:
+	if is_host or not handshake_done or peer_id == 0 or _leave_at >= 0:
+		return false
+	return _send({"kind": "ready", "ready": value})
+
+## Host: sends the room state (see sanitize_room for its fields) and keeps it
+## for a repeated welcome.
+func send_room(room: Dictionary) -> void:
+	if not is_host:
+		return
+	cached_room = {"kind": "room"}
+	for key in ROOM_KEYS:
+		if room.has(key):
+			cached_room[key] = room[key]
+	if handshake_done and opponent_present and _leave_at < 0:
+		_send(cached_room, false)
+
+## A room packet's fields, type-checked (the host is trusted for the game,
+## but a guest never shows text or values the packet invents): {} when any
+## field is missing or of the wrong type; anything else is dropped.
+static func sanitize_room(packet: Dictionary) -> Dictionary:
+	var phase = packet.get("phase")
+	var ready = packet.get("ready")
+	var deck = packet.get("deck")
+	var starting = packet.get("starting")
+	var series = packet.get("series")
+	var serial = packet.get("serial")
+	if not (phase is String and phase in ROOM_PHASES):
+		return {}
+	if not (ready is Array and ready.size() == 2 and ready[0] is bool and ready[1] is bool):
+		return {}
+	if not (deck is String and deck in ROOM_DECK_STATES) or not starting is bool:
+		return {}
+	if not (series is Array and series.size() == 2 and series.all(func(value): return value is int and value >= 0 and value <= 999)):
+		return {}
+	if not (serial is int and serial >= 0):
+		return {}
+	return {"phase": phase, "ready": [ready[0], ready[1]], "deck": deck, "starting": starting,
+		"series": [series[0], series[1]], "serial": serial}
 
 ## Host: a deck packet from the bound guest, handled now or after DECK_MIN_MS.
 func _queue_deck(code: String, now: int) -> void:
@@ -497,9 +658,20 @@ func _queue_deck(code: String, now: int) -> void:
 func _take_deck(code: String, now: int) -> void:
 	_last_deck = now
 	_pending_deck = ""
-	_deck_wait_until = -1
 	guest_deck_code = code
 	deck_received.emit(code)
+
+## Host: a ready packet from the bound guest, handled now or after READY_MIN_MS.
+func _queue_ready(value: bool, now: int) -> void:
+	if now - _last_ready >= READY_MIN_MS:
+		_take_ready(value, now)
+	else:
+		_pending_ready = 1 if value else 0
+
+func _take_ready(value: bool, now: int) -> void:
+	_last_ready = now
+	_pending_ready = -1
+	ready_received.emit(value)
 
 func _send(packet: Dictionary, report: bool = true, target: int = -1) -> bool:
 	var remote = peer_id if target == -1 else target
@@ -540,6 +712,7 @@ func _lobby_created(result: int, created_id: int) -> void:
 	else:
 		# Friends-only lobbies never appear in the public lobby list.
 		_set_status("lobby_created_friends", "Lobby %d created. Invite a friend or share its ID." % lobby_id, {"lobby": str(lobby_id)})
+	lobby_hosted.emit(lobby_id)
 
 func _lobby_joined(joined_id: int, _permissions: int, _locked: bool, response: int) -> void:
 	if is_host:
@@ -569,15 +742,23 @@ func _lobby_joined(joined_id: int, _permissions: int, _locked: bool, response: i
 	_send_hello()
 
 func _lobby_changed(changed_lobby: int, changed_id: int, _actor_id: int, chat_state: int) -> void:
-	if changed_lobby != lobby_id or lobby_id == 0:
+	if changed_lobby != lobby_id or lobby_id == 0 or _leave_at >= 0:
 		return
 	# Our own removal arrives as lobby_kicked (we no longer get this callback).
 	var gone = chat_state & (CHAT_LEFT | CHAT_DISCONNECTED | CHAT_KICKED | CHAT_BANNED) != 0
 	if not gone:
 		return
 	if is_host:
-		if changed_id == bound_opponent and opponent_present:
-			_lose_opponent("disconnected" if chat_state & CHAT_DISCONNECTED != 0 else "left")
+		if _refused.has(changed_id):
+			# A refused player left: if they join again, they are answered again.
+			_forget_refused(changed_id)
+		if changed_id == bound_opponent and bound_opponent != 0:
+			var reason = "disconnected" if chat_state & CHAT_DISCONNECTED != 0 else "left"
+			if opponent_present:
+				_lose_opponent(reason)
+			else:
+				# Already silent (a timeout); now it is out of the lobby too.
+				opponent_lost.emit(reason)
 	elif changed_id == host_id:
 		_end_session("host_left")
 
@@ -710,6 +891,7 @@ func _handle_packet(sender: int, raw: Dictionary) -> void:
 			opponent_present = true
 			_last_ping = now
 			if first:
+				_request_profile(host_id)
 				_set_status("connected_to_host", "Connected to %s. You are Player 2." % peer_name, {"name": _display_name()})
 				opponent_ready.emit(rejoin)
 		"ping":
@@ -752,6 +934,21 @@ func _handle_packet(sender: int, raw: Dictionary) -> void:
 							args[key] = value
 				var result_code = packet.get("code")
 				deck_answered.emit({"ok": accepted, "code": result_code if result_code is String and result_code.length() <= 64 else "", "args": args})
+		"ready":
+			# Only the bound guest gets here (checked above).
+			var value = packet.get("ready")
+			if is_host and value is bool:
+				_queue_ready(value, now)
+		"room":
+			if not is_host and handshake_done:
+				var room = sanitize_room(packet)
+				if not room.is_empty():
+					room_received.emit(room)
+		"bye":
+			if is_host:
+				bye_received.emit(same(packet.get("concede"), true))
+			else:
+				_end_session("host_left")
 
 func _host_hello(sender: int, packet: Dictionary) -> void:
 	var name = _trusted_name(sender, str(packet.get("name", "")) if packet.get("name") is String else "")
@@ -771,14 +968,17 @@ func _host_hello(sender: int, packet: Dictionary) -> void:
 		if now - _last_welcome >= HELLO_RETRY_MS:
 			_last_welcome = now
 			_send({"kind": "welcome", "name": _local_name(), "rejoin": false})
+			_send(cached_room)
 			_send(cached_match)
 		return
 	var rejoin = bound_opponent == sender
 	if not rejoin:
-		# A new guest: the previous guest's deck is not theirs.
+		# A new guest: the previous guest's deck and readiness are not theirs.
 		guest_deck_code = ""
 		_pending_deck = ""
-		_deck_wait_until = -1
+		_pending_ready = -1
+		_last_ready = -READY_MIN_MS
+		cached_room.clear()
 	bound_opponent = sender
 	peer_id = sender
 	peer_name = name
@@ -788,6 +988,7 @@ func _host_hello(sender: int, packet: Dictionary) -> void:
 	_last_welcome = now
 	_send({"kind": "welcome", "name": _local_name(), "rejoin": rejoin})
 	_reserve_seat(false)
+	_request_profile(sender)
 	_set_status("opponent_connected", "Connected to %s." % name, {"name": _display_name()})
 	# The controller answers with a fresh snapshot (new match or resume).
 	opponent_ready.emit(rejoin)
@@ -800,6 +1001,14 @@ func _refuse(sender: int, reject: Dictionary) -> void:
 		return
 	_send(reject, false, sender)
 	_refused[sender] = int(clock.call()) + REFUSE_CLOSE_MS
+	_refused_reason[sender] = str(reject.get("reason", ""))
+
+## Host: `remote` is no longer refused (its session closes if still open).
+func _forget_refused(remote: int) -> void:
+	if int(_refused.get(remote, 0)) != 0 and available:
+		steam.call("closeSessionWithUser", remote)
+	_refused.erase(remote)
+	_refused_reason.erase(remote)
 
 ## Host: while the guest is away (reserved = true) the lobby shows
 ## "reconnecting" and has one spare slot so the guest can always get back in.
@@ -825,9 +1034,8 @@ func _tick(now: int) -> void:
 		return
 	if is_host and not _pending_deck.is_empty() and now - _last_deck >= DECK_MIN_MS:
 		_take_deck(_pending_deck, now)
-	if is_host and _deck_wait_until >= 0 and now >= _deck_wait_until:
-		_deck_wait_until = -1
-		deck_wait_expired.emit()
+	if is_host and _pending_ready != -1 and now - _last_ready >= READY_MIN_MS:
+		_take_ready(_pending_ready == 1, now)
 	if now - _last_ping >= HEARTBEAT_MS:
 		_last_ping = now
 		_send({"kind": "ping", "t": now}, false)
@@ -882,6 +1090,102 @@ func _is_member(steam_id: int) -> bool:
 
 func _local_name() -> String:
 	return str(steam.call("getPersonaName")) if available else ""
+
+## This player's Steam name, cleaned for display ("" without Steam).
+func local_name() -> String:
+	return clean_name(_local_name())
+
+## Asks Steam for a player's name and avatar when it does not have them yet
+## (profile_changed follows when they arrive).
+func _request_profile(steam_id: int) -> void:
+	if available and steam_id != 0 and steam.has_method("requestUserInformation"):
+		steam.call("requestUserInformation", steam_id, false)
+
+# --- Avatars --------------------------------------------------------------------------
+# Avatars come from Steam by SteamID on each client; they never travel in
+# packets. Images are size-checked before use.
+
+## The Steam avatar of `steam_id` (medium 64 px, or large 184 px), or null:
+## no Steam, no avatar set, or still loading (profile_changed fires once it
+## has loaded; ask again then).
+func avatar(steam_id: int, large: bool = false) -> Texture2D:
+	if not available or steam_id == 0:
+		return null
+	var key = "%d:%s" % [steam_id, "l" if large else "m"]
+	if _avatars.has(key):
+		return _avatars[key]
+	var method = "getLargeFriendAvatar" if large else "getMediumFriendAvatar"
+	if not steam.has_method(method):
+		return null
+	var handle = steam.call(method, steam_id)
+	if not handle is int:
+		return null
+	if handle > 0:
+		var texture = _texture_from(handle)
+		# A rejected image is remembered as none (until the profile changes).
+		_avatars[key] = texture
+		_avatar_wait.erase(steam_id)
+		return texture
+	if handle == -1:
+		# Steam is downloading it: avatar_loaded follows.
+		_avatar_wait[steam_id] = true
+	else:
+		_avatars[key] = null
+	return null
+
+## A texture from a Steam image handle, or null when the image is missing or
+## not a plausible avatar.
+func _texture_from(handle: int) -> Texture2D:
+	if not steam.has_method("getImageSize") or not steam.has_method("getImageRGBA"):
+		return null
+	var image_size = steam.call("getImageSize", handle)
+	if not image_size is Dictionary or not same(image_size.get("success"), true):
+		return null
+	var width = image_size.get("width")
+	var height = image_size.get("height")
+	if not (width is int and height is int) or width < AVATAR_MIN or width > AVATAR_MAX or height < AVATAR_MIN or height > AVATAR_MAX:
+		return null
+	var rgba = steam.call("getImageRGBA", handle)
+	if not rgba is Dictionary or not same(rgba.get("success"), true):
+		return null
+	return _avatar_texture(width, height, rgba.get("buffer"))
+
+static func _avatar_texture(width: int, height: int, buffer) -> Texture2D:
+	if not buffer is PackedByteArray or buffer.size() != width * height * 4:
+		return null
+	var image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, buffer)
+	if image == null or image.is_empty():
+		return null
+	return ImageTexture.create_from_image(image)
+
+## Steam finished loading an avatar we asked for (AvatarImageLoaded_t): only
+## for ids we wait for that are us, the opponent or a lobby member.
+func _avatar_loaded(avatar_id: int, image_width: int, data: PackedByteArray) -> void:
+	if not _avatar_wait.has(avatar_id):
+		return
+	if avatar_id != local_id and avatar_id != peer_id and not _is_member(avatar_id):
+		return
+	if image_width < AVATAR_MIN or image_width > AVATAR_MAX:
+		return
+	var texture = _avatar_texture(image_width, image_width, data)
+	if texture == null:
+		return
+	_avatar_wait.erase(avatar_id)
+	_avatars["%d:%s" % [avatar_id, "l" if image_width > 100 else "m"]] = texture
+	profile_changed.emit(avatar_id)
+
+## A player's Steam profile changed (name or avatar now known).
+func _persona_changed(steam_id: int, _flags: int) -> void:
+	if steam_id == 0:
+		return
+	if steam_id == peer_id:
+		peer_name = _trusted_name(peer_id, peer_name)
+	if steam_id == peer_id or steam_id == local_id or _avatar_wait.has(steam_id):
+		# Forget a cached miss so the next avatar() asks Steam again.
+		for key in _avatars.keys():
+			if str(key).begins_with("%d:" % steam_id) and _avatars[key] == null:
+				_avatars.erase(key)
+		profile_changed.emit(steam_id)
 
 ## The name Steam knows for `steam_id` (persona names of lobby members are
 ## always available); the self-reported `claimed` name only as a fallback.

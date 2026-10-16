@@ -1,23 +1,31 @@
 extends "res://scripts/ui/modal_panel.gd"
 ## Settings: language (applied live), card theme, animation speed, volume
-## and fullscreen. Choices persist in user://settings.cfg.
+## and mute, the your-action alert (chime and banner), the taskbar flash, the
+## card history strip, the match intro and fullscreen. Choices persist in
+## user://settings.cfg.
 
 signal setting_changed(kind: String)
 
 const Settings = preload("res://scripts/core/game_settings.gd")
+## The on/off settings, shown two per row, and their captions.
+const TOGGLES = ["fullscreen", "mute", "turn_alert", "flash_window", "show_history", "match_intro"]
+const TOGGLE_KEYS = {"fullscreen": "SETTINGS_FULLSCREEN", "mute": "SETTINGS_MUTE", "turn_alert": "SETTINGS_TURN_ALERT",
+	"flash_window": "SETTINGS_FLASH_WINDOW", "show_history": "SETTINGS_HISTORY", "match_intro": "SETTINGS_MATCH_INTRO"}
 
 var language_buttons: Dictionary = {}
 var skin_buttons: Dictionary = {}
 var speed_buttons: Dictionary = {}
 var volume_slider: HSlider
 var fullscreen_toggle: CheckButton
+## Every toggle by name (TOGGLES), the fullscreen one included.
+var toggles: Dictionary = {}
 var captions: Dictionary = {}
 var skin_hint: Label
 
 func _init() -> void:
 	super()
 	title_key = "SETTINGS_TITLE"
-	panel_size = Vector2(700, 520)
+	panel_size = Vector2(760, 640)
 
 func build() -> void:
 	captions.language = _row_caption()
@@ -58,13 +66,55 @@ func build() -> void:
 		Settings.set_volume(value)
 		setting_changed.emit("volume"))
 	body.add_child(volume_slider)
-	fullscreen_toggle = CheckButton.new()
-	fullscreen_toggle.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	fullscreen_toggle.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
-	fullscreen_toggle.toggled.connect(func(enabled):
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if enabled else DisplayServer.WINDOW_MODE_WINDOWED)
-		setting_changed.emit("fullscreen"))
-	body.add_child(fullscreen_toggle)
+	var grid = GridContainer.new()
+	grid.name = "Toggles"
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 24)
+	grid.add_theme_constant_override("v_separation", 4)
+	body.add_child(grid)
+	for toggle_name in TOGGLES:
+		var toggle = CheckButton.new()
+		toggle.name = toggle_name.capitalize().replace(" ", "")
+		toggle.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		toggle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		toggle.button_pressed = _value(toggle_name)
+		toggle.toggled.connect(_on_toggled.bind(toggle_name))
+		grid.add_child(toggle)
+		toggles[toggle_name] = toggle
+	fullscreen_toggle = toggles.fullscreen
+
+## The current value of toggle `toggle_name`.
+func _value(toggle_name: String) -> bool:
+	match toggle_name:
+		"fullscreen":
+			return DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+		"mute":
+			return Settings.muted
+		"turn_alert":
+			return Settings.turn_alert
+		"flash_window":
+			return Settings.flash_window
+		"show_history":
+			return Settings.show_history
+		"match_intro":
+			return Settings.match_intro
+	return false
+
+func _on_toggled(enabled: bool, toggle_name: String) -> void:
+	match toggle_name:
+		"fullscreen":
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if enabled else DisplayServer.WINDOW_MODE_WINDOWED)
+		"mute":
+			Settings.set_muted(enabled)
+		"turn_alert":
+			Settings.set_turn_alert(enabled)
+		"flash_window":
+			Settings.set_flash_window(enabled)
+		"show_history":
+			Settings.set_show_history(enabled)
+		"match_intro":
+			Settings.set_match_intro(enabled)
+	setting_changed.emit(toggle_name)
 
 func _row() -> HBoxContainer:
 	var row = HBoxContainer.new()
@@ -84,7 +134,9 @@ func refresh_text() -> void:
 	captions.speed.text = UiKit.t("SETTINGS_ANIMATION_SPEED")
 	captions.volume.text = UiKit.t("SETTINGS_VOLUME")
 	skin_hint.text = UiKit.t("SETTINGS_SKIN_HINT")
-	fullscreen_toggle.text = UiKit.t("SETTINGS_FULLSCREEN")
+	for toggle_name in toggles:
+		toggles[toggle_name].text = UiKit.t(TOGGLE_KEYS[toggle_name])
+		toggles[toggle_name].set_pressed_no_signal(_value(toggle_name))
 	for locale in language_buttons:
 		language_buttons[locale].text = UiKit.t("LANG_" + locale.to_upper())
 		language_buttons[locale].button_pressed = Settings.locale == locale

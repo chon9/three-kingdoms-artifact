@@ -142,7 +142,6 @@ HOTSEAT_PASS_HINT,The other player should look away. Hands stay hidden until you
 HOTSEAT_CONTINUE,I am {player}: continue,我是{player}，继续
 HINT_NEW_MATCH,New match · Seed {seed}. Play a card or pass.,新对局 · 种子 {seed}。打出一张牌或按兵不动。
 HINT_HOST_ONLY,Only the lobby host can start a new match.,只有房主可以开始新对局。
-HINT_CONNECTED_GUEST,Connected to host. You are Player 2.,已连接房主。你是玩家2。
 CARD_DETAILS,Card details,卡牌详情
 CARD_COST,{n} mana,{n}军令
 CARD_PRICE,{n} gold,{n}金
@@ -250,7 +249,7 @@ DECK_HIDDEN,Opponent's deck,对手牌组
 DECK_UNNAMED,Unnamed deck,未命名牌组
 DECK_ONLINE_WAITING,Waiting for your opponent's deck…,正在等待对手的牌组……
 DECK_ONLINE_ACCEPTED,The host accepted your deck.,房主已接受你的牌组。
-DECK_ONLINE_REJECTED,The host cannot use your deck: {reason} You play a preset deck until you choose a legal one.,房主无法使用你的牌组：{reason}在你选择合规牌组之前，将使用预设牌组。
+DECK_ONLINE_REJECTED,The host cannot use your deck: {reason} Choose a legal deck to get ready.,房主无法使用你的牌组：{reason}请选择合规牌组后再准备。
 DECK_ONLINE_PENDING,Sent to the host…,已发送给房主……
 DECKLIST_TITLE,Decks,牌组
 DECKLIST_MINE,My decks,我的牌组
@@ -371,7 +370,7 @@ STEAM_INCOMPATIBLE_LOBBY,This lobby belongs to another game.,该房间属于其�
 STEAM_RESERVED_OPPONENT,Another player tried to take your opponent's seat and was turned away. Only the original opponent can rejoin this match.,有其他玩家试图占用对手的席位，已被拒绝。本局只有原对手可以重新加入。
 STEAM_WAITING_OPPONENT,Lobby {lobby}: waiting for your opponent.,房间 {lobby}：等待对手加入。
 STEAM_HOST_UNAVAILABLE,The host is unavailable.,房主无法连接。
-STEAM_OPPONENT_CONNECTED,Connected to {name}. The match begins.,已连接{name}，对局开始。
+STEAM_OPPONENT_CONNECTED,Connected to {name}. Get ready to start.,已连接{name}。双方准备后即可开始。
 STEAM_HOST_PUBLIC,Host public lobby,创建公开房间
 STEAM_DISABLED,Steam is turned off for this run (headless or --no-steam). Offline play is available.,本次运行未启用 Steam（无界面模式或 --no-steam）。可进行离线对战。
 STEAM_JOINED_LOBBY,Joined lobby {lobby}. Contacting the host…,已加入房间 {lobby}，正在联系房主……
@@ -655,3 +654,80 @@ BADGE_CHARGES,{n} charges.,{n}层充能。
 BADGE_CHARGES_ONE,1 charge.,1层充能。
 BADGE_HACKED,Changed: it has extra effects when played.,已篡改：打出时附带额外效果。
 BADGE_ARMOR,Armor {n}: reduces the damage it takes.,护甲{n}：减少受到的伤害。
+HUD_OPPONENT_PASSED,Opponent passed: passing now starts combat,敌方已按兵不动：你再按兵不动即开始交战
+HUD_PASSED_TOAST,Opponent passed,敌方按兵不动
+HINT_MUTED,Sound off (M),已静音（M）
+HINT_UNMUTED,Sound on (M),已开启声音（M）
+SETTINGS_MUTE,Mute,静音
+SETTINGS_TURN_ALERT,Your-action alert,轮到我方时提示
+SETTINGS_FLASH_WINDOW,Flash taskbar on your action,轮到我方时闪烁任务栏
+SETTINGS_HISTORY,Show card history,显示出牌记录
+SETTINGS_MATCH_INTRO,Show match intro,显示开场对决画面
+HISTORY_EMPTY,No cards played yet.,尚未出牌。
+HISTORY_ROUND,R{n},第{n}回合
+HISTORY_MORE,+{n},+{n}
+HISTORY_MORE_LINES,…and {n} more,……另有{n}条
+HISTORY_BUY_HIDDEN,{player} bought {n} items for {gold} gold.,{player}花费{gold}金购买了{n}件军备。
+HISTORY_BOUGHT_ITEM,Bought: {card}.,购入：{card}。
+HISTORY_FOOTER,{lane} · {round},{lane} · {round}
+HISTORY_OPEN_LOG,Full log (L),完整战报（L）
+RESULT_REMATCH,Rematch,再战
+RESULT_BACK_TO_ROOM,Back to room,返回房间
+RESULT_CHANGE_DECK,Change deck,更换牌组
+RESULT_FIND_LOBBY,Find a lobby,寻找房间
+RESULT_SHOW,Result,结算
+RESULT_OPPONENT_LEFT,{name} left the room.,{name}已离开房间。
+RESULT_NEW_OPPONENT,{name} joined the room. Go back to the room for a new match.,{name}加入了房间。回到房间开始新的对局。
+RESULT_OPPONENT_WANTS_REMATCH,{name} wants a rematch.,{name}想要再战。
+RESULT_REMATCH_WAITING,Waiting for {name}…,等待{name}……
+MENU_LEAVE_LOBBY,Leave room,离开房间
+LEAVE_CONFIRM_TITLE,Leave the room?,离开房间？
+LEAVE_CONFIRM_BODY_MATCH,The match is still running. Leaving concedes it and your opponent wins.,对局仍在进行。离开将视为认输，对手获胜。
+LEAVE_CONFIRM_BODY,Leave the room? A rematch will no longer be possible.,离开房间后将无法再战。
+LEAVE_CONFIRM_CONCEDE,Concede and leave,认输并离开
+ROOM_TITLE,Room · {type},房间 · {type}
+ROOM_TYPE_FRIENDS,Friends only,仅限好友
+ROOM_TYPE_PUBLIC,Public,公开
+ROOM_HOST_SEAT,Host · Seat 1,房主 · 1号位
+ROOM_GUEST_SEAT,Guest · Seat 2,客方 · 2号位
+ROOM_YOU_TAG,(You),（你）
+ROOM_CONNECTED,Connected,已连接
+ROOM_LINK_LOST,Connection lost,连接中断
+ROOM_DECK_CAPTION,Deck,牌组
+ROOM_DECK_CHOOSING,Choosing a deck…,正在选择牌组……
+ROOM_DECK_CHOSEN,Deck chosen,已选好牌组
+ROOM_DECK_REJECTED,"Deck rejected, choosing again",牌组未通过，正在重新选择
+ROOM_DECK_MISSING,No deck sent,未发送牌组
+ROOM_DECK_PRIVATE,Decks stay private; the heroes are revealed when the match starts.,牌组保密，开局时公开双方武将。
+ROOM_DECK_ACCEPTED,Accepted by the host,房主已接受
+ROOM_READY,Ready,已准备
+ROOM_NOT_READY,Not ready,未准备
+ROOM_BTN_READY,Ready,准备
+ROOM_BTN_UNREADY,Cancel ready,取消准备
+ROOM_BTN_LEAVE,Leave room,离开房间
+ROOM_WAITING_SEAT,Waiting for an opponent…,等待对手加入……
+ROOM_EMPTY_HINT_FRIENDS,"Friends-only room: invite a Steam friend, or share the lobby ID.",好友房间：邀请 Steam 好友，或发送房间号。
+ROOM_EMPTY_HINT_PUBLIC,Public room: players find it in the lobby browser. You can also invite a friend.,公开房间：其他玩家可在房间列表中找到它，也可邀请好友。
+ROOM_WAITING_OPPONENT,Waiting for an opponent to join…,等待对手加入……
+ROOM_OPPONENT_NOT_RESPONDING,{name} is not responding…,{name}没有回应……
+ROOM_MATCH_RUNNING,A match is in progress.,对局进行中。
+ROOM_WAIT_YOU,Waiting for you to get ready.,等待你准备。
+ROOM_WAIT_OPPONENT,Waiting for {name} to get ready.,等待{name}准备。
+ROOM_READY_NEEDS_DECK,Your deck must be accepted by the host first.,牌组需先通过房主确认。
+ROOM_STARTING,Both ready. Starting in {n}…,双方已准备，{n}秒后开始……
+ROOM_OPPONENT_LEFT,{name} left the room.,{name}离开了房间。
+ROOM_WANTS_REMATCH,Wants a rematch,想要再战
+ROOM_SERIES,Series: {a} {x} – {y} {b},本房战绩：{a} {x} – {y} {b}
+ROOM_ID_COPIED,Lobby ID copied.,房间号已复制。
+ROOM_NOT_IN_LOBBY,You are not in a room.,你不在房间中。
+ROOM_OPPONENT_AWAY,Your opponent is not connected.,对手未连接。
+STEAM_OPEN_ROOM,Open room,进入房间
+STEAM_LEAVING_LOBBY,Leaving the lobby…,正在离开房间……
+STEAM_OPPONENT_LEFT_LOBBY,{name} left the lobby. Waiting for a new opponent.,{name}已离开房间，正在等待新对手。
+STEAM_OPPONENT_CONCEDED_LEFT,{name} conceded and left the lobby.,{name}认输并离开了房间。
+VERSUS_SEAL,VS,对决
+VERSUS_CONTINUE,Click to continue,点击继续
+VERSUS_OPPONENT,Opponent,对手
+VERSUS_YOU,You,我方
+ROOM_TITLE_GUEST,{name}'s room,{name}的房间
+DECKS_HOST_NOTE,Your opponent's screen shows only your heroes. A deck chosen during a match is used from the next one.,对手画面只显示你的武将。对局中选择的牌组将从下一局开始使用。

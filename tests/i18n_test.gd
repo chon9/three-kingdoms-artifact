@@ -89,7 +89,8 @@ func _ui_keys() -> void:
 		_check(rows.has("ERR_" + code.to_upper()), "Error code %s has a translation" % code)
 	# Every status the Steam bridge can set needs a translation.
 	var bridge_source = FileAccess.get_file_as_string("res://scripts/network/steam_bridge.gd")
-	var codes: Array = ["opponent_left", "opponent_disconnected", "opponent_timeout", "not_installed"]
+	var codes: Array = ["opponent_left", "opponent_disconnected", "opponent_timeout", "not_installed",
+		"opponent_left_lobby", "opponent_conceded_left"]
 	for found in RegEx.create_from_string("(?:_set_status|_end_session)[(]\"(\\w+)\"").search_all(bridge_source):
 		codes.append(found.get_string(1))
 	_check(codes.size() > 25, "Found the Steam status codes (%d)" % codes.size())
@@ -214,13 +215,35 @@ func _settings() -> void:
 	_check(Settings.default_locale() in LOCALES, "OS default locale is supported")
 	Settings.locale = "zh_CN"
 	Settings.skin = "classic"
+	# The v0.6.1 options, each away from its default.
+	Settings.muted = true
+	Settings.turn_alert = false
+	Settings.flash_window = false
+	Settings.show_history = false
+	Settings.match_intro = false
 	_check(Settings.save_settings(path) == OK, "Settings save")
 	Settings.locale = "en"
 	Settings.skin = "three_kingdoms"
+	Settings.muted = false
+	Settings.turn_alert = true
+	Settings.flash_window = true
+	Settings.show_history = true
+	Settings.match_intro = true
 	Settings.load_settings(path)
 	_check(Settings.locale == "zh_CN" and Settings.skin == "classic" and Settings.normalize_locale(TranslationServer.get_locale()) == "zh_CN", "Settings load and apply")
+	_check(Settings.muted and not Settings.turn_alert and not Settings.flash_window and not Settings.show_history and not Settings.match_intro
+		and Settings.effective_volume() == 0.0, "Mute, the your-action alert, the taskbar flash, the card history and the match intro persist")
+	var config = ConfigFile.new()
+	config.load(path)
+	config.set_value("audio", "muted", "yes")
+	config.set_value("display", "match_intro", 0)
+	config.save(path)
+	Settings.load_settings(path)
+	_check(not Settings.muted and Settings.match_intro, "A setting of the wrong type falls back to its default")
 	Settings.load_settings("user://missing_settings_file.cfg")
 	_check(Settings.skin == Settings.DEFAULT_SKIN and Settings.locale == Settings.default_locale(), "Missing settings fall back to defaults")
+	_check(not Settings.muted and Settings.turn_alert and Settings.flash_window and Settings.show_history and Settings.match_intro,
+		"The new options default to on (sound unmuted)")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 func _play_match(seed_value: int) -> Dictionary:

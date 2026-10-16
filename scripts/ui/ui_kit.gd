@@ -399,6 +399,8 @@ static func draw_text(canvas: CanvasItem, font: Font, text: String, center: Vect
 	if text.is_empty():
 		return
 	var fitted = fit_size(font, text, max_width, size, maxi(8, int(size * 0.55))) if max_width > 0.0 else size
+	if max_width > 0.0:
+		text = elide(font, text, max_width, fitted)
 	var width = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fitted).x
 	var position = Vector2(center.x - width * 0.5, baseline(font, center.y, fitted))
 	if outline > 0:
@@ -409,10 +411,32 @@ static func draw_text(canvas: CanvasItem, font: Font, text: String, center: Vect
 static func draw_text_left(canvas: CanvasItem, font: Font, text: String, left_center: Vector2, size: int,
 		color: Color, max_width: float = -1.0, outline: int = 0) -> void:
 	var fitted = fit_size(font, text, max_width, size, maxi(8, int(size * 0.55))) if max_width > 0.0 else size
+	if max_width > 0.0:
+		text = elide(font, text, max_width, fitted)
 	var position = Vector2(left_center.x, baseline(font, left_center.y, fitted))
 	if outline > 0:
 		canvas.draw_string_outline(font, position, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fitted, outline, Color(0, 0, 0, 0.85))
 	canvas.draw_string(font, position, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fitted, color)
+
+## `text` cut to `max_width` at font `size` with an ellipsis at the end, or
+## unchanged when it fits (a 32-character Steam name in a name plate). Never
+## wider than `max_width` ("" when not even the ellipsis fits).
+static func elide(font: Font, text: String, max_width: float, size: int) -> String:
+	if font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x <= max_width:
+		return text
+	var dots = "…" if font.has_char(0x2026) else "..."
+	if font.get_string_size(dots, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > max_width:
+		return ""
+	# The longest prefix that fits with the ellipsis (binary search).
+	var low = 0
+	var high = text.length()
+	while low < high:
+		var middle = (low + high + 1) >> 1
+		if font.get_string_size(text.left(middle).strip_edges(false, true) + dots, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x <= max_width:
+			low = middle
+		else:
+			high = middle - 1
+	return text.left(low).strip_edges(false, true) + dots
 
 ## Largest font size (down to `min_size`) at which `text` fits `max_width`.
 static func fit_size(font: Font, text: String, max_width: float, size: int, min_size: int) -> int:

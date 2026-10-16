@@ -104,6 +104,13 @@ func banner(text: String, color: Color = UiKit.GOLD_BRIGHT, hold: float = 0.6, f
 	tween.tween_property(strip, "modulate:a", 0.0, AnimationQueue.duration(0.3))
 	tween.tween_callback(strip.queue_free)
 
+## True while a banner is on screen.
+func banners_showing() -> bool:
+	for child in get_children():
+		if child is Banner and not child.is_queued_for_deletion():
+			return true
+	return false
+
 ## Shakes a control around its current position.
 func shake(target: Control, strength: float = 10.0, time: float = 0.35) -> void:
 	if AnimationQueue.instant or target == null:

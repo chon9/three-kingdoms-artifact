@@ -1,10 +1,15 @@
 extends "res://scripts/ui/modal_panel.gd"
 ## Steam lobbies (development App ID 480, Spacewar): host a friends-only or
 ## public lobby, join by pasted ID or "+connect_lobby" link, browse public
-## lobbies of this game, invite friends, copy the ID or leave. Without a
+## lobbies of this game, invite friends, copy the ID or leave. Once in a
+## lobby the room screen takes over (Open room returns to it). Without a
 ## working Steam client it explains why; offline play needs nothing extra.
 
 signal deck_change_requested
+## In a lobby: show the room screen.
+signal room_requested
+## Leaving would concede a running match: the caller asks first.
+signal leave_requested
 
 var controller: Node
 var status_label: Label
@@ -20,6 +25,7 @@ var lobby_input: LineEdit
 var join_button: Button
 var lobby_label: Label
 var lobby_row: HBoxContainer
+var room_button: Button
 var invite_button: Button
 var copy_button: Button
 var leave_button: Button
@@ -80,14 +86,22 @@ func build() -> void:
 	lobby_label = label(body, "", 16, UiKit.GOLD)
 	lobby_row = HBoxContainer.new()
 	body.add_child(lobby_row)
+	room_button = button(lobby_row, "")
+	room_button.name = "OpenRoom"
+	room_button.pressed.connect(func(): room_requested.emit())
 	invite_button = button(lobby_row, "")
 	invite_button.pressed.connect(func(): bridge.invite_friends())
 	copy_button = button(lobby_row, "")
 	copy_button.pressed.connect(func(): DisplayServer.clipboard_set(str(bridge.lobby_id)))
 	leave_button = button(lobby_row, "")
+	leave_button.name = "Leave"
 	leave_button.pressed.connect(func():
-		controller.leave_online()
-		refresh_text())
+		if controller.online_match_running():
+			leave_requested.emit()
+			return
+		controller.leave_online(false)
+		if is_inside_tree():
+			refresh_text())
 	body.add_child(HSeparator.new())
 	var browser_row = HBoxContainer.new()
 	body.add_child(browser_row)
@@ -149,6 +163,7 @@ func refresh_text() -> void:
 	host_button.text = UiKit.t("STEAM_HOST")
 	host_public_button.text = UiKit.t("STEAM_HOST_PUBLIC")
 	join_button.text = UiKit.t("STEAM_JOIN")
+	room_button.text = UiKit.t("STEAM_OPEN_ROOM")
 	invite_button.text = UiKit.t("STEAM_INVITE")
 	copy_button.text = UiKit.t("STEAM_COPY_ID")
 	leave_button.text = UiKit.t("STEAM_LEAVE")

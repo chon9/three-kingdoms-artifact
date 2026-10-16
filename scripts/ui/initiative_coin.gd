@@ -15,6 +15,8 @@ const SUB_HEIGHT = 38.0
 ## Bottom of the lowest caption line (coin centre, plate, hint): the parent
 ## keeps whatever sits below the coin clear of it.
 const CAPTION_BOTTOM = RADIUS + 14.0 + RADIUS + 26.0 + 19.0 + SUB_HEIGHT
+## Seconds one action ring takes to spread and fade.
+const RING_LIFE = 0.9
 
 var lit: bool = false
 var enabled: bool = false
@@ -27,6 +29,9 @@ var _spin: float = 0.0
 var _press: float = 0.0
 var _sub_text: TextParagraph
 var _sub_key: String = ""
+## Ages in seconds of the rings that spread from the coin when it becomes
+## your action (a negative age has not started yet).
+var _rings: Array = []
 
 func _init() -> void:
 	size = Vector2(190, 200)
@@ -45,11 +50,26 @@ func set_state(is_lit: bool, is_enabled: bool, caption_text: String, sub_text: S
 func center() -> Vector2:
 	return Vector2(size.x * 0.5, RADIUS + 14.0)
 
+## Three gold rings spread from the coin, 0.3 s apart: it is your action.
+func pulse() -> void:
+	_rings = [0.0, -0.3, -0.6]
+	queue_redraw()
+
+## True while the action rings are spreading.
+func pulsing() -> bool:
+	return not _rings.is_empty()
+
 func _process(delta: float) -> void:
 	_spin = fmod(_spin + delta * (0.9 if lit else 0.2), TAU)
 	if _press > 0.0:
 		_press = maxf(0.0, _press - delta * 4.0)
-	if lit or _press > 0.0:
+	if not _rings.is_empty():
+		var aged: Array = []
+		for age in _rings:
+			if age + delta < RING_LIFE:
+				aged.append(age + delta)
+		_rings = aged
+	if lit or _press > 0.0 or not _rings.is_empty():
 		queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
@@ -67,6 +87,12 @@ func _draw() -> void:
 	draw_circle(c, RADIUS + 12.0, Color(0.22, 0.21, 0.2))
 	draw_arc(c, RADIUS + 12.0, 0.0, TAU, 64, Color(0.48, 0.45, 0.4), 2.0, true)
 	draw_circle(c, RADIUS + 5.0, Color(0.07, 0.07, 0.08))
+	for age in _rings:
+		if age < 0.0:
+			continue
+		var t = age / RING_LIFE
+		var ring_color = Color(UiKit.GOLD_BRIGHT, (1.0 - t) * 0.8)
+		draw_arc(c, RADIUS + 12.0 + t * 46.0, 0.0, TAU, 72, ring_color, 3.0 + 3.0 * (1.0 - t), true)
 	if lit:
 		var light = UiKit.particle("light_01")
 		for ring in range(3):

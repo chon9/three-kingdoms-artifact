@@ -20,7 +20,11 @@ extends SceneTree
 ## dragged onto a round slot, slots swapped, copies added to the limit and
 ## removed with "-" and by dragging rows and heroes back), filters, inspect,
 ## code import (bad and good) and export, both sizes and languages, saving,
-## and playing the saved deck against the AI; the guest's deck picker.
+## and playing the saved deck against the AI; the guest's deck picker. For
+## v0.6.1: hand cards repainted when they stop being playable, the
+## your-action cue (exactly when the action becomes yours), the card history
+## (tiles, privacy, placement, the log at a tile), the result's buttons
+## offline and online, the online room and the match intro.
 ## Every check exits with code 1 on failure; a watchdog also exits with code 1
 ## if a script error stops the coroutine before it can finish.
 
@@ -41,6 +45,10 @@ const DeckListDialog = preload("res://scripts/ui/deck_list_dialog.gd")
 const DeckBuilderDialog = preload("res://scripts/ui/deck_builder_dialog.gd")
 const DecksDialog = preload("res://scripts/ui/decks_dialog.gd")
 const CatalogDialog = preload("res://scripts/ui/catalog_dialog.gd")
+const MatchScreen = preload("res://scripts/ui/match_screen.gd")
+const HistoryRail = preload("res://scripts/ui/history_rail.gd")
+const VersusIntro = preload("res://scripts/ui/versus_intro.gd")
+const GameOverOverlay = preload("res://scripts/ui/game_over_overlay.gd")
 ## The test's own deck folder (never the player's user://decks).
 const UI_DECKS = "res://.tools/scratch/ui_smoke_decks"
 ## Valve's README example code (Green/Black).
@@ -52,6 +60,8 @@ var checks = 0
 var errors = ErrorCatcher.new()
 ## The player's own settings file, restored on exit (dialogs persist choices).
 var saved_settings = null
+## What each tracked card last painted: [playable, dimmed, selected, hovered].
+var painted: Dictionary = {}
 
 ## Records engine and script errors so the run fails on any of them.
 class ErrorCatcher:
@@ -756,13 +766,29 @@ func _run() -> void:
 		return
 	if not await _check_m7_ui():
 		return
+	if not await _check_hand_repaint():
+		return
+	if not await _check_turn_cue():
+		return
+	if not await _check_history():
+		return
+	if not await _check_result_flows():
+		return
+	if not await _check_room_screen():
+		return
+	if not await _check_versus_intro():
+		return
+	if not await _check_long_names():
+		return
+	if not await _check_host_left_result():
+		return
 	app.show_main_menu()
 	if not _require(app.menu.visible and app.menu.buttons.resume.visible, "The main menu offers to resume the match"):
 		return
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog), and the deck builder (deck list, click and drag edits, locked signature cards, round slots, filters, code import and export, saving, playing a saved deck against the AI, the guest's deck picker)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog), and the deck builder (deck list, click and drag edits, locked signature cards, round slots, filters, code import and export, saving, playing a saved deck against the AI, the guest's deck picker), and v0.6.1 (hand repaint, your-action cue, card history, result buttons, the room, the match intro)." % checks)
 	app.queue_free()
 	await process_frame
 	_clear_decks()
@@ -1818,7 +1844,7 @@ func _check_deck_builder() -> bool:
 			"The match names your deck"):
 		return false
 	# The guest's picker: one column, it sets this player's deck.
-	var picker = app.open_decks(true)
+	var picker = app.open_decks("steam")
 	await process_frame
 	if not _require(picker.guest and picker.selectors.size() == 1 and picker.panel.get_global_rect().end.y <= 900.0, "The guest's deck picker has one column"):
 		return false
@@ -2018,3 +2044,886 @@ func _check_collection_contents(builder) -> bool:
 	if not _require("lich" in ids and "kanna" in ids and "enough_magic" in ids, "The collection offers Lich, Kanna and Enough Magic!"):
 		return false
 	return _require(ids.all(func(card_id): return library.deckable(card_id)), "Every collection card can enter a deck")
+
+# --- v0.6.1: the hand repaints, the your-action cue, card history, the result's buttons,
+# the online room and the match intro ------------------------------------------------------
+
+func _frames(count: int = 3) -> void:
+	for index in range(count):
+		await process_frame
+
+## Records each card's look when it paints (its draw signal).
+func _track_paint(cards: Array) -> void:
+	for card in cards:
+		if card.has_meta("paint_tracked"):
+			continue
+		card.set_meta("paint_tracked", true)
+		var key = card.get_instance_id()
+		card.draw.connect(func(): painted[key] = [card.playable, card.dimmed, card.selected, card.hovered])
+
+## The cards whose last painted look differs from their state (stale paint).
+func _stale_paint(cards: Array) -> Array:
+	var stale: Array = []
+	for card in cards:
+		if painted.get(card.get_instance_id(), []) != [card.playable, card.dimmed, card.selected, card.hovered]:
+			stale.append(str(card.card_id))
+	return stale
+
+## Issue 2: a hand card that stops (or starts) being playable is repainted:
+## when the opponent gets the action, when the active lane moves to a lane
+## without a hero of its colour, and a shop offer a purchase made
+## unaffordable. Looking at another lane changes nothing.
+func _check_hand_repaint() -> bool:
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	var engine = _engine()
+	var debbi: Dictionary = {}
+	for hero in engine.state.players[0].roster:
+		if str(hero.card) == "debbi":
+			debbi = hero
+	for lane_index in range(3):
+		for unit in engine.state.lanes[lane_index].units[0].duplicate():
+			if unit != null:
+				engine._remove_from_lane(unit)
+		engine.state.lanes[lane_index].mana[0] = 10
+	debbi.health = 5
+	engine._spawn(debbi, 0)
+	var hand_cards = ["short_sword", "hip_fire", "untested_grunt"]
+	_act_in_lane_zero(hand_cards)
+	await _settle()
+	_track_paint(screen.hand.cards)
+	for card in screen.hand.cards:
+		card.queue_redraw()
+	await _frames()
+	if not _require(screen.hand.cards.size() == 3 and screen.hand.cards.all(func(card): return card.playable) and _stale_paint(screen.hand.cards).is_empty(),
+			"With Debbi in the active lane the three cards glow"):
+		return false
+	screen.view_lane(1)
+	await _frames()
+	var stale = _stale_paint(screen.hand.cards)
+	if not _require(screen.hand.cards.all(func(card): return card.playable) and stale.is_empty(),
+			"Looking at another lane keeps the hand playable and painted so (stale: %s)" % [stale]):
+		return false
+	screen.view_lane(0)
+	engine.state.active_player = 1
+	app.controller.refresh()
+	await _settle()
+	await _frames()
+	stale = _stale_paint(screen.hand.cards)
+	if not _require(screen.hand.cards.all(func(card): return not card.playable and card.dimmed) and stale.is_empty(),
+			"The opponent's action repaints every card dimmed, none glowing (stale: %s)" % [stale]):
+		return false
+	_act_in_lane_zero(hand_cards)
+	await _settle()
+	await _frames()
+	stale = _stale_paint(screen.hand.cards)
+	if not _require(screen.hand.cards.all(func(card): return card.playable) and stale.is_empty(), "The action back: the cards glow again (stale: %s)" % [stale]):
+		return false
+	engine.state.lane = 1
+	app.controller.refresh()
+	await _settle()
+	await _frames()
+	stale = _stale_paint(screen.hand.cards)
+	if not _require(screen.hand.cards.all(func(card): return not card.playable and card.dimmed) and stale.is_empty(),
+			"The active lane moving on (no black hero there) repaints the cards dimmed (stale: %s)" % [stale]):
+		return false
+	screen.hand.set_hovered(1)
+	await _frames(2)
+	stale = _stale_paint(screen.hand.cards)
+	screen.hand.set_hovered(-1)
+	await _frames(2)
+	if not _require(stale.is_empty() and _stale_paint(screen.hand.cards).is_empty(), "Hovering repaints just as before"):
+		return false
+	# The shop: buying one offer repaints the one it made unaffordable.
+	engine.state.phase = "shop"
+	for owner in engine.state.players:
+		owner.finished = false
+		owner.shop = {"secret": "barbed_mail", "item": "", "consumable": "healing_salve"}
+	engine.state.players[0].gold = 7
+	engine.state.players[0].held_secret = ""
+	app.controller.refresh()
+	await _settle()
+	var offer: Control = screen.shop.slots.secret.card
+	_track_paint([offer])
+	offer.queue_redraw()
+	await _frames()
+	if not _require(offer.playable and _stale_paint([offer]).is_empty(), "Both shop offers are affordable at first"):
+		return false
+	screen.shop.slots.consumable.buy.pressed.emit()
+	await _settle()
+	await _frames()
+	app.bot_timer.paused = false
+	return _require(int(engine.state.players[0].gold) == 4 and not offer.playable and offer.dimmed and _stale_paint([offer]).is_empty(),
+		"A purchase repaints the offer it made unaffordable dimmed")
+
+## Issue 1: one cue (chime, rings, banner) exactly when the action becomes
+## yours: not for the opponent's turns, not again when you keep the action,
+## after combat when the next lane opens with you, after a hot-seat hand-over
+## is confirmed, never for a reconnect or a restored replay, and silently
+## when alerts are off.
+func _check_turn_cue() -> bool:
+	Settings.set_turn_alert(true, false)
+	Settings.set_muted(false, false)
+	Settings.set_volume(0.7, false)
+	var sfx = app.sfx
+	var acts = [{"type": "pass"}]
+	var base = {"phase": "action", "winner": -1, "active_player": 1, "round": 2, "lane": 1, "first_pass": -1}
+	if not _require(MatchScreen.action_key(base, 1, acts) == "2|1|1" and MatchScreen.action_key(base, 0, acts) == ""
+			and MatchScreen.action_key(base, 1, []) == "" and MatchScreen.action_key(base.merged({"phase": "shop"}, true), 1, acts) == ""
+			and MatchScreen.action_key(base.merged({"first_pass": 0}, true), 1, acts) == "2|1|1"
+			and MatchScreen.action_key(base.merged({"winner": 1}, true), 1, acts) == "",
+			"The action key: round, lane and player, only while it is your action (an online guest is player 2)"):
+		return false
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	var engine = _engine()
+	engine.state.phase = "action"
+	engine.state.lane = 0
+	engine.state.active_player = 1
+	engine.state.first_pass = -1
+	app.controller.refresh()
+	await _settle()
+	var count = screen.turn_cue_count
+	var chimes = int(sfx.counts.get("turn", 0))
+	# (Cues of the checks before were moments ago: the chime's rate limit.)
+	screen._last_cue_ms = -MatchScreen.CUE_MIN_MS * 10
+	# The AI passes first: your action, and the coin says passing starts combat.
+	engine.apply_action(1, {"type": "pass"})
+	app.controller.refresh()
+	await _settle()
+	if not _require(screen.turn_cue_count == count + 1 and int(sfx.counts.get("turn", 0)) == chimes + 1 and screen.coin.pulsing()
+			and screen.coin.sub_caption == UiKit.t("HUD_OPPONENT_PASSED"),
+			"Your action after the AI's pass: one cue (chime and rings) and the coin's warning (%d cues, %d chimes, rings %s, %s)"
+			% [screen.turn_cue_count - count, int(sfx.counts.get("turn", 0)) - chimes, screen.coin.pulsing(), screen.coin.sub_caption]):
+		return false
+	_act_in_lane_zero(["foresight"])
+	await _settle()
+	if not _require(screen.turn_cue_count == count + 1 and screen.coin.sub_caption == UiKit.t("HUD_INITIATIVE_YOU"),
+			"Keeping the action (a quick card) is no new cue"):
+		return false
+	screen.press_coin()
+	await _settle()
+	if not _require(screen.turn_cue_count == count + 1 and int(engine.state.active_player) == 1, "Your pass gives the AI the action: no cue"):
+		return false
+	engine.apply_action(1, {"type": "pass"})
+	app.controller.refresh()
+	await _settle()
+	if not _require(int(engine.state.lane) == 1 and int(engine.state.active_player) == 0 and screen.turn_cue_count == count + 2,
+			"Combat, then the next lane opens with you: one cue once the board is idle (lane %d)" % int(engine.state.lane)):
+		return false
+	screen.press_coin()
+	await _settle()
+	engine.state.active_player = 0
+	engine.state.first_pass = -1
+	app.controller.refresh()
+	await _settle()
+	if not _require(screen.turn_cue_count == count + 3, "The action returning in the same lane is a new cue"):
+		return false
+	# A reconnect redraws the same turn: no cue.
+	screen.reset()
+	app.controller.refresh()
+	await _settle()
+	if not _require(screen.turn_cue_count == count + 3, "Seeing the same turn again (a reconnect) is no new cue"):
+		return false
+	# The AI's own turns never cue; alerts off: the cue shows, silently.
+	engine.state.active_player = 1
+	app.controller.refresh()
+	await _settle()
+	Settings.set_turn_alert(false, false)
+	chimes = int(sfx.counts.get("turn", 0))
+	engine.state.active_player = 0
+	app.controller.refresh()
+	await _settle()
+	Settings.set_turn_alert(true, false)
+	if not _require(screen.turn_cue_count == count + 4 and int(sfx.counts.get("turn", 0)) == chimes, "With the alert off the cue shows without a chime"):
+		return false
+	# Hot-seat: the cue waits for the hand-over screen.
+	app.start_match(MatchController.MODE_LOCAL)
+	while screen.queue.busy:
+		await process_frame
+	count = screen.turn_cue_count
+	if not _require(screen.pass_screen.visible and count == screen.turn_cue_count, "Hot-seat: no cue behind the hand-over screen"):
+		return false
+	screen.pass_screen.confirm()
+	await _frames()
+	if not _require(screen.turn_cue_count == count + 1, "Hot-seat: the cue plays once the next player confirms"):
+		return false
+	# An online guest (player 2): host snapshots arrive; only its own action cues.
+	if not await _check_guest_cue():
+		return false
+	# A restored replay is not a new turn.
+	var saved_path = "res://.tools/ui_test_replay_cue.json"
+	app.save_replay(saved_path)
+	count = screen.turn_cue_count
+	app.load_replay(saved_path)
+	while screen.queue.busy:
+		await process_frame
+	if screen.pass_screen.visible:
+		screen.pass_screen.confirm()
+	await _frames()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(saved_path))
+	app.bot_timer.paused = false
+	return _require(screen.turn_cue_count == count, "A restored replay plays no cue")
+
+## The guest's side of the cue: snapshots from the host (player 1 acting,
+## then player 2) cue only when the action becomes player 2's.
+func _check_guest_cue() -> bool:
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	var engine = _engine()
+	var controller = app.controller
+	controller.steam_bridge.is_host = false
+	controller.match_serial = 0
+	var publish = func(serial: int) -> void:
+		var view = engine.player_view(1)
+		view.players[0]["preset"] = MatchController.HIDDEN_DECK
+		controller._online_state(view, engine.legal_actions(1), serial)
+	engine.state.phase = "action"
+	engine.state.lane = 0
+	engine.state.active_player = 0
+	engine.state.first_pass = -1
+	publish.call(41)
+	await _settle()
+	var count = screen.turn_cue_count
+	var host_turn = screen.shown_viewer == 1 and count == screen.turn_cue_count
+	engine.apply_action(0, {"type": "pass"})
+	publish.call(41)
+	await _settle()
+	var guest_turn = screen.turn_cue_count == count + 1 and screen.coin.sub_caption == UiKit.t("HUD_OPPONENT_PASSED")
+	engine.state.active_player = 0
+	engine.state.first_pass = -1
+	publish.call(41)
+	await _settle()
+	var quiet = screen.turn_cue_count == count + 1
+	controller.mode = MatchController.MODE_AI
+	controller.online_view.clear()
+	controller.online_actions.clear()
+	controller._reset_room("none")
+	app.bot_timer.paused = false
+	return _require(host_turn and guest_turn and quiet,
+		"An online guest gets one cue when the host passes it the action, none for the host's turns (%s %s %s)" % [host_turn, guest_turn, quiet])
+
+## Issue 3: the card history: lanes and rounds from the events, tiles for
+## plays, abilities, combats, passes and purchases (the opponent's never
+## name the item), tiles as plays animate, the full log at a tile's event,
+## and the rail kept clear of the HUD, the opponent's hand, the chevrons,
+## the deck pile and the enemy units at both window sizes.
+func _check_history() -> bool:
+	Settings.set_show_history(true, false)
+	var events: Array = [{"k": "match_start"},
+		{"k": "play", "p": 0, "card": "no_accident", "target": 5, "target_card": "axe"},
+		{"k": "damage", "src": "no_accident", "p": 0, "hits": [[5, 3]]},
+		{"k": "pass", "p": 1}, {"k": "pass", "p": 0},
+		{"k": "combat", "lane": 0, "damage": [4, 2], "strikes": []}, {"k": "tower_fall", "p": 1},
+		{"k": "lane_open", "lane": 1, "p": 0},
+		{"k": "ability", "p": 1, "uid": 7, "card": "jmuy", "ability": "a"},
+		{"k": "pass", "p": 0}, {"k": "pass", "p": 1},
+		{"k": "combat", "lane": 1, "damage": [0, 0], "strikes": []},
+		{"k": "lane_open", "lane": 2, "p": 0},
+		{"k": "pass", "p": 0}, {"k": "pass", "p": 1},
+		{"k": "combat", "lane": 2, "damage": [1, 1], "strikes": []},
+		{"k": "shop_open"},
+		{"k": "buy", "p": 1, "gold": 3}, {"k": "buy", "p": 1, "gold": 5},
+		{"k": "buy", "p": 0, "gold": 4}, {"k": "hold", "p": 0, "gold": 1},
+		{"k": "deployment", "round": 2, "creeps": [[0, 1], [2, 2]]},
+		{"k": "deployment_placed", "units": []}, {"k": "deployment_revealed"},
+		{"k": "play", "p": 1, "card": "hip_fire"}]
+	var view = {"phase": "action", "lane": 0, "round": 2, "event_seq": 100 + events.size(), "events": events,
+		"players": [{"bought": ["healing_salve"]}, {"bought": []}]}
+	var lanes = HistoryRail.event_lanes(events, view)
+	var rounds = HistoryRail.event_rounds(events, view)
+	if not _require(lanes[1] == 0 and lanes[5] == 0 and lanes[8] == 1 and lanes[11] == 1 and lanes[15] == 2 and lanes[17] == -1 and lanes[19] == -1
+			and lanes[24] == 0 and rounds[1] == 1 and rounds[20] == 1 and rounds[21] == 2 and rounds[24] == 2,
+			"Each event's lane and round come from the events around it (%s)" % [lanes]):
+		return false
+	var rail = screen.history
+	rail.refresh(view, 0)
+	var kinds = rail.tiles.map(func(tile): return str(tile.kind))
+	if not _require(kinds == ["play", "pass", "pass", "combat", "ability", "pass", "pass", "combat", "pass", "pass", "combat", "buy", "buy", "play"],
+			"Tiles: plays, passes, combats, an ability and purchases (%s)" % [kinds]):
+		return false
+	var theirs: Dictionary = rail.tiles[11]
+	var mine: Dictionary = rail.tiles[12]
+	if not _require(int(theirs.p) == 1 and str(theirs.card) == "" and int(theirs.count) == 2 and int(theirs.gold) == 8 and str(mine.card) == "healing_salve"
+			and str(rail.tiles[0].target_card) == "axe" and rail.tiles[0].lines == [2] and str(rail.tiles[3].fall) == "tower" and rail.tiles[3].damage == [4, 2]
+			and int(rail.tiles[13].round) == 2 and int(rail.tiles[13].lane) == 0,
+			"The opponent's two purchases share a tile without the items; yours shows its item; a play lists what it caused"):
+		return false
+	var hidden_text = rail.hover_text(int(theirs.id))
+	if not _require(hidden_text.find(Library.loc("healing_salve")) == -1 and hidden_text.find("8") != -1,
+			"The opponent's purchase tile names no item (%s)" % hidden_text):
+		return false
+	if not _require(rail.hover_text(int(mine.id)).find(Library.loc("healing_salve")) != -1, "Your purchase tile names your item"):
+		return false
+	# A real match: the tile appears with the play.
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	var engine = _engine()
+	var jmuy = engine.state.players[0].roster[1]
+	_place_in_lane(jmuy, 8)
+	_act_in_lane_zero(["foresight"])
+	await _settle()
+	var play: Dictionary = {}
+	for action in engine.legal_actions(0):
+		if str(action.get("type", "")) == "play":
+			play = action
+	if not _require(not play.is_empty(), "Foresight can be played"):
+		return false
+	app.act(play)
+	await _settle()
+	var newest: Dictionary = rail.tiles.back() if not rail.tiles.is_empty() else {}
+	if not _require(rail.visible and str(newest.get("kind", "")) == "play" and str(newest.get("card", "")) == "foresight" and int(newest.p) == 0 and int(newest.lane) == 0,
+			"Your play shows as the newest tile (%s)" % [newest]):
+		return false
+	screen._on_history_log(int(newest.id))
+	var events_now: Array = screen.shown_view.events
+	if not _require(screen.log_panel.visible and screen.log_panel.highlighted == int(newest.id) - (int(screen.shown_view.event_seq) - events_now.size()),
+			"Clicking a tile opens the log at its event"):
+		return false
+	screen.toggle_log()
+	for window in [Vector2i(1440, 900), Vector2i(1280, 720)]:
+		root.size = window
+		await _frames()
+		screen.view_lane(int(engine.state.lane))
+		await _frames(3)
+		var box: Rect2 = rail.get_global_rect()
+		var blockers: Array = [screen.hud.get_global_rect(), screen.enemy_hand.get_global_rect(), screen.own_deck.get_global_rect(),
+			screen.enemy_panel.get_global_rect()]
+		for chevron in screen.board.chevrons:
+			if chevron.visible:
+				blockers.append(chevron.get_global_rect())
+		var lane = screen.board.lanes[screen.board.focus_lane]
+		for uid in lane.cards:
+			if not lane.cards[uid].own:
+				blockers.append(lane.cards[uid].get_global_rect())
+		var hit: Array = blockers.filter(func(rect): return rect.intersects(box))
+		if not _require(hit.is_empty() and box.end.x <= screen.size.x and box.position.y >= screen.hud.get_global_rect().end.y,
+				"The history rail is clear of the HUD, the opponent's hand, the chevrons, the deck and the enemy units at %s (%s)" % [window, hit]):
+			root.size = Vector2i(1440, 900)
+			return false
+	root.size = Vector2i(1440, 900)
+	await _frames()
+	# H hides and shows it; the overview fades it.
+	var key = InputEventKey.new()
+	key.keycode = KEY_H
+	key.pressed = true
+	root.push_input(key)
+	await _frames(2)
+	var hidden = not rail.visible and not Settings.show_history
+	root.push_input(key)
+	await _frames(2)
+	if not _require(hidden and rail.visible and Settings.show_history, "H hides and shows the card history"):
+		return false
+	# The shop: the rail steps aside; the opponent's purchase stays unnamed.
+	engine.state.phase = "shop"
+	engine.state.events.append({"k": "shop_open"})
+	engine.state.event_seq = int(engine.state.event_seq) + 1
+	for owner in engine.state.players:
+		owner.finished = false
+		owner.bought = []
+		owner.gold = 9
+		owner.held_secret = ""
+	engine.state.players[0].shop = {"secret": "", "item": "", "consumable": "town_portal_scroll"}
+	engine.state.players[1].shop = {"secret": "", "item": "", "consumable": "healing_salve"}
+	engine.apply_action(1, {"type": "buy", "card": "healing_salve", "source": "consumable"})
+	engine.apply_action(0, {"type": "buy", "card": "town_portal_scroll", "source": "consumable"})
+	app.controller.refresh()
+	await _settle()
+	var buys = rail.tiles.filter(func(tile): return str(tile.kind) == "buy")
+	var opponent_buys = buys.filter(func(tile): return int(tile.p) == 1)
+	var own_buys = buys.filter(func(tile): return int(tile.p) == 0)
+	if not _require(not rail.visible and screen.shop.visible, "The card history steps aside for the shop"):
+		return false
+	app.bot_timer.paused = false
+	return _require(opponent_buys.size() == 1 and str(opponent_buys[0].card) == "" and rail.hover_text(int(opponent_buys[0].id)).find(Library.loc("healing_salve")) == -1
+		and own_buys.size() == 1 and str(own_buys[0].card) == "town_portal_scroll",
+		"In a real match the opponent's purchase is unnamed and yours is named")
+
+## Puts the controller in a room without Steam: only the bridge's fields
+## are set, so nothing is sent (Steam is off in headless runs).
+func _fake_room(host: bool, guest_here: bool = true) -> void:
+	var bridge = app.controller.steam_bridge
+	bridge.lobby_id = 109775241000000777
+	bridge.is_host = host
+	bridge.lobby_public = false
+	bridge.handshake_done = guest_here
+	bridge.opponent_present = guest_here
+	bridge.peer_id = 76561198000000202 if guest_here else 0
+	bridge.bound_opponent = bridge.peer_id if host else 0
+	bridge.host_id = 0 if host else bridge.peer_id
+	bridge.peer_name = "孙权" if guest_here else ""
+	app.controller.room_phase = "room" if guest_here else "waiting"
+	app.controller.room_ready = [false, false]
+	app.controller.room_starting = false
+	app.controller.guest_deck_state = "ok" if guest_here else ""
+	app.controller.own_deck_result = {"ok": true}
+
+## The engine's match ends with `winner` and the board catches up.
+func _finish_match(winner: int) -> void:
+	var engine = _engine()
+	engine.state.winner = winner
+	engine.state.phase = "finished"
+	engine._event("win", {"p": winner})
+	app.controller.refresh()
+	await _settle()
+
+## The overlay shows exactly `list` (in order).
+func _result_actions_are(list: Array) -> bool:
+	var over = screen.game_over
+	var shown: Array = []
+	for child in over._row.get_children():
+		if child.visible:
+			shown.append(over.buttons.find_key(child))
+	return shown == list
+
+## Issue 4: the result's buttons offline (Play again with the same decks,
+## Change deck as the matchup, the result back from View board) and online
+## (Rematch into the room, Change deck as your own deck, no Save for the
+## guest, the opponent wanting a rematch or leaving, the session ending),
+## the in-match menu's Leave room and its confirmation.
+func _check_result_flows() -> bool:
+	app.deck_selections = ["starter", "green_assault"]
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	var engine = _engine()
+	var rosters = [engine.state.players[0].roster.map(func(hero): return hero.card), engine.state.players[1].roster.map(func(hero): return hero.card)]
+	await _finish_match(0)
+	var over = screen.game_over
+	if not _require(over.visible and _result_actions_are(GameOverOverlay.OFFLINE_ACTIONS), "Offline results offer Play again, Change deck, Save, View board and Main menu"):
+		return false
+	for window in [Vector2i(1440, 900), Vector2i(1280, 720)]:
+		root.size = window
+		await _frames()
+		var row: Rect2 = over._row.get_global_rect()
+		if not _require(row.position.x >= 0.0 and row.end.x <= screen.size.x and row.end.y <= screen.size.y, "The result's buttons fit at %s (%s)" % [window, row]):
+			root.size = Vector2i(1440, 900)
+			return false
+	root.size = Vector2i(1440, 900)
+	await _frames()
+	over.buttons.board.pressed.emit()
+	await _frames()
+	if not _require(not over.visible and screen.coin.enabled and screen.coin.caption == UiKit.t("RESULT_SHOW"), "View board: the coin brings the result back"):
+		return false
+	_click(screen.coin_point())
+	await _frames()
+	if not _require(over.visible, "Clicking the coin shows the result again"):
+		return false
+	over.buttons.decks.pressed.emit()
+	await _frames()
+	var dialog = _top_dialog()
+	if not _require(dialog is DecksDialog and dialog.selectors.size() == 2, "Change deck after an offline match opens the matchup"):
+		return false
+	app.close_dialogs()
+	over.buttons.again.pressed.emit()
+	await _settle()
+	if not _require(not over.visible and int(engine.state.winner) == -1 and engine.state.players[0].roster.map(func(hero): return hero.card) == rosters[0]
+			and engine.state.players[1].roster.map(func(hero): return hero.card) == rosters[1], "Play again starts a new match with the same decks"):
+		return false
+	var menu_dialog = app.open_menu()
+	await _frames(2)
+	if not _require(menu_dialog.buttons.new.visible and not menu_dialog.buttons.leave.visible, "Offline the menu offers New match, not Leave room"):
+		return false
+	app.close_dialogs()
+	# Online: a host in a room with a guest.
+	_fake_room(true)
+	app.controller.mode = MatchController.MODE_ONLINE
+	app.controller.room_phase = "match"
+	app.controller.refresh()
+	await _settle()
+	menu_dialog = app.open_menu()
+	await _frames(2)
+	if not _require(not menu_dialog.buttons.new.visible and menu_dialog.buttons.leave.visible and menu_dialog.panel.size.y <= 900.0,
+			"Online the menu offers Leave room instead of New match"):
+		return false
+	app.close_dialogs()
+	var confirm = app.open_leave()
+	await _frames(2)
+	if not _require(confirm.message_key == "LEAVE_CONFIRM_BODY_MATCH" and confirm.confirm_button.text == UiKit.t("LEAVE_CONFIRM_CONCEDE"),
+			"Leaving during a match asks first and says it concedes"):
+		return false
+	app.close_dialogs()
+	await _finish_match(0)
+	app.controller.room_phase = "result"
+	screen.refresh_result()
+	if not _require(over.visible and _result_actions_are(GameOverOverlay.ONLINE_ACTIONS) and over.status.is_empty(),
+			"Online results offer Rematch, Change deck, Save, View board and Leave room"):
+		return false
+	confirm = app.open_leave()
+	await _frames(2)
+	if not _require(confirm.message_key == "LEAVE_CONFIRM_BODY", "Leaving after the result only warns that no rematch follows"):
+		return false
+	app.close_dialogs()
+	app.controller.room_ready = [false, true]
+	app.controller.room_changed.emit()
+	if not _require(over.status == UiKit.t("RESULT_OPPONENT_WANTS_REMATCH", {"name": "孙权"}) and over.status_alert,
+			"The opponent's readiness: \"%s\"" % over.status):
+		return false
+	app.controller.steam_bridge.is_host = false
+	screen.refresh_result()
+	if not _require(not over.buttons.save.visible and over.buttons.rematch.visible, "A guest gets no Save replay"):
+		return false
+	app.controller.steam_bridge.is_host = true
+	app.controller.room_ready = [false, false]
+	screen.refresh_result()
+	over.buttons.rematch.pressed.emit()
+	await _frames()
+	if not _require(app.room.visible and not screen.visible and app.controller.room_ready == [true, false], "Rematch gets you ready and shows the room"):
+		return false
+	app.show_match()
+	app.controller.set_ready(false)
+	over.buttons.decks.pressed.emit()
+	await _frames()
+	dialog = _top_dialog()
+	if not _require(dialog is DecksDialog and dialog.single_column(), "Change deck online picks only your own deck"):
+		return false
+	app.close_dialogs()
+	app.controller.steam_bridge.handshake_done = false
+	app.controller.steam_bridge.opponent_present = false
+	app.controller.opponent_left.emit("孙权")
+	if not _require(over.buttons.room.visible and not over.buttons.rematch.visible and over.status == UiKit.t("RESULT_OPPONENT_LEFT", {"name": "孙权"}),
+			"The opponent left: Back to room, and the status names them (%s)" % over.status):
+		return false
+	# A different player takes the freed seat while the result is up: they
+	# never played this match, so no rematch with them (review fix), only
+	# Back to room, and their readiness is not "wants a rematch".
+	var bridge = app.controller.steam_bridge
+	app.controller.last_opponent = 76561198000000202
+	bridge.handshake_done = true
+	bridge.opponent_present = true
+	bridge.bound_opponent = 76561198000000303
+	bridge.peer_id = bridge.bound_opponent
+	bridge.peer_name = "吕布"
+	app.controller.room_phase = "result"
+	app.controller.room_ready = [false, true]
+	app.controller.room_changed.emit()
+	if not _require(over.buttons.room.visible and not over.buttons.rematch.visible
+			and over.status == UiKit.t("RESULT_NEW_OPPONENT", {"name": "吕布"}) and not over.status_alert,
+			"A new player in the freed seat: Back to room, no rematch (%s)" % over.status):
+		return false
+	over.buttons.room.pressed.emit()
+	await _frames()
+	if not _require(app.room.visible and not screen.visible, "Back to room shows the room with the new player"):
+		return false
+	app.show_match()
+	# The original opponent back in its seat: Rematch again.
+	bridge.bound_opponent = 76561198000000202
+	bridge.peer_id = bridge.bound_opponent
+	bridge.peer_name = "孙权"
+	app.controller.room_changed.emit()
+	if not _require(over.buttons.rematch.visible and over.status == UiKit.t("RESULT_OPPONENT_WANTS_REMATCH", {"name": "孙权"}),
+			"The same opponent back: Rematch (%s)" % over.status):
+		return false
+	app.controller.room_ready = [false, false]
+	bridge.handshake_done = false
+	bridge.opponent_present = false
+	app.controller.leave_online(false)
+	await _frames()
+	if not _require(over.visible and over.closed and _result_actions_are(GameOverOverlay.CLOSED_ACTIONS) and app.controller.steam_bridge.lobby_id == 0,
+			"The session over: View board, Main menu and Find a lobby remain"):
+		return false
+	over.buttons.steam.pressed.emit()
+	await _frames(2)
+	var steam_open = _top_dialog() != null and _top_dialog().has_method("refresh_lobbies")
+	app.close_dialogs()
+	app.bot_timer.paused = false
+	return _require(app.menu.visible and steam_open, "Find a lobby opens the Steam dialog from the main menu")
+
+## Issue 5: the room: the host's empty seat, a guest arriving, getting
+## ready, the countdown and cancelling it, the guest's deck answer, both
+## languages and window sizes, Change deck, Main menu and back, and leaving.
+func _check_room_screen() -> bool:
+	app.show_main_menu()
+	_fake_room(true, false)
+	app.controller.mode = MatchController.MODE_AI
+	app.controller.started = false
+	app.menu.action_requested.emit("online")
+	await _frames()
+	var room = app.room
+	if not _require(room.visible and not app.menu.visible and not screen.visible, "Online in a lobby opens the room"):
+		return false
+	room.show_notice("", 0.0)
+	if not _require(room.status_text() == UiKit.t("ROOM_WAITING_OPPONENT") and room.buttons.ready.disabled and room.buttons.invite.visible
+			and room.buttons.ready.tooltip_text == UiKit.t("ROOM_WAITING_SEAT"),
+			"The host's empty seat waits and offers Invite (%s, %s, %s)" % [room.status_text(), room.buttons.ready.disabled, room.buttons.invite.visible]):
+		return false
+	_fake_room(true, true)
+	app.controller.room_changed.emit()
+	await _frames()
+	if not _require(not room.buttons.ready.disabled and not room.buttons.invite.visible and room.opponent_deck_key(1) == "ROOM_DECK_CHOSEN"
+			and room.status_text() == UiKit.t("ROOM_WAIT_YOU"), "A guest arrived: you may get ready"):
+		return false
+	room.buttons.ready.pressed.emit()
+	if not _require(app.controller.room_ready == [true, false] and room.buttons.ready.text == UiKit.t("ROOM_BTN_UNREADY")
+			and room.status_text() == UiKit.t("ROOM_WAIT_OPPONENT", {"name": "孙权"}), "Ready: the room waits for the opponent"):
+		return false
+	var chimes = int(app.sfx.counts.get("ready", 0))
+	app.controller._on_ready_received(true)
+	await _frames()
+	if not _require(app.controller.room_starting and room.status_text() == UiKit.t("ROOM_STARTING", {"n": app.controller.countdown_left()})
+			and int(app.sfx.counts.get("ready", 0)) == chimes + 1, "Both ready: the countdown shows and the opponent's readiness chimes"):
+		return false
+	for window in [Vector2i(1440, 900), Vector2i(1280, 720)]:
+		for locale in ["en", "zh_CN"]:
+			root.size = window
+			app.set_locale(locale)
+			await _frames()
+			var seats: Array = room.seat_rects()
+			var inside = Rect2(Vector2.ZERO, room.size)
+			var fits = seats.all(func(rect): return inside.encloses(rect))
+			for button in room.buttons.values():
+				if button.visible:
+					fits = fits and inside.encloses(button.get_global_rect())
+			if not _require(fits, "The room fits at %s in %s" % [window, locale]):
+				root.size = Vector2i(1440, 900)
+				return false
+	root.size = Vector2i(1440, 900)
+	app.set_locale("zh_CN")
+	await _frames()
+	room.buttons.ready.pressed.emit()
+	if not _require(not app.controller.room_starting and app.controller.room_ready == [false, true], "Cancelling ready stops the countdown"):
+		return false
+	# The guest's side: its deck must be accepted first.
+	app.controller.steam_bridge.is_host = false
+	app.controller.room_ready = [false, false]
+	app.controller.own_deck_result = {}
+	room.refresh()
+	if not _require(room.buttons.ready.disabled and room.buttons.ready.tooltip_text == UiKit.t("ROOM_READY_NEEDS_DECK")
+			and room.own_deck_answer() == UiKit.t("DECK_ONLINE_PENDING"), "A guest gets ready only once the host accepted its deck"):
+		return false
+	app.controller.own_deck_result = {"ok": true}
+	room.refresh()
+	if not _require(not room.buttons.ready.disabled and room.own_deck_answer() == UiKit.t("ROOM_DECK_ACCEPTED"), "An accepted deck lets the guest get ready"):
+		return false
+	room.buttons.deck.pressed.emit()
+	await _frames()
+	var dialog = _top_dialog()
+	if not _require(dialog is DecksDialog and dialog.single_column(), "Change deck in the room picks your own deck"):
+		return false
+	dialog.start_button.pressed.emit()
+	await _frames(3)
+	if not _require(room.visible and app.dialogs().is_empty(), "Choosing the deck returns to the room"):
+		return false
+	room.buttons.menu.pressed.emit()
+	await _frames()
+	if not _require(app.menu.visible and not room.visible, "Main menu leaves the room on screen only"):
+		return false
+	app.menu.action_requested.emit("online")
+	await _frames()
+	if not _require(room.visible, "Online returns to the room"):
+		return false
+	room.buttons.leave.pressed.emit()
+	await _frames(2)
+	var left = not room.visible and app.menu.visible and app.controller.steam_bridge.lobby_id == 0 and app.controller.room_phase == "none"
+	app.close_dialogs()
+	return _require(left, "Leave room returns to the menu and leaves the lobby")
+
+## Issue 5: the match intro: the two rows of heroes from the rosters, the
+## board held back (and the AI waiting) until it ends or a click skips it,
+## before the hot-seat hand-over, again for every new match, never in instant
+## mode or with the setting off.
+func _check_versus_intro() -> bool:
+	Settings.set_match_intro(true, false)
+	app.bot_timer.paused = false
+	AnimationQueue.instant = false
+	AnimationQueue.speed = 1.0
+	var before = screen.intro_count
+	app.deck_selections = ["starter", "green_assault"]
+	app.start_match(MatchController.MODE_AI)
+	await _frames(2)
+	var engine = _engine()
+	var revision = int(engine.state.revision)
+	var info = VersusIntro.versus_info(app.controller.view(), 0, MatchController.MODE_AI, {})
+	var bottom = engine.state.players[0].roster.slice(0, 5).map(func(hero): return str(hero.card))
+	var top = engine.state.players[1].roster.slice(0, 5).map(func(hero): return str(hero.card))
+	if not _require(screen.versus.visible and screen.queue.busy and screen.intro_count == before + 1 and info.bottom.heroes == bottom and info.top.heroes == top,
+			"A new match opens with both armies' heroes, yours below"):
+		AnimationQueue.instant = true
+		return false
+	await create_timer(1.6).timeout
+	var cards: Array = screen.versus._cards[0] + screen.versus._cards[1]
+	var inside = Rect2(Vector2.ZERO, screen.size)
+	var on_screen = cards.size() == 10 and cards.all(func(card): return inside.encloses(card.get_global_rect()))
+	var plates_clear = true
+	for plate in screen.versus._plates:
+		for card in cards:
+			plates_clear = plates_clear and not plate.intersects(card.get_global_rect())
+	var waited = int(engine.state.revision) == revision and screen.queue.busy
+	_click(screen.size * 0.5)
+	var deadline = Time.get_ticks_msec() + 2000
+	while (screen.versus.visible or screen.queue.busy) and Time.get_ticks_msec() < deadline:
+		await process_frame
+	var skipped = not screen.versus.visible
+	if not _require(on_screen and plates_clear and waited and skipped,
+			"The intro's ten heroes fit, the plates are clear of them, the AI waits, and a click skips it (%s %s %s %s)" % [on_screen, plates_clear, waited, skipped]):
+		AnimationQueue.instant = true
+		return false
+	# Hot-seat: the intro, then the hand-over screen.
+	app.start_match(MatchController.MODE_LOCAL)
+	await _frames(2)
+	var first_intro = screen.versus.visible and not screen.pass_screen.visible
+	var local_info = VersusIntro.versus_info(app.controller.view(), 1, MatchController.MODE_LOCAL, {})
+	var space = InputEventKey.new()
+	space.keycode = KEY_SPACE
+	space.pressed = true
+	root.push_input(space)
+	deadline = Time.get_ticks_msec() + 2000
+	while screen.versus.visible and Time.get_ticks_msec() < deadline:
+		await process_frame
+	await _frames(2)
+	var then_pass = not screen.versus.visible and screen.pass_screen.visible
+	if not _require(first_intro and then_pass and int(local_info.bottom.seat) == 0, "Hot-seat: the intro plays (Player 1 below) before the hand-over; Space skips it"):
+		AnimationQueue.instant = true
+		return false
+	screen.pass_screen.confirm()
+	# A new match plays it again; instant mode and the setting skip it.
+	before = screen.intro_count
+	app.start_match(MatchController.MODE_AI)
+	await _frames(2)
+	var again = screen.intro_count == before + 1
+	Settings.set_match_intro(false, false)
+	app.start_match(MatchController.MODE_AI)
+	await _frames(2)
+	var off = screen.intro_count == before + 1 and not screen.versus.visible
+	Settings.set_match_intro(true, false)
+	AnimationQueue.instant = true
+	app.start_match(MatchController.MODE_AI)
+	await _settle()
+	return _require(again and off and screen.intro_count == before + 1 and not screen.versus.visible,
+		"Every new match has its intro; not with the setting off or in instant mode")
+
+## Review fix: long Steam names (32 characters, wide glyphs) stay inside the
+## intro's name plates and the in-match plate, cut with an ellipsis; the
+## plate's tooltip then has the whole name.
+func _check_long_names() -> bool:
+	var long_names = ["ThisIsAVeryLongSteamNameForTest!", "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW", "司马懿仲达不死之谋略大将军天下无双第一谋士"]
+	var font = UiKit.title_font()
+	var versus = screen.versus
+	app.show_match()
+	for window in [Vector2i(1440, 900), Vector2i(1280, 720)]:
+		root.size = window
+		await _frames()
+		var info = {"top": {"name": long_names[2], "heroes": [], "caption": UiKit.t("VERSUS_OPPONENT")},
+			"bottom": {"name": long_names[1], "heroes": [], "caption": UiKit.t("VERSUS_YOU")}}
+		versus.play(info)
+		await _frames(2)
+		var inside = Rect2(Vector2.ZERO, versus.size)
+		for row in range(2):
+			var plate: Rect2 = versus._plates[row]
+			var box: Rect2 = versus.name_box(row)
+			for text in long_names:
+				var drawn: Array = VersusIntro.plate_name(text, box.size.x)
+				var width = font.get_string_size(str(drawn[0]), HORIZONTAL_ALIGNMENT_LEFT, -1, int(drawn[1])).x
+				if not _require(inside.encloses(plate) and plate.encloses(box) and width <= box.size.x and str(drawn[0]).ends_with("…"),
+						"The intro's plate holds a long name at %s (row %d: %.0f of %.0f px, \"%s\")" % [window, row, width, box.size.x, drawn[0]]):
+					versus.abort()
+					root.size = Vector2i(1440, 900)
+					return false
+		versus.abort()
+	root.size = Vector2i(1440, 900)
+	await _frames()
+	# The in-match plate: the name between the stats and the menu, the ping
+	# giving way, the whole name in the tooltip.
+	var panel = screen.enemy_panel
+	panel.set_values(long_names[0], 12, 35, 5, false)
+	panel.set_connection({"level": "good", "ping": 48})
+	panel.set_deeds(["sun_quan"])
+	await _frames()
+	var room = panel.name_span.y - panel.name_span.x
+	var size = UiKit.fit_size(font, long_names[0], room, 21, 12)
+	var width = font.get_string_size(panel.shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var stats_end = 18.0 + 74.0 + 62.0 + 56.0 + 56.0
+	if not _require(panel.name_cut and panel.shown_name.ends_with("…") and width <= room
+			and panel.name_span.x >= stats_end and panel.tooltip_text.begins_with(long_names[0]),
+			"The opponent's plate cuts a long name clear of its stats (\"%s\", %.0f px in %s)" % [panel.shown_name, width, panel.name_span]):
+		return false
+	panel.set_values("孙权", 12, 35, 5, false)
+	await _frames()
+	var short_ok = not panel.name_cut and panel.shown_name == "孙权" and not panel.tooltip_text.begins_with("孙权")
+	panel.set_deeds([])
+	panel.set_connection({})
+	return _require(short_ok, "A short name is shown whole")
+
+## Review fix: the host concedes and leaves in one burst (result, room and
+## goodbye in one poll): the guest's screen keeps the match, shows its
+## victory once the board has caught up, with only the ways out, and names
+## the opponent (not the AI).
+func _check_host_left_result() -> bool:
+	AnimationQueue.instant = true
+	app.deck_selections = ["starter", "starter"]
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	var engine = _engine()
+	var controller = app.controller
+	_fake_room(false)
+	controller.mode = MatchController.MODE_ONLINE
+	controller.room_phase = "match"
+	controller.match_serial = 0
+	var publish = func(serial: int) -> void:
+		var view = engine.player_view(1)
+		view.players[0]["preset"] = MatchController.HIDDEN_DECK
+		controller._online_state(view, engine.legal_actions(1), serial)
+	engine.state.phase = "action"
+	engine.state.lane = 0
+	engine.state.active_player = 0
+	engine.state.first_pass = -1
+	publish.call(61)
+	await _settle()
+	if not _require(screen.visible and controller.online_match_running() and not screen.game_over.visible, "The guest plays an online match"):
+		return false
+	AnimationQueue.instant = false
+	AnimationQueue.speed = 1.0
+	engine.apply_action(0, {"type": "concede"})
+	publish.call(61)
+	controller.steam_bridge._end_session("host_left")
+	await _frames(2)
+	var kept = screen.visible and not app.menu.visible and app.dialogs().is_empty()
+	await _settle_real(10.0)
+	await _frames(2)
+	var over = screen.game_over
+	var shown = over.visible and over.closed and _result_actions_are(GameOverOverlay.CLOSED_ACTIONS) \
+		and over.result_key == "RESULT_VICTORY" and over.status == controller.steam_status_text()
+	var named = over.detail.contains("孙权") and not over.detail.contains(UiKit.t("PLAYER_AI"))
+	AnimationQueue.instant = true
+	if not _require(kept and shown and named, "The guest sees its win after the host left (kept %s, shown %s, named %s: %s / %s)"
+			% [kept, shown, named, over.status, over.detail]):
+		return false
+	# View board, then the coin: the result returns with the ways out only.
+	over.buttons.board.pressed.emit()
+	await _frames()
+	screen.press_coin()
+	await _frames()
+	if not _require(over.visible and over.closed and _result_actions_are(GameOverOverlay.CLOSED_ACTIONS),
+			"After View board the result returns with only the ways out"):
+		return false
+	# Leaving a running match on purpose (it concedes) goes to the menu.
+	app.start_match(MatchController.MODE_AI)
+	await _settle()
+	_fake_room(true)
+	controller.mode = MatchController.MODE_ONLINE
+	controller.room_phase = "match"
+	controller.refresh()
+	await _settle()
+	var confirm = app.open_leave()
+	await _frames(2)
+	confirm.confirmed.emit()
+	await _frames(2)
+	var to_menu = app.menu.visible and not screen.visible and int(engine.state.winner) == 1
+	app.close_dialogs()
+	app.bot_timer.paused = false
+	if not _require(to_menu, "Leaving a running match from the menu concedes it and goes to the main menu (menu %s, screen %s, winner %d)"
+			% [app.menu.visible, screen.visible, int(engine.state.winner)]):
+		return false
+	# Back to a match against the AI for the checks after this one.
+	app.start_match(MatchController.MODE_AI)
+	await _settle()
+	return true

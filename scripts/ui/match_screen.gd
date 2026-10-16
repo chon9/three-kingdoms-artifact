@@ -41,6 +41,14 @@ const PassDeviceScreen = preload("res://scripts/ui/pass_device_screen.gd")
 const LogPanel = preload("res://scripts/ui/log_panel.gd")
 const UnitCard = preload("res://scripts/ui/unit_card.gd")
 const MatchEngine = preload("res://scripts/core/match_engine.gd")
+const HistoryRail = preload("res://scripts/ui/history_rail.gd")
+const VersusIntro = preload("res://scripts/ui/versus_intro.gd")
+const Settings = preload("res://scripts/core/game_settings.gd")
+## A your-action chime at most this often (ms); the visual cue always shows.
+const CUE_MIN_MS = 800
+## Still your action this long after the cue, with the window unfocused: one
+## more chime and taskbar flash.
+const CUE_REMINDER = 25.0
 ## Hint per choice step type ("" for a play without choices).
 const HINT_KEYS = {"": "HINT_DROP_TO_CAST", "unit": "HINT_SELECT_TARGET", "combat_target": "HINT_SELECT_DESTINATION",
 	"lane": "HINT_SELECT_LANE", "position": "HINT_SELECT_POSITION", "improvement": "HINT_SELECT_IMPROVEMENT"}
@@ -72,6 +80,8 @@ var game_over: Control
 var reconnect: Control
 var pass_screen: Control
 var log_panel: Control
+var history: Control
+var versus: Control
 var hint_label: Label
 
 var shown_view: Dictionary = {}
@@ -118,6 +128,37 @@ var _reveal_tweens: Array = []
 var _revealed_this_state: bool = false
 ## The player skipped this state's reveal: the camera then hurries too.
 var _reveal_skipped: bool = false
+## The your-action cue: the player hears and sees when the action becomes
+## theirs. `_turn_key` identifies the action last shown as yours ("" while
+## it is not; see action_key). A new key marks the cue pending; it plays once
+## the board is idle and nothing covers it.
+var _turn_key: String = ""
+var _turn_cue_pending: bool = false
+var _last_cue_ms: int = -CUE_MIN_MS
+## Seconds since the cue with the action still yours, and whether the
+## unfocused-window reminder has played.
+var _cue_elapsed: float = -1.0
+var _reminded: bool = false
+## Cues shown (tests count them).
+var turn_cue_count: int = 0
+## The opponent who last left the room (its name is gone from the bridge).
+var _left_name: String = ""
+## The online session ended under this match's result (close_online): why,
+## shown on the result once it is up, and the result keeps only the ways out.
+var _closed_text: String = ""
+## The online match's opponent name and deck names, kept for its result
+## after the session ended (the controller is offline by then).
+var _online_names: Dictionary = {}
+## The latest state received (maybe still queued behind animations) is decided.
+var _decided_incoming: bool = false
+## Set while a replay is restored (main.gd): its position is not a new turn,
+## and it gets no intro.
+var restoring: bool = false
+var _suppress_cue: bool = false
+## The match intro plays before the next match's first state.
+var _intro_pending: bool = false
+## Intros played (tests count them).
+var intro_count: int = 0
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -134,6 +175,9 @@ func _init() -> void:
 	enemy_hand = _add(CardPile.new(), "EnemyHand")
 	enemy_hand.mode = CardPile.HAND
 	hud = _add(LaneHud.new(), "LaneHud")
+	history = _add(HistoryRail.new(), "History")
+	history.board = board
+	history.visible = false
 	enemy_panel = _add(PlayerPanel.new(), "EnemyPanel")
 	enemy_panel.own = false
 	enemy_panel.show_menu = true
@@ -165,6 +209,7 @@ func _init() -> void:
 	reconnect = _add(ReconnectOverlay.new(), "Reconnect")
 	inspect = _add(InspectOverlay.new(), "Inspect")
 	pass_screen = _add(PassDeviceScreen.new(), "PassDevice")
+	versus = _add(VersusIntro.new(), "Versus")
 	log_panel.names_source = func() -> Array:
 		# Third-person names that read in every template ("Your army passes").
 		if shown_viewer < 0 or controller == null or controller.mode == controller.MODE_LOCAL:
@@ -172,6 +217,9 @@ func _init() -> void:
 		var other = UiKit.t("PLAYER_AI") if controller.mode == controller.MODE_AI else UiKit.t("PLAYER_OPPONENT")
 		var names = [UiKit.t("LOG_PLAYER_YOU"), other]
 		return names if shown_viewer == 0 else [names[1], names[0]]
+	history.names_source = log_panel.names_source
+	history.log_requested.connect(_on_history_log)
+	history.inspect_requested.connect(inspect_card)
 	game_over.text_source = func() -> Array:
 		return [_towers_text(shown_view, shown_viewer), _matchup_text(shown_view, shown_viewer)]
 	board.board_pressed.connect(_on_board_pressed)
@@ -204,10 +252,13 @@ func _notification(what: int) -> void:
 
 func _layout() -> void:
 	var full = Rect2(Vector2.ZERO, size)
-	for node in [board, deployment, shop, hand, arrow, fx, reveal_catcher, game_over, reconnect, inspect, pass_screen]:
+	for node in [board, deployment, shop, hand, arrow, fx, reveal_catcher, game_over, reconnect, inspect, pass_screen, versus]:
 		node.position = full.position
 		node.size = full.size
 	hud.position = Vector2.ZERO
+	# The card history hangs under the lane HUD, above the enemy units.
+	history.position = Vector2(6, hud.size.y + 4.0)
+	history.size = Vector2(hud.size.x - 10.0, HistoryRail.HEIGHT)
 	enemy_panel.position = Vector2(size.x - enemy_panel.size.x, 0)
 	own_panel.position = Vector2(size.x - own_panel.size.x, size.y - own_panel.size.y)
 	# The coin's two-line hint ends a few pixels above the player panel.
@@ -266,13 +317,21 @@ func bind(match_controller: Node) -> void:
 	queue.idle.connect(_refresh_controls)
 	reconnect.controller = controller
 	reconnect.action_requested.connect(_on_reconnect_action)
-	controller.online_paused.connect(func(paused): reconnect.set_waiting(paused))
+	controller.online_paused.connect(func(paused):
+		reconnect.set_waiting(paused)
+		_refresh_controls())
 	controller.connection_changed.connect(func(_info): _refresh_controls())
+	# A hot-seat hand-over confirmed: the next player's cue may play now.
+	pass_screen.confirmed.connect(func(): _refresh_controls.call_deferred())
+	controller.opponent_left.connect(func(name):
+		_left_name = name
+		refresh_result())
 
 ## Forgets the shown match so the next state is drawn from scratch.
 func reset() -> void:
 	queue.clear()
 	_reveal_skip = true
+	versus.abort()
 	_cancel_hold()
 	shown_view = {}
 	shown_viewer = -1
@@ -280,12 +339,21 @@ func reset() -> void:
 	actions = []
 	_game_over_shown = false
 	game_over.visible = false
+	game_over.closed = false
+	_closed_text = ""
+	_online_names = {}
+	_decided_incoming = false
 	reconnect.set_waiting(controller != null and controller.waiting_for_opponent)
 	inspect.close()
 	shop.close()
 	deployment.close()
 	fx.clear_cast()
 	log_panel.toggle(false)
+	history.clear()
+	_turn_cue_pending = false
+	_cue_elapsed = -1.0
+	_suppress_cue = restoring
+	_intro_pending = not restoring
 
 func refresh_text() -> void:
 	hand.refresh_text()
@@ -301,9 +369,13 @@ func refresh_text() -> void:
 	deployment.refresh_text()
 	inspect.refresh_text()
 	game_over.refresh_text()
+	if game_over.visible:
+		refresh_result()
 	reconnect.refresh_text()
 	pass_screen.refresh_text()
 	log_panel.refresh_text()
+	history.refresh_text()
+	versus.refresh_text()
 	own_panel.refresh_text()
 	enemy_panel.refresh_text()
 	hint_label.visible = false
@@ -321,7 +393,46 @@ func refresh_text() -> void:
 
 func _on_state_changed(view: Dictionary, new_actions: Array) -> void:
 	var viewer = controller.viewer()
+	_decided_incoming = int(view.get("winner", -1)) != -1
+	if controller.mode == controller.MODE_ONLINE:
+		_online_names = {"opponent": controller.opponent_name(),
+			"decks": [controller.deck_name_in(view, viewer), controller.deck_name_in(view, 1 - viewer)]}
+	if _intro_pending:
+		_intro_pending = false
+		# A fresh match opens with its heroes face to face (not a rejoin into
+		# a running match, nor a restored replay).
+		if int(view.get("revision", 0)) == 0 and int(view.get("winner", -1)) == -1:
+			queue.push(_play_intro.bind(view.duplicate(true), viewer))
 	queue.push(_apply_state.bind(view.duplicate(true), new_actions.duplicate(true), viewer))
+
+## The match intro (versus_intro.gd); the queue holds every state (and the
+## bot) until it is over. Skipped in instant mode (tests) or when turned off.
+func _play_intro(view: Dictionary, viewer: int) -> void:
+	if AnimationQueue.instant or not Settings.match_intro or not is_inside_tree():
+		return
+	var info = VersusIntro.versus_info(view, viewer, controller.mode, _intro_names())
+	if info.is_empty():
+		return
+	intro_count += 1
+	versus.sfx = sfx
+	versus.steam_bridge = controller.steam_bridge
+	await versus.play(info)
+
+## Names, Steam ids and captions for the intro's two plates: you at the
+## bottom (Player 1 in hot-seat play), the opponent at the top.
+func _intro_names() -> Dictionary:
+	var bridge = controller.steam_bridge
+	match controller.mode:
+		controller.MODE_LOCAL:
+			return {"bottom": {"name": UiKit.t("PLAYER_N", {"n": 1})}, "top": {"name": UiKit.t("PLAYER_N", {"n": 2})}}
+		controller.MODE_ONLINE:
+			var own = bridge.local_name()
+			var other = controller.opponent_name()
+			return {"bottom": {"name": own if not own.is_empty() else UiKit.t("PLAYER_YOU"), "steam_id": int(bridge.local_id), "caption": UiKit.t("VERSUS_YOU")},
+				"top": {"name": other if not other.is_empty() else UiKit.t("PLAYER_OPPONENT"), "steam_id": int(bridge.peer_id), "caption": UiKit.t("VERSUS_OPPONENT")}}
+	var mine = bridge.local_name() if bridge.available else ""
+	return {"bottom": {"name": mine if not mine.is_empty() else UiKit.t("PLAYER_YOU"), "steam_id": int(bridge.local_id) if bridge.available else 0,
+		"caption": UiKit.t("VERSUS_YOU")}, "top": {"name": UiKit.t("PLAYER_AI"), "caption": UiKit.t("VERSUS_OPPONENT")}}
 
 func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 	_cancel_hold()
@@ -350,6 +461,12 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 		shown_viewer = viewer
 		_free_removed(board.sync(shown_view, viewer, []))
 		hand.sync(view.players[viewer].get("hand", []), [], own_deck.origin(), false)
+		# The history is that player's own (its purchases are its secret).
+		history.clear()
+	# The history knows the new events; each tile shows as its event plays.
+	var first_new = int(view.get("event_seq", 0)) - events.size()
+	history.refresh(view, viewer)
+	history.reveal(first_new - 1)
 	var context = {"dead": {}, "combat_lanes": {}, "lane": int(shown_view.get("lane", 0)), "budget": EventText.ANIMATED_LIMIT,
 		"hit": {}, "towers": {}, "summoned": {}, "moved": {}, "marks": []}
 	var last_open = -1
@@ -366,7 +483,9 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 	for event in later:
 		_note_hits(event, viewer, context)
 	for index in range(events.size() if last_open == -1 else last_open):
+		history.reveal(first_new + index)
 		await _animate_event(events[index], view, viewer, context)
+	history.reveal(first_new + (events.size() if last_open == -1 else last_open))
 	await _sync_all(view, new_actions, viewer, context, true)
 	await _follow_moves(context)
 	await _anim_hand_marks(context.marks, viewer)
@@ -380,8 +499,9 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 				await _anim_lane_open(event)
 				if index == last_open:
 					context.lane = int(event.get("lane", context.lane))
-					for after in later:
-						await _animate_event(after, view, viewer, context, true)
+					for offset in range(later.size()):
+						history.reveal(first_new + last_open + offset + 1)
+						await _animate_event(later[offset], view, viewer, context, true)
 					await _anim_hand_marks(context.marks, viewer)
 			"shop_open":
 				await _enter_shop(view, viewer, new_actions)
@@ -391,9 +511,11 @@ func _apply_state(view: Dictionary, new_actions: Array, viewer: int) -> void:
 				await _exit_deployment(view)
 			"win", "draw":
 				await _show_game_over(view, viewer)
+	history.reveal(-1)
 	_pending_origin = Vector2(-1, -1)
 	_hand_origin = Vector2(-1, -1)
 	_ensure_phase_ui(view, viewer, new_actions)
+	_note_turn(view, viewer, new_actions)
 	_refresh_controls()
 
 ## Plays one event's animation (spec §8.7) and records what the sync must
@@ -502,9 +624,18 @@ func _hard_sync(view: Dictionary, new_actions: Array, viewer: int) -> void:
 		_game_over_shown = false
 		game_over.visible = false
 	log_panel.set_events(view.get("events", []))
+	if viewer != first_viewer:
+		history.clear()
+	history.refresh(view, viewer)
+	history.reveal(-1)
 	_refresh_controls()
 	if controller.mode == controller.MODE_LOCAL and viewer != first_viewer and int(view.get("winner", -1)) == -1:
 		pass_screen.show_for(viewer)
+	# A restored position (a replay) or the same turn seen again (a rejoin) is
+	# not a new turn: its key is noted without a cue.
+	_note_turn(view, viewer, new_actions, _suppress_cue)
+	_suppress_cue = false
+	_refresh_controls()
 
 func _free_removed(changes: Array) -> void:
 	for change in changes:
@@ -986,13 +1117,19 @@ func _follow_moves(context: Dictionary) -> void:
 	await queue.wait(0.45)
 	await _focus_lane(home)
 
+## A pass: yours floats over the coin with a click; the opponent's is
+## announced larger under its plate with a chime of its own.
 func _anim_pass(event: Dictionary, viewer: int) -> void:
 	var own = int(event.get("p", 0)) == viewer
+	if own:
+		fx.float_text(coin.get_global_transform() * coin.center() + Vector2(0, -70), UiKit.t("BTN_PASS"), UiKit.PAPER, 24, 40)
+		if sfx != null:
+			sfx.play("click-b")
+		return
 	var panel_rect = enemy_panel.get_global_rect()
-	var point = coin.get_global_transform() * coin.center() + Vector2(0, -70) if own else Vector2(panel_rect.get_center().x, panel_rect.end.y + 28.0)
-	fx.float_text(point, UiKit.t("BTN_PASS"), UiKit.PAPER, 24, 40 if own else -30)
+	fx.float_text(Vector2(panel_rect.get_center().x - 60.0, panel_rect.end.y + 34.0), UiKit.t("HUD_PASSED_TOAST"), UiKit.GOLD_BRIGHT, 30, -34)
 	if sfx != null:
-		sfx.play("click-b")
+		sfx.play("opponent_pass")
 
 ## Combat in a lane, from the event's strikes (spec §8.7): attackers lunge,
 ## damage numbers pop on their targets, cleave hits fan out to the
@@ -1433,8 +1570,82 @@ func _show_game_over(view: Dictionary, viewer: int) -> void:
 	_show_result(view, viewer)
 
 func _show_result(view: Dictionary, viewer: int) -> void:
-	game_over.disabled_actions = ["again", "save"] if controller.is_guest() else []
+	_set_result_actions()
 	game_over.show_result(int(view.winner), viewer, controller.mode == controller.MODE_LOCAL, _towers_text(view, viewer), _matchup_text(view, viewer))
+	if not _closed_text.is_empty():
+		# The session ended while this result was on its way.
+		game_over.set_online_closed(_closed_text)
+	_refresh_controls()
+
+## True while this screen shows, or is about to show, a decided match: the
+## result is up, was dismissed with View board, or its state is still queued
+## behind animations (a host that conceded and left in one poll).
+func holds_result() -> bool:
+	return visible and (game_over.visible or _game_over_shown or _decided_incoming)
+
+## The online session ended (`text` says why) under this match's result:
+## the result, now or once it shows, offers only View board, Main menu and
+## Find a lobby, and keeps the online names.
+func close_online(text: String) -> void:
+	_closed_text = text
+	if game_over.visible:
+		game_over.set_online_closed(text)
+	_refresh_controls()
+
+## The session ended under a result of an online match (names and decks
+## come from _online_names; the controller is offline now).
+func _closed_online() -> bool:
+	return not _closed_text.is_empty() and not _online_names.is_empty() and controller.mode != controller.MODE_ONLINE
+
+## The result's buttons and status line for the play mode and the room:
+## offline Play again / Change deck / Save replay / View board / Main menu;
+## online Rematch (or Back to room once the opponent left) / Change deck /
+## Save replay (the host's) / View board / Leave room.
+func _set_result_actions() -> void:
+	if controller == null:
+		return
+	if game_over.closed or not _closed_text.is_empty():
+		# The session is over; close_online chose the way out.
+		return
+	if controller.mode != controller.MODE_ONLINE:
+		game_over.disabled_actions = []
+		game_over.set_actions(GameOverOverlay.OFFLINE_ACTIONS)
+		game_over.set_status("")
+		return
+	if not controller.in_room():
+		return
+	var list: Array = GameOverOverlay.ONLINE_ACTIONS.duplicate()
+	var bridge = controller.steam_bridge
+	var here = bridge.handshake_done
+	# The host's seat may have a new guest by now: they never played this
+	# match, so there is no rematch with them, only the room.
+	var newcomer = here and bridge.is_host and controller.last_opponent != 0 and bridge.bound_opponent != controller.last_opponent
+	if not here or newcomer:
+		list[0] = "room"
+	if controller.is_guest():
+		list.erase("save")
+	game_over.disabled_actions = []
+	game_over.set_actions(list)
+	var name = controller.opponent_name()
+	if name.is_empty():
+		name = UiKit.t("PLAYER_OPPONENT")
+	if not here:
+		game_over.set_status(UiKit.t("RESULT_OPPONENT_LEFT", {"name": _left_name if not _left_name.is_empty() else name}))
+	elif newcomer:
+		game_over.set_status(UiKit.t("RESULT_NEW_OPPONENT", {"name": name}))
+	elif not bridge.opponent_present:
+		game_over.set_status(UiKit.t("ROOM_OPPONENT_NOT_RESPONDING", {"name": name}))
+	elif controller.opponent_is_ready() and not controller.my_ready():
+		game_over.set_status(UiKit.t("RESULT_OPPONENT_WANTS_REMATCH", {"name": name}), true)
+	elif controller.my_ready():
+		game_over.set_status(UiKit.t("RESULT_REMATCH_WAITING", {"name": name}))
+	else:
+		game_over.set_status("")
+
+## Re-reads the room for the result screen (main.gd calls it on room changes).
+func refresh_result() -> void:
+	if game_over.visible:
+		_set_result_actions()
 
 func _focus_lane(lane_index: int) -> void:
 	if board.zoom > 0.01 and str(shown_view.get("phase", "")) == "action":
@@ -1469,7 +1680,9 @@ func _refresh_controls() -> void:
 			if busy and hud.combat_lane != -1:
 				coin.set_state(false, false, UiKit.t("PHASE_COMBAT"), "")
 			elif my_turn:
-				coin.set_state(true, true, UiKit.t("BTN_PASS"), UiKit.t("HUD_INITIATIVE_YOU"))
+				# After the opponent passed, passing too starts combat: say so.
+				var passed = int(view.get("first_pass", -1)) == 1 - viewer
+				coin.set_state(true, true, UiKit.t("BTN_PASS"), UiKit.t("HUD_OPPONENT_PASSED" if passed else "HUD_INITIATIVE_YOU"))
 			else:
 				coin.set_state(false, false, UiKit.t("HUD_OPPONENT_TURN"), UiKit.t("HUD_INITIATIVE_OPPONENT"))
 		"shop":
@@ -1489,7 +1702,11 @@ func _refresh_controls() -> void:
 					coin_hint = UiKit.t("DEPLOY_ALL_ASSIGNED")
 				coin.set_state(can, can, UiKit.t("BTN_CONFIRM_DEPLOYMENT") if not waiting else UiKit.t("HUD_WAITING"), coin_hint)
 		_:
-			coin.set_state(false, false, UiKit.t("PHASE_FINISHED"), "")
+			if int(view.get("winner", -1)) != -1 and _game_over_shown and not game_over.visible:
+				# Viewing the board after the result: the coin brings it back.
+				coin.set_state(false, true, UiKit.t("RESULT_SHOW"), UiKit.t("PHASE_FINISHED"))
+			else:
+				coin.set_state(false, false, UiKit.t("PHASE_FINISHED"), "")
 	coin.enabled = coin.enabled and not busy
 	var names = _player_names(viewer)
 	var players: Array = view.players
@@ -1507,10 +1724,92 @@ func _refresh_controls() -> void:
 	enemy_deck.set_count(int(players[1 - viewer].get("deck_count", 0)))
 	enemy_hand.set_count(int(players[1 - viewer].get("hand_count", 0)), "", _locks(players[1 - viewer].get("hand_public", [])))
 	hud.sync(view, viewer, board.lane_models, board.focus_lane)
+	# The card history shows on the board in the action phase (and on the
+	# board after a result), not over the shop, deployment or the result.
+	history.visible = Settings.show_history and phase in ["action", "finished"] and not shop.visible and not deployment.visible \
+		and not game_over.visible
+	_try_turn_cue()
+
+## Shows or hides the card history after its setting changed.
+func refresh_history() -> void:
+	_refresh_controls()
+
+# --- The your-action cue ----------------------------------------------------------
+
+## The identity of the action as yours in `view` ("" when it is not your
+## action): round, lane and you. The key goes empty whenever the opponent
+## acts, so every return of the action is a new key. Keeping the initiative
+## (a quick card, even right after the opponent passed) keeps the key, so it
+## does not chime again: you never lost the action. (The opponent cannot
+## pass during your action; the coin says when they passed before it.)
+static func action_key(view: Dictionary, viewer: int, acts: Array) -> String:
+	if str(view.get("phase", "")) != "action" or int(view.get("winner", -1)) != -1:
+		return ""
+	if int(view.get("active_player", -1)) != viewer or not {"type": "pass"} in acts:
+		return ""
+	return "%d|%d|%d" % [int(view.get("round", 0)), int(view.get("lane", 0)), viewer]
+
+## Notes the applied state's key: a new one makes the cue pending (unless
+## `quiet`, a restored position), none clears it.
+func _note_turn(view: Dictionary, viewer: int, acts: Array, quiet: bool = false) -> void:
+	var key = action_key(view, viewer, acts)
+	if key.is_empty():
+		_turn_cue_pending = false
+		_cue_elapsed = -1.0
+	elif key != _turn_key:
+		_turn_cue_pending = not quiet
+		if quiet:
+			_cue_elapsed = -1.0
+	_turn_key = key
+
+## Plays a pending cue once the board is idle and nothing covers it.
+func _try_turn_cue() -> void:
+	if not _turn_cue_pending or queue.busy or pass_screen.visible or game_over.visible or reconnect.visible or versus.visible:
+		return
+	if controller == null or controller.waiting_for_opponent:
+		return
+	if action_key(shown_view, shown_viewer, actions) != _turn_key:
+		return
+	_turn_cue_pending = false
+	_play_turn_cue()
+
+## Your action: a chime (when alerts are on, at most every CUE_MIN_MS), a
+## short banner over the river (not in hot-seat, where the hand-over screen
+## already named the player), rings from the coin, and a taskbar flash when
+## the window is in the background.
+func _play_turn_cue() -> void:
+	turn_cue_count += 1
+	_cue_elapsed = 0.0
+	_reminded = false
+	coin.pulse()
+	var now = Time.get_ticks_msec()
+	if sfx != null and now - _last_cue_ms >= CUE_MIN_MS:
+		sfx.play_alert("turn")
+	_last_cue_ms = now
+	if Settings.turn_alert and controller.mode != controller.MODE_LOCAL:
+		if fx.banners_showing():
+			# A lane's name is still on the river: the cue follows it.
+			var key = _turn_key
+			get_tree().create_timer(0.5).timeout.connect(func():
+				if is_inside_tree() and _turn_key == key and not key.is_empty():
+					fx.banner(UiKit.t("HUD_YOUR_TURN"), UiKit.GOLD_BRIGHT, 0.45, 40, _river_y()))
+		else:
+			fx.banner(UiKit.t("HUD_YOUR_TURN"), UiKit.GOLD_BRIGHT, 0.45, 40, _river_y())
+	_request_attention()
+
+## Flashes the taskbar entry when the window is not focused (not hot-seat).
+func _request_attention() -> void:
+	if not Settings.flash_window or controller.mode == controller.MODE_LOCAL or DisplayServer.get_name() == "headless":
+		return
+	if is_inside_tree() and not get_window().has_focus():
+		DisplayServer.window_request_attention()
 
 func _player_names(viewer: int) -> Array:
 	if controller == null:
 		return ["", ""]
+	if _closed_online():
+		var gone = str(_online_names.get("opponent", ""))
+		return [UiKit.t("PLAYER_YOU"), gone if not gone.is_empty() else UiKit.t("PLAYER_OPPONENT")]
 	match controller.mode:
 		controller.MODE_AI:
 			return [UiKit.t("PLAYER_YOU"), UiKit.t("PLAYER_AI")]
@@ -1646,6 +1945,9 @@ func _towers_text(view: Dictionary, viewer: int) -> String:
 ## "<own deck> vs <opponent's deck>": preset names, own decks by their name,
 ## and online the opponent's deck stays unnamed (its list is hidden).
 func _matchup_text(view: Dictionary, viewer: int) -> String:
+	if _closed_online():
+		var decks: Array = _online_names.get("decks", ["", ""])
+		return UiKit.t("DECKS_VS", {"deck1": str(decks[0]), "deck2": str(decks[1])})
 	if controller != null and controller.has_method("deck_name_in"):
 		return UiKit.t("DECKS_VS", {"deck1": controller.deck_name_in(view, viewer), "deck2": controller.deck_name_in(view, 1 - viewer)})
 	return UiKit.t("DECKS_VS", {"deck1": Library.preset_text(str(view.players[viewer].get("preset", ""))),
@@ -1667,6 +1969,16 @@ func can_play() -> bool:
 		and str(shown_view.get("phase", "")) == "action"
 
 func _process(delta: float) -> void:
+	if _cue_elapsed >= 0.0:
+		_cue_elapsed += delta
+		if not _reminded and _cue_elapsed >= CUE_REMINDER:
+			_reminded = true
+			# Still your action and the game is in the background: once more.
+			var still = not _turn_key.is_empty() and action_key(shown_view, shown_viewer, actions) == _turn_key
+			if still and controller != null and controller.mode != controller.MODE_LOCAL and is_inside_tree() and not get_window().has_focus():
+				if sfx != null:
+					sfx.play_alert("turn")
+				_request_attention()
 	if _hint_time > 0.0 and hold.is_empty():
 		_hint_time -= delta
 		if _hint_time <= 0.0:
@@ -1746,10 +2058,21 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 
 func _handle_key(event: InputEventKey) -> bool:
+	if versus.visible and event.keycode in [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER, KEY_ESCAPE]:
+		versus.skip()
+		return true
 	if _revealing and event.keycode in [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER, KEY_ESCAPE]:
 		_reveal_skip = true
 		return true
 	match event.keycode:
+		KEY_M:
+			Settings.set_muted(not Settings.muted)
+			show_hint(UiKit.t("HINT_MUTED" if Settings.muted else "HINT_UNMUTED"), 2.0)
+			return true
+		KEY_H:
+			Settings.set_show_history(not Settings.show_history)
+			_refresh_controls()
+			return true
 		KEY_ESCAPE:
 			if not hold.is_empty():
 				_cancel_hold()
@@ -2269,8 +2592,20 @@ func _on_reconnect_action(action: String) -> void:
 func _on_game_over_action(action: String) -> void:
 	if action == "board":
 		game_over.visible = false
+		_refresh_controls()
 		return
 	game_over_action.emit(action)
+
+## A history tile was clicked: the full log opens at its event (or at the
+## end for the log button).
+func _on_history_log(event_id: int) -> void:
+	var events: Array = shown_view.get("events", [])
+	var first = int(shown_view.get("event_seq", 0)) - events.size()
+	log_panel.set_events(events)
+	if event_id < 0:
+		log_panel.toggle(true)
+		return
+	log_panel.scroll_to_event(event_id - first)
 
 # --- Commands and public helpers (also the test facade) -------------------
 
@@ -2278,6 +2613,13 @@ func press_coin() -> void:
 	if queue.busy or pass_screen.visible or shown_view.is_empty():
 		return
 	var phase = str(shown_view.phase)
+	if int(shown_view.get("winner", -1)) != -1:
+		# After View board, the coin brings the result back.
+		if _game_over_shown and not game_over.visible:
+			game_over.visible = true
+			refresh_result()
+			_refresh_controls()
+		return
 	var command = {}
 	match phase:
 		"action":

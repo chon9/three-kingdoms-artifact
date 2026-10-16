@@ -5,10 +5,15 @@ extends SceneTree
 ## loaded the names, argument counts and enum values are cross-checked against
 ## ClassDB). FakeHub routes lobbies, lobby callbacks and Networking Messages
 ## between fake clients, so two real MatchControllers play an online match
-## in-process: handshake, commands, disconnects, rejoin, concede, and the
+## in-process: handshake, commands, disconnects, rejoin, concede, the
 ## guest's own deck (protocol 9): sent as a deck code after the welcome,
 ## validated by the host, answered, hidden from the other player's view;
-## malformed, oversized, foreign, flooded and missing deck packets.
+## malformed, oversized, foreign, flooded and missing deck packets; and the
+## room (protocol 10): both players ready (with a countdown either can
+## cancel) start a match, rematches after a result with changed decks, the
+## series, leaving the room on purpose (mid-match it concedes; the seat is
+## freed for a new opponent), lost goodbyes, hostile ready/room/bye packets,
+## and Steam avatars.
 
 const Bridge = preload("res://scripts/network/steam_bridge.gd")
 const Controller = preload("res://scripts/game/match_controller.gd")
@@ -132,6 +137,8 @@ class FakeSteam extends RefCounted:
 	signal join_game_requested(user: int, connect: String)
 	signal lobby_kicked(lobby_id: int, admin_id: int, due_to_disconnect: int)
 	signal steam_server_disconnected(result: int)
+	signal avatar_loaded(avatar_id: int, size: int, data: PackedByteArray)
+	signal persona_state_change(steam_id: int, flags: int)
 
 	var hub: FakeHub
 	var id: int = 0
@@ -150,6 +157,11 @@ class FakeSteam extends RefCounted:
 	var invites: int = 0
 	## ESteamNetworkingConnectionState reported for sessions (3 = connected).
 	var session_state: int = 3
+	## Avatar handles by SteamID ({"medium": handle, "large": handle}; -1 is
+	## still loading, 0 none) and image data by handle ({"w", "h", "buffer"}).
+	var avatar_handles: Dictionary = {}
+	var images: Dictionary = {}
+	var info_requests: Array = []
 
 	func queue(signal_name: String, args: Array) -> void:
 		pending.append([signal_name, args])
@@ -241,6 +253,21 @@ class FakeSteam extends RefCounted:
 			return false
 		hub.lobbies[steam_lobby_id].max = max_members
 		return true
+	func getMediumFriendAvatar(steam_id: int) -> int:
+		return int(avatar_handles.get(steam_id, {}).get("medium", 0))
+	func getLargeFriendAvatar(steam_id: int) -> int:
+		return int(avatar_handles.get(steam_id, {}).get("large", 0))
+	func getImageSize(image_handle: int) -> Dictionary:
+		if not images.has(image_handle):
+			return {"success": false, "width": 0, "height": 0}
+		return {"success": true, "width": images[image_handle].w, "height": images[image_handle].h}
+	func getImageRGBA(image_handle: int) -> Dictionary:
+		if not images.has(image_handle):
+			return {}
+		return {"success": true, "buffer": images[image_handle].buffer}
+	func requestUserInformation(steam_id: int, require_name_only: bool) -> bool:
+		info_requests.append([steam_id, require_name_only])
+		return false
 
 	## Decoded packets this client sent to `remote` (all of them when 0).
 	func packets_to(remote: int = 0) -> Array:
@@ -270,6 +297,10 @@ func _run() -> void:
 	_test_steam_events()
 	_test_review_fixes()
 	_test_guest_decks()
+	_test_room_and_rematch()
+	_test_leave_lobby()
+	_test_refused_rejoin()
+	_test_avatars()
 	for node in nodes:
 		if is_instance_valid(node):
 			node.free()
@@ -278,7 +309,7 @@ func _run() -> void:
 			client.hub = null
 		hub.clients.clear()
 	if failures.is_empty():
-		print("PASS: %d Steam checks (fake GodotSteam 4.23 boundary: lobbies, browser, invites, launch join, handshake, race, normalization, heartbeat, disconnect/rejoin, seat binding, host leave, concede, guest decks)." % checks)
+		print("PASS: %d Steam checks (fake GodotSteam 4.23 boundary: lobbies, browser, invites, launch join, handshake, race, normalization, heartbeat, disconnect/rejoin, seat binding, host leave, concede, guest decks, the room: ready, countdown, rematch, deck changes, series, leaving on purpose, freed seats, hostile room packets, avatars)." % checks)
 		quit(0)
 	else:
 		for failure in failures:
@@ -705,7 +736,10 @@ func _test_online_match() -> void:
 	guest_steam.queue("join_requested", [lobby, HOST_ID])
 	_pump([guest.steam_bridge, host.steam_bridge], 10)
 	_check(joins.size() == 1 and guest.steam_bridge.lobby_id == lobby, "An overlay invite joins the lobby and opens the online flow")
-	_check(host.mode == Controller.MODE_ONLINE and host.started and guest.mode == Controller.MODE_ONLINE and guest.started, "The handshake starts the online match on both sides")
+	_check(not host.started and not guest.started and host.room_phase == "room" and guest.room_phase == "room",
+		"The handshake opens the room on both sides; no match starts by itself (host %s, guest %s)" % [host.room_phase, guest.room_phase])
+	_ready_up(host, guest)
+	_check(host.mode == Controller.MODE_ONLINE and host.started and guest.mode == Controller.MODE_ONLINE and guest.started, "Both players ready start the online match on both sides")
 	_check(guest.opponent_name() == "Liu Bei" and host.opponent_name() == "Cao Cao", "Both sides know the opponent's persona name")
 	var guest_view = guest.view()
 	_check(_is_whole_float_free(guest_view) and guest_view.players[0].hand.is_empty() and not guest_view.players[1].hand.is_empty(), "Guest view is integer-typed and hides the host's hand")
@@ -797,7 +831,18 @@ func _online_pair(public: bool = false) -> Array:
 	_pump([host.steam_bridge])
 	guest.steam_bridge.join_lobby(str(host.steam_bridge.lobby_id))
 	_pump([guest.steam_bridge, host.steam_bridge], 10)
+	_ready_up(host, guest)
 	return [hub, host, guest]
+
+## Both players get ready and the countdown runs out: the host starts a match.
+func _ready_up(host: Node, guest: Node) -> void:
+	_pump([guest.steam_bridge, host.steam_bridge], 4)
+	time.ms += Bridge.READY_MIN_MS
+	guest.set_ready(true)
+	host.set_ready(true)
+	_pump([guest.steam_bridge, host.steam_bridge], 4)
+	time.ms += Controller.ROOM_COUNTDOWN_MS
+	_pump([host.steam_bridge, guest.steam_bridge], 4)
 
 func _kinds(packets: Array, kind: String) -> int:
 	return packets.filter(func(packet): return packet is Dictionary and packet.get("kind") == kind).size()
@@ -1019,8 +1064,15 @@ func _test_review_fixes() -> void:
 	var host2 = pair2[1]
 	var guest2 = pair2[2]
 	guest2.start_match(Controller.MODE_AI)
-	_check(guest2.mode == Controller.MODE_AI and guest2.steam_bridge.lobby_id == 0 and guest2.steam_bridge.status_code == "left_lobby", "A guest starting an AI match leaves the lobby first")
+	_check(guest2.mode == Controller.MODE_AI and guest2.steam_bridge.leaving() and not guest2.steam_bridge.in_lobby(),
+		"A guest starting an AI match says goodbye and is on its way out of the lobby")
 	_pump([host2.steam_bridge, guest2.steam_bridge], 4)
+	_check(int(host2.engine.state.winner) == 0 and host2.engine.journal.back().player == 1 and host2.steam_bridge.bound_opponent == 0
+		and not host2.waiting_for_opponent and host2.steam_bridge.status_code == "opponent_conceded_left",
+		"Leaving a running online match for an AI match concedes it; the host does not wait and frees the seat")
+	time.ms += Bridge.LEAVE_LINGER_MS
+	_pump([host2.steam_bridge, guest2.steam_bridge], 2)
+	_check(guest2.steam_bridge.lobby_id == 0 and guest2.steam_bridge.status_code == "left_lobby", "Then the guest has left the lobby")
 	host2.start_match(Controller.MODE_ONLINE)
 	_pump([host2.steam_bridge, guest2.steam_bridge], 4)
 	_check(guest2.mode == Controller.MODE_AI and guest2.started, "Host traffic does not replace the guest's AI match")
@@ -1029,13 +1081,20 @@ func _test_review_fixes() -> void:
 	var guest3 = pair3[2]
 	var guest3_ended: Array = []
 	guest3.online_ended.connect(func(text): guest3_ended.append(text))
+	var guest3_results: Array = []
+	guest3.state_changed.connect(func(view, _actions): guest3_results.append(int(view.get("winner", -1))))
 	host3.start_match(Controller.MODE_AI)
 	_pump([host3.steam_bridge, guest3.steam_bridge], 3)
-	_check(host3.mode == Controller.MODE_AI and host3.steam_bridge.lobby_id == 0 and guest3_ended.size() == 1 and guest3.steam_bridge.status_code == "host_left",
-		"A host starting an AI match leaves the lobby and the guest is told")
+	time.ms += Bridge.LEAVE_LINGER_MS
+	_pump([host3.steam_bridge, guest3.steam_bridge], 2)
+	_check(host3.mode == Controller.MODE_AI and host3.steam_bridge.lobby_id == 0 and guest3_ended.size() == 1 and guest3.steam_bridge.status_code == "host_left"
+		and guest3_results.has(1), "A host starting an AI match concedes the online one, leaves the lobby and the guest is told")
 	# Leaving by hand says so in the Steam dialog.
 	var pair4 = _online_pair()
 	pair4[1].leave_online()
+	_check(pair4[1].steam_bridge.status_code == "leaving_lobby" and pair4[1].steam_bridge.leaving(), "Leaving first says goodbye (the lobby is left a moment later)")
+	time.ms += Bridge.LEAVE_LINGER_MS
+	_pump([pair4[1].steam_bridge], 1)
 	_check(pair4[1].steam_bridge.status_code == "left_lobby" and pair4[1].steam_status_text() == EventText.steam_status("left_lobby"), "Leaving shows 'You left the lobby'")
 
 # --- The guest's own deck (protocol 9) ----------------------------------------------------
@@ -1052,7 +1111,7 @@ func _deck_packets(steam: FakeSteam, kind: String) -> Array:
 	return steam.packets_to().filter(func(packet): return packet is Dictionary and packet.get("kind") == kind)
 
 func _test_guest_decks() -> void:
-	_check(Bridge.PROTOCOL == 9 and MatchEngine.PROTOCOL_VERSION == 8, "Steam protocol 9 (guest decks), match format 8")
+	_check(Bridge.PROTOCOL == 10 and MatchEngine.PROTOCOL_VERSION == 8, "Steam protocol 10 (the room), match format 8")
 	var library = Library.new()
 	var hub = _hub()
 	var host_steam = hub.add(HOST_ID, "Liu Bei")
@@ -1073,7 +1132,9 @@ func _test_guest_decks() -> void:
 	_check(DeckCode.decode(sent[0].code, library).deck.name == "" and DeckCode.decode(host.steam_bridge.guest_deck_code, library).deck.name == ""
 		and str(host.guest_deck.get("name", "")) == "" and not JSON.stringify(guest_steam.packets_to()).contains("Guest Deck"),
 		"The guest's deck code carries no name and the host keeps none")
-	_check(host.started and host.mode == Controller.MODE_ONLINE and host.guest_deck_state == "ok", "The host starts the match once the guest's deck is validated")
+	_check(not host.started and host.room_phase == "room" and host.guest_deck_state == "ok", "The host validates the guest's deck in the room; no match yet")
+	_ready_up(host, guest)
+	_check(host.started and host.mode == Controller.MODE_ONLINE, "Both ready, the match starts with the guest's deck")
 	# Deck codes keep each hero's round (Valve's "turn"); round 1 is listed by card id.
 	var played: Array = host.engine.state.players[1].roster.map(func(hero): return hero.card)
 	var round_one: Array = played.slice(0, 3)
@@ -1085,7 +1146,7 @@ func _test_guest_decks() -> void:
 	_check(host.engine.state.players[1].preset == "custom" and held is Dictionary and held.cards == Library.canonical_deck(mine).cards
 		and held.items == Library.canonical_deck(mine).items, "The host holds the guest's list only in the engine (\"custom\" in state)")
 	_check(answers.size() == 1 and answers[0].ok and guest.own_deck_result.ok, "The guest is told its deck was accepted")
-	_check(guest.notice == EventText.t("HINT_CONNECTED_GUEST") or guest.notice == EventText.t("DECK_ONLINE_ACCEPTED"), "The guest's notice is a localized message")
+	_check(guest.notice == EventText.t("HINT_DRAG_CARD") or guest.notice == EventText.t("DECK_ONLINE_ACCEPTED"), "The guest's notice is a localized message")
 	var guest_view = guest.view()
 	var host_view = host.view()
 	_check(guest_view.players[0].preset == Controller.HIDDEN_DECK and guest_view.players[0].deck.is_empty() and guest_view.players[0].item_deck.is_empty()
@@ -1171,7 +1232,7 @@ func _test_guest_decks() -> void:
 	host.steam_bridge.poll()
 	_check(flooded == 1 and _deck_packets(host_steam, "deck_result").size() - results_before == 2
 		and host.guest_deck.heroes[3] == library.preset("blue_black_control").heroes[3], "A burst of deck packets costs two answers; the latest deck wins")
-	# A guest that never sends a deck: after the wait it plays the fallback.
+	# A guest that never sends a deck can never be ready: no match starts.
 	var hub2 = _hub()
 	var lone_host = _controller(hub2.add(HOST_ID, "Liu Bei"))
 	var silent_steam = hub2.add(GUEST_ID, "Cao Cao")
@@ -1180,15 +1241,431 @@ func _test_guest_decks() -> void:
 	_pump([lone_host.steam_bridge])
 	silent.join_lobby(str(lone_host.steam_bridge.lobby_id))
 	_pump([silent, lone_host.steam_bridge], 10)
-	_check(silent.handshake_done and lone_host.awaiting_guest_deck and not lone_host.started, "The host waits for a new guest's deck before the first match")
-	time.ms += Controller.GUEST_DECK_WAIT_MS
+	_check(silent.handshake_done and not lone_host.started and lone_host.room_phase == "room" and lone_host.guest_deck_state == "",
+		"A new guest's room waits for its deck")
+	lone_host.set_ready(true)
+	time.ms += Bridge.READY_MIN_MS
+	silent.send_ready(true)
 	_pump([silent, lone_host.steam_bridge], 4)
-	var missing = _deck_packets(lone_host.steam_bridge.steam, "deck_result")
-	_check(lone_host.started and not lone_host.awaiting_guest_deck and lone_host.guest_deck_state == "missing"
-		and missing.size() == 1 and missing[0].code == "deck_online_missing", "Without a deck in time the match starts with the fallback and the guest is told")
-	_check(EventText.error_text({"code": "deck_online_missing"}).find("{") == -1, "The missing-deck message is translated")
+	time.ms += Controller.ROOM_COUNTDOWN_MS * 2
+	_pump([silent, lone_host.steam_bridge], 4)
+	_check(not lone_host.started and lone_host.room_ready == [true, false] and not lone_host.room_starting and lone_host.room_phase == "room",
+		"Readiness without an accepted deck is refused: no countdown, no match")
+	var silent_rooms = silent_steam.packets_to(HOST_ID).filter(func(packet): return packet is Dictionary and packet.get("kind") == "deck")
+	_check(silent_rooms.is_empty() and EventText.error_text({"code": "deck_online_missing"}).find("{") == -1, "The missing-deck message is still translated")
 
 func _sorted(values: Array) -> Array:
 	var copy = values.duplicate()
 	copy.sort()
 	return copy
+
+# --- The room (protocol 10): ready, countdown, rematch, decks, series -------------------
+
+## Room packets the host sent, decoded.
+func _rooms(steam: FakeSteam) -> Array:
+	return steam.packets_to().filter(func(packet): return packet is Dictionary and packet.get("kind") == "room")
+
+## Both bridges of a pair, polled.
+func _both(host: Node, guest: Node, rounds: int = 4) -> void:
+	_pump([host.steam_bridge, guest.steam_bridge], rounds)
+
+func _test_room_and_rematch() -> void:
+	var library = Library.new()
+	var hub = _hub()
+	var host_steam = hub.add(HOST_ID, "Liu Bei")
+	var guest_steam = hub.add(GUEST_ID, "Cao Cao")
+	var host = _controller(host_steam)
+	var guest = _controller(guest_steam)
+	var opened: Array = [0, 0]
+	host.room_opened.connect(func(): opened[0] += 1)
+	guest.room_opened.connect(func(): opened[1] += 1)
+	host.steam_bridge.host_lobby()
+	_pump([host.steam_bridge])
+	var lobby = host.steam_bridge.lobby_id
+	_check(host.room_phase == "waiting" and opened[0] == 1 and hub.lobbies[lobby].data.status == "waiting", "Hosting opens the room with the guest's seat empty")
+	_check(not host.can_ready() and host.ready_block() == "ROOM_WAITING_SEAT", "The host cannot get ready alone (%s)" % host.ready_block())
+	guest.steam_bridge.join_lobby(str(lobby))
+	_both(host, guest, 10)
+	# 1. The handshake opens the room: no match, nobody ready.
+	_check(not host.started and not guest.started and host.room_phase == "room" and guest.room_phase == "room" and opened == [2, 1],
+		"Both rooms open after the handshake (the host's again, with its guest) and no match starts (%s)" % [opened])
+	var rooms = _rooms(host_steam)
+	_check(not rooms.is_empty() and rooms.back().phase == "room" and rooms.back().ready == [false, false] and rooms.back().deck == "ok",
+		"The guest is told the room: nobody ready, its deck accepted")
+	_check(guest.room_deck == "ok" and guest.can_ready() and host.can_ready(), "With an accepted deck both may get ready")
+	# 2. An illegal deck: the guest cannot get ready, and a forged ready is ignored.
+	var short = _own_deck("starter", [0, 1, 2, 3, 4], "Short")
+	short.cards.erase("bronze_legionnaire")
+	time.ms += Bridge.DECK_MIN_MS
+	guest.set_own_deck(short)
+	_both(host, guest)
+	_check(host.guest_deck_state == "rejected" and guest.room_deck == "rejected" and not guest.can_ready() and guest.ready_block() == "ROOM_READY_NEEDS_DECK",
+		"A rejected deck blocks the guest's readiness (%s)" % guest.ready_block())
+	guest.set_ready(true)
+	time.ms += Bridge.READY_MIN_MS
+	guest.steam_bridge.send_ready(true)
+	_both(host, guest)
+	_check(not guest.my_ready() and not host.room_ready[1] and not guest.room_ready[1], "The host ignores readiness without an accepted deck")
+	time.ms += Bridge.DECK_MIN_MS
+	guest.set_own_deck("five_tigers")
+	_both(host, guest)
+	_check(guest.can_ready() and host.guest_deck_state == "ok", "A legal deck lets the guest get ready again")
+	# 3. One player ready starts nothing; both start a countdown either can cancel.
+	host.set_ready(true)
+	_both(host, guest)
+	_check(host.room_ready == [true, false] and guest.room_ready == [true, false] and not host.room_starting and guest.opponent_is_ready(),
+		"The host's readiness shows on the guest; one ready player starts nothing")
+	var guest_starts: Array = []
+	guest.match_started.connect(func(): guest_starts.append(true))
+	time.ms += Bridge.READY_MIN_MS
+	guest.set_ready(true)
+	_both(host, guest, 3)
+	_check(host.room_starting and guest.room_starting and guest.countdown_left() >= 1 and host.countdown_left() >= 1 and not host.started,
+		"Both ready: the countdown runs on both screens (%d s)" % guest.countdown_left())
+	time.ms += Bridge.READY_MIN_MS
+	guest.set_ready(false)
+	_both(host, guest, 3)
+	time.ms += Controller.ROOM_COUNTDOWN_MS
+	_both(host, guest, 3)
+	_check(not host.started and not host.room_starting and not guest.room_starting and host.room_ready == [true, false],
+		"Cancelling during the countdown stops it; no match starts")
+	time.ms += Bridge.READY_MIN_MS
+	guest.set_ready(true)
+	_both(host, guest, 3)
+	time.ms += Controller.ROOM_COUNTDOWN_MS
+	_both(host, guest)
+	_check(host.started and guest.started and host.match_serial == 1 and guest.match_serial == 1 and guest_starts.size() == 1,
+		"The countdown ends: the match starts on both sides (serial 1)")
+	_check(host.room_phase == "match" and guest.room_phase == "match" and host.room_ready == [false, false] and guest.room_ready == [false, false],
+		"A started match clears both players' readiness")
+	var tigers: Array = library.preset("five_tigers").heroes
+	_check(host.engine.state.players[1].roster.map(func(hero): return hero.card).slice(3) == tigers.slice(3), "The guest plays the deck it switched to")
+	# 4. Readiness during a running match is ignored.
+	time.ms += Bridge.READY_MIN_MS
+	guest.steam_bridge.send_ready(true)
+	_both(host, guest)
+	_check(not host.room_ready[1] and not guest.can_ready() and guest.ready_block() == "ROOM_MATCH_RUNNING", "Readiness during a match is ignored")
+	# A result: the result phase and the series.
+	host.concede()
+	_both(host, guest)
+	_check(host.room_phase == "result" and guest.room_phase == "result" and host.room_series == [0, 1] and guest.room_series == [0, 1],
+		"A result opens the result phase; the series counts the guest's win (%s)" % [guest.room_series])
+	_check(guest.can_ready() and host.can_ready(), "After a result both may get ready for a rematch")
+	# 5. A burst of readiness: at most two room packets, the latest value wins.
+	var before = _rooms(host_steam).size()
+	time.ms += Bridge.READY_MIN_MS
+	for value in [true, false, true, false, true]:
+		guest.steam_bridge.send_ready(value)
+	_pump([host.steam_bridge], 1)
+	time.ms += Bridge.READY_MIN_MS
+	_pump([host.steam_bridge], 1)
+	_check(_rooms(host_steam).size() - before <= 2 and host.room_ready[1], "Five ready toggles cost at most two room packets and the latest wins (%d)" % (_rooms(host_steam).size() - before))
+	_both(host, guest)
+	_check(guest.room_ready == [false, true] and not host.room_starting, "The guest's readiness after the result shows on both sides")
+	# 6. Deck changes between matches take back readiness.
+	time.ms += Bridge.DECK_MIN_MS
+	var mine = _own_deck("siege_of_ye", [4, 0, 2, 1, 3], "Guest Deck")
+	guest.set_own_deck(mine)
+	_both(host, guest)
+	_check(not host.room_ready[1] and not guest.room_ready[1], "A guest's deck change takes back its readiness")
+	host.set_ready(true)
+	_both(host, guest)
+	host.set_own_deck("green_assault")
+	_both(host, guest)
+	_check(not host.room_ready[0] and not guest.room_ready[0], "The host's deck change takes back its readiness")
+	# The rematch: both ready, new decks, serial 2.
+	host.set_ready(true)
+	time.ms += Bridge.READY_MIN_MS
+	guest.set_ready(true)
+	_both(host, guest, 3)
+	time.ms += Controller.ROOM_COUNTDOWN_MS
+	_both(host, guest)
+	_check(host.match_serial == 2 and guest.match_serial == 2 and guest_starts.size() == 2 and not guest.is_finished(), "Both ready after a result start the rematch (serial 2)")
+	var played: Array = host.engine.state.players[1].roster.map(func(hero): return hero.card)
+	_check(played[3] == mine.heroes[3] and played[4] == mine.heroes[4] and host.engine.state.players[0].preset == "green_assault",
+		"The rematch uses both players' new decks (%s)" % [played])
+	_check(host.room_series == [0, 1], "The series carries over to the rematch")
+	_check(guest.notice == EventText.t("HINT_DRAG_CARD") and guest.notice.find("2") == -1,
+		"A rematch never greets the guest with \"Connected to host. You are Player 2.\" (%s)" % guest.notice)
+	# 7. Privacy: room packets never name a player, a deck or a hero.
+	var all_rooms = _rooms(host_steam)
+	var leaked: Array = []
+	var forbidden: Array = ["Liu Bei", "Cao Cao", "Guest Deck", "name", "hero", "code", "five_tigers", "siege_of_ye", "green_assault", "starter"]
+	for hero_id in mine.heroes + tigers:
+		forbidden.append(str(hero_id))
+	for packet in all_rooms:
+		var keys: Array = packet.keys()
+		keys.sort()
+		if keys != ["deck", "game", "kind", "phase", "protocol", "ready", "serial", "series", "starting"]:
+			leaked.append(str(keys))
+		var text = JSON.stringify(packet)
+		for word in forbidden:
+			if text.contains(word):
+				leaked.append(word)
+	_check(not all_rooms.is_empty() and leaked.is_empty(), "Room packets carry only the room's fields (%s)" % [leaked])
+	# 8. Hostile packets: wrong types, unknown phases, strangers.
+	var seen: Array = []
+	guest.steam_bridge.room_received.connect(func(room): seen.append(room))
+	var good = {"protocol": Bridge.PROTOCOL, "game": Bridge.GAME_TAG, "kind": "room", "phase": "result", "ready": [true, false], "deck": "ok",
+		"starting": false, "series": [1, 1], "serial": 9}
+	var bad: Array = []
+	for change in [{"phase": "party"}, {"ready": ["yes", false]}, {"ready": [true]}, {"deck": "<b>evil</b>"}, {"starting": 1},
+			{"series": [5000, 0]}, {"series": [1, -1]}, {"serial": "9"}, {"serial": 1.5}]:
+		var packet = good.duplicate(true)
+		packet.merge(change, true)
+		bad.append(packet)
+	var missing = good.duplicate(true)
+	missing.erase("deck")
+	bad.append(missing)
+	for packet in bad:
+		guest.steam_bridge._handle_packet(HOST_ID, packet)
+	_check(seen.is_empty(), "Room packets with a missing or mistyped field are dropped (%d accepted)" % seen.size())
+	var extra = good.duplicate(true)
+	extra["name"] = "Steam Support"
+	extra["heroes"] = ["axe"]
+	guest.steam_bridge._handle_packet(HOST_ID, extra)
+	var kept: Array = seen.back().keys() if not seen.is_empty() else []
+	kept.sort()
+	_check(seen.size() == 1 and kept == ["deck", "phase", "ready", "serial", "series", "starting"], "Unknown room fields are stripped (%s)" % [kept])
+	hub.lobbies[lobby].members.append(STRANGER_ID)
+	guest.steam_bridge._handle_packet(STRANGER_ID, good)
+	_check(seen.size() == 1, "A room packet from anyone but the host is ignored")
+	var readies: Array = []
+	host.steam_bridge.ready_received.connect(func(value): readies.append(value))
+	time.ms += Bridge.READY_MIN_MS
+	host.steam_bridge._handle_packet(STRANGER_ID, {"protocol": Bridge.PROTOCOL, "game": Bridge.GAME_TAG, "kind": "ready", "ready": true})
+	for value in ["yes", 1, null, [true]]:
+		host.steam_bridge._handle_packet(GUEST_ID, {"protocol": Bridge.PROTOCOL, "game": Bridge.GAME_TAG, "kind": "ready", "ready": value})
+	_pump([host.steam_bridge], 1)
+	_check(readies.is_empty(), "Ready packets from strangers or with a non-bool value are ignored")
+	var byes: Array = []
+	host.steam_bridge.bye_received.connect(func(conceded): byes.append(conceded))
+	host.steam_bridge._handle_packet(STRANGER_ID, {"protocol": Bridge.PROTOCOL, "game": Bridge.GAME_TAG, "kind": "bye", "concede": true})
+	guest.steam_bridge._handle_packet(STRANGER_ID, {"protocol": Bridge.PROTOCOL, "game": Bridge.GAME_TAG, "kind": "bye", "concede": false})
+	_check(byes.is_empty() and host.steam_bridge.bound_opponent == GUEST_ID and guest.steam_bridge.lobby_id == lobby and int(host.engine.state.winner) == -1,
+		"A goodbye from a stranger changes nothing")
+	hub.lobbies[lobby].members.erase(STRANGER_ID)
+
+# --- Leaving the room on purpose ----------------------------------------------------------
+
+func _test_leave_lobby() -> void:
+	# 1. The guest leaves mid-match: it concedes, the host frees the seat.
+	var pair = _online_pair()
+	var hub: FakeHub = pair[0]
+	var host = pair[1]
+	var guest = pair[2]
+	var lobby = host.steam_bridge.lobby_id
+	var left: Array = []
+	host.opponent_left.connect(func(name): left.append(name))
+	var guest_ended: Array = []
+	guest.online_ended.connect(func(text): guest_ended.append(text))
+	_check(host.online_match_running() and guest.online_match_running(), "A match is running")
+	guest.leave_online(true)
+	_check(guest_ended.size() == 1 and guest.mode == Controller.MODE_AI and not guest.started, "The guest's views leave the room at once")
+	_check(guest.steam_bridge.lobby_id == lobby and guest.steam_bridge.leaving(), "The guest lingers in the lobby while its goodbye is delivered")
+	_pump([host.steam_bridge, guest.steam_bridge], 3)
+	var last = host.engine.journal.back()
+	_check(int(host.engine.state.winner) == 0 and last.player == 1 and last.command == {"type": "concede"}, "Leaving a running match concedes it (journal: %s)" % [last])
+	_check(not host.waiting_for_opponent and host.steam_bridge.bound_opponent == 0 and not host.steam_bridge.handshake_done
+		and hub.lobbies[lobby].data.status == "waiting" and hub.lobbies[lobby].max == Bridge.LOBBY_MEMBERS,
+		"The host does not wait for a guest that left on purpose: the seat is free and the lobby open")
+	_check(left == ["Cao Cao"] and host.room_phase == "waiting" and host.steam_bridge.status_code == "opponent_conceded_left"
+		and EventText.steam_status(host.steam_bridge.status_code, host.steam_bridge.status_args).find("Cao Cao") != -1,
+		"The host is told the guest conceded and left (%s)" % host.steam_bridge.status_code)
+	time.ms += Bridge.LEAVE_LINGER_MS
+	_pump([guest.steam_bridge, host.steam_bridge], 2)
+	_check(guest.steam_bridge.lobby_id == 0 and guest.steam_bridge.status_code == "left_lobby" and GUEST_ID not in hub.lobbies[lobby].members,
+		"After the linger the guest has left the lobby")
+	_check(host.steam_bridge.bound_opponent == 0 and host.room_phase == "waiting" and left.size() == 1, "The late lobby update changes nothing on the host")
+	# A new account takes the free seat (no seat_taken) and gets a fresh room.
+	var newcomer = _controller(hub.add(STRANGER_ID, "Lu Bu"))
+	var refused: Array = []
+	newcomer.steam_bridge.session_ended.connect(func(code): refused.append(code))
+	newcomer.steam_bridge.join_lobby(str(lobby))
+	_pump([newcomer.steam_bridge, host.steam_bridge], 10)
+	_check(refused.is_empty() and newcomer.steam_bridge.handshake_done and host.steam_bridge.bound_opponent == STRANGER_ID
+		and host.room_phase == "room" and newcomer.room_phase == "room" and host.room_series == [0, 0],
+		"A different account can take the freed seat: a fresh room and series")
+	# 2. The guest leaves after a result: no concession, the seat is freed.
+	var pair2 = _online_pair()
+	var host2 = pair2[1]
+	var guest2 = pair2[2]
+	host2.concede()
+	_both(host2, guest2)
+	var revision = int(host2.engine.state.revision)
+	guest2.leave_online(false)
+	_pump([host2.steam_bridge, guest2.steam_bridge], 3)
+	_check(int(host2.engine.state.revision) == revision and host2.steam_bridge.bound_opponent == 0 and host2.steam_bridge.status_code == "opponent_left_lobby",
+		"Leaving after a result changes no match and frees the seat (%s)" % host2.steam_bridge.status_code)
+	# 3. The goodbye is lost: a mid-match drop waits (claim later); in the room the seat is freed at once.
+	var pair3 = _online_pair()
+	var host3 = pair3[1]
+	var guest3 = pair3[2]
+	guest3.steam_bridge.leave_by_user()
+	_pump([host3.steam_bridge], 2)
+	_check(host3.waiting_for_opponent and host3.steam_bridge.bound_opponent == GUEST_ID and host3.can_claim_win(),
+		"Without a goodbye, a mid-match departure waits for a rejoin (the win can be claimed)")
+	_check(host3.claim_win().ok and int(host3.engine.state.winner) == 0, "Claiming the win still works")
+	var pair4 = _online_pair()
+	var hub4: FakeHub = pair4[0]
+	var host4 = pair4[1]
+	var guest4 = pair4[2]
+	host4.concede()
+	_both(host4, guest4)
+	guest4.steam_bridge.leave_by_user()
+	_pump([host4.steam_bridge], 2)
+	_check(not host4.waiting_for_opponent and host4.steam_bridge.bound_opponent == 0 and host4.room_phase == "waiting"
+		and hub4.lobbies[host4.steam_bridge.lobby_id].data.status == "waiting",
+		"Without a goodbye, a guest leaving after the result frees the seat at once")
+	# 4. The host leaves mid-match: it concedes; the guest sees the result, then the end.
+	var pair5 = _online_pair()
+	var host5 = pair5[1]
+	var guest5 = pair5[2]
+	var host5_steam: FakeSteam = host5.steam_bridge.steam
+	var order: Array = []
+	guest5.state_changed.connect(func(view, _actions): order.append("state:%d" % int(view.get("winner", -1))))
+	guest5.online_ended.connect(func(_text): order.append("ended:" + guest5.steam_bridge.status_code))
+	host5.leave_online(true)
+	_check(int(host5.engine.state.winner) == 1 and host5.mode == Controller.MODE_AI, "A host leaving a running match concedes it")
+	var kinds = host5_steam.packets_to(GUEST_ID).map(func(packet): return packet.get("kind")).slice(-3)
+	_check(kinds == ["state", "room", "bye"], "The host's last packets are the result, the room and the goodbye (%s)" % [kinds])
+	_pump([guest5.steam_bridge], 2)
+	_check(order.size() >= 2 and order[-2] == "state:1" and order[-1] == "ended:host_left", "The guest sees the host's concession before the session ends (%s)" % [order])
+	# 5. Hosting during the linger leaves at once.
+	var pair6 = _online_pair()
+	var hub6: FakeHub = pair6[0]
+	var host6 = pair6[1]
+	var guest6 = pair6[2]
+	var old_lobby = host6.steam_bridge.lobby_id
+	guest6.leave_online(false)
+	_check(guest6.steam_bridge.leaving(), "The guest lingers")
+	guest6.steam_bridge.host_lobby()
+	_pump([guest6.steam_bridge, host6.steam_bridge], 3)
+	_check(not guest6.steam_bridge.leaving() and GUEST_ID not in hub6.lobbies[old_lobby].members and guest6.steam_bridge.is_host
+		and guest6.steam_bridge.lobby_id != old_lobby and guest6.steam_bridge.lobby_id != 0, "Hosting during the linger leaves the old lobby at once")
+
+# --- A refused player may come back -------------------------------------------------------
+
+## Review fix: a player turned away with "seat taken" was ignored for the
+## life of the lobby, even once the seat was free. Now the host forgets a
+## refusal when that player leaves the lobby (a later join is answered
+## again), and frees seat_taken refusals when the seat is released; a
+## version mismatch stays refused while that player is still there.
+func _test_refused_rejoin() -> void:
+	var pair = _online_pair()
+	var hub: FakeHub = pair[0]
+	var host = pair[1]
+	var guest = pair[2]
+	var bridge = host.steam_bridge
+	var lobby = bridge.lobby_id
+	_check(host.online_match_running() and guest.online_match_running(), "Refused rejoin: a match is running")
+	# The guest goes silent: the host holds the seat (one spare slot).
+	time.ms += Bridge.TIMEOUT_MS + 100
+	_pump([bridge], 2)
+	_check(host.waiting_for_opponent and hub.lobbies[lobby].max == Bridge.LOBBY_MEMBERS_RESERVED, "The host holds the seat for the silent guest")
+	var third = _controller(hub.add(STRANGER_ID, "Lu Bu"))
+	var ended: Array = []
+	third.steam_bridge.session_ended.connect(func(code): ended.append(code))
+	third.steam_bridge.join_lobby(str(lobby))
+	_pump([third.steam_bridge, bridge], 10)
+	_pump([bridge], 2)
+	_check(ended == ["seat_taken"] and third.steam_bridge.lobby_id == 0 and not bridge._refused.has(STRANGER_ID),
+		"A third player is turned away, and forgotten once it left the lobby (%s)" % [ended])
+	# Joining again while the seat is still held: answered again, not ignored.
+	third.steam_bridge.join_lobby(str(lobby))
+	_pump([third.steam_bridge, bridge], 10)
+	_check(ended == ["seat_taken", "seat_taken"] and third.steam_bridge.lobby_id == 0,
+		"Joining again while the seat is held gets \"seat taken\" again, never silence (%s)" % [ended])
+	# Once more, but the host does not hear it leave (a late lobby update).
+	hub.hold_chat_updates = true
+	third.steam_bridge.join_lobby(str(lobby))
+	_pump([third.steam_bridge, bridge], 10)
+	_check(ended.size() == 3 and bridge._refused.has(STRANGER_ID) and bridge._refused_reason.get(STRANGER_ID) == "seat_taken",
+		"Without the lobby update the refusal is remembered (as seat_taken)")
+	# A version mismatch from someone still in the lobby stays refused.
+	var odd_id = STRANGER_ID + 1
+	hub.add(odd_id, "Old Build")
+	hub.lobbies[lobby].members.append(odd_id)
+	bridge._handle_packet(odd_id, {"protocol": Bridge.PROTOCOL - 1, "game": Bridge.GAME_TAG, "kind": "hello", "name": "Old Build", "content": "old"})
+	_check(bridge._refused_reason.get(odd_id) == "version_mismatch", "An old build is refused (version mismatch)")
+	# The guest comes back and leaves on purpose (conceding): the seat is free.
+	guest.leave_online(true)
+	_pump([guest.steam_bridge, bridge], 4)
+	time.ms += Bridge.LEAVE_LINGER_MS
+	_pump([guest.steam_bridge, bridge], 2)
+	_check(bridge.bound_opponent == 0 and host.room_phase == "waiting" and int(host.engine.state.winner) == 0,
+		"The guest conceded and left: the seat is free")
+	_check(not bridge._refused.has(STRANGER_ID) and bridge._refused.has(odd_id),
+		"Freeing the seat ends the seat_taken refusal, not the version mismatch")
+	hub.hold_chat_updates = false
+	hub.release_chat_updates()
+	_pump([bridge], 2)
+	# The player turned away earlier now takes the free seat (the old build
+	# is gone: the lobby has two places again).
+	hub.lobbies[lobby].members.erase(odd_id)
+	third.steam_bridge.join_lobby(str(lobby))
+	_pump([third.steam_bridge, bridge], 10)
+	_check(ended.size() == 3 and third.steam_bridge.handshake_done and bridge.bound_opponent == STRANGER_ID and host.room_phase == "room"
+		and third.room_phase == "room", "The player turned away earlier takes the freed seat (%s, bound %d)" % [ended, bridge.bound_opponent])
+
+# --- Avatars --------------------------------------------------------------------------------
+
+## A solid w x h RGBA image buffer.
+func _pixels(width: int, height: int) -> PackedByteArray:
+	var buffer = PackedByteArray()
+	buffer.resize(width * height * 4)
+	buffer.fill(200)
+	return buffer
+
+func _test_avatars() -> void:
+	var hub = _hub()
+	var host_steam = hub.add(HOST_ID, "Liu Bei")
+	var guest_steam = hub.add(GUEST_ID, "Cao Cao")
+	var host = _controller(host_steam)
+	var guest = _controller(guest_steam)
+	host.steam_bridge.host_lobby()
+	_pump([host.steam_bridge])
+	guest.steam_bridge.join_lobby(str(host.steam_bridge.lobby_id))
+	_both(host, guest, 10)
+	var bridge = host.steam_bridge
+	_check(bridge.avatar(0) == null, "No player, no avatar")
+	_check(host_steam.info_requests.any(func(entry): return entry[0] == GUEST_ID) and guest_steam.info_requests.any(func(entry): return entry[0] == HOST_ID),
+		"Each side asks Steam for the other player's profile")
+	# A ready handle.
+	host_steam.avatar_handles[HOST_ID] = {"medium": 11, "large": 12}
+	host_steam.images[11] = {"w": 64, "h": 64, "buffer": _pixels(64, 64)}
+	var own = bridge.avatar(HOST_ID)
+	_check(own != null and own.get_width() == 64 and bridge.avatar(HOST_ID) == own, "A loaded avatar becomes a texture (cached)")
+	# Loading (-1), then avatar_loaded for the opponent.
+	host_steam.avatar_handles[GUEST_ID] = {"medium": -1, "large": -1}
+	var changed: Array = []
+	bridge.profile_changed.connect(func(steam_id): changed.append(steam_id))
+	_check(bridge.avatar(GUEST_ID, true) == null, "A loading avatar is null for now")
+	host_steam.queue("avatar_loaded", [GUEST_ID, 184, _pixels(184, 184)])
+	_pump([bridge], 1)
+	var large = bridge.avatar(GUEST_ID, true)
+	_check(large != null and large.get_width() == 184 and changed == [GUEST_ID], "The loaded avatar arrives and the views are told")
+	# Bad images: wrong buffer length, absurd size, a stranger's id.
+	host_steam.avatar_handles[STRANGER_ID] = {"medium": -1}
+	bridge.avatar(STRANGER_ID)
+	host_steam.queue("avatar_loaded", [STRANGER_ID, 64, _pixels(64, 64)])
+	host_steam.avatar_handles[GUEST_ID] = {"medium": -1}
+	bridge._avatars.erase("%d:m" % GUEST_ID)
+	bridge.avatar(GUEST_ID)
+	host_steam.queue("avatar_loaded", [GUEST_ID, 64, _pixels(10, 10)])
+	host_steam.queue("avatar_loaded", [GUEST_ID, 4096, _pixels(64, 64)])
+	_pump([bridge], 1)
+	_check(bridge.avatar(STRANGER_ID) == null and not bridge._avatars.has("%d:m" % GUEST_ID) and changed.size() == 1,
+		"Avatars of strangers, with a wrong buffer or an absurd size are refused")
+	host_steam.images[13] = {"w": 4096, "h": 4096, "buffer": PackedByteArray()}
+	host_steam.avatar_handles[HOST_ID] = {"medium": 13, "large": 13}
+	bridge._avatars.clear()
+	_check(bridge.avatar(HOST_ID) == null, "A handle with an oversized image gives no avatar")
+	# No avatar set, and no Steam at all.
+	host_steam.avatar_handles[HOST_ID] = {"medium": 0}
+	bridge._avatars.clear()
+	_check(bridge.avatar(HOST_ID) == null and bridge._avatars.has("%d:m" % HOST_ID), "No avatar set: null, remembered")
+	var offline = Bridge.new()
+	nodes.append(offline)
+	_check(offline.avatar(HOST_ID) == null, "Without Steam there are no avatars")
+	_check(not JSON.stringify(host_steam.packets_to() + guest_steam.packets_to()).contains("buffer"), "Avatars never travel in packets")
