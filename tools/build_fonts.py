@@ -2,8 +2,9 @@
 """Builds the subset UI fonts in assets/fonts/ from the full upstream fonts.
 
 The full fonts (about 70 MB) stay out of the repository; only subsets are
-committed. Run this again whenever i18n/ui.csv or data/locale/*.json gain new
-characters (tests/i18n_test.gd fails when a used character is missing).
+committed. Run this again whenever i18n/ui.csv, data/locale/*.json or
+data/campaign/*.json gain new characters (tests/i18n_test.gd and
+tests/campaign_test.gd fail when a used character is missing).
 
     pip install fonttools
     python tools/build_fonts.py --src <folder with the full fonts> [--download]
@@ -21,9 +22,10 @@ Outputs (in assets/fonts/):
   NotoSansSC-Bold.otf
 
 Character set: GB2312 level 1 (3,755 common hanzi), every character used in
-i18n/ui.csv, data/locale/*.json, docs/art/* (reserve hero names) and non-ASCII
-literals in scripts/, plus ASCII, Latin-1, general punctuation, CJK and
-full-width punctuation, arrows and a few geometric shapes.
+i18n/ui.csv, data/locale/*.json, data/campaign/*.json (the campaign's story),
+docs/art/* (reserve hero names) and non-ASCII literals in scripts/, plus
+ASCII, Latin-1, general punctuation, CJK and full-width punctuation, arrows
+and a few geometric shapes.
 """
 import argparse
 import glob
@@ -47,7 +49,7 @@ OUTPUTS = {
 	"NotoSansSC-Regular.otf": "NotoSansSC-Regular.otf",
 	"NotoSansSC-Bold.otf": "NotoSansSC-Bold.otf",
 }
-TEXT_GLOBS = ["i18n/*.csv", "data/locale/*.json", "docs/art/*", "scripts/**/*.gd"]
+TEXT_GLOBS = ["i18n/*.csv", "data/locale/*.json", "data/campaign/*.json", "docs/art/*", "scripts/**/*.gd"]
 RANGES = [
 	(0x0020, 0x007E),  # ASCII
 	(0x00A0, 0x00FF),  # Latin-1 (Lü, ×, ·)

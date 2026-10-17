@@ -17,6 +17,8 @@ extends Control
 
 signal menu_requested
 signal game_over_action(action: String)
+## The result of a decided match is on screen (once per match).
+signal result_shown
 ## The deployment reveal starts settling lane `lane` (capture timing, tests).
 signal reveal_lane_started(lane: int)
 
@@ -45,6 +47,7 @@ const HistoryRail = preload("res://scripts/ui/history_rail.gd")
 const VersusIntro = preload("res://scripts/ui/versus_intro.gd")
 const Music = preload("res://scripts/ui/music.gd")
 const Settings = preload("res://scripts/core/game_settings.gd")
+const CampaignData = preload("res://scripts/core/campaign_data.gd")
 ## A your-action chime at most this often (ms); the visual cue always shows.
 const CUE_MIN_MS = 800
 ## Still your action this long after the cue, with the window unfocused: one
@@ -224,7 +227,7 @@ func _init() -> void:
 		# Third-person names that read in every template ("Your army passes").
 		if shown_viewer < 0 or controller == null or controller.mode == controller.MODE_LOCAL:
 			return []
-		var other = UiKit.t("PLAYER_AI") if controller.mode == controller.MODE_AI else UiKit.t("PLAYER_OPPONENT")
+		var other = _ai_name() if controller.mode == controller.MODE_AI else UiKit.t("PLAYER_OPPONENT")
 		var names = [UiKit.t("LOG_PLAYER_YOU"), other]
 		return names if shown_viewer == 0 else [names[1], names[0]]
 	history.names_source = log_panel.names_source
@@ -435,9 +438,16 @@ func _play_intro(view: Dictionary, viewer: int) -> void:
 	await versus.play(info)
 
 ## Names, Steam ids and captions for the intro's two plates: you at the
-## bottom (Player 1 in hot-seat play), the opponent at the top.
+## bottom (Player 1 in hot-seat play), the opponent at the top (in a campaign
+## match the enemy's commander, with the tale and its year).
 func _intro_names() -> Dictionary:
 	var bridge = controller.steam_bridge
+	if controller.mode == controller.MODE_AI and not controller.campaign.is_empty():
+		var chapter_id = str(controller.campaign.get("chapter_id", ""))
+		var own = bridge.local_name() if bridge.available else ""
+		return {"bottom": {"name": own if not own.is_empty() else UiKit.t("PLAYER_YOU"), "steam_id": int(bridge.local_id) if bridge.available else 0,
+			"caption": UiKit.t("VERSUS_YOU")}, "top": {"name": _ai_name(), "avatar": str(controller.campaign.get("enemy_commander", "")),
+			"caption": UiKit.t("CAMPAIGN_VERSUS_CAPTION", {"chapter": CampaignData.title(chapter_id), "year": CampaignData.year(chapter_id)})}}
 	match controller.mode:
 		controller.MODE_LOCAL:
 			return {"bottom": {"name": UiKit.t("PLAYER_N", {"n": 1})}, "top": {"name": UiKit.t("PLAYER_N", {"n": 2})}}
@@ -1599,6 +1609,7 @@ func _show_result(view: Dictionary, viewer: int) -> void:
 		# The session ended while this result was on its way.
 		game_over.set_online_closed(_closed_text)
 	_refresh_controls()
+	result_shown.emit()
 
 # --- Music ------------------------------------------------------------------------
 
@@ -1662,6 +1673,19 @@ func _set_result_actions() -> void:
 		return
 	if game_over.closed or not _closed_text.is_empty():
 		# The session is over; close_online chose the way out.
+		return
+	if controller.mode == controller.MODE_AI and not controller.campaign.is_empty():
+		# A campaign tale: on with the story after a win, otherwise try again
+		# (or with another army); the seals this battle earned under the buttons.
+		var won = int(shown_view.get("winner", -1)) == shown_viewer
+		game_over.disabled_actions = []
+		game_over.set_actions(GameOverOverlay.CAMPAIGN_WIN_ACTIONS if won else GameOverOverlay.CAMPAIGN_LOSS_ACTIONS)
+		var result: Dictionary = controller.campaign.get("result", {})
+		if won:
+			var line = CampaignData.seal_line(int(result.get("seals", CampaignData.SEAL_WIN)), int(controller.campaign.get("par_rounds", 0)))
+			game_over.set_status(UiKit.t("CAMPAIGN_RESULT_SEALS", {"seals": line}), int(result.get("new_seals", 0)) != 0)
+		else:
+			game_over.set_status(UiKit.t("CAMPAIGN_RESULT_LOSS"))
 		return
 	if controller.mode != controller.MODE_ONLINE:
 		game_over.disabled_actions = []
@@ -1860,6 +1884,11 @@ func _request_attention() -> void:
 	if is_inside_tree() and not get_window().has_focus():
 		DisplayServer.window_request_attention()
 
+## The AI's name: its commander in a campaign tale (in the card theme shown).
+func _ai_name() -> String:
+	var commander = str(controller.campaign.get("enemy_commander", "")) if controller != null else ""
+	return Library.loc(commander) if not commander.is_empty() else UiKit.t("PLAYER_AI")
+
 func _player_names(viewer: int) -> Array:
 	if controller == null:
 		return ["", ""]
@@ -1868,7 +1897,7 @@ func _player_names(viewer: int) -> Array:
 		return [UiKit.t("PLAYER_YOU"), gone if not gone.is_empty() else UiKit.t("PLAYER_OPPONENT")]
 	match controller.mode:
 		controller.MODE_AI:
-			return [UiKit.t("PLAYER_YOU"), UiKit.t("PLAYER_AI")]
+			return [UiKit.t("PLAYER_YOU"), _ai_name()]
 		controller.MODE_ONLINE:
 			var opponent = controller.opponent_name()
 			return [UiKit.t("PLAYER_YOU"), opponent if not opponent.is_empty() else UiKit.t("PLAYER_OPPONENT")]

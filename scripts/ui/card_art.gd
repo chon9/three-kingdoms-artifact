@@ -37,6 +37,21 @@ static func art(card_id: String) -> Dictionary:
 	_entries[key] = result
 	return result
 
+## The Three Kingdoms art of a card whatever the card theme (the campaign's
+## story pages and chapter cards tell Three Kingdoms history), or {}.
+static func themed(card_id: String) -> Dictionary:
+	var key = Settings.DEFAULT_SKIN + "|" + card_id
+	if _entries.has(key):
+		return _entries[key]
+	var result: Dictionary = {}
+	for extension in ART_EXTENSIONS:
+		var texture = _texture(ART_DIR + card_id + "." + extension)
+		if texture != null:
+			result = {"texture": texture, "region": Rect2(Vector2.ZERO, texture.get_size()), "focus": Vector2(0.5, 0.28)}
+			break
+	_entries[key] = result
+	return result
+
 ## Draws the card's art cover-cropped into `rect` (or the placeholder).
 ## Returns true when real art was drawn.
 static func draw(canvas: CanvasItem, rect: Rect2, card_id: String, compact: bool = false,

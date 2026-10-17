@@ -89,6 +89,25 @@ extends SceneTree
 ## its live stats), hud_hover_fallen(_zh) (an enemy hero that fell, waiting
 ## in the fountain) and hud_hover_classic (the classic skin). With only these
 ## shots requested no other capture runs.
+## v0.8 (the campaign): campaign_map_locked (fresh progress), campaign_map
+## (three tales won with different seals, the fourth lost once), campaign_map_zh,
+## campaign_map_classic (the classic card theme), campaign_unlock (a tale
+## opening after a win), campaign_map_act4 (every tale won: the last book and
+## the epilogue), campaign_story(_zh) (a page with a hero speaking),
+## campaign_prebattle(_zh) (the battle briefing), campaign_versus (the match
+## intro with the enemy commander), campaign_victory(_zh) (Continue the tale
+## and the seals earned), campaign_victory_story (the victory page),
+## campaign_defeat_zh (the storyteller's word over a defeat),
+## campaign_epilogue (a page of the epilogue, a landscape painting),
+## settings_campaign (the progress and its reset) and main_menu_resume (the
+## main menu with a campaign match to resume: every entry clear of the title
+## and the disclaimer). Review fixes: campaign_map_classic_note (Red Cliffs in
+## the classic theme: its whole note above the theme line),
+## campaign_map_long_note (Hanzhong, the longest note), campaign_map_read_only
+## (a newer version's progress: the warning under the title),
+## campaign_prebattle_cast(_zh) (the briefing's cast note: Xiapi, Nanzhong). Progress is written to
+## res://.tools/scratch/capture_campaign.cfg, never user://. With only these
+## shots requested no other capture runs.
 ## Pass --size=1280x720 to check the smaller window, --out=res://dir/ to save
 ## the shots elsewhere.
 
@@ -146,6 +165,16 @@ const V061_SHOTS = ["turn_cue", "history", "history_zh", "history_hover", "game_
 	"game_over_host_left_zh"]
 ## v0.6.2: the lane HUD's hero hover cards.
 const HUD_SHOTS = ["hud_hover", "hud_hover_zh", "hud_hover_fallen", "hud_hover_fallen_zh", "hud_hover_classic"]
+## v0.8: the campaign.
+const CAMPAIGN_SHOTS = ["campaign_map_locked", "campaign_map", "campaign_map_zh", "campaign_map_classic", "campaign_unlock", "campaign_map_act4",
+	"campaign_story", "campaign_story_zh", "campaign_prebattle", "campaign_prebattle_zh", "campaign_versus", "campaign_victory",
+	"campaign_victory_zh", "campaign_victory_story", "campaign_defeat_zh", "campaign_epilogue", "settings_campaign", "main_menu_resume",
+	"campaign_map_classic_note", "campaign_map_long_note", "campaign_map_read_only", "campaign_prebattle_cast", "campaign_prebattle_cast_zh"]
+const CAMPAIGN_STORE = "res://.tools/scratch/capture_campaign.cfg"
+## A newer version's progress (read-only) for campaign_map_read_only.
+const CAMPAIGN_STORE_NEWER = "res://.tools/scratch/capture_campaign_newer.cfg"
+const CampaignData = preload("res://scripts/core/campaign_data.gd")
+const CampaignStore = preload("res://scripts/core/campaign_store.gd")
 ## Steam names as long as Steam allows (32 characters) and a long Chinese one.
 const LONG_NAMES = ["ThisIsAVeryLongSteamNameForTest!", "司马懿仲达不死之谋略大将军天下无双第一谋士"]
 const DeckStore = preload("res://scripts/core/deck_store.gd")
@@ -261,6 +290,9 @@ func _run() -> void:
 		for file_name in DirAccess.get_files_at(DECK_STORE):
 			DirAccess.remove_absolute("%s/%s" % [DECK_STORE, file_name])
 	root.size = window_size
+	# The player's campaign progress never reaches the shots either.
+	CampaignStore.load_progress(CAMPAIGN_STORE)
+	CampaignStore.reset()
 	# Ignore the real cursor: only the scripted events below may move the mouse.
 	DisplayServer.window_set_mouse_passthrough(PackedVector2Array([Vector2(0, 0), Vector2(1, 0), Vector2(1, 1)]))
 	Settings.set_locale("en", false)
@@ -293,6 +325,13 @@ func _run() -> void:
 		return
 	if not only.is_empty() and only.all(func(shot_name): return shot_name in V061_SHOTS):
 		await _capture_v061()
+		print("Shots: ", ", ".join(saved))
+		app.queue_free()
+		await process_frame
+		quit(0)
+		return
+	if not only.is_empty() and only.all(func(shot_name): return shot_name in CAMPAIGN_SHOTS):
+		await _capture_campaign()
 		print("Shots: ", ", ".join(saved))
 		app.queue_free()
 		await process_frame
@@ -354,6 +393,7 @@ func _run() -> void:
 	await _capture_m7()
 	await _capture_v061()
 	await _capture_hud_hover()
+	await _capture_campaign()
 	app.show_main_menu()
 	await _capture_decks()
 	print("Shots: ", ", ".join(saved))
@@ -2051,3 +2091,198 @@ func _capture_hud_hover() -> void:
 	app.set_locale("en")
 	app.set_skin("three_kingdoms")
 	await _wait(0.2)
+
+## Campaign progress for the shots: the first `won` tales won (their seals
+## varying), then one defeat in the next.
+func _campaign_progress(won: int) -> void:
+	CampaignStore.reset()
+	var ids = CampaignData.chapter_ids()
+	for index in range(mini(won, ids.size())):
+		var chapter_id: String = ids[index]
+		CampaignStore.record(chapter_id, true, index % 2, CampaignData.par_rounds(chapter_id) + (index % 3) - 1)
+	if won < ids.size():
+		CampaignStore.record(ids[won], false, 2, 8)
+
+## The campaign: the map (fresh, part way, classic theme, a tale opening,
+## the last book), a story page, the briefing, the intro, a victory and its
+## page, a defeat with the storyteller's word, and the settings row.
+func _capture_campaign() -> void:
+	if not CAMPAIGN_SHOTS.any(func(shot_name): return _wanted(shot_name)):
+		return
+	var screen = app.screen
+	var ids = CampaignData.chapter_ids()
+	Settings.set_match_intro(false, false)
+	AnimationQueue.instant = false
+	app.close_dialogs()
+	CampaignStore.reset()
+	app.set_locale("en")
+	app.open_campaign()
+	await _wait(0.8)
+	await _shot("campaign_map_locked")
+	_campaign_progress(3)
+	app.open_campaign(ids[3])
+	await _wait(0.8)
+	await _shot("campaign_map")
+	if _wanted("campaign_map_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.4)
+		await _shot("campaign_map_zh")
+		app.set_locale("en")
+	if _wanted("campaign_map_classic"):
+		app.set_skin("classic")
+		await _wait(0.4)
+		await _shot("campaign_map_classic")
+		app.set_skin("three_kingdoms")
+	if _wanted("campaign_unlock"):
+		CampaignStore.record(ids[3], true, 0, 6)
+		app.show_campaign(ids[4], ids[4])
+		await _wait(0.95)
+		await _shot("campaign_unlock")
+		await _wait(1.0)
+	if _wanted("campaign_map_act4"):
+		CampaignStore.unlock_all(CampaignData.SEAL_WIN | CampaignData.SEAL_NO_TOWER)
+		app.open_campaign(ids[-1])
+		await _wait(0.8)
+		await _shot("campaign_map_act4")
+	if _wanted("campaign_map_classic_note") or _wanted("campaign_map_long_note"):
+		CampaignStore.unlock_all()
+		if _wanted("campaign_map_classic_note"):
+			app.set_skin("classic")
+			app.open_campaign("red_cliffs")
+			await _wait(0.8)
+			await _shot("campaign_map_classic_note")
+			app.set_skin("three_kingdoms")
+		if _wanted("campaign_map_long_note"):
+			app.open_campaign("hanzhong")
+			await _wait(0.8)
+			await _shot("campaign_map_long_note")
+	if _wanted("campaign_map_read_only"):
+		var newer = ConfigFile.new()
+		newer.set_value("meta", "version", CampaignStore.VERSION + 1)
+		newer.set_value("chapter." + ids[0], "won", true)
+		newer.save(CAMPAIGN_STORE_NEWER)
+		CampaignStore.load_progress(CAMPAIGN_STORE_NEWER)
+		app.open_campaign(ids[1])
+		await _wait(0.8)
+		await _shot("campaign_map_read_only")
+		CampaignStore.load_progress(CAMPAIGN_STORE)
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(CAMPAIGN_STORE_NEWER))
+	# A story page with a hero speaking, mid-way through the tale.
+	CampaignStore.unlock_all()
+	var tale = "hulao"
+	if _wanted("campaign_story") or _wanted("campaign_story_zh"):
+		app.open_campaign(tale)
+		await _wait(0.3)
+		app.listen(tale)
+		await _wait(0.2)
+		app.story_panel.advance()
+		app.story_panel.reveal_all()
+		app.story_panel.advance()
+		await _wait(3.2)
+		await _shot("campaign_story")
+		if _wanted("campaign_story_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.5)
+			await _shot("campaign_story_zh")
+			app.set_locale("en")
+		app.story_panel.skip()
+		await _wait(0.3)
+	app.close_dialogs()
+	if _wanted("campaign_prebattle") or _wanted("campaign_prebattle_zh"):
+		app.open_campaign(tale)
+		app.open_briefing(tale)
+		await _wait(0.6)
+		await _shot("campaign_prebattle")
+		if _wanted("campaign_prebattle_zh"):
+			app.set_locale("zh_CN")
+			await _wait(0.4)
+			await _shot("campaign_prebattle_zh")
+			app.set_locale("en")
+		app.close_dialogs()
+	if _wanted("campaign_prebattle_cast") or _wanted("campaign_prebattle_cast_zh"):
+		# The longest cast notes: Xiapi in English, Nanzhong in Chinese.
+		if _wanted("campaign_prebattle_cast"):
+			app.open_campaign("xiapi")
+			app.open_briefing("xiapi")
+			await _wait(0.6)
+			await _shot("campaign_prebattle_cast")
+			app.close_dialogs()
+		if _wanted("campaign_prebattle_cast_zh"):
+			app.set_locale("zh_CN")
+			app.open_campaign("nanzhong")
+			app.open_briefing("nanzhong")
+			await _wait(0.6)
+			await _shot("campaign_prebattle_cast_zh")
+			app.set_locale("en")
+			app.close_dialogs()
+	# The match: the intro with the enemy commander, then a victory.
+	Settings.set_match_intro(true, false)
+	app.start_campaign_match(tale)
+	app.bot_timer.paused = true
+	await _wait(2.3)
+	await _shot("campaign_versus")
+	screen.versus.skip()
+	await _idle()
+	Settings.set_match_intro(false, false)
+	var engine = app.engine
+	engine.state.lanes[2].structures[0].ancient = true
+	engine.state.lanes[2].structures[0].health = 80
+	engine.apply_action(1, {"type": "concede"})
+	_publish()
+	await _idle()
+	await _wait(1.4)
+	await _shot("campaign_victory")
+	if _wanted("campaign_victory_zh"):
+		app.set_locale("zh_CN")
+		await _wait(0.4)
+		await _shot("campaign_victory_zh")
+		app.set_locale("en")
+	if _wanted("campaign_victory_story"):
+		screen.game_over.buttons.story_next.pressed.emit()
+		await _wait(3.0)
+		await _shot("campaign_victory_story")
+		app.story_panel.skip()
+		await _wait(0.4)
+	# A defeat: the storyteller's word over the result.
+	if _wanted("campaign_defeat_zh"):
+		app.set_locale("zh_CN")
+		app.start_campaign_match("xiapi")
+		app.bot_timer.paused = true
+		await _idle()
+		app.concede()
+		await _idle()
+		await _wait(3.2)
+		await _shot("campaign_defeat_zh")
+		app.story_panel.skip()
+		app.set_locale("en")
+		await _wait(0.3)
+	if _wanted("campaign_epilogue"):
+		CampaignStore.unlock_all()
+		app.open_campaign(ids[-1])
+		await _wait(0.3)
+		app.play_epilogue()
+		for index in range(3):
+			app.story_panel.reveal_all()
+			app.story_panel.advance()
+		app.story_panel.reveal_all()
+		await _wait(1.2)
+		await _shot("campaign_epilogue")
+		app.story_panel.skip()
+		await _wait(0.3)
+	if _wanted("settings_campaign"):
+		_campaign_progress(5)
+		app.show_main_menu()
+		app.open_settings()
+		await _wait(0.4)
+		await _shot("settings_campaign")
+		app.close_dialogs()
+	if _wanted("main_menu_resume"):
+		CampaignStore.unlock_all()
+		app.start_campaign_match(ids[0])
+		app.bot_timer.paused = true
+		await _idle()
+		app.show_main_menu()
+		await _wait(0.4)
+		await _shot("main_menu_resume")
+	app.show_main_menu()
+	AnimationQueue.instant = false

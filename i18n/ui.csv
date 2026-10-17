@@ -741,3 +741,60 @@ VERSUS_OPPONENT,Opponent,对手
 VERSUS_YOU,You,我方
 ROOM_TITLE_GUEST,{name}'s room,{name}的房间
 DECKS_HOST_NOTE,Your opponent's screen shows only your heroes. A deck chosen during a match is used from the next one.,对手画面只显示你的武将。对局中选择的牌组将从下一局开始使用。
+MENU_CAMPAIGN,Campaign,说书·战役
+CAMPAIGN_LISTEN,Listen to the tale,聆听此回
+CAMPAIGN_FIGHT,Straight to battle,直接出战
+CAMPAIGN_EPILOGUE,Epilogue ›,尾声 ›
+CAMPAIGN_LOCKED_HINT,"Win ""{chapter}"" to hear this tale.",先赢下“{chapter}”，再听这一回。
+CAMPAIGN_ACT_LOCKED_HINT,Finish {act} to open this book.,讲完{act}，方可翻开此卷。
+CAMPAIGN_UNLOCKED_TOAST,A new tale: {chapter},新的一回：{chapter}
+CAMPAIGN_ACT_UNLOCKED,A new book opens: {act},新卷开讲：{act}
+CAMPAIGN_PROLOGUE,Prologue,楔子
+CAMPAIGN_CHAPTER_N,Tale {n},第{n}回
+CAMPAIGN_LOCKED_TITLE,???,？？？
+CAMPAIGN_LOCKED,Locked,未解锁
+CAMPAIGN_ATTEMPTS,Defeats: {n},败 {n} 次
+CAMPAIGN_NOT_FOUGHT,Not yet fought,尚未出战
+CAMPAIGN_PROGRESS,Tales won: {won}/{total},已胜 {won}/{total} 回
+CAMPAIGN_SEALS_TOTAL,Seals: {n}/{max},得印 {n}/{max}
+CAMPAIGN_DEFY_FATE_TAG,Defy fate,逆天改命
+CAMPAIGN_DEFY_FATE,"Defy fate: in the histories this side lost. Win, and the storyteller rewrites the scroll.",逆天改命：史书上这一方败了。若能取胜，说书人便改写此卷。
+CAMPAIGN_OBJECTIVE,Objective,此回目标
+CAMPAIGN_SKIN_NOTE,The tales keep their Three Kingdoms names; cards follow the Classic theme.,故事沿用三国人名；卡牌按经典主题显示。
+CAMPAIGN_ENEMY,The enemy,敌军
+CAMPAIGN_YOUR_ARMY,Your army,我方军队
+CAMPAIGN_COMMANDER,Commander: {name},统帅：{name}
+CAMPAIGN_FOUGHT_N,Fought {n} times,已战 {n} 次
+CAMPAIGN_FOUGHT_N_ONE,Fought once,已战一次
+CAMPAIGN_BEST_ROUNDS,Fastest win: round {n},最快第{n}回合取胜
+CAMPAIGN_SEALS,Seals to earn,三枚战印
+CAMPAIGN_SEAL_WIN,Win the battle,取胜
+CAMPAIGN_SEAL_NO_TOWER,Lose no tower,城楼无失
+CAMPAIGN_SEAL_PAR,Win by round {n},{n}回合内取胜
+CAMPAIGN_STORY_AGAIN,Hear the tale,再听一遍
+CAMPAIGN_BEGIN,Begin battle,出征
+CAMPAIGN_SCRIPT_DECK,{deck} (the tale's army),{deck}（本回军队）
+CAMPAIGN_ALT_DECK,{deck} (another army),{deck}（备选军队）
+CAMPAIGN_NO_OWN_DECK,Build a legal deck under Decks to lead your own army.,在“牌组”中组好合规牌组，即可率自己的军队出征。
+CAMPAIGN_DECK_INVALID,The deck you last took into this tale is gone or no longer legal; the tale's army stands in.,上次带入此回的牌组已删除或不再合规，改用本回军队。
+CAMPAIGN_HISTORY_NOTE,History and the novel: {note},史与演义：{note}
+CAMPAIGN_CAST_NOTE,Casting note: {note},戏班按语：{note}
+CAMPAIGN_VERSUS_CAPTION,{chapter} · {year},{chapter} · {year}
+CAMPAIGN_RESULT_SEALS,Seals: {seals},战印：{seals}
+CAMPAIGN_RESULT_LOSS,"Victory and defeat are common in war. Try again, or lead another army.",胜败乃兵家常事。再战一回，或换一支军队。
+STORY_SKIP,Skip »,跳过 »
+STORY_BACK,‹ Back,‹ 上一页
+STORY_NEXT,Next ›,下一页 ›
+STORY_DONE,Continue ›,继续 ›
+RESULT_CAMPAIGN_CONTINUE,Continue the tale,且听下回
+RESULT_RETRY,Try again,再战一回
+RESULT_CHANGE_ARMY,Change army,更换军队
+RESULT_BACK_TO_CAMPAIGN,Back to the tales,返回书目
+SETTINGS_CAMPAIGN,Campaign,说书战役
+SETTINGS_CAMPAIGN_PROGRESS,Tales won: {won}/{total} · Seals: {seals},已胜 {won}/{total} 回 · 得印 {seals}
+CAMPAIGN_RESET,Reset progress…,重置进度……
+CAMPAIGN_RESET_TITLE,Reset campaign progress?,重置战役进度？
+CAMPAIGN_RESET_BODY,"Every tale but the first will be locked again, and your seals and records are cleared. This cannot be undone.",除楔子外，各回将重新锁定，所得战印与战绩一并清除。此操作无法撤销。
+CAMPAIGN_RESET_CONFIRM,Reset,重置
+CAMPAIGN_READ_ONLY,This progress was saved by a newer version of the game and is not changed here.,此进度由更新版本的游戏保存，此处不会改动。
+CAMPAIGN_READ_ONLY_MAP,"This progress is from a newer version of the game, so results played here are not saved.",此进度来自更新版本的游戏，在此取得的战果不会保存。

@@ -116,6 +116,11 @@ var room_starting: bool = false
 var _countdown_at: int = -1
 ## Host: the SteamID the last match was played against.
 var last_opponent: int = 0
+## A campaign match ({} otherwise), set by main.gd before it starts one and
+## cleared by any other start: {"chapter_id", "enemy_commander", "par_rounds"}
+## and, once decided, "result" (CampaignStore.record's answer). Views read it;
+## the match itself is an ordinary match against the AI.
+var campaign: Dictionary = {}
 
 func _ready() -> void:
 	steam_bridge = SteamBridge.new()
@@ -797,6 +802,9 @@ func deck_name_in(shown: Dictionary, player: int) -> String:
 	if preset != MatchEngine.CUSTOM_DECK:
 		return MatchEngine.Library.preset_text(preset)
 	var entry = local_deck_entry(player)
+	# A preset with its heroes reordered (a campaign enemy) keeps the preset's name.
+	if entry is Dictionary and not library.preset(str(entry.get("preset", ""))).is_empty():
+		return MatchEngine.Library.preset_text(str(entry.preset))
 	if entry is Dictionary and not DeckCode.clean_name(str(entry.get("name", ""))).is_empty():
 		return DeckCode.clean_name(str(entry.name))
 	# A guest's preset reaches the host as a deck code, so the state says

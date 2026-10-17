@@ -6,21 +6,26 @@ extends Control
 ## in the room), Change deck, View board, Save replay (the host's), Leave
 ## room; the status line says when the opponent wants a rematch or left. When
 ## the online session is over, only View board, Main menu and Find a lobby
-## stay.
+## stay. A campaign tale: Continue the tale (after a win), Try again, Change
+## army (after a defeat), View board and Back to the tales, with the seals
+## the battle earned on the status line.
 
 signal action_requested(action: String)
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const AnimationQueue = preload("res://scripts/game/animation_queue.gd")
 ## Every action, in the order they appear.
-const ACTIONS = ["again", "rematch", "room", "decks", "save", "board", "leave", "menu", "steam"]
+const ACTIONS = ["story_next", "again", "retry", "rematch", "room", "decks", "decks_brief", "save", "board", "leave", "menu", "steam", "campaign"]
 const KEYS = {"again": "RESULT_PLAY_AGAIN", "rematch": "RESULT_REMATCH", "room": "RESULT_BACK_TO_ROOM",
 	"decks": "RESULT_CHANGE_DECK", "save": "MENU_SAVE_REPLAY", "board": "BTN_VIEW_BOARD", "leave": "ROOM_BTN_LEAVE",
-	"menu": "MENU_MAIN_MENU", "steam": "RESULT_FIND_LOBBY"}
+	"menu": "MENU_MAIN_MENU", "steam": "RESULT_FIND_LOBBY", "story_next": "RESULT_CAMPAIGN_CONTINUE", "retry": "RESULT_RETRY",
+	"decks_brief": "RESULT_CHANGE_ARMY", "campaign": "RESULT_BACK_TO_CAMPAIGN"}
 ## The action sets.
 const OFFLINE_ACTIONS = ["again", "decks", "save", "board", "menu"]
 const ONLINE_ACTIONS = ["rematch", "decks", "save", "board", "leave"]
 const CLOSED_ACTIONS = ["board", "menu", "steam"]
+const CAMPAIGN_WIN_ACTIONS = ["story_next", "retry", "board", "campaign"]
+const CAMPAIGN_LOSS_ACTIONS = ["retry", "decks_brief", "board", "campaign"]
 ## Decorative victory seal stamp ("win").
 const SEAL_GLYPH = "胜"
 

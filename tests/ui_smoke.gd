@@ -24,7 +24,14 @@ extends SceneTree
 ## v0.6.1: hand cards repainted when they stop being playable, the
 ## your-action cue (exactly when the action becomes yours), the card history
 ## (tiles, privacy, placement, the log at a tile), the result's buttons
-## offline and online, the online room and the match intro.
+## offline and online, the online room and the match intro. For v0.8, the
+## campaign: the map from the main menu (a locked tale refused, both window
+## sizes and languages), a story told and turned (click, right-click, keys, a
+## language switch), the battle briefing, the tale's match (its decks, seed
+## and commander; the player's own deck choices untouched), a win recorded
+## and told, the next tale opening, a defeat with the storyteller's word,
+## Try again, Resume, an ordinary match after it, and the progress reset in
+## Settings.
 ## Every check exits with code 1 on failure; a watchdog also exits with code 1
 ## if a script error stops the coroutine before it can finish.
 
@@ -50,8 +57,16 @@ const HistoryRail = preload("res://scripts/ui/history_rail.gd")
 const VersusIntro = preload("res://scripts/ui/versus_intro.gd")
 const GameOverOverlay = preload("res://scripts/ui/game_over_overlay.gd")
 const Music = preload("res://scripts/ui/music.gd")
+const MatchEngine = preload("res://scripts/core/match_engine.gd")
+const CampaignData = preload("res://scripts/core/campaign_data.gd")
+const CampaignStore = preload("res://scripts/core/campaign_store.gd")
+const CampaignBriefing = preload("res://scripts/ui/campaign_briefing.gd")
 ## The test's own deck folder (never the player's user://decks).
 const UI_DECKS = "res://.tools/scratch/ui_smoke_decks"
+## The test's own campaign progress (never the player's user://campaign.cfg).
+const UI_CAMPAIGN = "user://test_ui_smoke_campaign.cfg"
+## A newer version's progress (read-only) for the map's warning.
+const UI_CAMPAIGN_NEWER = "user://test_ui_smoke_campaign_newer.cfg"
 ## Valve's README example code (Green/Black).
 const VALVE_CODE = "ADCJWkTZX05uwGDCRV4XQGy3QGLmqUBg4GQJgGLGgO7AaABR3JlZW4vQmxhY2sgRXhhbXBsZQ__"
 const WATCHDOG_SECONDS = 240.0
@@ -158,6 +173,8 @@ func _focus_player_zero(hand: Array) -> void:
 func _run() -> void:
 	DeckStore.root = UI_DECKS
 	_clear_decks()
+	_clear_campaign()
+	CampaignStore.path = UI_CAMPAIGN
 	if FileAccess.file_exists(Settings.PATH):
 		saved_settings = FileAccess.get_file_as_string(Settings.PATH)
 	root.size = Vector2i(1440, 900)
@@ -787,19 +804,23 @@ func _run() -> void:
 		return
 	if not await _check_hud_hover():
 		return
+	if not await _check_campaign():
+		return
 	app.show_main_menu()
 	if not _require(app.menu.visible and app.menu.buttons.resume.visible, "The main menu offers to resume the match"):
 		return
 	await process_frame
 	if not _require(errors.messages.is_empty(), "No engine or script errors during the run: %s" % "; ".join(errors.messages)):
 		return
-	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog), and the deck builder (deck list, click and drag edits, locked signature cards, round slots, filters, code import and export, saving, playing a saved deck against the AI, the guest's deck picker), and v0.6.1 (hand repaint, your-action cue, card history, result buttons, the room, the match intro), and v0.6.2 (the music states driven by real match events, crossfades, music and effect volumes, the lane HUD's hero hover cards and inspect)." % checks)
+	print("PASS: %d UI checks: hot-seat phases, coin, shop hold/buy, deployment staging, re-planning, take-back, commit lock, privacy and reveal (instant and skipped), the fountain HUD, drag-play (untargeted, targeted, creep positions), Battlefield Control (click and drag), edge lane switching, a 14-card hand, ability badge, inspect, locale and skin switching (incl. rebuilt tooltips), dialogs and their fit, deck selection, AI turn, replay restoration, and the M2 pieces (status icons, tower badges, lock badges, the lane-then-position stepper, an improvement choice, chip and item ability clicks, the \"+n\" chip rows, hand notes, the lane-step hint, every event animation in real time), and the M3 pieces (Dark Seer's unit-then-lane ability, the full catalog and its colour filters), and the M4 pieces (Friendly Fire's unordered pair picked in either order, a hacked card's note quoting its text and kept clear of the coin, the blue catalog filter), and the M5 pieces (Winter Wyvern's position-only ability, the black catalog filter), and the M6 pieces (an item active aimed at a unit from its item slot, Secret Shop prices under Shop Deeds, deeds on the players' plates, a purchase that pays gold in the log, the items in the catalog), and the M7 pieces (The Oath's forbidden spells and creeps with their reason, an improvement active aimed at a unit from its chip, the improvements in the catalog), and the deck builder (deck list, click and drag edits, locked signature cards, round slots, filters, code import and export, saving, playing a saved deck against the AI, the guest's deck picker), and v0.6.1 (hand repaint, your-action cue, card history, result buttons, the room, the match intro), and v0.6.2 (the music states driven by real match events, crossfades, music and effect volumes, the lane HUD's hero hover cards and inspect), and v0.8 (the campaign: map, locked tales, story pages, briefing, the tale's match and commander, win and unlock, defeat page, try again, resume, progress reset)." % checks)
 	app.queue_free()
 	await process_frame
 	# The audio thread releases the stopped music tracks on its next mixes.
 	await create_timer(0.3).timeout
 	_clear_decks()
 	DeckStore.root = DeckStore.DEFAULT_ROOT
+	_clear_campaign()
+	CampaignStore.path = CampaignStore.DEFAULT_PATH
 	_restore_settings()
 	quit(0)
 
@@ -3307,3 +3328,364 @@ func _check_hud_hover() -> bool:
 		return false
 	app.bot_timer.paused = false
 	return true
+
+## Removes the test's campaign progress file.
+func _clear_campaign() -> void:
+	for file in [UI_CAMPAIGN, UI_CAMPAIGN + ".bad", UI_CAMPAIGN + ".tmp", UI_CAMPAIGN_NEWER]:
+		if FileAccess.file_exists(file):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(file))
+
+## A key press and release through the viewport.
+func _key(keycode: int) -> void:
+	for pressed in [true, false]:
+		var event = InputEventKey.new()
+		event.keycode = keycode
+		event.pressed = pressed
+		root.push_input(event)
+
+## v0.8: the campaign from the main menu: the map (fresh progress: a locked
+## tale is refused and says what opens it; it fits at both sizes in both
+## languages), Listen (the story over the map: the first page, a language
+## switch re-rendering it, a click turning it, a right-click going back, the
+## keys to the end), the briefing (the tale's two armies, fitting), Begin
+## (the tale's decks, seed and enemy hero order, the commander on the intro
+## plate and the enemy plate, the player's own deck choices untouched), a
+## win (recorded at once, its seals on the result, Continue the tale telling
+## the victory, then the map opening the next tale), Fight (the briefing at
+## once), a defeat (the storyteller's word over the result, then Try again,
+## Change army, View board, Back to the tales), Try again, Resume from the
+## main menu, an ordinary match after it, and the reset in Settings.
+func _check_campaign() -> bool:
+	AnimationQueue.instant = true
+	var ids = CampaignData.chapter_ids()
+	var first: String = ids[0]
+	var second: String = ids[1]
+	var map = app.campaign_screen
+	var story = app.story_panel
+	CampaignStore.load_progress(UI_CAMPAIGN)
+	app.deck_selections = ["starter", "green_assault"]
+	var normal = app.deck_selections.duplicate(true)
+	app.show_main_menu()
+	if not _require(app.menu.buttons.has("campaign") and app.menu.buttons.campaign.get_index() == 1, "The main menu offers the campaign first"):
+		return false
+	app.menu.action_requested.emit("campaign")
+	await _frames()
+	if not _require(map.visible and not app.menu.visible and not screen.visible and app.music.state == "menu", "Campaign opens the map with the menu music"):
+		return false
+	if not _require(map.selected == first and map.card_for(first) != null and not map.card_for(first).locked and map.card_for(second).locked,
+			"Fresh progress: the first tale is chosen, the second is locked"):
+		return false
+	_click(_center(map.card_for(second)))
+	await _frames()
+	if not _require(map.selected == first and map.notice == map.locked_hint(second), "A locked tale cannot be chosen; it says what opens it (%s)" % map.notice):
+		return false
+	for window in [Vector2i(1440, 900), Vector2i(1280, 720)]:
+		for locale in ["en", "zh_CN"]:
+			root.size = window
+			app.set_locale(locale)
+			await _frames()
+			var inside = Rect2(Vector2.ZERO, map.size)
+			if not _require(map.layout_rects().all(func(rect): return inside.encloses(rect)), "The campaign map fits at %s in %s" % [window, locale]):
+				root.size = Vector2i(1440, 900)
+				return false
+	root.size = Vector2i(1440, 900)
+	app.set_locale("zh_CN")
+	await _frames()
+	# Listen: the story over the map, then the briefing.
+	map.buttons.listen.pressed.emit()
+	await _frames()
+	var pages = CampaignData.pages(first, "intro")
+	if not _require(story.visible and story.playing and story.kind == "intro" and story.pages.size() == pages.size() and story.page == 0
+			and story.page_text() == CampaignData.page_text(pages[0], "zh_CN") and app.music.state == "menu", "Listen tells the tale's first page"):
+		return false
+	app.set_locale("en")
+	await _frames()
+	if not _require(story.page_text() == CampaignData.page_text(pages[0], "en") and story.buttons.next.text == UiKit.t("STORY_NEXT"),
+			"A language switch re-renders the page"):
+		return false
+	app.set_locale("zh_CN")
+	await _frames()
+	_click(story.size * 0.5)
+	await _frames()
+	if not _require(story.page == 1, "A click turns the page"):
+		return false
+	_click(story.size * 0.5, MOUSE_BUTTON_RIGHT)
+	await _frames()
+	if not _require(story.page == 0, "A right-click goes back a page"):
+		return false
+	for index in range(pages.size()):
+		_key(KEY_SPACE)
+		await _frames(2)
+	var briefing = _top_dialog()
+	if not _require(not story.visible and briefing is CampaignBriefing and briefing.chapter_id == first, "The last page opens the battle briefing"):
+		return false
+	if not _require(briefing.entries[0] == CampaignData.player_default(first) and briefing.choice == CampaignData.player_default(first)
+			and briefing.your_heroes.get_child_count() == 5 and briefing.enemy_heroes.get_child_count() == 5, "The briefing shows the tale's two armies"):
+		return false
+	if not _require(briefing.labels.cast.visible and briefing.labels.cast.text == UiKit.t("CAMPAIGN_CAST_NOTE", {"note": CampaignData.chapter_text(first, "cast_note")}),
+			"The briefing shows the tale's cast note (%s)" % briefing.labels.cast.text):
+		return false
+	for window in [Vector2i(1440, 900), Vector2i(1280, 720)]:
+		root.size = window
+		await _frames()
+		if not _require(Rect2(Vector2.ZERO, briefing.size).encloses(briefing.panel.get_global_rect()), "The briefing fits at %s" % window):
+			root.size = Vector2i(1440, 900)
+			return false
+	root.size = Vector2i(1440, 900)
+	await _frames()
+	briefing.begin_button.pressed.emit()
+	await _frames(3)
+	app.bot_timer.paused = true
+	await _settle()
+	var engine = _engine()
+	if not _require(screen.visible and app.controller.campaign.get("chapter_id", "") == first and engine.match_seed == CampaignData.match_seed(first)
+			and engine.state.players[1].roster.map(func(hero): return str(hero.card)) == CampaignData.enemy_heroes(first, app.controller.library),
+			"Begin starts the tale's match against the AI"):
+		return false
+	if not _require(app.deck_selections == normal and app.controller.mode == MatchController.MODE_AI, "The player's own deck choices are untouched (%s)" % [app.deck_selections]):
+		return false
+	var names = screen._intro_names()
+	var commander = CampaignData.enemy_commander(first)
+	if not _require(names.top.name == Library.loc(commander) and names.top.avatar == commander and screen._player_names(0)[1] == Library.loc(commander),
+			"The enemy commander leads the intro's top plate and the enemy plate"):
+		return false
+	# A win: the AI concedes.
+	engine.apply_action(1, MatchEngine.CONCEDE)
+	app.controller.refresh()
+	await _settle()
+	await _frames()
+	var over = screen.game_over
+	if not _require(over.visible and _result_actions_are(GameOverOverlay.CAMPAIGN_WIN_ACTIONS) and not story.visible, "A win offers Continue the tale"):
+		return false
+	if not _require(CampaignStore.is_won(first) and CampaignStore.is_unlocked(second) and CampaignStore.attempts(first) == 1
+			and over.status.contains("●"), "The win is recorded at once, its seals on the result (%s)" % over.status):
+		return false
+	over.buttons.story_next.pressed.emit()
+	await _frames()
+	if not _require(story.visible and story.kind == "victory" and story.pages.size() == CampaignData.pages(first, "victory").size(), "Continue tells the victory"):
+		return false
+	_key(KEY_ESCAPE)
+	await _frames(3)
+	if not _require(map.visible and not screen.visible and map.selected == second and not map.card_for(second).locked
+			and map.notice == UiKit.t("CAMPAIGN_UNLOCKED_TOAST", {"chapter": CampaignData.title(second)}), "Then the map opens the next tale (%s)" % map.notice):
+		return false
+	# Fight at once, with an army of your own; a defeat; the storyteller's
+	# word; Try again with the same army.
+	var own: Dictionary = DeckStore.save(DeckStore.copy_of(app.controller.library.preset("five_tigers"), "Campaign army")).get("deck", {})
+	map.buttons.fight.pressed.emit()
+	await _frames()
+	briefing = _top_dialog()
+	if not _require(briefing is CampaignBriefing and briefing.chapter_id == second, "Fight opens the briefing at once"):
+		return false
+	var own_index = briefing.entries.find_custom(func(entry): return entry is Dictionary and str(entry.get("id", "")) == str(own.get("id", "")))
+	if not _require(own_index > 0 and briefing.entries[own_index - 1] == null, "The briefing offers your own legal decks under the tale's armies"):
+		return false
+	briefing.choose(own_index)
+	if not _require(briefing.choice is Dictionary and briefing.your_heroes.get_child_count() == 5, "Choosing your own deck shows its heroes"):
+		return false
+	briefing.begin_button.pressed.emit()
+	await _frames(3)
+	app.bot_timer.paused = true
+	await _settle()
+	if not _require(str(_engine().state.players[0].preset) == MatchEngine.CUSTOM_DECK and CampaignStore.deck_choice(second) == "own:" + str(own.id)
+			and app.deck_selections == normal, "Your own army plays the tale and is remembered for it"):
+		return false
+	app.concede()
+	await _settle()
+	await _frames()
+	if not _require(over.visible and story.visible and story.kind == "defeat", "A defeat: the storyteller's word over the result"):
+		return false
+	story.buttons.skip.pressed.emit()
+	await _frames()
+	if not _require(not story.visible and _result_actions_are(GameOverOverlay.CAMPAIGN_LOSS_ACTIONS) and not CampaignStore.is_won(second)
+			and CampaignStore.attempts(second) == 1, "Then Try again, Change army, View board and Back to the tales"):
+		return false
+	# View board and back: the result returns without the story again.
+	var told = story.told_count
+	over.buttons.board.pressed.emit()
+	await _frames()
+	_click(screen.coin_point())
+	await _frames()
+	if not _require(over.visible and not story.visible and story.told_count == told and _result_actions_are(GameOverOverlay.CAMPAIGN_LOSS_ACTIONS),
+			"View board and the coin bring the result back, the defeat page told once"):
+		return false
+	over.buttons.decks_brief.pressed.emit()
+	await _frames()
+	briefing = _top_dialog()
+	if not _require(briefing is CampaignBriefing and briefing.chapter_id == second and briefing.choice is Dictionary and over.visible,
+			"Change army opens the briefing over the result, your army chosen"):
+		return false
+	app.close_dialogs()
+	over.buttons.retry.pressed.emit()
+	await _frames(3)
+	app.bot_timer.paused = true
+	await _settle()
+	if not _require(screen.visible and not over.visible and app.controller.campaign.get("chapter_id", "") == second
+			and _engine().match_seed == CampaignData.match_seed(second) and int(_engine().state.winner) == -1
+			and str(_engine().state.players[0].preset) == MatchEngine.CUSTOM_DECK, "Try again restarts the tale with the same army"):
+		return false
+	# The in-match menu's New match starts the tale over.
+	_engine().apply_action(int(_engine().state.active_player), {"type": "pass"})
+	app.controller.refresh()
+	await _settle()
+	app._on_match_menu("new")
+	app.bot_timer.paused = true
+	await _settle()
+	if not _require(app.controller.campaign.get("chapter_id", "") == second and int(_engine().state.revision) == 0 and CampaignStore.attempts(second) == 1,
+			"New match starts the tale over (no defeat recorded)"):
+		return false
+	# A deck that is gone gives way to the tale's army, with a note.
+	DeckStore.delete(str(own.id))
+	briefing = app.open_briefing(second)
+	await _frames()
+	if not _require(briefing.choice == CampaignData.player_default(second) and briefing.notice_key == "CAMPAIGN_DECK_INVALID" and briefing.labels.notice.visible,
+			"A remembered deck that is gone gives way to the tale's army"):
+		return false
+	app.close_dialogs()
+	app.show_main_menu()
+	if not _require(app.menu.buttons.resume.visible, "The main menu resumes a campaign match"):
+		return false
+	app.menu.action_requested.emit("resume")
+	await _frames()
+	if not _require(screen.visible and app.in_campaign(), "Resume returns to the campaign match"):
+		return false
+	# An ordinary match ends the campaign context.
+	app.start_match(MatchController.MODE_AI)
+	app.bot_timer.paused = true
+	await _settle()
+	if not _require(not app.in_campaign() and app.deck_selections == normal and _engine().deck_ids == normal, "An ordinary match is no campaign match"):
+		return false
+	# The last tale's first win: its victory, then the epilogue, then the map
+	# with the Epilogue to hear again.
+	var finale = CampaignData.epilogue_unlock_after()
+	for chapter_id in ids:
+		if chapter_id != finale and not CampaignStore.is_won(chapter_id):
+			CampaignStore.record(chapter_id, true, 0, 5)
+	if not await _start_and_win(finale):
+		return false
+	screen.game_over.buttons.story_next.pressed.emit()
+	await _frames()
+	story.skip()
+	await _frames()
+	if not _require(story.visible and story.kind == "epilogue" and story.chapter_id == CampaignData.EPILOGUE, "The last tale's first win tells the epilogue"):
+		return false
+	story.skip()
+	await _frames(3)
+	if not _require(map.visible and map.buttons.epilogue.visible and CampaignStore.seen_epilogue() and CampaignStore.progress().won == ids.size(),
+			"Then the map, every tale won, offers the epilogue again"):
+		return false
+	map.buttons.epilogue.pressed.emit()
+	await _frames()
+	if not _require(story.visible and story.kind == "epilogue", "The Epilogue button tells it again"):
+		return false
+	story.skip()
+	await _frames()
+	if not await _check_campaign_notes():
+		return false
+	# Settings: the progress and its reset.
+	app.show_main_menu()
+	var settings = app.open_settings()
+	await _frames()
+	if not _require(settings.campaign_label.text == UiKit.t("SETTINGS_CAMPAIGN_PROGRESS", {"won": ids.size(), "total": ids.size(), "seals": CampaignStore.progress().seals}),
+			"Settings shows the campaign progress (%s)" % settings.campaign_label.text):
+		return false
+	var confirm = settings.confirm_campaign_reset()
+	await _frames()
+	confirm.confirm_button.pressed.emit()
+	await _frames()
+	var reset = CampaignStore.progress().won == 0 and not CampaignStore.is_unlocked(second)
+	app.close_dialogs()
+	app.bot_timer.paused = false
+	if not _require(reset, "Resetting the campaign locks every tale but the first"):
+		return false
+	if not await _check_campaign_read_only():
+		return false
+	# An ordinary match after the campaign, so the main menu can resume it.
+	app.start_match(MatchController.MODE_AI)
+	await _settle()
+	return _require(not app.in_campaign(), "An ordinary match after the campaign")
+
+## Every tale's note on history and the novel shows whole on the map, at
+## both window sizes, in both languages and both card themes (the Classic
+## theme's line under it takes room); a note too long for the room ends in
+## "…" and shows whole as the tooltip over it. Needs every tale open.
+func _check_campaign_notes() -> bool:
+	var map = app.campaign_screen
+	app.show_campaign()
+	await _frames()
+	for skin in ["three_kingdoms", "classic"]:
+		app.set_skin(skin)
+		for window in [Vector2i(1440, 900), Vector2i(1280, 720)]:
+			root.size = window
+			for locale in ["en", "zh_CN"]:
+				app.set_locale(locale)
+				await _frames(1)
+				var cut: Array = []
+				for chapter_id in CampaignData.chapter_ids():
+					map.select(chapter_id)
+					map.queue_redraw()
+					await _frames(2)
+					var fit = map.note_fit
+					if fit.is_empty() or str(fit.chapter) != chapter_id or int(fit.visible) < int(fit.lines):
+						cut.append("%s (%s)" % [chapter_id, "none" if fit.is_empty() else "%d of %d lines" % [fit.visible, fit.lines]])
+				if not _require(cut.is_empty(), "Every tale's history note shows whole on the map at %s in %s, %s theme; cut: %s" % [window, locale, skin, cut]):
+					root.size = Vector2i(1440, 900)
+					app.set_skin("three_kingdoms")
+					return false
+	# A note too long for the room: cut with "…", whole in the tooltip.
+	root.size = Vector2i(1280, 720)
+	app.set_locale("en")
+	var chapter_id: String = CampaignData.chapter_ids()[1]
+	var note: Dictionary = CampaignData.chapter(chapter_id).history_note
+	var kept = note.en
+	var long_note = kept
+	for _index in range(12):
+		long_note += " And there is more to tell, and more again."
+	note.en = long_note
+	map.select(chapter_id)
+	map.queue_redraw()
+	await _frames(1)
+	var fit = map.note_fit
+	var inside = not fit.is_empty() and Rect2(fit.rect).end.y <= map._detail.end.y
+	var tip = map._get_tooltip(Rect2(fit.rect).get_center()) if not fit.is_empty() else ""
+	var away = map._get_tooltip(Vector2(2, 2))
+	note.en = kept
+	map.queue_redraw()
+	root.size = Vector2i(1440, 900)
+	app.set_skin("three_kingdoms")
+	await _frames()
+	return _require(not fit.is_empty() and int(fit.visible) < int(fit.lines) and inside and tip.contains("more again.")
+		and tip == UiKit.t("CAMPAIGN_HISTORY_NOTE", {"note": str(fit.text)}) and away.is_empty(),
+		"A note too long for the map is cut inside the panel and shows whole as its tooltip (%s)" % [fit])
+
+## Progress from a newer version: the map says results here are not saved
+## (the store is read-only); the game's own progress says nothing of it.
+func _check_campaign_read_only() -> bool:
+	var map = app.campaign_screen
+	var newer = ConfigFile.new()
+	newer.set_value("meta", "version", CampaignStore.VERSION + 1)
+	newer.save(ProjectSettings.globalize_path(UI_CAMPAIGN_NEWER))
+	CampaignStore.load_progress(UI_CAMPAIGN_NEWER)
+	app.show_campaign()
+	await _frames()
+	var warned = CampaignStore.read_only and map.visible and map.header_note() == UiKit.t("CAMPAIGN_READ_ONLY_MAP")
+	CampaignStore.load_progress(UI_CAMPAIGN)
+	map.queue_redraw()
+	await _frames()
+	var calm = not CampaignStore.read_only and map.header_note() == CampaignData.campaign_text("description")
+	_clear_campaign()
+	CampaignStore.load_progress(UI_CAMPAIGN)
+	app.show_main_menu()
+	await _frames()
+	return _require(warned and calm, "A newer version's progress: the map warns that results are not saved (%s / %s)" % [warned, calm])
+
+## Starts tale `chapter_id` and lets the AI concede it: the result shows.
+func _start_and_win(chapter_id: String) -> bool:
+	var result = app.start_campaign_match(chapter_id)
+	app.bot_timer.paused = true
+	await _settle()
+	_engine().apply_action(1, MatchEngine.CONCEDE)
+	app.controller.refresh()
+	await _settle()
+	await _frames()
+	return _require(result.get("ok", false) and screen.game_over.visible and CampaignStore.is_won(chapter_id), "Tale %s is won" % chapter_id)

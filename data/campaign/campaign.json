@@ -1,0 +1,2700 @@
+{
+	"schema_version": 1,
+	"id": "storyteller",
+	"title": {
+		"en": "The Storyteller's Tales",
+		"zh_CN": "说书·三国演义"
+	},
+	"description": {
+		"en": "Twenty-four tales from the fall of the Han to the rise of Jin, told in a teahouse. Each chapter pits you against one themed deck.",
+		"zh_CN": "自黄巾之乱至三分归晋，说书人在茶馆里讲二十四段旧事。每一回，看官都要迎战一副主题牌组。"
+	},
+	"format": {
+		"art": "A card id (assets/art/cards/<id>.jpg, shown through CardArt) or 'ui/<file>' for assets/art/ui/<file>.",
+		"speaker": "Optional key into 'speakers'. A speaker with 'card' takes its name from that card in the three_kingdoms skin; otherwise from 'name'.",
+		"text": "Every user-facing string is {en, zh_CN}.",
+		"hero_order": "Optional opponent hero list in deploy order (slots 0-2 deploy in round 1, slot 3 in round 2, slot 4 in round 3). Same five heroes as the preset; pass a copy of the preset with this list as the opponent deck.",
+		"seed": "Fixed match seed so each attempt deals the same way.",
+		"par_rounds": "Third seal: win within this many rounds (draft values; tune with bot runs).",
+		"defy_fate": "True when the player's side lost historically; a win rewrites the scroll.",
+		"unlock": "Chapters unlock in order; the epilogue unlocks after 'unlock_after' is won.",
+		"cast_note": "Who in the tale's two armies is a borrowed player (out of their time or on the other side); shown in the battle briefing. 'history_note' keeps to history against the novel."
+	},
+	"speakers": {
+		"narrator": {
+			"name": {
+				"en": "The Storyteller",
+				"zh_CN": "说书人"
+			}
+		},
+		"sima_hui": {
+			"name": {
+				"en": "Sima Hui, the Water Mirror",
+				"zh_CN": "水镜先生司马徽"
+			}
+		},
+		"zhang_jiao": {
+			"card": "tinker"
+		},
+		"cao_cao": {
+			"card": "jmuy"
+		},
+		"dong_zhuo": {
+			"card": "bloodseeker"
+		},
+		"lu_bu": {
+			"card": "phantom_assassin"
+		},
+		"xun_yu": {
+			"card": "kanna"
+		},
+		"taishi_ci": {
+			"card": "dark_seer"
+		},
+		"jia_xu": {
+			"card": "debbi"
+		},
+		"chen_gong": {
+			"card": "outworld_devourer"
+		},
+		"guo_jia": {
+			"card": "ogre_magi"
+		},
+		"yuan_shao": {
+			"card": "bounty_hunter"
+		},
+		"zhang_fei": {
+			"card": "axe"
+		},
+		"sun_quan": {
+			"card": "farvhan"
+		},
+		"huang_gai": {
+			"card": "viper"
+		},
+		"ma_chao": {
+			"card": "legion_commander"
+		},
+		"zhang_liao": {
+			"card": "earthshaker"
+		},
+		"sima_yi": {
+			"card": "zeus"
+		},
+		"guan_yu": {
+			"card": "keefe"
+		},
+		"lu_xun": {
+			"card": "treant_protector"
+		},
+		"meng_huo": {
+			"card": "lich"
+		},
+		"zhurong": {
+			"card": "sniper"
+		},
+		"jiang_wei": {
+			"card": "centaur_warrunner"
+		}
+	},
+	"acts": [
+		{
+			"id": "act1",
+			"title": {
+				"en": "Book I · Turmoil",
+				"zh_CN": "第一卷·乱世"
+			},
+			"subtitle": {
+				"en": "Yellow Turbans, a tyrant, and the lords who rose against him",
+				"zh_CN": "黄巾蜂起，董卓乱政，群雄并起"
+			},
+			"chapters": [
+				"prologue",
+				"yellow_turban",
+				"coalition",
+				"hulao",
+				"puyang",
+				"shenting"
+			]
+		},
+		{
+			"id": "act2",
+			"title": {
+				"en": "Book II · Warlords",
+				"zh_CN": "第二卷·群雄"
+			},
+			"subtitle": {
+				"en": "The emperor in Cao Cao's hands, and the north decided",
+				"zh_CN": "挟天子，定河北，火烧赤壁"
+			},
+			"chapters": [
+				"wancheng",
+				"xiapi",
+				"guandu",
+				"ye",
+				"changban",
+				"red_cliffs"
+			]
+		},
+		{
+			"id": "act3",
+			"title": {
+				"en": "Book III · Three Kingdoms",
+				"zh_CN": "第三卷·三分"
+			},
+			"subtitle": {
+				"en": "The realm splits three ways, and Jing Province changes hands",
+				"zh_CN": "鼎足三分，荆州易手"
+			},
+			"chapters": [
+				"jiangling",
+				"tongguan",
+				"ruxu",
+				"xiaoyao",
+				"hanzhong",
+				"jing"
+			]
+		},
+		{
+			"id": "act4",
+			"title": {
+				"en": "Book IV · Toward Unity",
+				"zh_CN": "第四卷·归一"
+			},
+			"subtitle": {
+				"en": "Fire at Yiling, the northern expeditions, and the house of Sima",
+				"zh_CN": "火烧连营，北伐中原，司马当国"
+			},
+			"chapters": [
+				"yiling",
+				"guangling",
+				"nanzhong",
+				"wuzhang",
+				"gaoping",
+				"yinping"
+			]
+		}
+	],
+	"chapters": [
+		{
+			"id": "prologue",
+			"act": "act1",
+			"index": 0,
+			"year": 184,
+			"era": {
+				"en": "Prologue",
+				"zh_CN": "楔子"
+			},
+			"title": {
+				"en": "The Storyteller's Table",
+				"zh_CN": "开场·说书人"
+			},
+			"teaser": {
+				"en": "A gavel strikes. Tonight the old tales of the Three Kingdoms begin.",
+				"zh_CN": "醒木一拍，三国旧事从头说起。"
+			},
+			"objective": {
+				"en": "Win the sand-table drill.",
+				"zh_CN": "沙盘推演，赢下一局。"
+			},
+			"player_preset": "starter",
+			"player_alternatives": [],
+			"opponent_preset": "starter",
+			"enemy_commander": "keefe",
+			"seed": 18400,
+			"par_rounds": 12,
+			"defy_fate": false,
+			"art": "time_of_triumph",
+			"intro": [
+				{
+					"art": "ui/menu_key_art.jpg",
+					"speaker": "narrator",
+					"text": {
+						"en": "The gavel strikes and the teahouse falls silent. Tonight, honoured listeners, the tale of the Three Kingdoms: a century of beacon fires, when heroes rose like a tide and fell like leaves.",
+						"zh_CN": "醒木一拍，满堂皆静。列位看官，今夜说的是汉末三国：百年烽火，群雄如潮而起，又如落叶而散。"
+					}
+				},
+				{
+					"art": "coordinated_assault",
+					"speaker": "narrator",
+					"text": {
+						"en": "My troupe is small, so the same faces march under many banners. Tonight a man is Cao Cao's general; tomorrow he may wear Wu armour. Forgive us. That is how a stage works.",
+						"zh_CN": "小班人手有限，同一张脸常在不同旗下登场。今夜他是曹营大将，明夜或许换了吴人衣甲。看官莫怪，戏台本就如此。"
+					}
+				},
+				{
+					"art": "potion_of_knowledge",
+					"speaker": "sima_hui",
+					"text": {
+						"en": "Sima Hui, the Water Mirror, strokes his beard. “Those who read the times are the true talents. Before you open the chronicle, try the sand table. Four houses’ troops are yours to command.”",
+						"zh_CN": "水镜先生拈须笑道：“识时务者为俊杰。欲读此卷，先上沙盘一试。四家兵马，任君调遣。”"
+					}
+				},
+				{
+					"art": "ui/board_overview.jpg",
+					"speaker": "narrator",
+					"text": {
+						"en": "Three lanes, a tower at the head of each. Break two of the enemy’s towers, or one ancient, and the day is yours. Let us see who strikes first.",
+						"zh_CN": "三路兵马，各有城楼。破敌两座城楼，或攻下一座都城，便算得胜。且看这一局，谁能先声夺人。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "ui/splash_victory.jpg",
+					"speaker": "sima_hui",
+					"text": {
+						"en": "The Water Mirror claps. “Well played, young one!” The sand table is cleared and the scroll unrolled. It is the year 184, and a cry for a Yellow Heaven echoes across eight provinces…",
+						"zh_CN": "水镜先生抚掌笑道：“好一个后生！”沙盘收起，书卷展开。中平元年，黄天当立的呼声，已在八州响起……"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "ui/splash_defeat.jpg",
+					"speaker": "sima_hui",
+					"text": {
+						"en": "The Water Mirror fans himself. “Victory and defeat are a soldier’s daily bread. Play again, and read all three lanes this time.”",
+						"zh_CN": "水镜先生轻摇羽扇：“胜败乃兵家常事。再来一局，看清三路虚实。”"
+					}
+				}
+			],
+			"history_note": {
+				"en": "“Those who read the times are the true talents” is Sima Hui’s remark to Liu Bei, preserved from the Xiangyang Records in Pei Songzhi’s notes to the Records of the Three Kingdoms.",
+				"zh_CN": "“识时务者为俊杰”化自《三国志》裴松之注引《襄阳记》，原文作“识时务者在乎俊杰”，是司马徽对刘备所言。"
+			},
+			"cast_note": {
+				"en": "A sand-table drill: both sides field the same five heroes, whatever the year.",
+				"zh_CN": "沙盘推演，双方同用这五位英雄，不论年月。"
+			}
+		},
+		{
+			"id": "yellow_turban",
+			"act": "act1",
+			"index": 1,
+			"year": 184,
+			"era": {
+				"en": "184",
+				"zh_CN": "中平元年（184）"
+			},
+			"title": {
+				"en": "The Yellow Turban Rebellion",
+				"zh_CN": "黄巾之乱"
+			},
+			"teaser": {
+				"en": "The Blue Heaven is dead; the Yellow Heaven must rise. Eight provinces take up arms.",
+				"zh_CN": "苍天已死，黄天当立。八州之民头裹黄巾，揭竿而起。"
+			},
+			"objective": {
+				"en": "Crush the Yellow Turbans and hold the Han together.",
+				"zh_CN": "平定黄巾，护住汉室残局。"
+			},
+			"player_preset": "starter",
+			"player_alternatives": [],
+			"opponent_preset": "yellow_turban_rebellion",
+			"enemy_commander": "tinker",
+			"seed": 18401,
+			"par_rounds": 12,
+			"defy_fate": false,
+			"art": "march_of_the_machines",
+			"intro": [
+				{
+					"art": "march_of_the_machines",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 184, a jiazi year, Zhang Jiao of Julu called himself the Great Worthy Teacher. He healed with charmed water, gathered hundreds of thousands of followers, and secretly organised them into thirty-six commands.",
+						"zh_CN": "中平元年，岁在甲子。巨鹿张角自称大贤良师，以符水治病，徒众数十万，暗结三十六方。"
+					}
+				},
+				{
+					"art": "tinker",
+					"speaker": "zhang_jiao",
+					"text": {
+						"en": "Zhang Jiao cries from the altar: “The Blue Heaven is dead; the Yellow Heaven shall rise! In the jiazi year, all under heaven shall prosper!” In a single night, eight provinces burn.",
+						"zh_CN": "张角登坛高呼：“苍天已死，黄天当立；岁在甲子，天下大吉！”一夜之间，八州同起，烽火遍地。"
+					}
+				},
+				{
+					"art": "time_of_triumph",
+					"speaker": "narrator",
+					"text": {
+						"en": "The court calls for volunteers. In Zhuo, Liu Bei rides out with Guan Yu and Zhang Fei; the history says they were ‘close as brothers’. The oath in the peach garden came later, from storytellers like me.",
+						"zh_CN": "朝廷诏令天下募兵。涿郡刘备与关羽、张飞投军讨贼，史称三人“恩若兄弟”；桃园结义，则是后来说书人的添笔。"
+					}
+				},
+				{
+					"art": "jmuy",
+					"speaker": "cao_cao",
+					"text": {
+						"en": "Cao Cao, Commandant of Cavalry, marches on the rebels of Yingchuan. Hand on his sword, he laughs: “Chaos makes heroes. Follow me, gentlemen, and break them!”",
+						"zh_CN": "骑都尉曹操领兵直取颍川。他按剑笑道：“乱世出英雄。诸位，随我破贼！”"
+					}
+				},
+				{
+					"art": "thundergods_wrath",
+					"speaker": "narrator",
+					"text": {
+						"en": "Zhang Jiao is said to call down wind and thunder. The armoured figure summoning lightning in his ranks is a face my troupe borrowed from a later age. You will know him soon enough.",
+						"zh_CN": "张角善呼风唤雷。阵中那位披甲执杖、引雷而下的，是戏班借来的一张后世面孔，看官稍后自会认得他。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "rebel_instigator",
+					"speaker": "narrator",
+					"text": {
+						"en": "Zhang Jiao dies of illness, his brothers fall, and within a year the Yellow Turban armies are broken. But the court breaks with them: governors now hold the armies, and the Han is a name only.",
+						"zh_CN": "张角病死军中，张梁、张宝相继败亡，黄巾主力一年而溃。可朝廷的威信也随之土崩：各地州牧手握重兵，汉室从此名存实亡。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "march_of_the_machines",
+					"speaker": "zhang_jiao",
+					"text": {
+						"en": "The Yellow Heaven’s banner flies over the walls. Zhang Jiao laughs: “The Han’s mandate is spent!” Patience, listener. This scroll can still be rewritten.",
+						"zh_CN": "黄天大旗插上城头。张角大笑：“汉祚已尽！”看官莫急，此卷尚可重写。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "The ‘Blue Heaven is dead’ slogan is recorded in the Book of the Later Han. Zhang Jiao died of illness in 184; the peach-garden oath appears only in the novel.",
+				"zh_CN": "“苍天已死，黄天当立”见《后汉书·皇甫嵩传》。张角于中平元年病死；桃园结义不见于正史。"
+			},
+			"cast_note": {
+				"en": "Sima Yi, Lady Zhurong and Hua Tuo march with the Yellow Turbans as borrowed players, and Sun Quan on your side was two years old in 184.",
+				"zh_CN": "司马懿、祝融、华佗列于黄巾阵中，皆是戏班借将；你阵中的孙权，此时年方两岁。"
+			}
+		},
+		{
+			"id": "coalition",
+			"act": "act1",
+			"index": 2,
+			"year": 190,
+			"era": {
+				"en": "189–190",
+				"zh_CN": "中平六年至初平元年（189–190）"
+			},
+			"title": {
+				"en": "The Coalition against Dong Zhuo",
+				"zh_CN": "讨伐董卓"
+			},
+			"teaser": {
+				"en": "Eunuchs bloody the palace, Dong Zhuo seizes the capital, and the eastern lords swear a blood oath.",
+				"zh_CN": "十常侍乱宫，董卓入京。关东诸侯歃血为盟，共讨国贼。"
+			},
+			"objective": {
+				"en": "March west with the coalition and break Dong Zhuo’s army.",
+				"zh_CN": "随联军西进，击破董卓之军。"
+			},
+			"player_preset": "hulao_pass",
+			"player_alternatives": [],
+			"opponent_preset": "dong_zhuo_tyranny",
+			"enemy_commander": "bloodseeker",
+			"seed": 19002,
+			"par_rounds": 12,
+			"defy_fate": false,
+			"art": "the_oath",
+			"intro": [
+				{
+					"art": "the_tyler_estate",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 189 Emperor Ling dies. The regent He Jin plots against the palace eunuchs, but they lure him inside and behead him. Yuan Shao storms the palace and kills every eunuch he finds. Luoyang falls into chaos.",
+						"zh_CN": "中平六年，灵帝驾崩。大将军何进欲诛宦官，反被十常侍诱入宫中斩杀。袁绍领兵入宫，见宦者便杀，洛阳大乱。"
+					}
+				},
+				{
+					"art": "bloodseeker",
+					"speaker": "dong_zhuo",
+					"text": {
+						"en": "Dong Zhuo marches in with his Liang Province horsemen, deposes the boy emperor, crowns the Prince of Chenliu, and comes to court wearing his sword. “The affairs of the realm are mine to decide!”",
+						"zh_CN": "董卓率西凉兵入京，废少帝，立陈留王，自为相国，带剑上殿。他拍案道：“天下之事，岂不在我！”"
+					}
+				},
+				{
+					"art": "the_oath",
+					"speaker": "narrator",
+					"text": {
+						"en": "Cao Cao flees east under a false name and spends his family fortune on troops. In 190 the eastern lords meet at Suanzao, name Yuan Shao their leader, and swear in blood: death to the traitor.",
+						"zh_CN": "曹操变易姓名，潜逃东归，散家财募兵。初平元年，关东诸侯会于酸枣，推袁绍为盟主，登坛歃血，誓讨国贼。"
+					}
+				},
+				{
+					"art": "sorla_khan",
+					"speaker": "narrator",
+					"text": {
+						"en": "The lords feast and dither. Only Sun Jian, Administrator of Changsha, drives north fighting every step. “Let the gentlemen drink,” he says, gripping his sword. “I will kill the rebels.”",
+						"zh_CN": "诸侯日日置酒高会，逡巡不进。唯有长沙太守孙坚自南而来，一路死战。他按刀道：“诸公饮酒，我自杀贼。”"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "assault_ladders",
+					"speaker": "narrator",
+					"text": {
+						"en": "Dong Zhuo burns Luoyang and drags the emperor west to Chang’an; a capital of a hundred and sixty years becomes ash. Sun Jian is first into the ruins and sweeps the imperial temples. But the coalition is coming apart.",
+						"zh_CN": "董卓焚烧洛阳，挟天子西迁长安，百六十余年的帝都化为焦土。孙坚率先入城，扫除宗庙，祭以太牢。联军却已各怀异心。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "blood_rage",
+					"speaker": "dong_zhuo",
+					"text": {
+						"en": "Dong Zhuo throws a feast of wine and meat. “Eastern rats, daring to challenge me?” The coalition scatters, each lord back to his own province.",
+						"zh_CN": "董卓大宴群臣，酒池肉林。“关东鼠辈，也敢犯我？”联军四散，各回本郡。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "History credits Sun Jian with killing Hua Xiong at Yangren in 191; Guan Yu’s feat ‘before the wine cooled’ is the novel’s. At Suanzao it was Zang Hong who led the oath on the altar.",
+				"zh_CN": "史载斩华雄者是孙坚（初平二年阳人之战），关羽温酒斩华雄为《演义》情节。酸枣会盟，登坛主誓者实为臧洪。"
+			},
+			"cast_note": {
+				"en": "Cao Cao, who fled Dong Zhuo and raised troops against him, stands in Dong’s ranks tonight as a borrowed player.",
+				"zh_CN": "曹操本是逃出洛阳、起兵讨董之人，今夜却列于董卓阵中，是戏班借将。"
+			}
+		},
+		{
+			"id": "hulao",
+			"act": "act1",
+			"index": 3,
+			"year": 190,
+			"era": {
+				"en": "190",
+				"zh_CN": "初平元年（190）"
+			},
+			"title": {
+				"en": "Three Heroes at Hulao Pass",
+				"zh_CN": "虎牢关·三英战吕布"
+			},
+			"teaser": {
+				"en": "Tonight we sit in Dong Zhuo’s camp. You hold the pass with Lü Bu.",
+				"zh_CN": "今夜换个座次：看官坐进董卓营中，随吕布守关。"
+			},
+			"objective": {
+				"en": "Hold Hulao Pass and stop the coalition at the gate.",
+				"zh_CN": "坚守虎牢，叫诸侯止步关前。"
+			},
+			"player_preset": "dong_zhuo_tyranny",
+			"player_alternatives": [],
+			"opponent_preset": "hulao_pass",
+			"enemy_commander": "sven",
+			"hero_order": [
+				"sven",
+				"keefe",
+				"axe",
+				"sorla_khan",
+				"bounty_hunter"
+			],
+			"seed": 19003,
+			"par_rounds": 12,
+			"defy_fate": false,
+			"art": "phantom_assassin",
+			"intro": [
+				{
+					"art": "coordinated_assault",
+					"speaker": "narrator",
+					"text": {
+						"en": "The storyteller turns his gavel. “Last time you marched with the lords. Tonight, climb the walls instead.” Below Hulao Pass, the banners of eighteen lords blot out the sun.",
+						"zh_CN": "说书人把醒木一转：“前回看官随诸侯讨贼，今回且坐到关上去。”虎牢关下，十八路诸侯旌旗蔽日。"
+					}
+				},
+				{
+					"art": "phantom_assassin",
+					"speaker": "narrator",
+					"text": {
+						"en": "On the wall stands a general in a purple-gold crown and a robe of Sichuan brocade, the Sky Piercer halberd in hand, astride Red Hare. As they say: among men, Lü Bu; among horses, Red Hare.",
+						"zh_CN": "关上一员大将，头戴紫金冠，身披西川红锦百花袍，手持方天画戟，坐下嘶风赤兔马。正是“人中吕布，马中赤兔”。"
+					}
+				},
+				{
+					"art": "heros_cape",
+					"speaker": "lu_bu",
+					"text": {
+						"en": "Lü Bu rides out and unhorses general after general, then turns back laughing. “All the lords of the east, and not one who lasts a single bout?”",
+						"zh_CN": "吕布纵马出关，连败数将，回首大笑：“关东诸侯，竟无一合之敌？”"
+					}
+				},
+				{
+					"art": "axe",
+					"speaker": "narrator",
+					"text": {
+						"en": "A roar splits the air: Zhang Fei charges with his serpent spear, then Guan Yu with the Green Dragon blade and Liu Bei with twin swords. Three heroes against Lü Bu. It begins tonight.",
+						"zh_CN": "忽听一声暴喝，张飞挺丈八蛇矛杀出，关羽舞青龙刀、刘备掣双股剑随后夹攻。三英战吕布，就在今夜。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "apotheosis_blade",
+					"speaker": "narrator",
+					"text": {
+						"en": "The gate holds. Short of grain and full of suspicion, the coalition falls apart without another battle. Cao Cao later wrote: ‘Joined in arms, not in will, they hung back like geese in a line.’",
+						"zh_CN": "关门紧闭，诸侯寸步难进。盟军粮尽，彼此猜忌，终于不战自散。曹操后来写道：“军合力不齐，踌躇而雁行。”"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "keefe",
+					"speaker": "narrator",
+					"text": {
+						"en": "Lü Bu tires and wheels back to the pass. The three heroes’ fame spreads across the realm, at least in the mouths of storytellers.",
+						"zh_CN": "吕布力怯，拨马回关。三英之名从此传遍天下，至少在说书人的嘴里如此。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "‘Three Heroes against Lü Bu’ is chapter 5 of the novel; the histories record no such fight at Hulao. Cao Cao’s poem ‘Song of Haoli’ tells how the coalition fell apart.",
+				"zh_CN": "“三英战吕布”出自《演义》第五回，正史中刘关张并未在虎牢关与吕布交战。曹操《蒿里行》写尽联军离心。"
+			},
+			"cast_note": {
+				"en": "Cao Cao, who in truth marched with the coalition, fights for Dong Zhuo tonight as a borrowed player.",
+				"zh_CN": "曹操本在关东联军之中，今夜替董卓出阵，是戏班借将。"
+			}
+		},
+		{
+			"id": "puyang",
+			"act": "act1",
+			"index": 4,
+			"year": 194,
+			"era": {
+				"en": "192–194",
+				"zh_CN": "初平三年至兴平元年（192–194）"
+			},
+			"title": {
+				"en": "Fengyi Pavilion and Puyang",
+				"zh_CN": "凤仪亭·濮阳之战"
+			},
+			"teaser": {
+				"en": "The halberd that killed Dong Zhuo now hangs at Cao Cao’s back.",
+				"zh_CN": "一戟刺死董卓的吕布，转眼成了曹操背后的猛虎。"
+			},
+			"objective": {
+				"en": "Save Yan Province and drive Lü Bu out.",
+				"zh_CN": "保住兖州根本，击退吕布。"
+			},
+			"player_preset": "welcoming_the_emperor",
+			"player_alternatives": [],
+			"opponent_preset": "fengyi_pavilion",
+			"enemy_commander": "phantom_assassin",
+			"hero_order": [
+				"phantom_assassin",
+				"storm_spirit",
+				"winter_wyvern",
+				"debbi",
+				"bloodseeker"
+			],
+			"seed": 19404,
+			"par_rounds": 12,
+			"defy_fate": false,
+			"art": "winter_wyvern",
+			"intro": [
+				{
+					"art": "winter_wyvern",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 192 Minister Wang Yun plots against Dong Zhuo. The novel says he used Diaochan in a chain of stratagems to set Dong Zhuo against his adopted son Lü Bu. At Fengyi Pavilion, one thrown halberd ends their bond.",
+						"zh_CN": "初平三年，司徒王允密谋除董。《演义》说他以义女貂蝉施连环计，令董卓、吕布父子反目；凤仪亭中一掷画戟，恩义两断。"
+					}
+				},
+				{
+					"art": "winters_curse",
+					"speaker": "narrator",
+					"text": {
+						"en": "The histories say Lü Bu had an affair with one of Dong Zhuo’s maids and lived in fear of discovery. At Wang Yun’s urging he stabbed Dong Zhuo at the palace gate. Chang’an sold its clothes to buy wine.",
+						"zh_CN": "正史则说，吕布与董卓侍婢私通，心常不安。王允一劝，他便在宫门前亲手刺死董卓。长安士女卖衣买酒，相庆于道。"
+					}
+				},
+				{
+					"art": "debbi",
+					"speaker": "narrator",
+					"text": {
+						"en": "The joy is short. Jia Xu urges Dong Zhuo’s old officers to retake Chang’an; Wang Yun dies and Lü Bu flees east. In 194, while Cao Cao is at war in Xu Province, Chen Gong and Zhang Miao open Yan Province to Lü Bu.",
+						"zh_CN": "好景不长。贾诩劝董卓旧部反攻长安，王允死难，吕布东走。兴平元年，曹操东征徐州，陈宫、张邈竟开门迎吕布入兖州。"
+					}
+				},
+				{
+					"art": "kanna",
+					"speaker": "xun_yu",
+					"text": {
+						"en": "Nearly every county goes over to Lü Bu; only Juancheng, Fan and Dong’e remain. Xun Yu bars the gates and sends word: “Return at once, my lord! Lose our roots and we have nowhere to stand.”",
+						"zh_CN": "兖州郡县望风而降，只剩鄄城、范、东阿三城。荀彧闭门坚守，飞书告急：“主公速归！根本若失，何以立足？”"
+					}
+				},
+				{
+					"art": "skywrath_mage",
+					"speaker": "narrator",
+					"text": {
+						"en": "Cao Cao returns and attacks Puyang by night, only to fall into a trap; fire scorches his left hand. Dian Wei leads the volunteers with paired halberds, barking: “Tell me when they’re ten paces off!”",
+						"zh_CN": "曹操回师夜袭濮阳，反中埋伏，大火中左手掌被烧伤。典韦率敢死之士，手持双戟，喝道：“虏来十步，乃白之！”"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "mystic_flare",
+					"speaker": "narrator",
+					"text": {
+						"en": "After a hundred days, locusts ruin the fields and both armies starve apart. The next year Cao Cao crushes Lü Bu at Dingtao and Juye and retakes Yan Province. Lü Bu runs to Liu Bei in Xu.",
+						"zh_CN": "相持百余日，蝗灾骤起，两军乏粮而退。次年曹操大破吕布于定陶、巨野，收复兖州。吕布投奔徐州刘备去了。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "phantom_assassin",
+					"speaker": "lu_bu",
+					"text": {
+						"en": "Lü Bu reins in, halberd across his saddle. “Yan Province is mine!” Xun Yu’s three cities stand alone, and Cao Cao has no home to return to.",
+						"zh_CN": "吕布横戟立马：“兖州是我的了！”荀彧三城孤悬，曹操无家可归。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Diaochan does not appear in the histories; Lü Bu’s affair was with an unnamed maid. Dian Wei’s ‘ten paces’ and Cao Cao’s burned hand at Puyang are both in the Records.",
+				"zh_CN": "貂蝉不见于正史，与吕布私通的是董卓侍婢。典韦“十步乃白”与曹操濮阳烧伤左手，皆载于《三国志》。"
+			},
+			"cast_note": {
+				"en": "Dong Zhuo, slain in 192, and Jia Xu, who served Dong’s old officers, ride with Lü Bu tonight as borrowed players.",
+				"zh_CN": "董卓已于初平三年被诛，贾诩当时效力于董卓旧部；今夜二人随吕布出阵，皆是戏班借将。"
+			}
+		},
+		{
+			"id": "shenting",
+			"act": "act1",
+			"index": 5,
+			"year": 195,
+			"era": {
+				"en": "195",
+				"zh_CN": "兴平二年（195）"
+			},
+			"title": {
+				"en": "Sun Ce Crosses the River",
+				"zh_CN": "神亭岭·孙策渡江"
+			},
+			"teaser": {
+				"en": "Tonight you defend the lands east of the river. The invader is the twenty-year-old Little Conqueror.",
+				"zh_CN": "今夜看官守江东。来者是二十岁的小霸王。"
+			},
+			"objective": {
+				"en": "Stand against the Little Conqueror’s charge.",
+				"zh_CN": "以江东之兵，挡住小霸王的锋芒。"
+			},
+			"player_preset": "ruxu_standoff",
+			"player_alternatives": [],
+			"opponent_preset": "little_conqueror",
+			"enemy_commander": "magnus",
+			"seed": 19505,
+			"par_rounds": 12,
+			"defy_fate": true,
+			"art": "ion_shell",
+			"intro": [
+				{
+					"art": "magnus",
+					"speaker": "narrator",
+					"text": {
+						"en": "After Sun Jian’s death, his eldest son Sun Ce serves under Yuan Shu. In 195 he borrows barely a thousand men, crosses the Yangtze and sweeps all before him. Men call him the Little Conqueror.",
+						"zh_CN": "孙坚战死之后，长子孙策寄身袁术帐下。兴平二年，他借得千余兵马渡江东进，所向披靡，人称“小霸王”。"
+					}
+				},
+				{
+					"art": "dark_seer",
+					"speaker": "narrator",
+					"text": {
+						"en": "Among the officers of Liu Yao, Inspector of Yang Province, is Taishi Ci of Donglai. Scouting alone, he runs into Sun Ce near Shenting, riding with only thirteen horsemen.",
+						"zh_CN": "扬州刺史刘繇帐下，有东莱太史慈。他独骑出营侦察，在神亭恰与只带十三骑的孙策撞个正着。"
+					}
+				},
+				{
+					"art": "ion_shell",
+					"speaker": "taishi_ci",
+					"text": {
+						"en": "“I am Taishi Ci of Donglai!” He charges straight at Sun Ce. They grapple in the saddle; Sun Ce snatches the halberd from his back, and he tears off Sun Ce’s helmet. Only when both armies arrive do they part.",
+						"zh_CN": "“我便是东莱太史慈！”太史慈挺枪直取孙策。二人马上酣斗，孙策夺了他背上手戟，他也扯下孙策头盔。两军赶到，方才罢手。"
+					}
+				},
+				{
+					"art": "treant_protector",
+					"speaker": "narrator",
+					"text": {
+						"en": "The great clans of the east are watching. The Lu clan of Wu lost nearly half its people when Sun Ce besieged Lujiang the year before, and young Lu Xun remembers. Tonight you hold this river for the east.",
+						"zh_CN": "江东士族也在观望。吴郡陆氏，前年在孙策的庐江之围中死者将半，少年陆逊记在心里。今夜，看官便替江东守这一道江。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "ion_shell",
+					"speaker": "narrator",
+					"text": {
+						"en": "The east holds. Sun Ce gazes across the water and, instead of raging, laughs: “Who is that man? I must have him.” In the histories, Taishi Ci was later captured, and Sun Ce untied him with his own hands.",
+						"zh_CN": "江东守住了。孙策隔江遥望，不怒反笑：“此人是谁？我必得之。”史书里，太史慈后来兵败被擒，孙策亲解其缚，引为心腹。"
+					}
+				},
+				{
+					"art": "treant_protector",
+					"speaker": "narrator",
+					"text": {
+						"en": "You rewrote one night, but not the tide. Within a few years Sun Ce held the east and married the elder Qiao, and Lu Xun married Sun Ce’s daughter and became a pillar of Wu.",
+						"zh_CN": "此卷改写了一夜，大势却难改。数年之间，孙策平定江东，迎娶大乔；陆逊娶了孙策之女，终成东吴柱石。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "magnus",
+					"speaker": "narrator",
+					"text": {
+						"en": "The east falls to the Sun family. Sun Ce takes Qu’e and Liu Yao flees to Yuzhang. The Little Conqueror’s name now shakes both banks of the Yangtze.",
+						"zh_CN": "江东尽归孙氏。孙策攻入曲阿，刘繇败走豫章。小霸王之名，从此震动大江南北。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "The Shenting duel and Taishi Ci’s capture and release are in his biography in the Records; the Jiangbiao Annals in Pei’s notes tell the release at more length. Sun Ce pawning the imperial seal for troops is the novel’s invention.",
+				"zh_CN": "神亭之斗与太史慈被擒获释，皆载于《三国志·太史慈传》，裴注引《江表传》所叙更详。孙策以玉玺质押借兵之说出自《演义》。"
+			},
+			"cast_note": {
+				"en": "Only Taishi Ci truly fought for Liu Yao. Lu Xun, Cao Cao, Da Qiao and Sima Yi beside him, and Lü Bu and Jia Xu beside Sun Ce, are borrowed players.",
+				"zh_CN": "真为刘繇出战的只有太史慈。他身边的陆逊、曹操、大乔、司马懿，与孙策身边的吕布、贾诩，皆是戏班借将。"
+			}
+		},
+		{
+			"id": "wancheng",
+			"act": "act2",
+			"index": 6,
+			"year": 197,
+			"era": {
+				"en": "196–197",
+				"zh_CN": "建安元年至二年（196–197）"
+			},
+			"title": {
+				"en": "The Ambush at Wancheng",
+				"zh_CN": "宛城之变"
+			},
+			"teaser": {
+				"en": "Cao Cao holds the emperor and the world’s respect. One night at Wancheng, Jia Xu teaches him the price of pride.",
+				"zh_CN": "曹操奉迎天子，声威正盛。宛城一夜，贾诩教他乐极生悲。"
+			},
+			"objective": {
+				"en": "Follow Jia Xu’s plan and strike Cao’s camp by night.",
+				"zh_CN": "依贾诩之计，夜袭曹营。"
+			},
+			"player_preset": "warlords_rise",
+			"player_alternatives": [],
+			"opponent_preset": "welcoming_the_emperor",
+			"enemy_commander": "jmuy",
+			"hero_order": [
+				"skywrath_mage",
+				"jmuy",
+				"crystal_maiden",
+				"kanna",
+				"meepo"
+			],
+			"seed": 19706,
+			"par_rounds": 11,
+			"defy_fate": false,
+			"art": "no_accident",
+			"intro": [
+				{
+					"art": "battlefield_control",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 196, on Xun Yu’s advice, Cao Cao welcomes Emperor Xian to Xu. From then on he ‘serves the Son of Heaven to command the disloyal’, and every lord in the realm watches him warily.",
+						"zh_CN": "建安元年，曹操听荀彧之计，迎汉献帝都许，从此“奉天子以令不臣”。天下诸侯，无不侧目。"
+					}
+				},
+				{
+					"art": "debbi",
+					"speaker": "narrator",
+					"text": {
+						"en": "The next year Cao Cao marches on Wancheng and Zhang Xiu surrenders. But Cao takes Zhang Xiu’s widowed aunt as a concubine and tries to buy his best officer. Ashamed and afraid, Zhang Xiu turns to Jia Xu.",
+						"zh_CN": "次年曹操南征宛城，张绣举众投降。曹操却纳了张绣的婶娘，又以重金结交张绣的爱将。张绣又羞又惧，去问谋士贾诩。"
+					}
+				},
+				{
+					"art": "no_accident",
+					"speaker": "jia_xu",
+					"text": {
+						"en": "Jia Xu smiles faintly. “Ask leave to move your camp, General, and send your wagons and armour right past Cao’s gate. When you reach the gate, you are on the battlefield.”",
+						"zh_CN": "贾诩淡淡一笑：“请将军借道移营，车重兵甲，尽从曹营门前过。到了营门，便是战场。”"
+					}
+				},
+				{
+					"art": "skywrath_mage",
+					"speaker": "narrator",
+					"text": {
+						"en": "At the gate of Cao’s camp stands Dian Wei with his paired halberds. Tonight you lead Zhang Xiu’s troops, and before you stands the most loyal door in Cao Cao’s army.",
+						"zh_CN": "曹营门前，典韦手持双戟，独当营门。今夜看官执张绣之兵，挡在面前的，是曹营最忠勇的一道门。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "skywrath_mage",
+					"speaker": "narrator",
+					"text": {
+						"en": "Wounded dozens of times, Dian Wei fights on with an enemy clamped under each arm and dies cursing. Cao Cao’s eldest son Cao Ang gives his father his horse and is killed. By the Yu River, Cao Cao weeps for Dian Wei.",
+						"zh_CN": "典韦身被数十创，犹挟两敌而战，瞋目大骂而死。曹操长子曹昂让马救父，亦殁于乱军。曹操后来在淯水边为典韦痛哭。"
+					}
+				},
+				{
+					"art": "debbi",
+					"speaker": "narrator",
+					"text": {
+						"en": "Two years later Yuan Shao invites Zhang Xiu to join him. Jia Xu tells the envoy: “A man who cannot tolerate his own brother will hardly tolerate the realm’s best men,” and steers Zhang Xiu to Cao Cao instead.",
+						"zh_CN": "两年后袁绍遣使招张绣。贾诩当着来使说：“归谢袁本初：兄弟不能相容，而能容天下国士乎？”转身劝张绣投了曹操。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "jmuy",
+					"speaker": "cao_cao",
+					"text": {
+						"en": "The trap is sprung too early. Cao Cao rests a hand on his sword and sneers: “Zhang Xiu, you whelp, you thought to outwit me?”",
+						"zh_CN": "伏兵未起，已被识破。曹操按剑冷笑：“张绣小儿，也敢算计于我？”"
+					}
+				}
+			],
+			"history_note": {
+				"en": "The Wancheng ambush is recorded in the Records. ‘Serve the Son of Heaven to command the disloyal’ was Mao Jie’s advice to Cao Cao; ‘hold the emperor hostage to command the lords’ was what his rivals called it.",
+				"zh_CN": "宛城之变载于《三国志》武帝纪、典韦传、贾诩传。“奉天子以令不臣”是毛玠向曹操献的策；“挟天子以令诸侯”则是对手的说法。"
+			},
+			"cast_note": {
+				"en": "Of your five, only Jia Xu served Zhang Xiu; Lü Bu, Yuan Shao, Hua Tuo and Zuo Ci are borrowed players.",
+				"zh_CN": "你阵中五人，只有贾诩真为张绣效力；吕布、袁绍、华佗、左慈皆是戏班借将。"
+			}
+		},
+		{
+			"id": "xiapi",
+			"act": "act2",
+			"index": 7,
+			"year": 198,
+			"era": {
+				"en": "198",
+				"zh_CN": "建安三年（198）"
+			},
+			"title": {
+				"en": "The Siege of Xiapi",
+				"zh_CN": "下邳之战"
+			},
+			"teaser": {
+				"en": "The Flying General is trapped in Xiapi, and Cao Cao turns two rivers against its walls.",
+				"zh_CN": "飞将吕布困守孤城，曹操引沂、泗二水灌城。"
+			},
+			"objective": {
+				"en": "Flood Xiapi and take Lü Bu alive.",
+				"zh_CN": "水淹下邳，生擒吕布。"
+			},
+			"player_preset": "blue_black_control",
+			"player_alternatives": [],
+			"opponent_preset": "siege_of_xiapi",
+			"enemy_commander": "phantom_assassin",
+			"seed": 19807,
+			"par_rounds": 11,
+			"defy_fate": false,
+			"art": "annihilation",
+			"intro": [
+				{
+					"art": "ball_lightning",
+					"speaker": "narrator",
+					"text": {
+						"en": "Taken in by Liu Bei, Lü Bu repays him by seizing Xu Province while Liu Bei is away at war. Liu Bei shelters at Xiaopei until Gao Shun storms it, then flees to Cao Cao.",
+						"zh_CN": "吕布投奔刘备，却趁刘备出征，袭取徐州。刘备只得寄身小沛，又被高顺攻破，转投曹操。"
+					}
+				},
+				{
+					"art": "frostbite",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the winter of 198 Cao Cao marches on Lü Bu himself. A stray arrow takes Xiahou Dun’s left eye, and the army calls him ‘Blind Xiahou’ ever after. Eating the eye is the novel’s touch of gore.",
+						"zh_CN": "建安三年冬，曹操亲征吕布。夏侯惇为流矢所中，伤了左目，军中从此称他“盲夏侯”。拔矢啖睛，则是《演义》添的血色。"
+					}
+				},
+				{
+					"art": "outworld_devourer",
+					"speaker": "chen_gong",
+					"text": {
+						"en": "Chen Gong urges Lü Bu: “Camp outside the walls, General, and I will hold the city. If Cao attacks you, I strike his back.” But Lü Bu’s wife weeps against it, and he never leaves the city.",
+						"zh_CN": "陈宫劝吕布：“将军屯兵城外，宫守城内。曹若攻将军，宫引兵击其背。”吕布听了妻子一番哭劝，终究没有出城。"
+					}
+				},
+				{
+					"art": "annihilation",
+					"speaker": "narrator",
+					"text": {
+						"en": "Two months into the siege the troops are weary. Xun You and Guo Jia advise: “Lü Bu is brave but witless, and he has lost three battles. Press him now.” So the Yi and Si rivers are turned upon Xiapi.",
+						"zh_CN": "围城两月，士卒疲敝。荀攸、郭嘉进言：“吕布勇而无谋，今三战皆北，锐气已衰，正可急攻。”于是决沂、泗之水灌城。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "phantom_assassin",
+					"speaker": "narrator",
+					"text": {
+						"en": "At White Gate Tower, Lü Bu strains at his ropes. “Too tight! With me as your general, the realm is yours!” Liu Bei says quietly, “My lord, remember how he served Ding Yuan and Dong Zhuo.”",
+						"zh_CN": "白门楼上，吕布被缚，叫道：“缚太急！明公得布为将，天下不足定也！”刘备在旁道：“明公不见布之事丁建阳、董太师乎？”"
+					}
+				},
+				{
+					"art": "earthshaker",
+					"speaker": "narrator",
+					"text": {
+						"en": "Lü Bu, Chen Gong and Gao Shun die at White Gate; Chen Gong refuses to beg. Among the surrendered officers is Zhang Liao of Yanmen. Seventeen years from now, his name will silence crying children in the south.",
+						"zh_CN": "吕布、陈宫、高顺皆死于白门，陈宫至死不肯求饶。降将之中，有一位雁门张辽。十七年后，他会让江东小儿夜不敢啼。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "apotheosis_blade",
+					"speaker": "lu_bu",
+					"text": {
+						"en": "Lü Bu breaks out on Red Hare like lightning; no one can stand before the halberd. “Which hero under heaven can cage me?”",
+						"zh_CN": "吕布跨赤兔突围，快如闪电，画戟过处无人能挡。“天下英雄，谁能困我？”"
+					}
+				}
+			],
+			"history_note": {
+				"en": "The flooding, the White Gate exchange and Xiahou Dun’s eye are all in the Records.",
+				"zh_CN": "决水灌城、白门楼对答、夏侯惇伤目皆见《三国志》。"
+			},
+			"cast_note": {
+				"en": "Lü Bu and Jia Xu stand on both sides tonight; Xu Chu, Cao’s own guard, fights for Lü Bu; young Sima Yi had yet to serve Cao. All borrowed players. Zhang Liao is the one who will truly change banners.",
+				"zh_CN": "吕布、贾诩在双方阵中同时出现，曹营虎将许褚今夜站在吕布一边，司马懿此时尚未出仕，皆是戏班借将；张辽则是将来真要易帜之人。"
+			}
+		},
+		{
+			"id": "guandu",
+			"act": "act2",
+			"index": 8,
+			"year": 200,
+			"era": {
+				"en": "200",
+				"zh_CN": "建安五年（200）"
+			},
+			"title": {
+				"en": "The Battle of Guandu",
+				"zh_CN": "官渡之战"
+			},
+			"teaser": {
+				"en": "Yuan Shao marches south with a hundred thousand. Cao Cao is outnumbered, and everything hangs on one fire.",
+				"zh_CN": "袁绍十万大军南下，曹操以寡敌众，胜负系于一把火。"
+			},
+			"objective": {
+				"en": "Burn Wuchao and break Yuan Shao’s host.",
+				"zh_CN": "火烧乌巢，击破袁绍大军。"
+			},
+			"player_preset": "battle_of_guandu",
+			"player_alternatives": [],
+			"opponent_preset": "warlords_rise",
+			"enemy_commander": "bounty_hunter",
+			"hero_order": [
+				"bounty_hunter",
+				"phantom_assassin",
+				"debbi",
+				"lion",
+				"necrophos"
+			],
+			"seed": 20008,
+			"par_rounds": 11,
+			"defy_fate": false,
+			"art": "bolt_of_damocles",
+			"intro": [
+				{
+					"art": "ignite",
+					"speaker": "guo_jia",
+					"text": {
+						"en": "Guo Jia lays it out for Cao Cao: “Yuan Shao has ten weaknesses and you have ten strengths. He drowns in ceremony; you act naturally…” Cao Cao laughs and claps his hands.",
+						"zh_CN": "郭嘉为曹操剖析：“绍有十败，公有十胜。绍繁礼多仪，公体任自然……”一番话说得曹操抚掌大笑。"
+					}
+				},
+				{
+					"art": "track",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 200 Yuan Shao raises all the north and has Chen Lin write a proclamation of Cao Cao’s crimes, cursing back to his grandfather. They say Cao Cao read it and his headache vanished.",
+						"zh_CN": "建安五年，袁绍尽起河北之兵，命陈琳作檄文，历数曹操罪状，连曹操祖父都骂了进去。据说曹操读罢，头风竟好了。"
+					}
+				},
+				{
+					"art": "keefe",
+					"speaker": "narrator",
+					"text": {
+						"en": "At the siege of Baima, Guan Yu, serving Cao Cao for a time, spots Yan Liang’s parasol. He rides straight through ten thousand men, stabs Yan Liang from his horse, and returns with his head.",
+						"zh_CN": "白马之围，关羽暂在曹营。他望见颜良麾盖，策马直入万军之中，刺颜良于马下，斩其首而还，袁军无人能当。"
+					}
+				},
+				{
+					"art": "bolt_of_damocles",
+					"speaker": "narrator",
+					"text": {
+						"en": "The armies lock at Guandu until Cao’s grain runs low. Then Xu You defects from Yuan Shao, and Cao Cao runs out barefoot to meet him. Xu You’s news: all of Yuan’s grain lies at Wuchao.",
+						"zh_CN": "两军相持官渡，曹军粮少。袁绍谋士许攸来投，曹操赤足出迎。许攸献计：袁军粮草，尽在乌巢。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "bolt_of_damocles",
+					"speaker": "narrator",
+					"text": {
+						"en": "Cao Cao leads five thousand men by night under Yuan banners and burns every grain cart at Wuchao. Zhang He and Gao Lan defect, the Yuan host collapses, and Yuan Shao flees north with eight hundred riders.",
+						"zh_CN": "曹操亲率五千步骑，夜打袁军旗号，一把火烧尽乌巢粮草。张郃、高览阵前倒戈，袁军大溃，袁绍仅带八百骑渡河北逃。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "bounty_hunter",
+					"speaker": "yuan_shao",
+					"text": {
+						"en": "Yuan Shao reins in by the river, glowing. “Four generations of high ministers! What is a eunuch’s grandson beside me?” The camp at Guandu falls in a single night.",
+						"zh_CN": "袁绍立马河上，意气风发：“我袁氏四世三公，岂是阉宦之后可比！”官渡营垒，一夜尽破。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "The ten strengths come from the Fuzi in Pei’s notes; Guan Yu’s kill, Xu You’s defection and the Wuchao fire are in the Records.",
+				"zh_CN": "十胜十败见裴注引《傅子》；关羽斩颜良、许攸来投、火烧乌巢皆见《三国志》。"
+			},
+			"cast_note": {
+				"en": "Jia Xu had joined Cao a year earlier and Lü Bu had fallen at Xiapi; in Yuan’s camp tonight they are borrowed players, as are Hua Tuo and Zuo Ci.",
+				"zh_CN": "贾诩已于前一年随张绣归曹，吕布早死于下邳；今夜二人与华佗、左慈同在袁营，皆是戏班借将。"
+			}
+		},
+		{
+			"id": "ye",
+			"act": "act2",
+			"index": 9,
+			"year": 204,
+			"era": {
+				"en": "202–204",
+				"zh_CN": "建安七年至九年（202–204）"
+			},
+			"title": {
+				"en": "The Siege of Ye",
+				"zh_CN": "邺城之战"
+			},
+			"teaser": {
+				"en": "Yuan Shao is dead and his sons are at each other’s throats. Cao Cao waits, then strikes north.",
+				"zh_CN": "袁绍死后，二子同室操戈。曹操静观其变，然后挥师北上。"
+			},
+			"objective": {
+				"en": "Take Ye before the Yuan brothers make peace.",
+				"zh_CN": "趁二袁失和，攻下邺城。"
+			},
+			"player_preset": "welcoming_the_emperor",
+			"player_alternatives": [
+				"battle_of_guandu"
+			],
+			"opponent_preset": "siege_of_ye",
+			"enemy_commander": "bounty_hunter",
+			"hero_order": [
+				"bounty_hunter",
+				"luna",
+				"debbi",
+				"prellex",
+				"ogre_magi"
+			],
+			"seed": 20409,
+			"par_rounds": 11,
+			"defy_fate": false,
+			"art": "bitter_enemies",
+			"intro": [
+				{
+					"art": "bounty_hunter",
+					"speaker": "narrator",
+					"text": {
+						"en": "Two years after Guandu, Yuan Shao dies vomiting blood. He favoured his youngest son Yuan Shang over the eldest, Yuan Tan, and the brothers turn their armies on each other.",
+						"zh_CN": "官渡败后两年，袁绍呕血而死。他偏爱幼子袁尚，长子袁谭不服。兄弟二人各拥兵马，同室操戈。"
+					}
+				},
+				{
+					"art": "ogre_magi",
+					"speaker": "guo_jia",
+					"text": {
+						"en": "Guo Jia advises: “Press them and they unite; leave them be and they fight. Turn south toward Jing and wait.” Cao Cao withdraws, and the brothers duly go to war.",
+						"zh_CN": "郭嘉道：“急之则相持，缓之而后争心生。不如南向荆州，以待其变。”曹操依言退兵，二袁果然大打出手。"
+					}
+				},
+				{
+					"art": "unsupervised_artillery",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 204 Cao Cao reaches Ye. Earth ramps and tunnels fail against Shen Pei’s defence, so Cao digs a trench forty li around and floods it from the Zhang River. Half the city starves.",
+						"zh_CN": "建安九年，曹操兵临邺城。起土山，挖地道，审配死守不下。曹操索性掘壕四十里，决漳水灌城，城中饿死者过半。"
+					}
+				},
+				{
+					"art": "luna",
+					"speaker": "narrator",
+					"text": {
+						"en": "Deep in the Yuan mansion waits Lady Zhen, wife of Yuan Xi and famed for her beauty. Cao Pi enters sword in hand and is struck still. After Ye, no one in the north can stand against the house of Cao.",
+						"zh_CN": "袁府深处，有袁熙之妻甄氏，姿貌绝伦。曹丕提剑入府，见之动容。看官，邺城之后，北方再无人能与曹氏抗衡。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "aghanims_sanctum",
+					"speaker": "narrator",
+					"text": {
+						"en": "With Ye taken, Cao Cao visits Yuan Shao’s tomb and weeps as he makes offerings. Ye becomes his base, and in a few years the Bronze Sparrow Terrace will rise beside the Zhang River.",
+						"zh_CN": "邺城既下，曹操亲临袁绍墓前祭奠，为之流涕。从此以邺为根本，数年后筑铜雀台于漳水之滨。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "bitter_enemies",
+					"speaker": "narrator",
+					"text": {
+						"en": "With an enemy at the walls, the Yuan brothers put aside their feud and march to the rescue together. Ye stands like a rock, and Cao’s army falls back to Liyang.",
+						"zh_CN": "兵临城下，二袁竟暂释前嫌，合兵来救。邺城坚如磐石，曹军只得退回黎阳。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Guo Jia’s ‘leave them be’, the flooding of Ye and Cao Pi’s marriage to Lady Zhen are in the Records and Pei’s notes.",
+				"zh_CN": "郭嘉“缓之”之策、决漳水灌城、曹丕纳甄氏，皆见《三国志》及裴注。"
+			},
+			"cast_note": {
+				"en": "Yuan Shao died in 202; his banner stands for his sons. Guo Jia, Jia Xu and Xu Chu in the Yuan ranks, and Dian Wei, dead since Wancheng, in yours, are borrowed players.",
+				"zh_CN": "袁绍卒于建安七年，今夜他的旗号代表袁氏子孙。郭嘉、贾诩、许褚列于袁军，你阵中的典韦早死于宛城，皆是戏班借将。"
+			}
+		},
+		{
+			"id": "changban",
+			"act": "act2",
+			"index": 10,
+			"year": 208,
+			"era": {
+				"en": "208",
+				"zh_CN": "建安十三年（208）"
+			},
+			"title": {
+				"en": "The Rout at Changban",
+				"zh_CN": "长坂坡"
+			},
+			"teaser": {
+				"en": "Cao Cao’s light cavalry rides three hundred li in a day and a night and catches Liu Bei on the road south.",
+				"zh_CN": "曹操轻骑一日一夜行三百里，追上了携民南逃的刘备。"
+			},
+			"objective": {
+				"en": "Save the young lord and break out of Changban.",
+				"zh_CN": "护住幼主，杀出长坂。"
+			},
+			"player_preset": "five_tigers",
+			"player_alternatives": [],
+			"opponent_preset": "battle_of_guandu",
+			"enemy_commander": "jmuy",
+			"hero_order": [
+				"jmuy",
+				"prellex",
+				"earthshaker",
+				"crystal_maiden",
+				"ogre_magi"
+			],
+			"seed": 20810,
+			"par_rounds": 11,
+			"defy_fate": false,
+			"art": "berserkers_call",
+			"intro": [
+				{
+					"art": "sven",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 208 Liu Biao dies and his son Liu Cong hands Jing Province to Cao Cao. Liu Bei retreats south, and over a hundred thousand civilians follow him, slowing the march to ten li a day.",
+						"zh_CN": "建安十三年，刘表病逝，其子刘琮举荆州降曹。刘备率众南撤，十余万百姓扶老携幼相随，日行仅十余里。"
+					}
+				},
+				{
+					"art": "strafing_run",
+					"speaker": "narrator",
+					"text": {
+						"en": "Advisers urge him to leave the people. Liu Bei replies: “Great deeds rest on the people. They have come to me; how can I abandon them?” Cao Cao’s five thousand elite riders catch him at Changban.",
+						"zh_CN": "有人劝刘备弃民疾行。刘备道：“夫济大事必以人为本，今人归吾，吾何忍弃去！”曹操五千精骑，追至当阳长坂。"
+					}
+				},
+				{
+					"art": "timbersaw",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the rout Liu Bei loses his wife and child. Zhao Yun carries the infant Adou and guards Lady Gan through the enemy. ‘Seven charges in and out’ is a storyteller’s flourish; the rescue itself is history.",
+						"zh_CN": "乱军之中，刘备弃妻子而走。赵云怀抱幼子阿斗，保护甘夫人杀出重围。七进七出是说书人的夸张，护主突围却是正史所载。"
+					}
+				},
+				{
+					"art": "berserkers_call",
+					"speaker": "zhang_fei",
+					"text": {
+						"en": "Zhang Fei holds the rear with twenty riders. He breaks the bridge, levels his spear and roars: “I am Zhang Yide! Come, let us fight to the death!” No one dares come near.",
+						"zh_CN": "张飞领二十骑断后，据水断桥，瞋目横矛大喝：“身是张益德也，可来共决死！”曹军无人敢近。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "sven",
+					"speaker": "narrator",
+					"text": {
+						"en": "Liu Bei’s party cuts across to the Han ford, where Guan Yu’s river fleet meets them, and joins Liu Qi at Xiakou. Waiting on the road from Dangyang is an envoy from the east: Lu Su.",
+						"zh_CN": "刘备一行斜趋汉津，正遇关羽水军接应，又与刘琦合兵夏口。江东使者鲁肃，早已在当阳道上等候。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "jmuy",
+					"speaker": "cao_cao",
+					"text": {
+						"en": "From a rise, Cao Cao watches a general in white cut through his lines. “A true tiger,” he sighs. This time, though, no one escapes Changban.",
+						"zh_CN": "曹操在高处望见一员白袍小将往来冲杀，叹道：“真虎将也。”可惜这一回，没人走得出长坂。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Zhang Fei’s challenge is in his biography in the Records, and Zhao Yun’s rescue in his.",
+				"zh_CN": "“身是张益德也”见《三国志·张飞传》，赵云护阿斗见《赵云传》。"
+			},
+			"cast_note": {
+				"en": "Ma Chao and Huang Zhong had not yet joined Liu Bei, and Guo Jia had died the year before; tonight they are borrowed players.",
+				"zh_CN": "马超、黄忠此时尚未归刘，郭嘉也已于前一年病逝；今夜都是戏班借将。"
+			}
+		},
+		{
+			"id": "red_cliffs",
+			"act": "act2",
+			"index": 11,
+			"year": 208,
+			"era": {
+				"en": "208",
+				"zh_CN": "建安十三年（208）"
+			},
+			"title": {
+				"en": "The Battle of Red Cliffs",
+				"zh_CN": "赤壁之战"
+			},
+			"teaser": {
+				"en": "Cao Cao comes down the river claiming eight hundred thousand men. Sun and Liu stake everything on an east wind.",
+				"zh_CN": "曹操号称八十万众顺江而下。孙刘两家，赌上一场东风。"
+			},
+			"objective": {
+				"en": "Set Cao’s fleet ablaze and burn it to the waterline.",
+				"zh_CN": "火攻曹军水寨，烧尽战船。"
+			},
+			"player_preset": "sun_liu_alliance",
+			"player_alternatives": [],
+			"opponent_preset": "bronze_sparrow_terrace",
+			"enemy_commander": "jmuy",
+			"hero_order": [
+				"jmuy",
+				"crystal_maiden",
+				"ogre_magi",
+				"luna",
+				"zeus"
+			],
+			"seed": 20811,
+			"par_rounds": 11,
+			"defy_fate": false,
+			"art": "viper_strike",
+			"intro": [
+				{
+					"art": "chen",
+					"speaker": "narrator",
+					"text": {
+						"en": "Lu Su argues for an alliance with Liu Bei, and Zhuge Liang sails east with him to Chaisang. Most of Sun Quan’s ministers urge surrender. Lu Su alone says: “Any of us could bow to Cao Cao, but not you, my lord.”",
+						"zh_CN": "鲁肃力主联刘抗曹，诸葛亮随他东下柴桑。江东群臣多劝孙权迎降，唯鲁肃说：“众人皆可降操，惟将军不可。”"
+					}
+				},
+				{
+					"art": "farvhan",
+					"speaker": "sun_quan",
+					"text": {
+						"en": "Sun Quan draws his sword and hacks his desk in two. “Any officer who speaks of surrender again will share this desk’s fate!” He sends Zhou Yu west with thirty thousand picked men.",
+						"zh_CN": "孙权拔刀砍断面前奏案：“诸将吏敢复有言当迎操者，与此案同！”遂以周瑜为都督，率三万精兵西上。"
+					}
+				},
+				{
+					"art": "aghanims_sanctum",
+					"speaker": "narrator",
+					"text": {
+						"en": "The novel has Zhuge Liang recite Cao Zhi’s ode to the Bronze Sparrow Terrace, claiming Cao Cao wants the two Qiao sisters, until Zhou Yu leaps up in fury. In truth the terrace was not built for two more years.",
+						"zh_CN": "《演义》说，诸葛亮故意吟诵曹植《铜雀台赋》，称曹操欲得江东二乔，激得周瑜拍案而起。其实铜雀台两年后才建成。"
+					}
+				},
+				{
+					"art": "viper_strike",
+					"speaker": "huang_gai",
+					"text": {
+						"en": "Huang Gai proposes: “Cao’s ships are lashed bow to stern. We can burn them.” He feigns surrender and fills ten warships with dry reeds and firewood soaked in oil, hidden under curtains.",
+						"zh_CN": "黄盖献策：“操军方连船舰，首尾相接，可烧而走也。”遂诈降曹营，以蒙冲斗舰十艘载干荻枯柴，灌以膏油，外裹帷幕。"
+					}
+				},
+				{
+					"art": "stars_align",
+					"speaker": "narrator",
+					"text": {
+						"en": "That night the south-east wind blows hard. Two li from Cao’s fleet the ships are set ablaze, and the wind drives them in like arrows. Light the fire, listener.",
+						"zh_CN": "是夜东南风急。离曹营二里，诸船同时举火，火烈风猛，船往如箭。看官，点火吧。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "viper_strike",
+					"speaker": "narrator",
+					"text": {
+						"en": "Smoke and flame fill the sky; men and horses burn or drown by the thousands. Cao Cao retreats on foot by the Huarong road, his weakest soldiers carrying straw to fill the mud. The three-way split is set.",
+						"zh_CN": "烟炎张天，人马烧溺死者甚众。曹操引军从华容道步走，泥泞难行，羸兵负草填路。天下三分之势，自此而定。"
+					}
+				},
+				{
+					"art": "jmuy",
+					"speaker": "cao_cao",
+					"text": {
+						"en": "Cao Cao later wrote to Sun Quan: “At Red Cliffs my men fell sick, so I burned my own ships and withdrew. Zhou Yu took credit he did not earn.”",
+						"zh_CN": "曹操后来写信给孙权，只说：“赤壁之役，值有疾病，孤烧船自退，横使周瑜虚获此名。”"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "aghanims_sanctum",
+					"speaker": "narrator",
+					"text": {
+						"en": "The east wind never comes, and the fire ships are spotted before they close. Cao’s fleet sails down the river and the east lies open. Perhaps the Bronze Sparrow Terrace will hold the two Qiao after all.",
+						"zh_CN": "东风迟迟不来，火船未近便被识破。曹军顺流而下，江东门户洞开。铜雀台上，或许真要锁住二乔了。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Huang Gai’s fire ships and the strong south-east wind are in Zhou Yu’s biography and the Jiangbiao Annals. Zhuge Liang summoning the wind and ‘borrowing arrows’ belong to the novel.",
+				"zh_CN": "黄盖诈降火攻、东南风急，见《三国志·周瑜传》及裴注引《江表传》。诸葛亮借东风、草船借箭皆是《演义》笔墨。"
+			},
+			"cast_note": {
+				"en": "Guo Jia had died in 207; after Red Cliffs Cao Cao sighed, “Had Fengxiao lived, I would not have come to this.” Tonight he is a borrowed player.",
+				"zh_CN": "郭嘉已于建安十二年病逝，赤壁败后曹操叹：“郭奉孝在，不使孤至此。”今夜他是戏班借将。"
+			}
+		},
+		{
+			"id": "jiangling",
+			"act": "act3",
+			"index": 12,
+			"year": 209,
+			"era": {
+				"en": "208–209",
+				"zh_CN": "建安十三年至十四年（208–209）"
+			},
+			"title": {
+				"en": "The Siege of Jiangling",
+				"zh_CN": "江陵之围"
+			},
+			"teaser": {
+				"en": "The fires of Red Cliffs die down and Zhou Yu pushes west. Cao Ren holds Jiangling for a full year.",
+				"zh_CN": "赤壁火熄，周瑜挥师西进。曹仁困守江陵，一守便是一年。"
+			},
+			"objective": {
+				"en": "Hold Jiangling with Cao Ren and drive the allies back.",
+				"zh_CN": "随曹仁死守江陵，击退孙刘联军。"
+			},
+			"player_preset": "battle_of_guandu",
+			"player_alternatives": [],
+			"opponent_preset": "sun_liu_alliance",
+			"enemy_commander": "sven",
+			"hero_order": [
+				"viper",
+				"sven",
+				"mazzie",
+				"pugna",
+				"chen"
+			],
+			"seed": 20912,
+			"par_rounds": 10,
+			"defy_fate": true,
+			"art": "nyctashas_guard",
+			"intro": [
+				{
+					"art": "nyctashas_guard",
+					"speaker": "narrator",
+					"text": {
+						"en": "After Red Cliffs, Cao Cao goes north and leaves Cao Ren to hold Jiangling. Tonight you sit inside those walls: Zhou Yu’s army outside, no relief coming, nothing but stone and one fierce general.",
+						"zh_CN": "赤壁败后，曹操北归，留曹仁守江陵。看官今夜坐进城中：外有周瑜大军，内无援兵，只有城墙与一员骁将。"
+					}
+				},
+				{
+					"art": "relentless_zombie",
+					"speaker": "narrator",
+					"text": {
+						"en": "Cao Ren’s officer Niu Jin sallies with three hundred men and is surrounded. Cao Ren rides out with a few dozen horsemen, pulls him free, then turns back for the rest. The walls cry: “The general is a man from heaven!”",
+						"zh_CN": "部将牛金率三百人出战，被吴军围住。曹仁不顾劝阻，披甲上马，带数十骑冲入重围，救出牛金，又回身救出余众。城上众人叹道：“将军真天人也！”"
+					}
+				},
+				{
+					"art": "grazing_shot",
+					"speaker": "narrator",
+					"text": {
+						"en": "Zhou Yu rides out to lead the assault himself, and a stray arrow strikes his right side. Hearing he is badly hurt, Cao Ren marches out to offer battle. Zhou Yu forces himself up and tours the camp to rally his men.",
+						"zh_CN": "周瑜亲自跨马督战，流矢射中右胁，伤势沉重。曹仁闻讯，率军出城挑战。周瑜强撑起身，巡营激励将士。"
+					}
+				},
+				{
+					"art": "sven",
+					"speaker": "narrator",
+					"text": {
+						"en": "Liu Bei lends Zhang Fei to the siege while he himself goes south and takes the four commanderies of Wuling, Changsha, Guiyang and Lingling. Each ally is starting to keep its own accounts.",
+						"zh_CN": "刘备一面借张飞助周瑜攻城，一面南下收取武陵、长沙、桂阳、零陵四郡。孙刘之盟，开始各打算盘。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "nyctashas_guard",
+					"speaker": "narrator",
+					"text": {
+						"en": "Cao’s banner still flies over Jiangling. Zhou Yu’s wound worsens by the day and the allies lose heart. On this scroll, you have held the gate of Jing Province for Cao Ren.",
+						"zh_CN": "江陵城头，曹旗不倒。周瑜箭伤一日重过一日，联军锐气渐消。此卷，看官替曹仁守住了荆州的门户。"
+					}
+				},
+				{
+					"art": "drow",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the histories, Cao Ren held for a year and then withdrew north on orders. Zhou Yu took Nan Commandery, but died of illness at Baqiu the next year, only thirty-six.",
+						"zh_CN": "史书里，曹仁守了一年，终奉命弃城北撤。周瑜得了南郡，次年却病逝于巴丘，年仅三十六岁。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "drow",
+					"speaker": "narrator",
+					"text": {
+						"en": "Cao Ren abandons the city on orders, and Jiangling falls to Zhou Yu. South of Xiangyang, Jing Province now flies the banners of Sun and Liu.",
+						"zh_CN": "曹仁奉命弃城，江陵落入周瑜之手。荆州自襄阳以南，从此尽是孙刘旗号。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Cao Ren’s rescue of Niu Jin and Zhou Yu’s arrow wound are in the Records. Zhou Yu died of illness, not from Zhuge Liang ‘angering him three times’; the Eight-Gate Lock formation is the novel’s gift to Cao Ren.",
+				"zh_CN": "曹仁救牛金、周瑜中流矢，皆见《三国志》。周瑜是病逝，并非被诸葛亮“三气”而死；八门金锁阵是《演义》为曹仁添的阵法。"
+			},
+			"cast_note": {
+				"en": "Cao Ren has no hero card in the troupe; Cao Cao’s Guandu veterans hold his walls tonight, Guo Jia, dead since 207, among them as a borrowed player.",
+				"zh_CN": "曹仁未入戏班，今夜由官渡旧部替他守城；其中郭嘉早已于建安十二年病逝，是戏班借将。"
+			}
+		},
+		{
+			"id": "tongguan",
+			"act": "act3",
+			"index": 13,
+			"year": 211,
+			"era": {
+				"en": "211",
+				"zh_CN": "建安十六年（211）"
+			},
+			"title": {
+				"en": "Ma Chao at Tongguan",
+				"zh_CN": "潼关之战"
+			},
+			"teaser": {
+				"en": "Ma Chao rises in the west and nearly takes Cao Cao at the Yellow River crossing.",
+				"zh_CN": "西凉马超起兵关中，几乎在黄河渡口生擒曹操。"
+			},
+			"objective": {
+				"en": "Cross the Wei and split Ma Chao from Han Sui.",
+				"zh_CN": "渡过渭水，离间马超与韩遂。"
+			},
+			"player_preset": "bronze_sparrow_terrace",
+			"player_alternatives": [],
+			"opponent_preset": "gathering_of_champions",
+			"enemy_commander": "legion_commander",
+			"seed": 21113,
+			"par_rounds": 10,
+			"defy_fate": false,
+			"art": "cunning_plan",
+			"intro": [
+				{
+					"art": "legion_commander",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 211 the warlords of Guanzhong suspect Cao Cao means to attack them. Ma Chao and Han Sui gather a hundred thousand men to hold Tongguan. Young, fearless Ma Chao is revered by every tribe of the west.",
+						"zh_CN": "建安十六年，关中诸将疑曹操欲袭，马超、韩遂合兵十万，据守潼关。马超年少骁勇，西凉羌胡皆服其威名。"
+					}
+				},
+				{
+					"art": "prellex",
+					"speaker": "narrator",
+					"text": {
+						"en": "Cao Cao sends his army north over the Yellow River and stays on the south bank with a hundred guards. Ma Chao falls on them with ten thousand men and arrows rain down. Xu Chu shields him with a saddle and poles the boat.",
+						"zh_CN": "曹操自潼关北渡黄河，自领百余虎士留南岸断后。马超率步骑万余掩杀而至，矢下如雨。许褚左手举马鞍为曹操遮箭，右手撑船，护着曹操脱险。"
+					}
+				},
+				{
+					"art": "self_sabotage",
+					"speaker": "narrator",
+					"text": {
+						"en": "Jia Xu advises: “Divide them, nothing more.” Cao Cao rides knee to knee with Han Sui, chatting only of old times, then sends him a letter full of deliberate erasures. Ma Chao reads it, and suspicion takes root.",
+						"zh_CN": "贾诩献计：“离之而已。”曹操与韩遂阵前并马，只叙旧事，不谈军情；又写信给韩遂，故意多处涂改。马超见信，疑心大起。"
+					}
+				},
+				{
+					"art": "cunning_plan",
+					"speaker": "narrator",
+					"text": {
+						"en": "The novel adds that Ma Chao chased Cao Cao until he cut off his beard and threw away his robe. The histories do not say so, but Cao Cao did sigh: “While that Ma boy lives, I shall have no place to be buried.”",
+						"zh_CN": "《演义》还说，马超追得曹操割须弃袍。正史未载此事，但曹操确曾叹道：“马儿不死，吾无葬地也。”"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "self_sabotage",
+					"speaker": "narrator",
+					"text": {
+						"en": "With Ma Chao and Han Sui at odds, Cao Cao provokes them with light troops, then crushes them between his armoured cavalry. The alliance shatters. Ma Chao flees west, and in time he will join Liu Bei.",
+						"zh_CN": "马超、韩遂互相猜疑，曹操趁势以轻兵挑战，再以虎骑夹击，关中联军大溃。马超逃往凉州，后来辗转投奔了刘备。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "legion_commander",
+					"speaker": "ma_chao",
+					"text": {
+						"en": "Ma Chao reins in on the bank of the Wei, spear levelled. “Guanzhong belongs to the sons of the west!” Cao’s army falls back east of Tongguan.",
+						"zh_CN": "马超横枪立马渭水之滨：“关中是我西凉儿郎的天下！”曹军退回潼关以东。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Xu Chu’s saddle and the smudged letter are in the Records. The novel makes Ma Chao’s rising revenge for his father; in fact Ma Teng was executed the next year because of it. The cut beard is fiction too.",
+				"zh_CN": "许褚以鞍蔽箭、曹操涂改书信间韩，见《三国志》。《演义》说马超为父报仇而起兵，其实马腾是因马超起兵才于次年被诛；割须弃袍亦为小说情节。"
+			},
+			"cast_note": {
+				"en": "Only Ma Chao truly rode with the western alliance. Lü Bu, Huang Zhong, Pang Tong and Huang Yueying beside him, and Guo Jia in Cao’s ranks, are borrowed players.",
+				"zh_CN": "真在关中联军中的只有马超。他身边的吕布、黄忠、庞统、黄月英，与曹营中的郭嘉，皆是戏班借将。"
+			}
+		},
+		{
+			"id": "ruxu",
+			"act": "act3",
+			"index": 14,
+			"year": 213,
+			"era": {
+				"en": "213",
+				"zh_CN": "建安十八年（213）"
+			},
+			"title": {
+				"en": "The Standoff at Ruxu",
+				"zh_CN": "濡须口之战"
+			},
+			"teaser": {
+				"en": "Cao Cao arrives with a claimed four hundred thousand men, only to find the fort Lü Meng built on the river.",
+				"zh_CN": "曹操号称四十万大军压境，江口却多了一座吕蒙筑的坞。"
+			},
+			"objective": {
+				"en": "Break the Ruxu fort and water your horses in the Yangtze.",
+				"zh_CN": "攻破濡须坞，饮马长江。"
+			},
+			"player_preset": "battle_of_guandu",
+			"player_alternatives": [],
+			"opponent_preset": "green_assault",
+			"enemy_commander": "farvhan",
+			"hero_order": [
+				"farvhan",
+				"rix",
+				"lycan",
+				"drow",
+				"axe"
+			],
+			"seed": 21314,
+			"par_rounds": 10,
+			"defy_fate": true,
+			"art": "defensive_bloom",
+			"intro": [
+				{
+					"art": "defensive_bloom",
+					"speaker": "narrator",
+					"text": {
+						"en": "Lü Meng had urged Sun Quan to fortify the mouth of the Ruxu. The officers scoffed: “Land, fight, wash our feet, back to the boats. Why a fort?” Lü Meng said: “War has good days and bad. No one wins every battle.”",
+						"zh_CN": "吕蒙曾劝孙权在濡须水口筑坞。诸将笑道：“上岸击贼，洗足入船，何用坞为？”吕蒙答：“兵有利钝，战无百胜。”"
+					}
+				},
+				{
+					"art": "rix",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the first month of 213, Cao Cao advances on Ruxu and overruns Sun Quan’s camp on the west bank. Tonight you command Cao’s army, and before you stands Lü Meng’s fort.",
+						"zh_CN": "建安十八年正月，曹操进军濡须口，攻破孙权江西营寨。看官今夜执曹军，对面便是吕蒙守着的那座坞。"
+					}
+				},
+				{
+					"art": "farvhan",
+					"speaker": "narrator",
+					"text": {
+						"en": "Sun Quan sails out in a great ship to view Cao’s lines. Cao’s archers loose, the arrows pile into one side and the ship lists. Calmly, Sun Quan turns the other side to the volleys; level again, he glides home.",
+						"zh_CN": "孙权亲乘大船来观曹营。曹军弓弩齐发，箭着船身一侧，船重将覆。孙权从容令船掉头，以另一侧受箭，箭均船平，徐徐而还。"
+					}
+				},
+				{
+					"art": "jmuy",
+					"speaker": "cao_cao",
+					"text": {
+						"en": "Watching Sun Quan’s ships, weapons and orderly ranks, Cao Cao sighs: “A son should be like Sun Zhongmou! Liu Jingsheng’s sons were pigs and dogs.”",
+						"zh_CN": "曹操望见孙权舟船器仗、军伍整肃，喟然叹道：“生子当如孙仲谋！刘景升儿子若豚犬耳。”"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "defensive_bloom",
+					"speaker": "narrator",
+					"text": {
+						"en": "The Ruxu fort falls and the east’s front door swings open. On this scroll, Cao’s horses drink from the Yangtze. The histories tell it differently.",
+						"zh_CN": "濡须坞破，江东门户大开。此卷改写了，曹军饮马长江之畔。只是史书里，结局并非如此。"
+					}
+				},
+				{
+					"art": "farvhan",
+					"speaker": "sun_quan",
+					"text": {
+						"en": "After a month, Sun Quan wrote to Cao Cao: “The spring floods are rising; you had best leave.” A second slip read: “While you live, I know no peace.” Cao Cao said, “Sun Quan does not lie to me,” and went home.",
+						"zh_CN": "相持月余，孙权致书曹操：“春水方生，公宜速去。”另附一纸：“足下不死，孤不得安。”曹操对诸将说：“孙权不欺孤。”遂撤军北还。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "savage_wolf",
+					"speaker": "narrator",
+					"text": {
+						"en": "The spring floods rise and the river fills with Wu ships. Unable to break through, Cao’s army withdraws north. The Ruxu fort still bars the river mouth.",
+						"zh_CN": "春水方生，江上舟船如林。曹军久攻不下，只得撤回北岸。濡须坞依然横在江口。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "The fort is in Lü Meng’s biography; ‘a son like Sun Zhongmou’ and ‘the spring floods’ come from the Wu Annals in Pei’s notes. Sun Quan’s arrow-laden ship is in the Weilüe; the novel turned it into Zhuge Liang ‘borrowing arrows’.",
+				"zh_CN": "濡须筑坞见《吕蒙传》，“生子当如孙仲谋”与“春水方生”见裴注引《吴历》。孙权受箭平船出自《魏略》，《演义》将之化成了草船借箭。"
+			},
+			"cast_note": {
+				"en": "Zhou Yu, dead since 210, and Zhang Fei of Shu stand with Wu tonight, and Guo Jia, dead since 207, with Cao: borrowed players all.",
+				"zh_CN": "周瑜已于建安十五年病逝，张飞本是蜀将，今夜却在吴军之中；曹营的郭嘉也早已作古：皆是戏班借将。"
+			}
+		},
+		{
+			"id": "xiaoyao",
+			"act": "act3",
+			"index": 15,
+			"year": 215,
+			"era": {
+				"en": "215",
+				"zh_CN": "建安二十年（215）"
+			},
+			"title": {
+				"en": "Xiaoyao Ford",
+				"zh_CN": "逍遥津之战"
+			},
+			"teaser": {
+				"en": "A hundred thousand Wu soldiers surround Hefei. Zhang Liao opens the gates with eight hundred men.",
+				"zh_CN": "十万吴军围合肥，张辽只带八百人，开门迎敌。"
+			},
+			"objective": {
+				"en": "Survive Zhang Liao’s charge and get Sun Quan across the ford.",
+				"zh_CN": "挡住张辽的冲锋，护孙权渡津。"
+			},
+			"player_preset": "green_assault",
+			"player_alternatives": [],
+			"opponent_preset": "xiaoyao_ford",
+			"enemy_commander": "earthshaker",
+			"seed": 21515,
+			"par_rounds": 10,
+			"defy_fate": true,
+			"art": "echo_slam",
+			"intro": [
+				{
+					"art": "earthshaker",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 215 Cao Cao goes west against Zhang Lu, leaving Zhang Liao, Li Dian and Yue Jin with seven thousand men at Hefei. Sun Quan comes with a hundred thousand. Cao’s sealed letter reads: ‘Open when the enemy comes.’",
+						"zh_CN": "建安二十年，曹操西征张鲁，合肥只留张辽、李典、乐进七千余人。孙权亲率十万之众来攻。曹操临行留下一函，上书“贼至乃发”。"
+					}
+				},
+				{
+					"art": "echo_slam",
+					"speaker": "narrator",
+					"text": {
+						"en": "The letter sends Zhang Liao and Li Dian out to fight and keeps Yue Jin on the walls. Zhang Liao picks eight hundred volunteers and feasts them on beef. At dawn he charges, shouting his name, at Sun Quan’s banner.",
+						"zh_CN": "密函命张辽、李典出战，乐进守城。张辽连夜募得敢死之士八百，杀牛犒军。天明披甲持戟，大呼自名，直冲孙权麾下。"
+					}
+				},
+				{
+					"art": "farvhan",
+					"speaker": "narrator",
+					"text": {
+						"en": "Sun Quan is stunned; his men do not know what to do. He flees up a burial mound and guards himself with a long halberd. Zhang Liao dares him to come down and fight. Eight hundred men turn a hundred thousand upside down.",
+						"zh_CN": "孙权大惊，众人不知所措，急走登高冢，以长戟自守。张辽叱孙权下来交战，孙权不敢动。东吴十万之众，竟被八百人搅得天翻地覆。"
+					}
+				},
+				{
+					"art": "lycan",
+					"speaker": "narrator",
+					"text": {
+						"en": "After ten days, Sun Quan lifts the siege. North of Xiaoyao Ford, Zhang Liao strikes again. Gan Ning shoots, Ling Tong’s guards fight to the death. Tonight you command Wu, and all you want is to cross alive.",
+						"zh_CN": "围城十余日，孙权撤军。行至逍遥津北，张辽又至。甘宁引弓射敌，凌统率亲兵死战。看官今夜执吴军，这一回，只求活着过河。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "cheating_death",
+					"speaker": "narrator",
+					"text": {
+						"en": "The bridge is broken, a gap of ten feet with no planks. His guard Gu Li whips the horse from behind, and Sun Quan leaps the gap. Heaven protects the fortunate; the lord of the east comes home alive.",
+						"zh_CN": "津桥已断，丈余无板。亲卫谷利在后着鞭，孙权纵马一跃，飞渡断桥。吉人天相，江东之主得以生还。"
+					}
+				},
+				{
+					"art": "echo_slam",
+					"speaker": "narrator",
+					"text": {
+						"en": "On this scroll Wu escapes in good order. Even so, Zhang Liao’s name will hush crying children in the east for years. When Cao Cao later walked the battlefield, he sighed over it for a long time.",
+						"zh_CN": "此卷让吴军全身而退。可是张辽之名，从此在江东令小儿止啼。次年曹操巡视张辽战处，叹息良久。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "earthshaker",
+					"speaker": "zhang_liao",
+					"text": {
+						"en": "Zhang Liao levels his halberd and roars: “Where is Sun Quan?” Wu’s army scatters, and Xiaoyao Ford becomes a name no one in the east wants to say.",
+						"zh_CN": "张辽横戟大呼：“孙权何在！”吴军四散，逍遥津成了江东人不愿提起的名字。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Zhang Liao’s charge and Sun Quan on the mound are in the Records; the leap over the broken bridge is from the Jiangbiao Annals. ‘Liao is coming’ as a nursery threat comes from later tellings.",
+				"zh_CN": "张辽八百破十万、孙权登冢自守，见《三国志·张辽传》；孙权跃马断桥见裴注引《江表传》。“辽来止啼”出自后来的记载。"
+			},
+			"cast_note": {
+				"en": "Zhou Yu had died in 210 and Zhang Fei served Liu Bei: beside you they are borrowed players. Sun Quan, Gan Ning and Zhou Tai also stand in Zhang Liao’s ranks.",
+				"zh_CN": "周瑜已于建安十五年病逝，张飞本是刘备部将，在你阵中皆是戏班借将。孙权、甘宁、周泰也同时列于张辽阵中。"
+			}
+		},
+		{
+			"id": "hanzhong",
+			"act": "act3",
+			"index": 16,
+			"year": 219,
+			"era": {
+				"en": "219",
+				"zh_CN": "建安二十四年（219）"
+			},
+			"title": {
+				"en": "Mount Dingjun and Hanzhong",
+				"zh_CN": "定军山·汉中之战"
+			},
+			"teaser": {
+				"en": "Old Huang Zhong comes down the mountain to the drums, and Xiahou Yuan’s life hangs by a thread.",
+				"zh_CN": "老将黄忠擂鼓而下，夏侯渊命悬一线。"
+			},
+			"objective": {
+				"en": "Keep Xiahou Yuan alive and hold Hanzhong.",
+				"zh_CN": "护住夏侯渊，守住汉中。"
+			},
+			"player_preset": "welcoming_the_emperor",
+			"player_alternatives": [
+				"longxi_struggle"
+			],
+			"opponent_preset": "five_tigers",
+			"enemy_commander": "bristleback",
+			"hero_order": [
+				"bristleback",
+				"timbersaw",
+				"axe",
+				"legion_commander",
+				"keefe"
+			],
+			"seed": 21916,
+			"par_rounds": 10,
+			"defy_fate": true,
+			"art": "viscous_nasal_goo",
+			"intro": [
+				{
+					"art": "meepo",
+					"speaker": "narrator",
+					"text": {
+						"en": "Xiahou Yuan marches like the wind; the army says he covers five hundred li in three days. Yet Cao Cao often warns him: “A general must know when to be afraid. Courage alone is not enough.”",
+						"zh_CN": "夏侯渊用兵神速，军中有言：“三日五百，六日一千。”曹操却常告诫他：“为将当有怯弱时，不可但恃勇也。”"
+					}
+				},
+				{
+					"art": "spot_weakness",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the first month of 219, Liu Bei crosses the Mian and camps on Mount Dingjun. From the heights, Fa Zheng watches Xiahou Yuan’s troops move and says: “Now we can strike.”",
+						"zh_CN": "建安二十四年正月，刘备南渡沔水，据定军山扎营。法正登高望见夏侯渊兵势已动，说道：“可击矣。”"
+					}
+				},
+				{
+					"art": "bristleback",
+					"speaker": "narrator",
+					"text": {
+						"en": "Huang Zhong leads the charge downhill amid drums that shake the sky and cheers that roll through the valley. Tonight you stand beside Xiahou Yuan, and the man coming down the mountain is a white-haired veteran.",
+						"zh_CN": "黄忠率军乘高鼓噪而下，金鼓振天，欢声动谷。看官今夜站在夏侯渊身旁，山上杀下来的，是一员白发老将。"
+					}
+				},
+				{
+					"art": "timbersaw",
+					"speaker": "narrator",
+					"text": {
+						"en": "Later Cao Cao comes himself. At the Han River, Zhao Yun opens his gates and silences his drums; fearing a trap, Cao’s men turn, and his crossbows chase them. Liu Bei says: “Zilong is courage through and through.”",
+						"zh_CN": "此后曹操亲至。赵云在汉水边大开营门，偃旗息鼓。曹军疑有伏兵而退，赵云擂鼓震天，以劲弩追射。刘备赞道：“子龙一身都是胆也。”"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "meepo",
+					"speaker": "narrator",
+					"text": {
+						"en": "The scroll is rewritten: Xiahou Yuan holds his camp, Huang Zhong withdraws empty-handed, and Hanzhong stays under Wei’s banner.",
+						"zh_CN": "此卷改写：夏侯渊稳守营寨，黄忠无功而返，汉中仍在魏旗之下。"
+					}
+				},
+				{
+					"art": "routed",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the histories, Xiahou Yuan died on Mount Dingjun. Months later Cao Cao gave the password ‘chicken rib’. Yang Xiu packed at once: “Nothing to eat, yet a pity to throw away.” Liu Bei became King of Hanzhong.",
+						"zh_CN": "史书里，夏侯渊战死定军山。曹操苦战数月，夜出口令“鸡肋”，杨修便收拾行装：“食之则无所得，弃之则如可惜。”刘备遂进位汉中王。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "viscous_nasal_goo",
+					"speaker": "narrator",
+					"text": {
+						"en": "Huang Zhong cuts down Xiahou Yuan in a single battle. With its general dead, Cao’s army loses the gate of Hanzhong to Liu Bei.",
+						"zh_CN": "黄忠一战斩夏侯渊于阵前。曹军失了主将，汉中门户从此归了刘备。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Huang Zhong’s victory is in his biography; ‘chicken rib’ is from the Jiuzhou Annals and Zhao Yun’s open camp from his separate biography, both in Pei’s notes. ‘Five Tiger Generals’ is the novel’s title; the Records simply put the five in one chapter.",
+				"zh_CN": "黄忠斩夏侯渊见《黄忠传》，“鸡肋”见裴注引《九州春秋》，赵云空营见裴注引《云别传》。“五虎上将”之称出自《演义》，正史将五人合为一传。"
+			},
+			"cast_note": {
+				"en": "Xun Yu, dead since 212, and Dian Wei, dead since 197, stand in Cao’s ranks, and Guan Yu, who was holding Jing Province, rides with Liu Bei’s tigers: borrowed players.",
+				"zh_CN": "荀彧卒于建安十七年，典韦早死于宛城，今夜却在曹营；关羽其时镇守荆州，今夜也随五虎出阵：皆是戏班借将。"
+			}
+		},
+		{
+			"id": "jing",
+			"act": "act3",
+			"index": 17,
+			"year": 219,
+			"era": {
+				"en": "219",
+				"zh_CN": "建安二十四年（219）"
+			},
+			"title": {
+				"en": "Crossing in White",
+				"zh_CN": "白衣渡江"
+			},
+			"teaser": {
+				"en": "While Guan Yu’s fame shakes the north, merchant boats from the east drift quietly toward Jing.",
+				"zh_CN": "关羽威震华夏之时，江东商船悄悄驶向荆州。"
+			},
+			"objective": {
+				"en": "Seize Jing Province and cut off Guan Yu’s retreat.",
+				"zh_CN": "袭取荆州，断关羽后路。"
+			},
+			"player_preset": "ruxu_standoff",
+			"player_alternatives": [
+				"green_assault"
+			],
+			"opponent_preset": "jing_province",
+			"enemy_commander": "keefe",
+			"seed": 21917,
+			"par_rounds": 10,
+			"defy_fate": false,
+			"art": "act_of_defiance",
+			"intro": [
+				{
+					"art": "keefe",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the autumn of 219 Guan Yu attacks Fancheng. The Han River floods, Yu Jin’s seven armies are drowned and Pang De is beheaded. Guan Yu’s might shakes all China, and Cao Cao even considers moving the capital.",
+						"zh_CN": "建安二十四年秋，关羽北攻樊城。汉水暴涨，于禁七军尽没，庞德被斩。关羽威震华夏，曹操一度议徙许都以避其锋。"
+					}
+				},
+				{
+					"art": "zeus",
+					"speaker": "sima_yi",
+					"text": {
+						"en": "Sima Yi advises: “Liu Bei and Sun Quan are friends only on the surface; Sun Quan will not want Guan Yu to prosper. Ask him to fall on Guan Yu’s rear and promise him the south. The siege will lift by itself.”",
+						"zh_CN": "司马懿进言：“刘备、孙权，外亲内疏，关羽得志，权必不愿也。可遣人劝权蹑其后，许割江南以封权，则樊围自解。”"
+					}
+				},
+				{
+					"art": "caught_unprepared",
+					"speaker": "narrator",
+					"text": {
+						"en": "Lü Meng pleads illness and returns to Jianye, recommending the little-known Lu Xun to hold Lukou. Lu Xun writes Guan Yu a letter of humble flattery. Delighted, Guan Yu moves his Jiangling garrison north.",
+						"zh_CN": "吕蒙称病还建业，举荐尚无名望的陆逊代守陆口。陆逊致书关羽，极尽谦卑恭维。关羽大喜，渐撤江陵守兵北上。"
+					}
+				},
+				{
+					"art": "act_of_defiance",
+					"speaker": "narrator",
+					"text": {
+						"en": "Lü Meng hides his best soldiers below deck, puts the rowers in plain white merchant clothes, and sails day and night. Every beacon post Guan Yu built along the river is seized before a single fire is lit.",
+						"zh_CN": "吕蒙将精兵伏于船舱之中，使白衣摇橹，作商贾人打扮，昼夜兼行。关羽沿江所设烽燧尽被收缚，竟无一处举火。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "act_of_defiance",
+					"speaker": "narrator",
+					"text": {
+						"en": "Jiangling and Gong’an surrender without a fight. Lü Meng enters, takes nothing, and cares for the families of Guan Yu’s soldiers. Guan Yu’s army melts away and he falls back to Maicheng.",
+						"zh_CN": "江陵、公安不战而降。吕蒙入城，秋毫无犯，抚恤关羽将士家属。关羽军心离散，退走麦城。"
+					}
+				},
+				{
+					"art": "fighting_instinct",
+					"speaker": "narrator",
+					"text": {
+						"en": "The general who once laughed and talked while a surgeon scraped poison from his bone is captured at Linju and dies with his son. Next, listener, Liu Bei will bring his whole kingdom to avenge him.",
+						"zh_CN": "这位曾经刮骨疗毒、言笑自若的名将，于临沮被擒，父子同死。看官，下一卷，便是刘备为他倾国而来。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "keefe",
+					"speaker": "guan_yu",
+					"text": {
+						"en": "Beacon after beacon blazes along the river. Guan Yu turns back to Jiangling, stroking his beard: “Rats, eyeing my Jing Province?”",
+						"zh_CN": "沿江烽火一处接一处燃起。关羽回师江陵，抚髯冷笑：“鼠辈也敢窥我荆州！”"
+					}
+				}
+			],
+			"history_note": {
+				"en": "The white-clad crossing is in Lü Meng’s biography and Lu Xun’s letter in his; Sima Yi’s advice is in the Book of Jin. The bone-scraping really happened, but the surgeon was unnamed; the novel made him Hua Tuo.",
+				"zh_CN": "白衣渡江见《吕蒙传》，陆逊致书见《陆逊传》，司马懿献策见《晋书·宣帝纪》。刮骨疗毒确有其事，但医者未留姓名，《演义》才写成华佗。"
+			},
+			"cast_note": {
+				"en": "Lu Xun stands on both sides tonight. Lü Meng, Sun Shangxiang and Lu Su, who died in 217, fight beside Guan Yu, and Taishi Ci, dead since 206, beside you: borrowed players all.",
+				"zh_CN": "陆逊在双方阵中同时出现。吕蒙、孙尚香与卒于建安二十二年的鲁肃站在关羽一边，你阵中的太史慈早已作古：皆是戏班借将。"
+			}
+		},
+		{
+			"id": "yiling",
+			"act": "act4",
+			"index": 18,
+			"year": 222,
+			"era": {
+				"en": "221–222",
+				"zh_CN": "章武元年至二年（221–222）"
+			},
+			"title": {
+				"en": "The Battle of Yiling",
+				"zh_CN": "夷陵之战"
+			},
+			"teaser": {
+				"en": "Liu Bei throws his whole kingdom east to avenge Guan Yu. Waiting for him is a scholar.",
+				"zh_CN": "刘备倾国东征，为关羽报仇。等着他的，是一位书生。"
+			},
+			"objective": {
+				"en": "Break Lu Xun before the camps burn.",
+				"zh_CN": "在火烧连营之前，击破陆逊。"
+			},
+			"player_preset": "gathering_of_champions",
+			"player_alternatives": [
+				"sun_liu_alliance"
+			],
+			"opponent_preset": "emperor_of_wu",
+			"enemy_commander": "treant_protector",
+			"hero_order": [
+				"treant_protector",
+				"farvhan",
+				"abaddon",
+				"lycan",
+				"drow"
+			],
+			"seed": 22218,
+			"par_rounds": 10,
+			"defy_fate": true,
+			"art": "the_omexe_arena",
+			"intro": [
+				{
+					"art": "sven",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 221 Liu Bei proclaims himself emperor in Chengdu and marches on Wu. Before the army sets out, Zhang Fei is murdered by his officers Zhang Da and Fan Qiang. Liu Bei says only: “Ah. Fei is dead.”",
+						"zh_CN": "章武元年，刘备在成都称帝，随即兴兵伐吴。出师之前，张飞为部将张达、范强所害，首级被献往东吴。刘备闻讯，只说了一句：“噫！飞死矣。”"
+					}
+				},
+				{
+					"art": "farvhan",
+					"speaker": "narrator",
+					"text": {
+						"en": "Sun Quan sues for peace and is refused. He bows to Cao Pi as a vassal, accepts the title King of Wu, and gives Lu Xun fifty thousand men. Most of the officers served Sun Ce and despise this scholar.",
+						"zh_CN": "孙权求和不成，遂向曹丕称臣，受封吴王，以陆逊为大都督，率五万人拒敌。诸将多是孙策旧部，并不服这位书生。"
+					}
+				},
+				{
+					"art": "treant_protector",
+					"speaker": "lu_xun",
+					"text": {
+						"en": "Lu Xun lays a hand on his sword. “I may be a scholar, but I hold my lord’s command. You were placed under me because I have some small merit: I can bear humiliation and carry a heavy load.”",
+						"zh_CN": "陆逊按剑道：“仆虽书生，受命主上。国家所以屈诸君使相承望者，以仆有尺寸可称，能忍辱负重故也。”"
+					}
+				},
+				{
+					"art": "homefield_advantage",
+					"speaker": "narrator",
+					"text": {
+						"en": "Lu Xun refuses battle from the first month into the summer. Liu Bei’s camps stretch seven hundred li from the Wu Gorge to Yiling, sweltering, their spirit fading. Tonight you lead Liu Bei’s host. Strike before the fire.",
+						"zh_CN": "陆逊坚守不战，从正月直守到盛夏。蜀军自巫峡至夷陵，连营七百里，暑热难当，士气渐衰。看官今夜执刘备之军，须赶在那把火之前。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "sven",
+					"speaker": "narrator",
+					"text": {
+						"en": "The scroll is rewritten: Shu breaks the Wu lines before the fire, and Liu Bei is on the road back to Jing. Sadly, that is not how the histories were written.",
+						"zh_CN": "此卷改写：蜀军抢在火起之前击破吴营，刘备踏上了重返荆州之路。可惜，史书不是这样写的。"
+					}
+				},
+				{
+					"art": "the_omexe_arena",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the histories, Lu Xun’s men each carried a bundle of straw and burned forty camps. Dying at Baidi, Liu Bei told Zhuge Liang: “If my son is worth helping, help him. If not, take the throne yourself.”",
+						"zh_CN": "史书里，陆逊令士卒各持一把茅草，顺风火攻，连破四十余营。刘备退守白帝城，临终对诸葛亮说：“若嗣子可辅，辅之；如其不才，君可自取。”"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "treant_protector",
+					"speaker": "narrator",
+					"text": {
+						"en": "In one night, fire lights up seven hundred li of camps. Liu Bei gathers what remains and retreats to Baidi. “Humbled by Lu Xun! Is this not Heaven’s will?”",
+						"zh_CN": "一夜之间，火光照亮七百里连营。刘备收拾残兵，退入白帝城，叹道：“吾乃为陆逊所折辱，岂非天邪！”"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Zhang Fei’s murder, Lu Xun’s fire and the deathbed charge at Baidi are all in the Records. The novel has Huang Zhong die in this campaign; he had died the year before.",
+				"zh_CN": "张飞遇害、陆逊火攻、白帝托孤，皆见《三国志》。《演义》写黄忠战死于此役，其实他已于前一年病逝。"
+			},
+			"cast_note": {
+				"en": "Pang Tong fell in 214 and Lü Bu long before; beside Liu Bei they are borrowed players, as is Zhou Yu, dead since 210, in Wu’s ranks.",
+				"zh_CN": "庞统早在建安十九年阵亡，吕布更早作古，今夜随刘备出阵；吴军中的周瑜也已于建安十五年病逝：皆是戏班借将。"
+			}
+		},
+		{
+			"id": "guangling",
+			"act": "act4",
+			"index": 19,
+			"year": 224,
+			"era": {
+				"en": "222–225",
+				"zh_CN": "黄初三年至六年（222–225）"
+			},
+			"title": {
+				"en": "Phantom Walls on the River",
+				"zh_CN": "疑城·曹丕临江"
+			},
+			"teaser": {
+				"en": "Emperor Cao Pi marches south again and again. Then, overnight, hundreds of li of walls appear across the river.",
+				"zh_CN": "魏文帝曹丕屡次南征。长江对岸，忽然一夜多出了数百里城墙。"
+			},
+			"objective": {
+				"en": "Cross the Yangtze and break Wu’s river defences.",
+				"zh_CN": "渡过长江，攻破吴人江防。"
+			},
+			"player_preset": "bronze_sparrow_terrace",
+			"player_alternatives": [],
+			"opponent_preset": "ruxu_standoff",
+			"enemy_commander": "treant_protector",
+			"seed": 22419,
+			"par_rounds": 10,
+			"defy_fate": true,
+			"art": "intimidation",
+			"intro": [
+				{
+					"art": "vesture_of_the_tyrant",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 220 Cao Cao dies. His son Cao Pi accepts Emperor Xian’s abdication and founds the Wei dynasty. Sun Quan calls himself a vassal, yet refuses to send his son to court as a hostage.",
+						"zh_CN": "建安二十五年，曹操病逝。其子曹丕受汉献帝禅让，建立魏朝，是为魏文帝。孙权一面称臣，一面拒不遣子入朝为质。"
+					}
+				},
+				{
+					"art": "defensive_bloom",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 222 Cao Pi strikes Wu on three fronts. At Ruxu, Cao Ren is routed by Zhu Huan’s much smaller force; the armies at Dongkou and Jiangling also come home empty-handed.",
+						"zh_CN": "黄初三年，曹丕三路伐吴。曹仁攻濡须，被朱桓以寡击众，大败而还；洞口、江陵两路，亦无功而返。"
+					}
+				},
+				{
+					"art": "intimidation",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 224 Cao Pi comes to Guangling himself. Overnight, the Wu general Xu Sheng raises walls of timber and reed mats along hundreds of li of shore, crowned with false towers, with boats bobbing below.",
+						"zh_CN": "黄初五年，曹丕亲临广陵。吴将徐盛在江岸以木为骨、苇席为墙，一夜之间连绵数百里，城上假楼林立，江中浮船密布。"
+					}
+				},
+				{
+					"art": "divine_intervention",
+					"speaker": "narrator",
+					"text": {
+						"en": "Tonight you command Wei. Before you the river stretches wide and wild. Whether you can cross this barrier set by Heaven is decided tonight.",
+						"zh_CN": "看官今夜执魏军。眼前江面茫茫，波涛汹涌。能否渡过这道天堑，就看今夜了。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "divine_intervention",
+					"speaker": "narrator",
+					"text": {
+						"en": "The scroll is rewritten: Wei sees through the phantom walls, the tower ships cross, and Jianye trembles.",
+						"zh_CN": "此卷改写：魏军识破疑城，楼船过江，建业震动。"
+					}
+				},
+				{
+					"art": "intimidation",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the histories, Cao Pi stared at the endless walls and the heaving waves and sighed: “Alas! Heaven itself set this river to divide north from south!” Then he led his army home.",
+						"zh_CN": "史书里，曹丕望见江上疑城连绵，又逢波涛汹涌，长叹道：“嗟乎！固天所以隔南北也！”遂引军北还。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "intimidation",
+					"speaker": "narrator",
+					"text": {
+						"en": "A gale nearly capsizes the imperial barge. Staring at the endless walls across the water, unsure how many troops Wu truly has, the Wei army turns back.",
+						"zh_CN": "江风骤起，龙舟几乎倾覆。魏军望着对岸绵延不绝的城墙，不知吴人究竟有多少兵马，只得收兵。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Zhu Huan’s victory and Xu Sheng’s phantom walls are in the Records and Pei’s notes. ‘Heaven set this river to divide north from south’ is from the Wu Records, spoken in 225 when the river froze.",
+				"zh_CN": "朱桓破曹仁、徐盛设疑城，见《三国志》及裴注；“固天所以隔南北”见裴注引《吴录》，原是黄初六年曹丕见江水结冰时所叹。"
+			},
+			"cast_note": {
+				"en": "Cao Cao, dead since 220, and Sima Yi stand on both sides tonight. Taishi Ci, dead since 206, fights for Wu, and Guo Jia, Xiahou Dun and Lady Zhen, all dead, march for Cao Pi: borrowed players.",
+				"zh_CN": "已故的曹操与司马懿在双方阵中同时出现。早逝的太史慈为吴出战，已故的郭嘉、夏侯惇、甄氏随曹丕南下：皆是戏班借将。"
+			}
+		},
+		{
+			"id": "nanzhong",
+			"act": "act4",
+			"index": 20,
+			"year": 225,
+			"era": {
+				"en": "225",
+				"zh_CN": "建兴三年（225）"
+			},
+			"title": {
+				"en": "The Southern Campaign",
+				"zh_CN": "南征·七擒孟获"
+			},
+			"teaser": {
+				"en": "In the fifth month he crosses the Lu, deep into barren land. Zhuge Liang wants the south’s hearts, not just its soil.",
+				"zh_CN": "五月渡泸，深入不毛。诸葛亮要的不是南中的土地，而是人心。"
+			},
+			"objective": {
+				"en": "Capture Meng Huo and win the south’s hearts.",
+				"zh_CN": "擒住孟获，赢得南中人心。"
+			},
+			"player_preset": "sun_liu_alliance",
+			"player_alternatives": [
+				"five_tigers"
+			],
+			"opponent_preset": "southern_campaign",
+			"enemy_commander": "lich",
+			"hero_order": [
+				"lich",
+				"sniper",
+				"ursa",
+				"timbersaw",
+				"pugna"
+			],
+			"seed": 22520,
+			"par_rounds": 10,
+			"defy_fate": false,
+			"art": "chain_frost",
+			"intro": [
+				{
+					"art": "pugna",
+					"speaker": "narrator",
+					"text": {
+						"en": "After Liu Bei’s death, the strongmen of the south rise against Shu. Among them is Meng Huo, respected by tribesmen and Han settlers alike. In the spring of 225, Chancellor Zhuge Liang marches south himself.",
+						"zh_CN": "刘备死后，南中豪强举兵叛蜀，素为夷汉所服的孟获也在其中。建兴三年春，丞相诸葛亮亲率大军南征。"
+					}
+				},
+				{
+					"art": "crippling_blow",
+					"speaker": "narrator",
+					"text": {
+						"en": "Ma Su rides dozens of li to see him off and advises: “In war, attacking hearts is best and attacking cities worst. Win the battle of hearts, not just the battle of arms.”",
+						"zh_CN": "临行，马谡相送数十里，进言道：“用兵之道，攻心为上，攻城为下；心战为上，兵战为下。愿公服其心而已。”"
+					}
+				},
+				{
+					"art": "cursed_satyr",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the fifth month the army crosses the Lu River into miasma and crushing heat. Zhuge Liang would later write in his memorial: “So in the fifth month I crossed the Lu, deep into barren land.”",
+						"zh_CN": "五月，蜀军渡过泸水，瘴气弥漫，酷暑难当。诸葛亮后来在《出师表》中写道：“故五月渡泸，深入不毛。”"
+					}
+				},
+				{
+					"art": "lich",
+					"speaker": "meng_huo",
+					"text": {
+						"en": "Captured and shown around the Shu camp, Meng Huo is unimpressed. “I lost because I didn’t know your strength. If this is all there is, next time I win easily.” Zhuge Liang laughs and lets him go.",
+						"zh_CN": "孟获被擒，看过蜀军营阵，却不服气：“向者不知虚实，故败。今蒙赐观看营陈，若只如此，即定易胜耳。”诸葛亮笑而纵之。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "chain_frost",
+					"speaker": "narrator",
+					"text": {
+						"en": "Seven times captured, seven times freed, and Zhuge Liang means to free him again. This time Meng Huo will not go. “You are Heaven’s own majesty, my lord. The south will never rebel again.”",
+						"zh_CN": "七纵七擒，诸葛亮仍要放他。孟获不肯走：“公，天威也，南人不复反矣。”"
+					}
+				},
+				{
+					"art": "tresdins_standards",
+					"speaker": "narrator",
+					"text": {
+						"en": "With the south at peace, Shu’s rear is secure, and its gold, silver, oxen and warhorses flow north to the army. Two years later, Zhuge Liang submits his memorial and marches against Wei.",
+						"zh_CN": "南中平定，蜀汉后方安稳，南中金银、耕牛、战马源源北运，以给军国之用。两年之后，诸葛亮上《出师表》，挥师北伐。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "sniper",
+					"speaker": "zhurong",
+					"text": {
+						"en": "Lady Zhurong’s flying blade finds its mark and a Shu officer falls. “The south belongs to us. Go home, Chancellor.”",
+						"zh_CN": "祝融夫人飞刀出手，蜀将应声落马。“南中自有南中之主，丞相请回吧。”"
+					}
+				}
+			],
+			"history_note": {
+				"en": "‘Attacking hearts’ is from the Xiangyang Records and the seven captures from the Han-Jin Annals, both in Pei’s notes. Lady Zhurong exists only in the novel.",
+				"zh_CN": "“攻心为上”见裴注引《襄阳记》，七擒七纵见裴注引《汉晋春秋》。祝融夫人仅见于《演义》。"
+			},
+			"cast_note": {
+				"en": "Zhuge Liang stands on both sides tonight. Zhao Yun and Wei Yan with the south, and Liu Bei, dead since 223, with Wu’s Huang Gai, Lu Su and Sun Shangxiang in Shu’s ranks, are borrowed players.",
+				"zh_CN": "诸葛亮在双方阵中同时出现。赵云、魏延站在南中一方，蜀军中的刘备已于章武三年驾崩，黄盖、鲁肃、孙尚香本是吴人：皆是戏班借将。"
+			}
+		},
+		{
+			"id": "wuzhang",
+			"act": "act4",
+			"index": 21,
+			"year": 234,
+			"era": {
+				"en": "227–234",
+				"zh_CN": "建兴五年至十二年（227–234）"
+			},
+			"title": {
+				"en": "The Northern Expeditions",
+				"zh_CN": "北伐·五丈原"
+			},
+			"teaser": {
+				"en": "Year after year Zhuge Liang marches north. His last opponent is Sima Yi. Tonight you command Wei.",
+				"zh_CN": "诸葛亮连年北伐，最后的对手是司马懿。今夜，看官执魏军。"
+			},
+			"objective": {
+				"en": "Hold Guanzhong and wear down the northern expeditions.",
+				"zh_CN": "坚守关中，耗尽北伐之师。"
+			},
+			"player_preset": "blue_black_control",
+			"player_alternatives": [],
+			"opponent_preset": "northern_expedition",
+			"enemy_commander": "centaur_warrunner",
+			"hero_order": [
+				"timbersaw",
+				"ursa",
+				"centaur_warrunner",
+				"zeus",
+				"jmuy"
+			],
+			"seed": 23421,
+			"par_rounds": 10,
+			"defy_fate": false,
+			"art": "tresdins_standards",
+			"intro": [
+				{
+					"art": "tresdins_standards",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 227 Zhuge Liang presents his memorial: “I shall lead the three armies north, spend my poor strength to the last, sweep away the traitors, restore the Han and return to the old capital.”",
+						"zh_CN": "建兴五年，诸葛亮上《出师表》：“当奖率三军，北定中原，庶竭驽钝，攘除奸凶，兴复汉室，还于旧都。”"
+					}
+				},
+				{
+					"art": "centaur_warrunner",
+					"speaker": "narrator",
+					"text": {
+						"en": "Next spring three commanderies rise for Shu, and a Tianshui officer, Jiang Wei, joins Zhuge Liang. Then Ma Su disobeys orders, camps on a waterless hill, and is crushed by Zhang He at Jieting. Zhuge Liang must retreat.",
+						"zh_CN": "次年春，天水、南安、安定三郡响应蜀军，天水参军姜维亦归诸葛亮。可惜马谡违令舍水上山，在街亭被张郃大破，诸葛亮只得退兵。"
+					}
+				},
+				{
+					"art": "ursa",
+					"speaker": "narrator",
+					"text": {
+						"en": "Wei Yan begs for ten thousand men to rush Chang’an through the Ziwu Valley. Zhuge Liang always refuses, judging it too risky, and Wei Yan grumbles that the Chancellor is timid and his own talent wasted.",
+						"zh_CN": "魏延屡请领兵万人，取道子午谷直袭长安，诸葛亮以为太险，始终不许。魏延常说丞相胆怯，叹恨己才用之不尽。"
+					}
+				},
+				{
+					"art": "zeus",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 234 the armies face off at Wuzhang. Zhuge Liang sends Sima Yi a woman’s robes. Unmoved, Sima Yi asks only how the Chancellor eats. Told he eats little and does everything himself, he says: “Liang will die soon.”",
+						"zh_CN": "建兴十二年，两军相持五丈原。诸葛亮遣使送来巾帼妇人之服，司马懿不怒，只问诸葛公寝食。听说他事必躬亲、食不过数升，便道：“亮将死矣。”"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "pugna",
+					"speaker": "narrator",
+					"text": {
+						"en": "That autumn Zhuge Liang dies in camp, aged fifty-four. When Sima Yi chases the retreating army, Jiang Wei turns the banners and beats the drums, and Sima Yi backs off. The people say: ‘Dead Zhuge routed living Zhongda.’",
+						"zh_CN": "是年秋，诸葛亮病逝于五丈原军中，年五十四。蜀军整军而退，司马懿追之，姜维令杨仪反旗鸣鼓，司马懿急退。百姓谚曰：“死诸葛走生仲达。”"
+					}
+				},
+				{
+					"art": "zeus",
+					"speaker": "sima_yi",
+					"text": {
+						"en": "Touring the camps Shu left behind, Sima Yi sighs: “A genius under heaven!” When people mock him for fleeing a dead man, he says: “I can predict the living. The dead are harder.”",
+						"zh_CN": "司马懿巡视蜀军留下的营垒，叹道：“天下奇才也！”人笑他被死人吓退，他只说：“吾能料生，不便料死。”"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "double_edge",
+					"speaker": "narrator",
+					"text": {
+						"en": "Shu pours out of the Qi Mountains, Longyou trembles and the Wei lines buckle. Restoring the Han seems within reach.",
+						"zh_CN": "蜀军出祁山，陇右震动，魏军阵脚大乱。兴复汉室，似乎就在眼前。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Jieting, Zhang He’s death at Mumen in 231 and Wuzhang are in the Records and Pei’s notes; ‘Dead Zhuge’ is from the Han-Jin Annals. Cursing Wang Lang to death is the novel’s; Wang Lang died of natural causes in 228.",
+				"zh_CN": "街亭之败、张郃战死木门、五丈原之事见《三国志》及裴注，“死诸葛走生仲达”见裴注引《汉晋春秋》。骂死王朗是《演义》情节，王朗实卒于太和二年。"
+			},
+			"cast_note": {
+				"en": "Sima Yi and Cao Cao stand on both sides tonight, and Lü Bu, Guan Yu and Jia Xu, long dead, fight for Wei: borrowed players all.",
+				"zh_CN": "司马懿、曹操在双方阵中同时出现；早已作古的吕布、关羽、贾诩替魏出阵：皆是戏班借将。"
+			}
+		},
+		{
+			"id": "gaoping",
+			"act": "act4",
+			"index": 22,
+			"year": 249,
+			"era": {
+				"en": "249",
+				"zh_CN": "正始十年（249）"
+			},
+			"title": {
+				"en": "The Gaoping Tombs Coup",
+				"zh_CN": "高平陵之变"
+			},
+			"teaser": {
+				"en": "A bedridden old man seizes the Cao family’s empire in a single morning.",
+				"zh_CN": "一位卧病在床的老人，在一个清晨夺走了曹家的天下。"
+			},
+			"objective": {
+				"en": "Defend the house of Cao and stop Sima Yi’s coup.",
+				"zh_CN": "护住曹氏宗室，阻止司马懿夺权。"
+			},
+			"player_preset": "welcoming_the_emperor",
+			"player_alternatives": [],
+			"opponent_preset": "blue_black_control",
+			"enemy_commander": "zeus",
+			"seed": 24922,
+			"par_rounds": 10,
+			"defy_fate": true,
+			"art": "thundergods_wrath",
+			"intro": [
+				{
+					"art": "zeus",
+					"speaker": "narrator",
+					"text": {
+						"en": "Fifteen years on, Emperor Cao Rui is long dead; Cao Fang took the throne at eight. Cao Shuang of the imperial clan and Sima Yi share the regency. Cao Shuang seizes all power; Sima Yi takes to his sickbed.",
+						"zh_CN": "十五年后，魏明帝曹叡已崩，八岁的曹芳即位。宗室曹爽与太尉司马懿同受遗诏辅政。曹爽专权，司马懿称病不出。"
+					}
+				},
+				{
+					"art": "buying_time",
+					"speaker": "narrator",
+					"text": {
+						"en": "When Li Sheng visits, Sima Yi needs two maids to hold him; his robe slips, gruel runs down his chest, and his words wander. Li Sheng reports to Cao Shuang: “The old man is a corpse still breathing. Nothing to fear.”",
+						"zh_CN": "李胜前来探病，司马懿令两婢扶持，衣衫滑落，以口就杯饮粥，粥流满襟，言语颠倒。李胜回报曹爽：“司马公尸居余气，形神已离，不足虑矣。”"
+					}
+				},
+				{
+					"art": "thundergods_wrath",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the first month of 249, Cao Shuang escorts the young emperor to the Gaoping Tombs. Sima Yi rises from his bed, shuts the gates of Luoyang, seizes the armoury and denounces Cao Shuang to the Empress Dowager.",
+						"zh_CN": "正始十年正月，曹爽兄弟随少帝出城拜谒高平陵。司马懿当即起身，关闭洛阳城门，占据武库，上奏太后，列数曹爽罪状。"
+					}
+				},
+				{
+					"art": "battlefield_control",
+					"speaker": "narrator",
+					"text": {
+						"en": "Huan Fan slips out of the city to join Cao Shuang and urges him to take the emperor to Xuchang and call the realm to arms. Tonight you lead the house of Cao. What if Cao Shuang had listened?",
+						"zh_CN": "大司农桓范出城投奔曹爽，劝他奉天子去许昌，号召四方讨伐司马懿。看官今夜执曹氏之兵：倘若曹爽肯听桓范一言呢？"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "battlefield_control",
+					"speaker": "narrator",
+					"text": {
+						"en": "The scroll is rewritten: the emperor moves to Xuchang, troops gather from every quarter, and Sima Yi is trapped in Luoyang. The house of Cao earns a few more pages.",
+						"zh_CN": "此卷改写：天子移驾许昌，四方兵马云集，司马懿困守洛阳。曹魏的国祚，又多了几页。"
+					}
+				},
+				{
+					"art": "thundergods_wrath",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the histories, Sima Yi swore by the Luo River that Cao Shuang would only lose his posts. Cao Shuang gave in: “I can still live as a rich man.” Days later his whole clan was executed.",
+						"zh_CN": "史书里，司马懿指洛水为誓，许曹爽只免官职。曹爽掷刀于地：“我亦不失作富家翁！”数日之后，曹爽三族尽诛，大权尽归司马氏。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "zeus",
+					"speaker": "narrator",
+					"text": {
+						"en": "Cao Shuang hesitates all night, then hands over his seals. From now on, Luoyang obeys only the Sima.",
+						"zh_CN": "曹爽犹豫一夜，终于交出印绶。洛阳城中，从此只听司马氏的号令。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Sima Yi’s feigned illness is from the Weimo Zhuan in Pei’s notes, his oath by the Luo from the Book of Jin, and Cao Shuang’s ‘rich man’ and Huan Fan’s plan from the Weilüe.",
+				"zh_CN": "司马懿装病见裴注引《魏末传》，指洛水为誓见《晋书》，曹爽“作富家翁”、桓范之谋见裴注引《魏略》。"
+			},
+			"cast_note": {
+				"en": "Of everyone on both boards, only Sima Yi still lives in 249, and Cao Cao stands on both sides. The rest are borrowed players: the house of Cao’s old guard, come back as ghosts.",
+				"zh_CN": "两阵之中，到正始十年仍在世的只有司马懿，曹操更在双方阵中同时出现。其余皆是戏班借将，是曹家旧部的英魂。"
+			}
+		},
+		{
+			"id": "yinping",
+			"act": "act4",
+			"index": 23,
+			"year": 263,
+			"era": {
+				"en": "263",
+				"zh_CN": "景元四年（263）"
+			},
+			"title": {
+				"en": "The Last Stand of Shu",
+				"zh_CN": "阴平·蜀汉终章"
+			},
+			"teaser": {
+				"en": "Jiang Wei holds Jiange, but Deng Ai comes down a path no army has ever walked: Yinping.",
+				"zh_CN": "姜维死守剑阁，邓艾却从无人走过的阴平小道杀来。"
+			},
+			"objective": {
+				"en": "Stand with Jiang Wei, stop Deng Ai, and save Shu.",
+				"zh_CN": "随姜维挡住邓艾，保全蜀汉。"
+			},
+			"player_preset": "northern_expedition",
+			"player_alternatives": [],
+			"opponent_preset": "longxi_struggle",
+			"enemy_commander": "venomancer",
+			"seed": 26323,
+			"par_rounds": 10,
+			"defy_fate": true,
+			"art": "path_of_the_bold",
+			"intro": [
+				{
+					"art": "double_edge",
+					"speaker": "narrator",
+					"text": {
+						"en": "After Zhuge Liang, Jiang Wei carries on his cause and marches north again and again, seldom winning. Shu is exhausted, and Emperor Liu Shan trusts the eunuch Huang Hao while the court decays.",
+						"zh_CN": "诸葛亮死后，姜维继其遗志，屡次北伐，胜少败多。蜀中疲敝，后主刘禅宠信宦官黄皓，朝政日非。"
+					}
+				},
+				{
+					"art": "venomancer",
+					"speaker": "narrator",
+					"text": {
+						"en": "In 263 Wei invades Shu on three fronts. Zhong Hui’s army of over a hundred thousand is stopped by Jiang Wei at the great pass of Jiange. Short of supplies, Zhong Hui considers retreat.",
+						"zh_CN": "景元四年，魏分三路伐蜀。钟会十余万大军被姜维挡在剑阁天险之外，粮道艰难，几欲退兵。"
+					}
+				},
+				{
+					"art": "path_of_the_bold",
+					"speaker": "narrator",
+					"text": {
+						"en": "From Yinping, Deng Ai crosses seven hundred li of empty mountains, cutting roads and bridging gorges. On the steepest slope he wraps himself in felt and rolls down, his men climbing after him along the cliffs.",
+						"zh_CN": "邓艾自阴平行无人之地七百余里，凿山通道，造作桥阁。山高谷深，邓艾以毡自裹，推转而下，将士皆攀木缘崖，鱼贯而进。"
+					}
+				},
+				{
+					"art": "centaur_warrunner",
+					"speaker": "jiang_wei",
+					"text": {
+						"en": "Jiang Wei draws his sword and looks north. “Not a day has passed that I forgot the Chancellor’s cause. While I live, the Han banner stands!”",
+						"zh_CN": "姜维拔剑北望：“丞相之志，维未尝一日敢忘。此身尚在，汉旗不倒！”"
+					}
+				},
+				{
+					"art": "ui/ancient_capital.png",
+					"speaker": "narrator",
+					"text": {
+						"en": "This is the last scroll, listener. Stop Deng Ai, and Shu may yet see tomorrow.",
+						"zh_CN": "看官，这是最后一卷。若能挡住邓艾，蜀汉或许还有明天。"
+					}
+				}
+			],
+			"outro_victory": [
+				{
+					"art": "centaur_warrunner",
+					"speaker": "narrator",
+					"text": {
+						"en": "The scroll is rewritten: Deng Ai’s lonely column is trapped at Jiangyou, Jiang Wei turns back to crush it, and Wei’s army vanishes on the roads of Shu. The storyteller lays down his gavel and is silent a long while.",
+						"zh_CN": "此卷改写：邓艾孤军困于江油，姜维回师夹击，魏军尽没于蜀道之中。说书人放下醒木，久久不语。"
+					}
+				},
+				{
+					"art": "venomancer",
+					"speaker": "narrator",
+					"text": {
+						"en": "In the histories, Deng Ai broke out at Jiangyou, defeated Zhuge Zhan at Mianzhu and reached Chengdu. Liu Shan surrendered, and Jiang Wei was ordered to lay down his arms. His soldiers hacked at the rocks in fury.",
+						"zh_CN": "史书里，邓艾出江油，破诸葛瞻于绵竹，直抵成都。刘禅出城投降，姜维奉敕投戈，将士咸怒，拔刀砍石。"
+					}
+				}
+			],
+			"outro_defeat": [
+				{
+					"art": "venomancer",
+					"speaker": "narrator",
+					"text": {
+						"en": "Deng Ai reaches the walls of Chengdu. Liu Shan comes out bound, his coffin carried behind him, and surrenders. After forty-three years, Shu Han is no more.",
+						"zh_CN": "邓艾兵临成都城下，后主刘禅舆榇自缚，出城请降。蜀汉立国四十三年，至此而亡。"
+					}
+				}
+			],
+			"history_note": {
+				"en": "Deng Ai’s felt-wrapped descent and Liu Shan’s surrender are in Deng Ai’s biography. ‘Nine northern campaigns’ is the novel’s count. The next year Jiang Wei plotted with Zhong Hui to restore Shu; the plot failed and both died.",
+				"zh_CN": "邓艾裹毡而下、刘禅出降见《三国志·邓艾传》；“九伐中原”是《演义》之数。次年姜维欲借钟会复国，事败身死。"
+			},
+			"cast_note": {
+				"en": "Jiang Wei and Wei Yan stand on both sides tonight, and of all ten heroes only Jiang Wei and Deng Ai lived to see 263. The rest are borrowed players.",
+				"zh_CN": "姜维、魏延在双方阵中同时出现；十位英雄之中，活到景元四年的只有姜维与邓艾。其余皆是戏班借将。"
+			}
+		}
+	],
+	"epilogue": {
+		"id": "epilogue",
+		"unlock_after": "yinping",
+		"title": {
+			"en": "The Realm Goes to Jin",
+			"zh_CN": "尾声·天下归晋"
+		},
+		"era": {
+			"en": "265–280",
+			"zh_CN": "咸熙二年至太康元年（265–280）"
+		},
+		"art": "thundergods_wrath",
+		"pages": [
+			{
+				"art": "thundergods_wrath",
+				"speaker": "narrator",
+				"text": {
+					"en": "After Shu fell, Wei was Wei in name only. In 265 Sima Yan, grandson of Sima Yi, accepted the abdication of the last Wei emperor and named his dynasty Jin.",
+					"zh_CN": "且说蜀亡之后，魏室名存实亡。咸熙二年，司马懿之孙司马炎受魏禅让，国号为晋。"
+				}
+			},
+			{
+				"art": "fountain_flask",
+				"speaker": "narrator",
+				"text": {
+					"en": "Liu Shan lived out his days in Luoyang as the Duke of Anle. Sima Zhao asked whether he missed Shu. “I am happy here,” he said. “I do not miss Shu.”",
+					"zh_CN": "刘禅迁居洛阳，封安乐公。司马昭问他：“颇思蜀否？”刘禅答：“此间乐，不思蜀。”"
+				}
+			},
+			{
+				"art": "thunderhide_pack",
+				"speaker": "narrator",
+				"text": {
+					"en": "In 280 the Jin general Wang Jun sailed his tower ships down from Yi Province and burned through the iron chains Wu had strung across the river. Sun Hao, the last ruler of Wu, surrendered bound. The three were one again.",
+					"zh_CN": "太康元年，晋将王濬率楼船自益州顺江而下，烧断吴人横江铁锁。吴主孙皓面缚出降，三分归一，天下复合。"
+				}
+			},
+			{
+				"art": "ui/menu_key_art.jpg",
+				"speaker": "narrator",
+				"text": {
+					"en": "As the saying goes: the realm, long divided, must unite; long united, must divide. The Yangtze rolls on to the east, and its waves wash the heroes away. That is all for tonight, listener.",
+					"zh_CN": "话说天下大势，分久必合，合久必分。滚滚长江东逝水，浪花淘尽英雄。看官，今夜的书，就说到这里。"
+				}
+			},
+			{
+				"art": "time_of_triumph",
+				"speaker": "narrator",
+				"text": {
+					"en": "The gavel falls; the tea is cold and the room empties. Come back tomorrow night. The scrolls will be here, waiting for you to rewrite them.",
+					"zh_CN": "醒木一拍，茶凉人散。明夜若再来，书卷依旧在此，任君重写。"
+				}
+			}
+		],
+		"history_note": {
+			"en": "‘I am happy here’ is from the Han-Jin Annals in Pei’s notes. ‘Long divided, must unite’ opens the novel, and ‘the Yangtze rolls on to the east’ is Yang Shen’s Ming-dynasty lyric that the novel’s later editions set before it.",
+			"zh_CN": "“此间乐，不思蜀”见裴注引《汉晋春秋》。“分久必合，合久必分”是《演义》开篇语；“滚滚长江东逝水”为明人杨慎所作《临江仙》，后被毛本置于卷首。"
+		}
+	}
+}

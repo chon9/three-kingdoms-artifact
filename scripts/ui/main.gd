@@ -1,8 +1,16 @@
 extends Control
 ## Application root: owns the match controller, switches between the main
-## menu, the online room and the match screen, opens dialogs, applies
-## settings live (language and card theme re-render everything) and exposes
-## a small facade used by tests/ui_smoke.gd and tests/capture_preview.gd.
+## menu, the campaign map, the online room and the match screen, opens
+## dialogs, applies settings live (language and card theme re-render
+## everything) and exposes a small facade used by tests/ui_smoke.gd and
+## tests/capture_preview.gd.
+##
+## The campaign (campaign_screen.gd, story_panel.gd, campaign_briefing.gd;
+## data in data/campaign/campaign.json) plays ordinary matches against the
+## AI: start_campaign_match() puts the tale's two decks in the seats for one
+## start, sets controller.campaign and puts the player's own deck choices
+## back at once (they are never overwritten or remembered). The finished
+## match is recorded in CampaignStore the moment it is decided.
 
 const MatchController = preload("res://scripts/game/match_controller.gd")
 const MatchScreen = preload("res://scripts/ui/match_screen.gd")
@@ -24,11 +32,19 @@ const ReplaysDialog = preload("res://scripts/ui/replays_dialog.gd")
 const SteamDialog = preload("res://scripts/ui/steam_dialog.gd")
 const MatchMenu = preload("res://scripts/ui/match_menu.gd")
 const ConfirmDialog = preload("res://scripts/ui/confirm_dialog.gd")
+const CampaignScreen = preload("res://scripts/ui/campaign_screen.gd")
+const StoryPanel = preload("res://scripts/ui/story_panel.gd")
+const CampaignBriefing = preload("res://scripts/ui/campaign_briefing.gd")
+const CampaignData = preload("res://scripts/core/campaign_data.gd")
+const CampaignStore = preload("res://scripts/core/campaign_store.gd")
 
 var controller: Node
 var screen: Control
 var room: Control
 var menu: Control
+## The campaign map, and the story pages told over it or over a result.
+var campaign_screen: Control
+var story_panel: Control
 var dialog_layer: Control
 var sfx: Node
 ## The app's one music player (music.gd): menu music on the menu, the room
@@ -39,6 +55,17 @@ var _opponent_ready: bool = false
 ## Set while the player leaves a running online match on purpose (it is
 ## conceded): the session's end then goes to the menu, not to that result.
 var _quitting_match: bool = false
+## The campaign match: the army the player took (null: the tale's own), a
+## serial per start and the serial already recorded (each match is recorded
+## once), and what the record said ({} before a result).
+var _campaign_entry = null
+var _campaign_serial: int = 0
+var _campaign_recorded: int = 0
+var campaign_result: Dictionary = {}
+## Set during start_campaign_match(): the match starting is a campaign match.
+var _starting_campaign: bool = false
+## What follows the story being told (called with `skipped`).
+var _story_next: Callable = Callable()
 
 ## Facade: the live engine, bot timer, mode and players of the controller.
 var engine:
@@ -84,9 +111,17 @@ func _init() -> void:
 	room = RoomScreen.new()
 	room.name = "RoomScreen"
 	add_child(room)
+	campaign_screen = CampaignScreen.new()
+	campaign_screen.name = "CampaignScreen"
+	campaign_screen.sfx = sfx
+	add_child(campaign_screen)
 	menu = MainMenu.new()
 	menu.name = "MainMenu"
 	add_child(menu)
+	story_panel = StoryPanel.new()
+	story_panel.name = "StoryPanel"
+	story_panel.sfx = sfx
+	add_child(story_panel)
 	dialog_layer = Control.new()
 	dialog_layer.name = "Dialogs"
 	dialog_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -98,12 +133,20 @@ func _ready() -> void:
 	# The decks chosen last time (an own deck as it is stored now).
 	controller.deck_selections = DeckStore.load_choices(controller.deck_selections, controller.library)
 	AnimationQueue.speed = Settings.animation_speed
-	for node in [screen, room, menu, dialog_layer]:
+	CampaignStore.load_progress()
+	for node in [screen, room, campaign_screen, menu, story_panel, dialog_layer]:
 		node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Before the match screen hears of a state: a decided campaign match is
+	# recorded before its result can show (in instant mode it shows at once).
+	controller.state_changed.connect(_on_controller_state)
 	screen.bind(controller)
-	screen.input_blocked = func() -> bool: return dialog_layer.get_child_count() > 0
+	screen.input_blocked = func() -> bool: return dialog_layer.get_child_count() > 0 or story_panel.visible
 	screen.menu_requested.connect(open_menu)
 	screen.game_over_action.connect(_on_game_over_action)
+	screen.result_shown.connect(_on_result_shown)
+	campaign_screen.input_blocked = func() -> bool: return dialog_layer.get_child_count() > 0 or story_panel.visible
+	campaign_screen.action_requested.connect(_on_campaign_action)
+	story_panel.finished.connect(_on_story_finished)
 	room.bind(controller)
 	room.action_requested.connect(_on_room_action)
 	menu.action_requested.connect(_on_menu_action)
@@ -123,8 +166,10 @@ func _notification(what: int) -> void:
 
 func show_main_menu() -> void:
 	controller.bot_timer.stop()
+	_stop_story()
 	screen.visible = false
 	room.visible = false
+	campaign_screen.visible = false
 	menu.visible = true
 	menu.set_can_resume(controller.started and not controller.is_finished())
 	menu.refresh_text()
@@ -133,6 +178,7 @@ func show_main_menu() -> void:
 func show_match() -> void:
 	menu.visible = false
 	room.visible = false
+	campaign_screen.visible = false
 	screen.visible = true
 	controller.schedule_bot()
 	# The match's own music: its fanfare, battle or urgency, or the menu
@@ -142,8 +188,10 @@ func show_match() -> void:
 ## The online room (both players' seats, decks and readiness).
 func show_room() -> void:
 	controller.bot_timer.stop()
+	_stop_story()
 	menu.visible = false
 	screen.visible = false
+	campaign_screen.visible = false
 	room.visible = true
 	room.refresh()
 	music.request("menu")
@@ -161,6 +209,13 @@ func start_match(new_mode: int = MatchController.MODE_AI) -> Dictionary:
 	return result
 
 func _on_match_started() -> void:
+	# Any match but the one start_campaign_match() starts ends the campaign
+	# context (a new match, a replay, an online match from the room).
+	if not _starting_campaign:
+		controller.campaign = {}
+		_campaign_entry = null
+	campaign_result = {}
+	_stop_story()
 	close_dialogs()
 	screen.reset()
 	show_match()
@@ -219,6 +274,8 @@ func _on_menu_action(action: String) -> void:
 	match action:
 		"resume":
 			show_match()
+		"campaign":
+			open_campaign()
 		"ai":
 			start_match(MatchController.MODE_AI)
 		"local":
@@ -247,6 +304,16 @@ func open_online() -> void:
 
 func _on_game_over_action(action: String) -> void:
 	match action:
+		"story_next":
+			_continue_campaign()
+		"retry":
+			if in_campaign():
+				start_campaign_match(str(controller.campaign.chapter_id), _campaign_entry)
+		"decks_brief":
+			if in_campaign():
+				open_briefing(str(controller.campaign.chapter_id))
+		"campaign":
+			show_campaign(str(controller.campaign.get("chapter_id", "")))
 		"again":
 			start_match(controller.mode)
 		"decks":
@@ -279,6 +346,168 @@ func _on_room_action(action: String) -> void:
 			controller.leave_online(false)
 		"menu":
 			show_main_menu()
+
+# --- Campaign ------------------------------------------------------------------
+
+## True while the match shown (or paused) is a campaign match.
+func in_campaign() -> bool:
+	return not controller.campaign.is_empty()
+
+## Main menu "Campaign": the map.
+func open_campaign(select_id: String = "") -> void:
+	close_dialogs()
+	show_campaign(select_id)
+
+## The campaign map with `select_id` chosen; `unlocked` names a tale that
+## just opened (its card opens on screen). A campaign match paused under it
+## stays resumable from the main menu.
+func show_campaign(select_id: String = "", unlocked: String = "") -> void:
+	controller.bot_timer.stop()
+	_stop_story()
+	menu.visible = false
+	screen.visible = false
+	room.visible = false
+	campaign_screen.visible = true
+	campaign_screen.open(select_id, unlocked)
+	music.request("menu")
+
+func _on_campaign_action(action: String, chapter_id: String) -> void:
+	sfx.play("tap-b")
+	match action:
+		"back":
+			show_main_menu()
+		"listen":
+			listen(chapter_id)
+		"fight":
+			open_briefing(chapter_id)
+		"epilogue":
+			play_epilogue()
+
+## The tale's story over the map, then its battle briefing.
+func listen(chapter_id: String) -> void:
+	if not CampaignStore.is_unlocked(chapter_id):
+		return
+	CampaignStore.set_last_chapter(chapter_id)
+	close_dialogs()
+	play_story(CampaignData.pages(chapter_id, "intro"), chapter_id, "intro", func(_skipped): open_briefing(chapter_id))
+
+## The epilogue's pages (once the last tale is won).
+func play_epilogue(then: Callable = Callable()) -> void:
+	if not CampaignStore.epilogue_unlocked():
+		return
+	close_dialogs()
+	play_story(CampaignData.pages(CampaignData.EPILOGUE, "epilogue"), CampaignData.EPILOGUE, "epilogue", func(_skipped):
+		CampaignStore.set_seen_epilogue(true)
+		if then.is_valid():
+			then.call()
+		elif campaign_screen.visible:
+			campaign_screen.refresh())
+
+## Tells `pages` (kind "intro", "victory", "defeat" or "epilogue") over the
+## screen shown; `then(skipped)` follows the last page or a skip.
+func play_story(pages: Array, chapter_id: String, kind: String, then: Callable = Callable()) -> void:
+	_story_next = then
+	story_panel.play(pages, chapter_id, kind)
+
+func _on_story_finished(skipped: bool) -> void:
+	var next = _story_next
+	_story_next = Callable()
+	if next.is_valid():
+		next.call(skipped)
+
+## Hides a story being told; what was to follow it is dropped.
+func _stop_story() -> void:
+	_story_next = Callable()
+	story_panel.stop()
+
+## The battle briefing of `chapter_id` (over the map, or over a result).
+func open_briefing(chapter_id: String) -> Control:
+	var dialog = CampaignBriefing.new()
+	dialog.setup(chapter_id)
+	dialog.begin_requested.connect(func(entry):
+		var own = null if entry is String and entry == CampaignData.player_default(chapter_id) else entry
+		start_campaign_match.call_deferred(chapter_id, own))
+	dialog.story_requested.connect(func(): listen.call_deferred(chapter_id))
+	return _open(dialog)
+
+## Starts tale `chapter_id` against the AI: the player's army (`own_entry`: a
+## preset id or an own deck; null for the tale's own army) against the
+## tale's enemy, on the tale's seed, with the usual intro and fanfare. The
+## player's own deck choices are put back as soon as the match has started
+## (and never remembered). Returns the start's result.
+func start_campaign_match(chapter_id: String, own_entry = null) -> Dictionary:
+	if not CampaignData.has_chapter(chapter_id) or not CampaignStore.is_unlocked(chapter_id):
+		return {"ok": false, "code": "campaign_locked"}
+	var player = own_entry if own_entry != null else CampaignData.player_default(chapter_id)
+	var saved = controller.deck_selections.duplicate(true)
+	controller.deck_selections = [player.duplicate(true) if player is Dictionary else player, CampaignData.enemy_deck(chapter_id, controller.library)]
+	controller.campaign = {"chapter_id": chapter_id, "enemy_commander": CampaignData.enemy_commander(chapter_id),
+		"par_rounds": CampaignData.par_rounds(chapter_id)}
+	# start_match() adds one to the seed of every offline match.
+	controller.current_seed = CampaignData.match_seed(chapter_id) - 1
+	_campaign_serial += 1
+	_starting_campaign = true
+	var result = start_match(MatchController.MODE_AI)
+	_starting_campaign = false
+	controller.deck_selections = saved
+	if result.get("ok", false):
+		_campaign_entry = own_entry.duplicate(true) if own_entry is Dictionary else own_entry
+		CampaignStore.set_last_chapter(chapter_id)
+	else:
+		controller.campaign = {}
+		_campaign_entry = null
+	return result
+
+## Records a campaign match once, the moment it is decided (a concession
+## too): won or not, the towers you lost and the round it ended in.
+func _on_controller_state(view: Dictionary, _actions: Array) -> void:
+	if not in_campaign() or _campaign_recorded == _campaign_serial:
+		return
+	var winner = int(view.get("winner", -1))
+	if winner == -1:
+		return
+	_campaign_recorded = _campaign_serial
+	var chapter_id = str(controller.campaign.chapter_id)
+	if not CampaignStore.is_unlocked(chapter_id):
+		# The progress was reset during the match: the tale is closed again.
+		campaign_result = {}
+		return
+	var seat = controller.viewer()
+	var towers_lost = 0
+	for lane in view.get("lanes", []):
+		var structures = lane.get("structures", [])
+		if structures is Array and structures.size() == 2 and bool(structures[seat].get("ancient", false)):
+			towers_lost += 1
+	campaign_result = CampaignStore.record(chapter_id, winner == seat, towers_lost, int(view.get("round", 0)))
+	controller.campaign["result"] = campaign_result
+
+## The result is on screen: after a campaign defeat the storyteller has a
+## word (one short page, skippable) before the ways on.
+func _on_result_shown() -> void:
+	if not in_campaign():
+		return
+	_on_controller_state(screen.shown_view, [])
+	if campaign_result.is_empty() or campaign_result.get("won", false):
+		return
+	var chapter_id = str(controller.campaign.chapter_id)
+	play_story(CampaignData.pages(chapter_id, "defeat"), chapter_id, "defeat")
+
+## Result "Continue the tale": the victory pages, then the map with the next
+## tale chosen (opening on screen when this win opened it). The first win of
+## the last tale tells the epilogue before the map.
+func _continue_campaign() -> void:
+	if not in_campaign():
+		show_campaign()
+		return
+	var chapter_id = str(controller.campaign.chapter_id)
+	var result = campaign_result.duplicate()
+	play_story(CampaignData.pages(chapter_id, "victory"), chapter_id, "victory", func(_skipped):
+		var next = CampaignData.next_chapter(chapter_id)
+		var opened = str(result.get("unlocked", ""))
+		if result.get("first_win", false) and chapter_id == CampaignData.epilogue_unlock_after():
+			play_epilogue(func(): show_campaign(chapter_id))
+			return
+		show_campaign(next if not next.is_empty() else chapter_id, opened))
 
 # --- Dialogs -------------------------------------------------------------------
 
@@ -414,7 +643,11 @@ func _on_match_menu(action: String) -> void:
 		"steam":
 			open_steam.call_deferred()
 		"new":
-			start_match(controller.mode)
+			# A tale starts over; any other match starts anew.
+			if in_campaign():
+				start_campaign_match(str(controller.campaign.chapter_id), _campaign_entry)
+			else:
+				start_match(controller.mode)
 		"leave":
 			open_leave.call_deferred()
 		"concede":
@@ -457,6 +690,8 @@ func _on_setting_changed(kind: String) -> void:
 			AnimationQueue.speed = Settings.animation_speed
 		"show_history":
 			screen.refresh_history()
+		"campaign":
+			campaign_screen.refresh()
 
 ## Re-renders every visible text and card after a language or skin change.
 func refresh_text() -> void:
@@ -464,6 +699,8 @@ func refresh_text() -> void:
 	menu.refresh_text()
 	screen.refresh_text()
 	room.refresh_text()
+	campaign_screen.refresh_text()
+	story_panel.refresh_text()
 	for dialog in dialog_layer.get_children():
 		if dialog.has_method("refresh_text"):
 			dialog.refresh_text()

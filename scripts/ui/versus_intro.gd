@@ -34,7 +34,8 @@ const OUT_TIME = 0.35
 const SKIP_TIME = 0.15
 
 ## {"top": side, "bottom": side}; a side is {"name", "steam_id", "heroes"
-## (five card ids), "caption"}.
+## (five card ids), "caption", "avatar" (a hero card for the plate's picture,
+## "" for the army's first hero)}.
 var info: Dictionary = {}
 var steam_bridge: Node
 var sfx: Node
@@ -287,8 +288,10 @@ func _draw_plate(row: int, alpha: float) -> void:
 	UiKit.draw_round_rect(self, plate, Color(UiKit.INK_PANEL, 0.9 * plate_alpha), 6.0, Color(UiKit.GOLD_DARK, 0.9 * plate_alpha), 1.0)
 	var avatar_rect = Rect2(plate.position + Vector2(16, 16), Vector2(64, 64))
 	var heroes: Array = side.get("heroes", [])
-	draw_avatar(self, avatar_rect, steam_bridge, int(side.get("steam_id", 0)), str(side.get("name", "")), plate_alpha,
-		str(heroes[0]) if not heroes.is_empty() else "")
+	var portrait = str(side.get("avatar", ""))
+	if portrait.is_empty() and not heroes.is_empty():
+		portrait = str(heroes[0])
+	draw_avatar(self, avatar_rect, steam_bridge, int(side.get("steam_id", 0)), str(side.get("name", "")), plate_alpha, portrait)
 	var text_left = avatar_rect.end.x + 14.0
 	var width = plate.end.x - text_left - 12.0
 	# draw_text_left shrinks a long name, then cuts it with an ellipsis: it
@@ -352,5 +355,5 @@ static func versus_info(view: Dictionary, viewer: int, mode: int, names: Diction
 					heroes.append(str(hero.get("card", "")))
 		var entry: Dictionary = names.get(key, {})
 		result[key] = {"seat": seat, "heroes": heroes, "name": str(entry.get("name", "")),
-			"steam_id": int(entry.get("steam_id", 0)), "caption": str(entry.get("caption", ""))}
+			"steam_id": int(entry.get("steam_id", 0)), "caption": str(entry.get("caption", "")), "avatar": str(entry.get("avatar", ""))}
 	return result

@@ -1,16 +1,16 @@
 extends Control
 ## Title screen: key art (assets/art/ui/main_menu.png or menu_key_art.png
 ## when present, otherwise a generated night scene of burning ships at Red
-## Cliffs), the title in calligraphy, and the menu: Play vs AI, Local
-## hot-seat, Steam lobby, Decks, Replays, Settings and Quit, plus a quick
-## language toggle.
+## Cliffs), the title in calligraphy, and the menu: the Campaign, Play vs
+## AI, Local hot-seat, Steam lobby, Decks, Replays, Settings and Quit, plus a
+## quick language toggle.
 
 signal action_requested(action: String)
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Settings = preload("res://scripts/core/game_settings.gd")
 const KEY_ART = ["res://assets/art/ui/main_menu.png", "res://assets/art/ui/menu_key_art.png"]
-const ITEMS = [["resume", "MENU_RESUME_MATCH"], ["ai", "MENU_PLAY_AI"], ["local", "MENU_PLAY_LOCAL"],
+const ITEMS = [["resume", "MENU_RESUME_MATCH"], ["campaign", "MENU_CAMPAIGN"], ["ai", "MENU_PLAY_AI"], ["local", "MENU_PLAY_LOCAL"],
 	["online", "MENU_PLAY_ONLINE"], ["decks", "MENU_DECKS"], ["replays", "MENU_REPLAYS"],
 	["settings", "MENU_SETTINGS"], ["quit", "MENU_QUIT"]]
 
@@ -76,7 +76,8 @@ func _notification(what: int) -> void:
 func _place() -> void:
 	var column: Control = get_node("Menu")
 	column.size = column.get_combined_minimum_size()
-	column.position = Vector2(maxf(90.0, size.x * 0.09), size.y * 0.38)
+	# Under the title, and clear of the disclaimer line at the bottom.
+	column.position = Vector2(maxf(90.0, size.x * 0.09), minf(size.y * 0.38, size.y - 60.0 - column.size.y))
 	var languages: Control = get_node("Languages")
 	languages.size = languages.get_combined_minimum_size()
 	languages.position = Vector2(size.x - languages.size.x - 28, 24)

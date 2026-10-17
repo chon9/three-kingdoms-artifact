@@ -2,11 +2,14 @@ extends "res://scripts/ui/modal_panel.gd"
 ## Settings: language (applied live), card theme, animation speed, the
 ## master, music and sound-effect volumes and mute, the your-action alert (chime and banner), the taskbar flash, the
 ## card history strip, the match intro and fullscreen. Choices persist in
-## user://settings.cfg.
+## user://settings.cfg. The campaign's progress shows at the bottom with a
+## reset (after a confirmation; it emits setting_changed("campaign")).
 
 signal setting_changed(kind: String)
 
 const Settings = preload("res://scripts/core/game_settings.gd")
+const CampaignStore = preload("res://scripts/core/campaign_store.gd")
+const ConfirmDialog = preload("res://scripts/ui/confirm_dialog.gd")
 ## The on/off settings, shown two per row, and their captions.
 const TOGGLES = ["fullscreen", "mute", "turn_alert", "flash_window", "show_history", "match_intro"]
 ## The volume sliders and their captions: master (every sound, mute too),
@@ -31,11 +34,14 @@ var fullscreen_toggle: CheckButton
 var toggles: Dictionary = {}
 var captions: Dictionary = {}
 var skin_hint: Label
+## The campaign's progress line and its reset button.
+var campaign_label: Label
+var campaign_reset: Button
 
 func _init() -> void:
 	super()
 	title_key = "SETTINGS_TITLE"
-	panel_size = Vector2(760, 740)
+	panel_size = Vector2(760, 790)
 
 func build() -> void:
 	captions.language = _row_caption()
@@ -110,6 +116,29 @@ func build() -> void:
 		grid.add_child(toggle)
 		toggles[toggle_name] = toggle
 	fullscreen_toggle = toggles.fullscreen
+	captions.campaign = _row_caption()
+	var campaign_row = _row()
+	campaign_label = label(campaign_row, "", 17)
+	campaign_label.name = "CampaignProgress"
+	campaign_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	campaign_reset = button(campaign_row, "", 17)
+	campaign_reset.name = "CampaignReset"
+	campaign_reset.pressed.connect(confirm_campaign_reset)
+
+## Asks before resetting the campaign; confirming forgets every result.
+func confirm_campaign_reset() -> Control:
+	var dialog = ConfirmDialog.new()
+	dialog.name = "CampaignResetConfirm"
+	dialog.title_key = "CAMPAIGN_RESET_TITLE"
+	dialog.message_key = "CAMPAIGN_RESET_BODY"
+	dialog.confirm_key = "CAMPAIGN_RESET_CONFIRM"
+	dialog.confirmed.connect(func():
+		CampaignStore.reset()
+		refresh_text()
+		setting_changed.emit("campaign"))
+	add_child(dialog)
+	dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	return dialog
 
 ## The stored level of slider `level` (LEVELS).
 func _level(level: String) -> float:
@@ -200,6 +229,12 @@ func refresh_text() -> void:
 		skin_buttons[skin].button_pressed = Settings.skin == skin
 	for speed in speed_buttons:
 		speed_buttons[speed].button_pressed = is_equal_approx(Settings.animation_speed, speed)
+	captions.campaign.text = UiKit.t("SETTINGS_CAMPAIGN")
+	var progress = CampaignStore.progress()
+	campaign_label.text = UiKit.t("SETTINGS_CAMPAIGN_PROGRESS", {"won": progress.won, "total": progress.total, "seals": progress.seals})
+	campaign_reset.text = UiKit.t("CAMPAIGN_RESET")
+	campaign_reset.disabled = CampaignStore.read_only
+	campaign_reset.tooltip_text = UiKit.t("CAMPAIGN_READ_ONLY") if CampaignStore.read_only else ""
 
 func _choose_locale(locale: String) -> void:
 	Settings.set_locale(locale)

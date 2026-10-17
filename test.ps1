@@ -26,6 +26,9 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 # Players' own decks: deck codes (Valve's format), deck rules, store, builder edits, replays.
 & $GodotPath --headless --path $PSScriptRoot --script res://tests/deck_test.gd
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+# The campaign: its file, texts, fonts, progress store and every tale's match.
+& $GodotPath --headless --path $PSScriptRoot --script res://tests/campaign_test.gd
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 # Card rules (docs/EFFECTS.md): schema, lint, RULES_VERSION, Valve parity; then the rules kernel.
 & $GodotPath --headless --path $PSScriptRoot --script res://tests/rules_schema_test.gd
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

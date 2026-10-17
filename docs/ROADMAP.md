@@ -28,6 +28,12 @@ Remaining fidelity work: exact placement/targeting restrictions, general trigger
 
 Remaining: chess clocks, pets, deck trays, the round-one deployment reveal, timeline replay playback, and art for the reserve heroes. Music is in: CC0 and public-domain tracks for the menu, the start of a match, battle, and the rest of a match after any tower falls, crossfaded, with music and sound-effect volumes in Settings. The animated presentation is checked by hand and by screenshots; the automated UI test runs with animations skipped.
 
+## Campaign (implemented)
+
+"The Storyteller's Tales" (说书·三国演义): twenty-four tales from 184 to 263 in four books plus an epilogue, each against one of the twenty-four preset decks exactly once, with story pages in both languages over the card paintings, a battle briefing (the tale's army, the armies it suggests or your own legal deck), the enemy commander on the match intro, three seals per tale (win, no tower lost, win by the par round), progress in `user://campaign.cfg` with a reset in Settings, and the whole campaign as data in `data/campaign/campaign.json`. After the story review: factual corrections (Tongguan's Yellow River crossing, Cao Fang's age, northern Jing staying with Cao, Luoyang's years as capital, and the wording points), a separate casting note per tale shown in the briefing (who is a borrowed player; the history note keeps to history against the novel), and three UI fixes (the history note fits the map in the Classic theme, saves are atomic, and the map warns when a newer version's progress is read-only).
+
+Remaining: tune each tale's pairing and par round from human playtests (bot-against-bot win rates are a first measure: `tests/campaign_test.gd -- --bots`), difficulty settings once the bot has them, and a quiet music track for the story pages (the music player falls back to the menu theme).
+
 ## Next — Steam matches between friends
 
 - Done: GodotSteam 4.23.1 bundled; friends-only/public lobbies; join by ID, overlay invite, `+connect_lobby` and lobby browser; protocol + content-hash handshake; heartbeat and connection quality; pause, rejoin by the same Steam account, claim victory; host-left handling; concede.
