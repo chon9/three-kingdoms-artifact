@@ -363,6 +363,7 @@ func reset() -> void:
 	deployment.close()
 	fx.clear_cast()
 	log_panel.toggle(false)
+	log_panel.clear_units()
 	history.clear()
 	_turn_cue_pending = false
 	_cue_elapsed = -1.0
@@ -651,6 +652,7 @@ func _hard_sync(view: Dictionary, new_actions: Array, viewer: int) -> void:
 		# An undecided state after a result (a new match) clears the result.
 		_game_over_shown = false
 		game_over.visible = false
+	log_panel.remember_units(view)
 	log_panel.set_events(view.get("events", []))
 	if viewer != first_viewer:
 		history.clear()
@@ -753,6 +755,7 @@ func _sync_all(view: Dictionary, new_actions: Array, viewer: int, context: Dicti
 	actions = new_actions
 	if str(view.phase) == "shop" and shop.visible:
 		shop.sync(view.players[viewer], new_actions, view.players[viewer].get("finished", false), _shop_prices(view, viewer))
+	log_panel.remember_units(view)
 	log_panel.set_events(view.get("events", []))
 	_refresh_controls()
 	if animated:

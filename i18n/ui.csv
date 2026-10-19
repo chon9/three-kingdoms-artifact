@@ -798,3 +798,8 @@ CAMPAIGN_RESET_BODY,"Every tale but the first will be locked again, and your sea
 CAMPAIGN_RESET_CONFIRM,Reset,重置
 CAMPAIGN_READ_ONLY,This progress was saved by a newer version of the game and is not changed here.,此进度由更新版本的游戏保存，此处不会改动。
 CAMPAIGN_READ_ONLY_MAP,"This progress is from a newer version of the game, so results played here are not saved.",此进度来自更新版本的游戏，在此取得的战果不会保存。
+LOG_HIT,"{source} → {target}: {n} ({part})",{source} → {target}：{n}点（{part}）
+LOG_HIT_TARGET,"→ {target}: {n} damage",→ {target}：{n}点伤害
+LOG_TOWER_OF,{player}'s tower,{player}的城楼
+LOG_UNIT,{card} ({player}),{card}（{player}）
+LOG_UNKNOWN_UNIT,unit #{id},单位#{id}

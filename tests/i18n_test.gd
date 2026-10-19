@@ -23,6 +23,7 @@ func _initialize() -> void:
 	_card_text()
 	_settings()
 	_digest_independent_of_locale()
+	_hit_log_lines()
 	_fonts()
 	Settings.set_locale("en", false)
 	Settings.set_skin(Settings.DEFAULT_SKIN, false)
@@ -35,6 +36,48 @@ func _check(condition: bool, message: String) -> void:
 	checks += 1
 	if not condition:
 		failures.append(message)
+
+## The match log names every hit of a combat (attack, tower retaliate) in both
+## languages, with no placeholder or unknown unit left, from the log panel's
+## uid register.
+func _hit_log_lines() -> void:
+	var Zones = load("res://scripts/core/rules/zones.gd")
+	var LogPanel = load("res://scripts/ui/log_panel.gd")
+	var engine = MatchEngine.new()
+	engine.start(11, ["starter", "five_tigers"])
+	var lane = int(engine.state.lane)
+	var mine: Array = engine.state.lanes[lane].units[0].filter(func(u): return u != null)
+	var theirs: Array = engine.state.lanes[lane].units[1].filter(func(u): return u != null)
+	for u in mine.slice(2) + theirs.slice(1):
+		Zones.remove_from_lane(engine, u)
+	engine.state.lanes[lane].units = [[mine[0], mine[1]], [theirs[0], null]]
+	for u in [mine[0], mine[1], theirs[0]]:
+		u.arrow = 0
+	Zones.add_improvement(engine, "burning_oil", 1, lane)
+	var log = LogPanel.new()
+	log.remember_units(engine.player_view(0))
+	engine.state.active_player = 0
+	engine.apply_action(0, {"type": "pass"})
+	engine.apply_action(1, {"type": "pass"})
+	var view = engine.player_view(0)
+	log.remember_units(view)
+	log.set_events(view.events)
+	var combat: Dictionary = {}
+	for event in view.events:
+		if str(event.k) == "combat":
+			combat = event
+	_check(not combat.is_empty(), "The test combat happened")
+	for locale in LOCALES:
+		Settings.set_locale(locale, false)
+		var lines = EventFormatter.detail_lines(combat, ["A", "B"], log.units)
+		_check(lines.size() == combat.get("strikes", []).size(), "%s: one log line per combat hit" % locale)
+		var retaliate = EventFormatter.t("KEYWORD_RETALIATE")
+		var tower = EventFormatter.t("LOG_TOWER_OF", {"player": "B"})
+		_check(lines.any(func(line): return str(line).contains(retaliate) and str(line).begins_with(tower)), "%s: the tower's retaliate hit is logged from the tower" % locale)
+		for line in lines:
+			_check(not str(line).contains("{") and not str(line).contains("#"), "%s: hit line fully named: %s" % [locale, line])
+			used_text.append(str(line))
+	log.free()
 
 func _placeholders(text: String) -> Array:
 	var regex = RegEx.create_from_string("\\{(\\w+)\\}")

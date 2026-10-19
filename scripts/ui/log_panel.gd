@@ -15,6 +15,9 @@ var events: Array = []
 ## Returns the player names by player index in the current language (set by
 ## the match screen so the log matches the HUD).
 var names_source: Callable
+## uid string -> {"card", "p"} for every unit ever shown, so hit lines can name
+## units that have since died (events carry uids only).
+var units: Dictionary = {}
 ## The event line shown highlighted (an index into `events`, -1 for none).
 var highlighted: int = -1
 var _highlight_serial: int = 0
@@ -53,8 +56,27 @@ func _init() -> void:
 
 func set_events(new_events: Array) -> void:
 	events = new_events
+	for event in events:
+		if str(event.get("k", "")) == "death" and event.has("uid"):
+			units[str(int(event.uid))] = {"card": str(event.get("card", "")), "p": int(event.get("p", 0))}
 	if visible:
 		refresh_text()
+
+## Records every unit on the board and in the Fountains of `view`.
+func remember_units(view: Dictionary) -> void:
+	for lane in view.get("lanes", []):
+		for row in lane.get("units", []):
+			for unit in row:
+				if unit is Dictionary and unit.has("uid"):
+					units[str(int(unit.uid))] = {"card": str(unit.get("card", "")), "p": int(unit.get("owner", 0))}
+	for player in view.get("players", []):
+		for unit in player.get("roster", []):
+			if unit is Dictionary and unit.has("uid"):
+				units[str(int(unit.uid))] = {"card": str(unit.get("card", "")), "p": int(unit.get("owner", 0))}
+
+## Forgets the register (a new match reuses uids).
+func clear_units() -> void:
+	units.clear()
 
 func refresh_text() -> void:
 	title_label.text = UiKit.t("LOG_TITLE")
@@ -70,6 +92,8 @@ func refresh_text() -> void:
 			line = "[color=#d8b06a]%s[/color]" % line
 		elif key in ["death", "tower_fall", "ancient_fall"]:
 			line = "[color=#e58a7a]%s[/color]" % line
+		for detail in EventText.detail_lines(event, names, units):
+			line += "\n[color=#b9b2a4]    %s[/color]" % str(detail).replace("[", "[lb]")
 		if index == highlighted:
 			line = "[bgcolor=#d8b06a55]%s[/bgcolor]" % line
 		lines.append(line)
@@ -94,7 +118,7 @@ func scroll_to_event(index: int) -> void:
 		text_box.scroll_following = true
 		return
 	text_box.scroll_following = false
-	text_box.scroll_to_paragraph.call_deferred(maxi(0, highlighted - 2))
+	text_box.scroll_to_paragraph.call_deferred(maxi(0, _paragraph_of(highlighted) - 2))
 	_highlight_serial += 1
 	var serial = _highlight_serial
 	if is_inside_tree():
@@ -103,6 +127,15 @@ func scroll_to_event(index: int) -> void:
 				highlighted = -1
 				if visible:
 					refresh_text())
+
+## The paragraph that event `index` starts at: each event takes one line plus
+## one per hit detail line.
+func _paragraph_of(index: int) -> int:
+	var names: Array = names_source.call() if names_source.is_valid() else []
+	var paragraph = 0
+	for i in range(mini(index, events.size())):
+		paragraph += 1 + EventText.detail_lines(events[i], names, units).size()
+	return paragraph
 
 func toggle(show: bool) -> void:
 	visible = show

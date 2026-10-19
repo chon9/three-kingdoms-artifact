@@ -304,6 +304,43 @@ static func error_text(result: Dictionary) -> String:
 static func steam_status(code: String, args: Dictionary = {}, fallback: String = "") -> String:
 	return _coded("STEAM_", code, args, fallback)
 
+## Per-hit detail lines for the match log (empty for other events): every
+## strike of a combat or battle (attack, retaliate, cleave, siege, with the
+## damage dealt after armor) and every unit hit by spell or ability damage.
+## `units` maps a uid string to {"card", "p"} (the log panel's register, since
+## events carry uids and a dead unit can no longer be looked up).
+static func detail_lines(event: Dictionary, names: Array = [], units: Dictionary = {}) -> Array:
+	var lines: Array = []
+	match str(event.get("k", "")):
+		"combat":
+			for strike in event.get("strikes", []):
+				lines.append(_hit_line(strike[0], strike[1], int(strike[2]), str(strike[3]), names, units))
+		"battle":
+			for strike in event.get("hits", []):
+				lines.append(_hit_line(strike[0], strike[1], int(strike[2]), str(strike[3]), names, units))
+		"damage":
+			for hit in event.get("hits", []):
+				lines.append(t("LOG_HIT_TARGET", {"target": _object_name(hit[0], names, units), "n": int(hit[1])}))
+	return lines
+
+const HIT_PART_KEYS = {"attack": "STAT_ATTACK", "retaliate": "KEYWORD_RETALIATE", "cleave": "KEYWORD_CLEAVE",
+	"siege": "KEYWORD_SIEGE"}
+
+static func _hit_line(source, target, amount: int, part: String, names: Array, units: Dictionary) -> String:
+	return t("LOG_HIT", {"source": _object_name(source, names, units), "target": _object_name(target, names, units),
+		"n": amount, "part": t(HIT_PART_KEYS.get(part, "STAT_ATTACK"))})
+
+## A unit (uid) or a tower ("t<lane>_<p>") named for the log.
+static func _object_name(id, names: Array, units: Dictionary) -> String:
+	if id is String and str(id).begins_with("t"):
+		var parts = str(id).substr(1).split("_")
+		var owner = int(parts[1]) if parts.size() > 1 else 0
+		return t("LOG_TOWER_OF", {"player": _player(owner, names)})
+	var known: Dictionary = units.get(str(int(id)), {})
+	if known.is_empty():
+		return t("LOG_UNKNOWN_UNIT", {"id": int(id)})
+	return t("LOG_UNIT", {"card": Library.loc(str(known.get("card", ""))), "player": _player(known.get("p", 0), names)})
+
 ## Translated UI string `key`, with {named} placeholders filled from `args`.
 static func t(key: String, args: Dictionary = {}) -> String:
 	var text = String(TranslationServer.translate(key))
